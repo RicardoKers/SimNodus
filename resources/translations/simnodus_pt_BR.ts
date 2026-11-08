@@ -5596,6 +5596,46 @@ Permitir para este projeto neste computador? Sem isso, a rede das placas fica de
             <translation>Fechado enquanto pressionado; segure o botão do mouse sobre ele durante a execução</translation>
         </message>
         <message>
+            <source>Joystick module</source>
+            <translation>Módulo joystick</translation>
+        </message>
+        <message>
+            <source>Two-axis analog joystick module (KY-023 style): two 10 kΩ potentiometers between +5V and GND give VRx and VRy, and pushing the stick closes SW to GND; drag the stick while running, it springs back to the center</source>
+            <translation>Módulo joystick analógico de dois eixos (estilo KY-023): dois potenciômetros de 10 kΩ entre +5V e GND dão VRx e VRy, e empurrar a alavanca fecha SW com o GND; arraste a alavanca durante a simulação, ela volta ao centro</translation>
+        </message>
+        <message>
+            <source>Potentiometer resistance</source>
+            <translation>Resistência dos potenciômetros</translation>
+        </message>
+        <message>
+            <source>Resistance of each axis's potentiometer between +5V and GND</source>
+            <translation>Resistência do potenciômetro de cada eixo entre +5V e GND</translation>
+        </message>
+        <message>
+            <source>X position</source>
+            <translation>Posição X</translation>
+        </message>
+        <message>
+            <source>Stick position from left (0 %, VRx at GND) to right (100 %, VRx at +5V); 50 % is the center</source>
+            <translation>Posição da alavanca da esquerda (0 %, VRx em GND) à direita (100 %, VRx em +5V); 50 % é o centro</translation>
+        </message>
+        <message>
+            <source>Y position</source>
+            <translation>Posição Y</translation>
+        </message>
+        <message>
+            <source>Stick position from bottom (0 %, VRy at GND) to top (100 %, VRy at +5V); 50 % is the center</source>
+            <translation>Posição da alavanca de baixo (0 %, VRy em GND) para cima (100 %, VRy em +5V); 50 % é o centro</translation>
+        </message>
+        <message>
+            <source>Spring return</source>
+            <translation>Retorno por mola</translation>
+        </message>
+        <message>
+            <source>The stick goes back to the center when the mouse is released, like the real module</source>
+            <translation>A alavanca volta ao centro quando o mouse é solto, como no módulo real</translation>
+        </message>
+        <message>
             <source>Keypad 4x4</source>
             <translation>Teclado 4x4</translation>
         </message>

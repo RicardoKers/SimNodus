@@ -5,6 +5,7 @@
 //   {ref}        designator of the instance (R1)
 //   {node:NAME}  net of pin NAME
 //   {control}    node of the interactive control source
+//   {control:NAME} node of the part's further control NAME (SN-272)
 //   {ext:NAME}   node of an external source NAME of the instance, set by the
 //                simulation (microcontroller pin drivers, SN-132)
 //   {NAME}       value of parameter NAME (a number in SPICE form, or the

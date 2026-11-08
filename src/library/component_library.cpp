@@ -9,6 +9,7 @@
 #include <nlohmann/json.hpp>
 
 #include <algorithm>
+#include <cctype>
 #include <cmath>
 #include <fstream>
 #include <set>
@@ -200,6 +201,9 @@ void validate_templates(const ComponentDefinition& d)
             if (t.kind == TemplateToken::Kind::Control && !d.interactive) {
                 invalid("spice template uses {control} but the component is not interactive");
             }
+            if (t.kind == TemplateToken::Kind::Control && d.interactive && d.interactive->slot(t.text) < 0) {
+                invalid("spice template uses {control:" + t.text + "} but the part has no such control");
+            }
             if (t.kind == TemplateToken::Kind::Expression) {
                 for (const auto& name : expression_names(t.text)) {
                     if (name != "t0" && !d.parameter(name)) {
@@ -381,18 +385,79 @@ ComponentDefinition parse_definition(const json& j)
             invalid("interactive.kind must be toggle, button, potentiometer or keypad");
         }
         interactive.parameter = text(i, "parameter");
-        if (!interactive.parameter.empty() && !d.parameter(interactive.parameter)) {
-            invalid("interactive.parameter is not a parameter");
-        }
         interactive.logarithmic = i.value("scale", std::string()) == "log";
-        if (interactive.kind == Interactive::Kind::Potentiometer && !interactive.parameter.empty()) {
-            const auto* p = d.parameter(interactive.parameter);
-            if (p->unit != "%" && (!p->min || !p->max || *p->max <= *p->min)) {
-                invalid("a potentiometer's parameter needs the unit % or a min and a max");
+        const auto check_parameter = [&d](Interactive::Kind kind, const std::string& name, bool logarithmic) {
+            if (name.empty()) {
+                return;
             }
-            if (interactive.logarithmic && p->unit != "%" && *p->min <= 0) {
-                invalid("a logarithmic potentiometer's parameter needs a min above 0");
+            const auto* p = d.parameter(name);
+            if (!p) {
+                invalid("interactive parameter \"" + name + "\" is not a parameter");
             }
+            if (kind == Interactive::Kind::Potentiometer) {
+                if (p->unit != "%" && (!p->min || !p->max || *p->max <= *p->min)) {
+                    invalid("a potentiometer's parameter needs the unit % or a min and a max");
+                }
+                if (logarithmic && p->unit != "%" && *p->min <= 0) {
+                    invalid("a logarithmic potentiometer's parameter needs a min above 0");
+                }
+            }
+        };
+        check_parameter(interactive.kind, interactive.parameter, interactive.logarithmic);
+        const auto rect = [](const json& value, const std::string& what) {
+            const auto r = numbers(value, 4, what.c_str());
+            if (r.size() != 4 || r[2] <= 0 || r[3] <= 0) {
+                invalid(what + " needs x, y, width and height");
+            }
+            return std::array<double, 4>{r[0], r[1], r[2], r[3]};
+        };
+        if (i.contains("controls")) {
+            if (!i["controls"].is_array()) {
+                invalid("interactive.controls must be a list");
+            }
+            for (const auto& entry : i["controls"]) {
+                Interactive::Control control;
+                control.name = text(entry, "name", true);
+                const bool identifier = std::all_of(control.name.begin(), control.name.end(),
+                    [](char ch) { return std::isalnum(static_cast<unsigned char>(ch)) || ch == '_'; });
+                if (!identifier || interactive.slot(control.name) >= 0) {
+                    invalid("interactive control \"" + control.name + "\" needs a new name of letters, digits and _");
+                }
+                const std::string control_kind = text(entry, "kind", true);
+                if (control_kind == "toggle") {
+                    control.kind = Interactive::Kind::Toggle;
+                } else if (control_kind == "button") {
+                    control.kind = Interactive::Kind::Button;
+                } else if (control_kind == "potentiometer") {
+                    control.kind = Interactive::Kind::Potentiometer;
+                } else {
+                    invalid("interactive.controls kind must be toggle, button or potentiometer");
+                }
+                control.parameter = text(entry, "parameter");
+                control.logarithmic = entry.value("scale", std::string()) == "log";
+                check_parameter(control.kind, control.parameter, control.logarithmic);
+                if (entry.contains("area")) {
+                    control.area = rect(entry["area"], "interactive control " + control.name + " area");
+                }
+                interactive.controls.push_back(control);
+            }
+        }
+        if (i.contains("stick")) {
+            const auto& s = i["stick"];
+            Interactive::Stick stick;
+            stick.area = rect(s.value("area", json()), "interactive.stick.area");
+            stick.y = text(s, "y", true);
+            stick.spring = s.value("spring", true);
+            stick.spring_parameter = text(s, "spring_parameter");
+            if (!stick.spring_parameter.empty() && !d.parameter(stick.spring_parameter)) {
+                invalid("interactive.stick.spring_parameter is not a parameter");
+            }
+            const int y = interactive.slot(stick.y);
+            if (interactive.kind != Interactive::Kind::Potentiometer || y <= 0
+                || interactive.slot_kind(y) != Interactive::Kind::Potentiometer) {
+                invalid("a stick needs a potentiometer first and a potentiometer control named by y");
+            }
+            interactive.stick = stick;
         }
         if (i.contains("wiper")) {
             const auto& w = i["wiper"];
@@ -800,6 +865,34 @@ void ComponentLibrary::add_models(const std::vector<SpiceModel>& models)
             models_.push_back(m);
         }
     }
+}
+
+int Interactive::slot(std::string_view name) const
+{
+    if (name.empty()) {
+        return 0;
+    }
+    for (std::size_t i = 0; i < controls.size(); ++i) {
+        if (controls[i].name == name) {
+            return static_cast<int>(i) + 1;
+        }
+    }
+    return -1;
+}
+
+Interactive::Kind Interactive::slot_kind(int slot) const
+{
+    return slot <= 0 || slot > static_cast<int>(controls.size()) ? kind : controls[slot - 1].kind;
+}
+
+const std::string& Interactive::slot_parameter(int slot) const
+{
+    return slot <= 0 || slot > static_cast<int>(controls.size()) ? parameter : controls[slot - 1].parameter;
+}
+
+bool Interactive::slot_logarithmic(int slot) const
+{
+    return slot <= 0 || slot > static_cast<int>(controls.size()) ? logarithmic : controls[slot - 1].logarithmic;
 }
 
 double potentiometer_control(const Parameter& parameter, bool logarithmic, double value)

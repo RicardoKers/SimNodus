@@ -253,6 +253,8 @@ void SchematicView::set_running(bool running)
     }
     held_button_ = model::no_id;
     pot_drag_ = model::no_id;
+    stick_drag_ = model::no_id;
+    held_slot_ = 0;
 }
 
 void SchematicView::set_tool(Tool tool)
@@ -617,6 +619,41 @@ bool SchematicView::handle_control_press(model::Id id, const QPointF& scene_poin
     if (!d || !d->interactive) {
         return false;
     }
+    {
+        // Further controls with an area (SN-272: a joystick's push switch) and a
+        // stick (SN-273) are worked where they are drawn on the symbol.
+        QPointF local = scene_->item_of(id)->mapFromScene(scene_point) / scene_grid;
+        QTransform orientation;
+        orientation.rotate(c->orientation.rotation);
+        orientation.scale(c->orientation.mirrored ? -1 : 1, 1);
+        local = orientation.inverted().map(local);
+        const auto& controls = d->interactive->controls;
+        for (std::size_t i = 0; i < controls.size(); ++i) {
+            const auto& area = controls[i].area;
+            const int slot = static_cast<int>(i) + 1;
+            if (!area || !QRectF((*area)[0], (*area)[1], (*area)[2], (*area)[3]).contains(local)) {
+                continue;
+            }
+            if (controls[i].kind == library::Interactive::Kind::Button) {
+                held_button_ = id;
+                held_slot_ = slot;
+                emit control_changed(id, 1.0, slot);
+                return true;
+            }
+            if (controls[i].kind == library::Interactive::Kind::Toggle) {
+                const auto& more = scene_->live().more_controls;
+                const auto now = more.find({id, slot});
+                emit control_changed(id, now != more.end() && now->second >= 0.5 ? 0.0 : 1.0, slot);
+                return true;
+            }
+        }
+        if (const auto& stick = d->interactive->stick) {
+            // The stick moves anywhere on the symbol: the knob follows the mouse.
+            stick_drag_ = id;
+            move_stick(scene_point);
+            return true;
+        }
+    }
     if (d->interactive->kind == library::Interactive::Kind::Keypad) {
         // The key under the mouse, held until the button is released.
         QPointF local = scene_->item_of(id)->mapFromScene(scene_point) / scene_grid;
@@ -671,9 +708,31 @@ bool SchematicView::handle_control_press(model::Id id, const QPointF& scene_poin
     return true;
 }
 
+void SchematicView::move_stick(const QPointF& scene_point)
+{
+    const auto* c = scene_ ? scene_->document().schematic().component(stick_drag_) : nullptr;
+    const auto* d = c ? scene_->library().find(c->type) : nullptr;
+    if (!d || !d->interactive || !d->interactive->stick) {
+        return;
+    }
+    QPointF local = scene_->item_of(stick_drag_)->mapFromScene(scene_point) / scene_grid;
+    QTransform orientation;
+    orientation.rotate(c->orientation.rotation);
+    orientation.scale(c->orientation.mirrored ? -1 : 1, 1);
+    local = orientation.inverted().map(local);
+    const auto& stick = *d->interactive->stick;
+    // The area's edges are the ends of travel; its center is the rest position.
+    const double x = std::clamp((local.x() - stick.area[0]) / stick.area[2], 0.0, 1.0);
+    const double y = std::clamp(1.0 - (local.y() - stick.area[1]) / stick.area[3], 0.0, 1.0);
+    emit control_changed(stick_drag_, x, 0);
+    emit control_changed(stick_drag_, y, d->interactive->slot(stick.y));
+}
+
 void SchematicView::wheelEvent(QWheelEvent* event)
 {
-    const double steps = event->angleDelta().y() / 120.0;
+    // Shift may turn the wheel sideways (Windows, macOS): take whichever moved.
+    const bool shift = event->modifiers() & Qt::ShiftModifier;
+    const double steps = (event->angleDelta().y() != 0 ? event->angleDelta().y() : shift ? event->angleDelta().x() : 0) / 120.0;
     if (steps == 0.0) {
         QGraphicsView::wheelEvent(event);
         return;
@@ -683,11 +742,28 @@ void SchematicView::wheelEvent(QWheelEvent* event)
         const model::Id id = scene_->element_at(mapToScene(event->position().toPoint()));
         const auto* c = scene_->document().schematic().component(id);
         const auto* d = c ? scene_->library().find(c->type) : nullptr;
-        if (d && d->interactive && d->interactive->kind == library::Interactive::Kind::Potentiometer) {
+        // With Shift, the wheel turns a part's first further potentiometer (SN-272:
+        // a solar module's temperature, a joystick's y).
+        int slot = 0;
+        if (shift && d && d->interactive) {
+            for (int s = 1; s < d->interactive->slot_count(); ++s) {
+                if (d->interactive->slot_kind(s) == library::Interactive::Kind::Potentiometer) {
+                    slot = s;
+                    break;
+                }
+            }
+        }
+        if (d && d->interactive && d->interactive->slot_kind(slot) == library::Interactive::Kind::Potentiometer) {
             const auto& live = scene_->live();
-            const auto it = live.controls.find(id);
-            const double value = it == live.controls.end() ? 0.5 : it->second;
-            emit control_changed(id, std::clamp(value + steps * 0.05, 0.0, 1.0));
+            double value = 0.5;
+            if (slot == 0) {
+                const auto it = live.controls.find(id);
+                value = it == live.controls.end() ? 0.5 : it->second;
+            } else {
+                const auto it = live.more_controls.find({id, slot});
+                value = it == live.more_controls.end() ? 0.5 : it->second;
+            }
+            emit control_changed(id, std::clamp(value + steps * 0.05, 0.0, 1.0), slot);
             event->accept();
             return;
         }
@@ -845,6 +921,11 @@ void SchematicView::mouseMoveEvent(QMouseEvent* event)
         return;
     }
     const model::Point at = grid_at(position);
+    if (stick_drag_) {
+        move_stick(mapToScene(position));
+        event->accept();
+        return;
+    }
     if (pot_drag_) {
         // Moving along the track (pot_direction_) turns the wiper the same way; 200 px is the full range.
         const QPointF moved = position - pot_start_point_;
@@ -913,8 +994,26 @@ void SchematicView::mouseReleaseEvent(QMouseEvent* event)
         return;
     }
     if (held_button_) {
-        emit control_changed(held_button_, 0.0);
+        emit control_changed(held_button_, 0.0, held_slot_);
         held_button_ = model::no_id;
+        held_slot_ = 0;
+        event->accept();
+        return;
+    }
+    if (stick_drag_) {
+        const auto* c = scene_ ? scene_->document().schematic().component(stick_drag_) : nullptr;
+        const auto* d = c ? scene_->library().find(c->type) : nullptr;
+        bool spring = d && d->interactive && d->interactive->stick && d->interactive->stick->spring;
+        if (spring && !d->interactive->stick->spring_parameter.empty()) {
+            const auto it = c->parameters.find(d->interactive->stick->spring_parameter);
+            spring = it == c->parameters.end() || it->second != "no";
+        }
+        if (spring) {
+            // Released, a sprung stick goes back to the center.
+            emit control_changed(stick_drag_, 0.5, 0);
+            emit control_changed(stick_drag_, 0.5, d->interactive->slot(d->interactive->stick->y));
+        }
+        stick_drag_ = model::no_id;
         event->accept();
         return;
     }

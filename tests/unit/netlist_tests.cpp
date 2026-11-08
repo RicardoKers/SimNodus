@@ -6,6 +6,7 @@
 #include "netlist/netlist.hpp"
 
 #include <algorithm>
+#include <cmath>
 
 using namespace simnodus;
 using namespace simnodus::model;
@@ -325,6 +326,26 @@ TEST_CASE("interactive parts get external control sources")
     n = netlist::generate_netlist(b.schematic, lib, {false, 0.0, {}});
     CHECK(std::find(n.lines.begin(), n.lines.end(), "V_ctl_SW1 ctl_SW1 0 DC 0") != n.lines.end());
     CHECK(std::find(n.lines.begin(), n.lines.end(), "V_ctl_RV1 ctl_RV1 0 DC 0.25") != n.lines.end());
+}
+
+TEST_CASE("a part with several controls gets a control source for each (SN-272)")
+{
+    const auto lib = load();
+    test::CircuitBuilder b(lib);
+    const Id js = b.add("joystick_ky023", {{"GND", "0"}, {"+5V", "VCC"}, {"VRx", "X"}, {"VRy", "Y"}, {"SW", "S"}},
+                        {{"x", "20"}, {"y", "70"}});
+    b.add("vdc", {{"+", "VCC"}, {"-", "0"}});
+    auto n = netlist::generate_netlist(b.schematic, lib);
+    REQUIRE(n.controls.size() == 3);
+    CHECK(n.controls[0].component == js);
+    CHECK(n.controls[0].slot == 0);
+    CHECK(std::abs(n.controls[0].initial - 0.2) < 1e-9);
+    CHECK(n.controls[1].slot == 1);
+    CHECK(n.controls[1].source == "V_ctl_JS1_y");
+    CHECK(std::abs(n.controls[1].initial - 0.7) < 1e-9);
+    CHECK(n.controls[2].source == "V_ctl_JS1_press");
+    CHECK(n.controls[2].initial == 0.0);
+    CHECK(std::find(n.lines.begin(), n.lines.end(), "S_JS1 S 0 ctl_JS1_press 0 SW_JS") != n.lines.end());
 }
 
 TEST_CASE("periodic sources keep their phase across segments")

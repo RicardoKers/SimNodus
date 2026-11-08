@@ -1,0 +1,89 @@
+{
+  "type": "joystick_ky023",
+  "name": "Joystick module",
+  "category": "Switches & Controls",
+  "prefix": "JS",
+  "description": "Two-axis analog joystick module (KY-023 style): two 10 kΩ potentiometers between +5V and GND give VRx and VRy, and pushing the stick closes SW to GND; drag the stick while running, it springs back to the center",
+  "symbol": {
+    "graphics": [
+      { "rect": [-6, -7, 12, 13] },
+      { "circle": [-1, -2.5, 3.6] },
+      { "line": [-4.6, -2.5, 2.6, -2.5] },
+      { "line": [-1, -6.1, -1, 1.1] },
+      { "rect": [3.2, -6.6, 2.4, 2.4] },
+      { "text": "SW", "at": [4.4, -5.4], "size": 0.8 },
+      { "text": "GND", "at": [-4, 4.6], "size": 0.65 },
+      { "text": "+5V", "at": [-2, 4.6], "size": 0.65 },
+      { "text": "VRx", "at": [0, 4.6], "size": 0.65 },
+      { "text": "VRy", "at": [2, 4.6], "size": 0.65 },
+      { "text": "SW", "at": [4, 4.6], "size": 0.65 },
+      { "line": [-4, 6, -4, 8] },
+      { "line": [-2, 6, -2, 8] },
+      { "line": [0, 6, 0, 8] },
+      { "line": [2, 6, 2, 8] },
+      { "line": [4, 6, 4, 8] }
+    ],
+    "pins": [
+      { "name": "GND", "at": [-4, 8], "dir": "down" },
+      { "name": "+5V", "at": [-2, 8], "dir": "down" },
+      { "name": "VRx", "at": [0, 8], "dir": "down" },
+      { "name": "VRy", "at": [2, 8], "dir": "down" },
+      { "name": "SW", "at": [4, 8], "dir": "down" }
+    ]
+  },
+  "designator_offset": [7, -6],
+  "parameters": [
+    {
+      "name": "R",
+      "label": "Potentiometer resistance",
+      "unit": "Ohm",
+      "default": "10k",
+      "description": "Resistance of each axis's potentiometer between +5V and GND",
+      "min": "100",
+      "max": "1M"
+    },
+    {
+      "name": "x",
+      "label": "X position",
+      "unit": "%",
+      "default": "50",
+      "description": "Stick position from left (0 %, VRx at GND) to right (100 %, VRx at +5V); 50 % is the center",
+      "min": "0",
+      "max": "100"
+    },
+    {
+      "name": "y",
+      "label": "Y position",
+      "unit": "%",
+      "default": "50",
+      "description": "Stick position from bottom (0 %, VRy at GND) to top (100 %, VRy at +5V); 50 % is the center",
+      "min": "0",
+      "max": "100"
+    },
+    {
+      "name": "spring",
+      "label": "Spring return",
+      "unit": "",
+      "default": "yes",
+      "choices": ["yes", "no"],
+      "description": "The stick goes back to the center when the mouse is released, like the real module"
+    }
+  ],
+  "interactive": {
+    "kind": "potentiometer",
+    "parameter": "x",
+    "controls": [
+      { "name": "y", "kind": "potentiometer", "parameter": "y" },
+      { "name": "press", "kind": "button", "area": [3.2, -6.6, 2.4, 2.4] }
+    ],
+    "stick": { "area": [-4.6, -6.1, 7.2, 7.2], "y": "y", "spring_parameter": "spring" }
+  },
+  "models": [".model SW_JS SW(VT=0.5 VH=0.1 RON=0.01 ROFF=1e15)"],
+  "spice": [
+    "B_{ref}_xa {node:+5V} {node:VRx} I=V({node:+5V},{node:VRx})/({R}*max(1-V({control}),0.001))",
+    "B_{ref}_xb {node:VRx} {node:GND} I=V({node:VRx},{node:GND})/({R}*max(V({control}),0.001))",
+    "B_{ref}_ya {node:+5V} {node:VRy} I=V({node:+5V},{node:VRy})/({R}*max(1-V({control:y}),0.001))",
+    "B_{ref}_yb {node:VRy} {node:GND} I=V({node:VRy},{node:GND})/({R}*max(V({control:y}),0.001))",
+    "S_{ref} {node:SW} {node:GND} {control:press} 0 SW_JS"
+  ]
+}

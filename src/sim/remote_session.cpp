@@ -151,23 +151,24 @@ void RemoteSession::set_speed(double speed)
     }
 }
 
-void RemoteSession::set_control(model::Id component, double value)
+void RemoteSession::set_control(model::Id component, double value, int slot)
 {
     // Only the editor changes controls, so its value is the current one at once.
-    if (controls_.count(component)) {
-        controls_[component] = value;
+    if (controls_.count({component, slot})) {
+        controls_[{component, slot}] = value;
     }
     if (engine_run_) {
         Writer w(Type::Control);
         w.u64(component);
+        w.u32(static_cast<std::uint32_t>(slot));
         w.f64(value);
         link_.send(w.payload());
     }
 }
 
-std::optional<double> RemoteSession::control(model::Id component) const
+std::optional<double> RemoteSession::control(model::Id component, int slot) const
 {
-    const auto it = controls_.find(component);
+    const auto it = controls_.find({component, slot});
     return it == controls_.end() ? std::nullopt : std::optional<double>(it->second);
 }
 
@@ -352,13 +353,14 @@ void RemoteSession::apply_update(Reader& r)
         auto name = r.str();
         latest[name] = r.f64();
     }
-    for (std::size_t n = r.size(17); n > 0; --n) {
+    for (std::size_t n = r.size(21); n > 0; --n) {
         const model::Id id = r.u64();
+        const int slot = static_cast<int>(r.u32());
         const bool has = r.boolean();
         const double value = r.f64();
         // The engine's value is the starting one; later ones come from here.
-        if (has && !controls_.count(id)) {
-            controls_[id] = value;
+        if (has && !controls_.count({id, slot})) {
+            controls_[{id, slot}] = value;
         }
     }
     for (std::size_t n = r.size(8); n > 0; --n) {

@@ -339,6 +339,44 @@ TEST_CASE("the built-in models cover the semiconductor parts")
     CHECK(library.models().size() >= 20);
 }
 
+TEST_CASE("a part may have several named controls and a stick (SN-272, SN-273)")
+{
+    ComponentLibrary library;
+    library.load_directory(SIMNODUS_TEST_LIBRARY_DIR);
+    const auto* d = library.find("joystick_ky023");
+    REQUIRE(d != nullptr && d->interactive.has_value());
+    const auto& i = *d->interactive;
+    CHECK(i.slot_count() == 3);
+    CHECK(i.slot("") == 0);
+    CHECK(i.slot("y") == 1);
+    CHECK(i.slot("press") == 2);
+    CHECK(i.slot("z") == -1);
+    CHECK(i.slot_kind(2) == library::Interactive::Kind::Button);
+    CHECK(i.slot_parameter(1) == "y");
+    REQUIRE(i.stick.has_value());
+    CHECK(i.stick->y == "y");
+    CHECK(i.controls[1].area.has_value());
+    // {control:NAME} must name one of the part's controls.
+    const std::string part = R"j({"type": "t", "name": "T", "category": "Passive", "prefix": "T",
+        "symbol": {"graphics": [{"line": [0, -3, 0, 3]}],
+                   "pins": [{"name": "1", "at": [0, -3], "dir": "up"}, {"name": "2", "at": [0, 3], "dir": "down"}]},
+        "parameters": [{"name": "a", "label": "A", "unit": "%", "default": "50"}],
+        "interactive": {"kind": "potentiometer", "parameter": "a", "controls": [{"name": "b", "kind": "button"}]},
+        "spice": ["R_{ref} {node:1} {node:2} 1k", "B_{ref} 0 {node:2} I=V({control:NAME})"]})j";
+    auto with = [&](const std::string& name) {
+        std::string text = part;
+        text.replace(text.find("NAME"), 4, name);
+        return text;
+    };
+    ComponentLibrary scratch;
+    const auto error = scratch.add_from_json(with("b"));
+    CHECK(!error.has_value());
+    if (error) {
+        std::printf("    %s\n", error->c_str());
+    }
+    CHECK(scratch.add_from_json(with("c")).has_value());
+}
+
 TEST_CASE("the potentiometer's wiper moves along its track")
 {
     ComponentLibrary library;

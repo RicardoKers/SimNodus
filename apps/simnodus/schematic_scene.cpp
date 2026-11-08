@@ -260,6 +260,66 @@ public:
         return std::clamp(value.value_or(50.0) / 100.0, 0.0, 1.0);
     }
 
+    // A control's value 0..1 (SN-272): the live one while running, else from its
+    // parameter (a potentiometer's position, a toggle's last choice); 0.5 for none.
+    double control_value(int slot) const
+    {
+        const auto& interactive = *definition_->interactive;
+        const auto& live = scene_.live();
+        if (live.running) {
+            if (slot == 0) {
+                if (const auto it = live.controls.find(component_.id); it != live.controls.end()) {
+                    return it->second;
+                }
+            } else if (const auto it = live.more_controls.find({component_.id, slot}); it != live.more_controls.end()) {
+                return it->second;
+            }
+        }
+        const auto* p = definition_->parameter(interactive.slot_parameter(slot));
+        if (!p) {
+            return interactive.slot_kind(slot) == library::Interactive::Kind::Potentiometer ? 0.5 : 0.0;
+        }
+        const auto it = component_.parameters.find(p->name);
+        const std::string text = it == component_.parameters.end() ? p->default_value : it->second;
+        if (!p->choices.empty()) {
+            return text == p->choices.back() ? 1.0 : 0.0;
+        }
+        const auto value = model::parse_engineering(text, p->unit);
+        return library::potentiometer_control(*p, interactive.slot_logarithmic(slot), value.value_or(0.0));
+    }
+
+    // A stick's knob at its x and y, and further controls' areas lit while on
+    // (SN-273: the joystick's push switch); symbol coordinates.
+    void paint_controls(QPainter& painter, const QColor& ink) const
+    {
+        const auto& interactive = *definition_->interactive;
+        for (std::size_t i = 0; i < interactive.controls.size(); ++i) {
+            const auto& area = interactive.controls[i].area;
+            if (area && control_value(static_cast<int>(i) + 1) >= 0.5) {
+                QColor fill = theme::selection;
+                fill.setAlphaF(0.35f);
+                painter.setPen(Qt::NoPen);
+                painter.setBrush(fill);
+                painter.drawRect(QRectF((*area)[0], (*area)[1], (*area)[2], (*area)[3]));
+            }
+        }
+        if (const auto& stick = interactive.stick) {
+            const auto& a = stick->area;
+            const double x = std::clamp(control_value(0), 0.0, 1.0);
+            const double y = std::clamp(control_value(interactive.slot(stick->y)), 0.0, 1.0);
+            const QPointF center(a[0] + a[2] / 2, a[1] + a[3] / 2);
+            const QPointF knob(a[0] + x * a[2], a[1] + (1.0 - y) * a[3]);
+            const double radius = std::min(a[2], a[3]) * 0.22;
+            painter.setPen(QPen(ink, 0.12));
+            painter.setBrush(Qt::NoBrush);
+            painter.drawLine(center, knob);
+            QColor cap = ink;
+            cap.setAlphaF(0.25f);
+            painter.setBrush(cap);
+            painter.drawEllipse(knob, radius, radius);
+        }
+    }
+
     // Percentage next to the wiper, upright whatever the symbol's orientation.
     QRectF wiper_text_rect(QString* text = nullptr) const
     {
@@ -388,6 +448,9 @@ public:
             painter->drawEllipse(QPointF(0, 0), radius, radius);
         }
         paint_symbol(*painter, *definition_, style);
+        if (definition_->interactive && (definition_->interactive->stick || !definition_->interactive->controls.empty())) {
+            paint_controls(*painter, ink);
+        }
         if (definition_->mcu && live.running && !ghost_) {
             paint_mcu(*painter, live);
         }

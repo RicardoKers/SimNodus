@@ -19,6 +19,7 @@
 #include <memory>
 #include <optional>
 #include <string>
+#include <string_view>
 #include <utility>
 #include <vector>
 
@@ -206,6 +207,39 @@ struct Interactive {
     // parameter with a unit other than % and a min and max goes from min (0) to
     // max (1), on a logarithmic scale when `logarithmic` (light from 0.1 to 100k lux).
     bool logarithmic = false;
+    // Further live controls of the same part (SN-272), read in the template as
+    // {control:NAME}: toggles, buttons and potentiometers with the same values
+    // as the first control. Control slot 0 is the first control, slot i + 1 is
+    // controls[i]. A toggle or button with an `area` (x, y, width, height in
+    // symbol coordinates) is worked by a click inside it; potentiometers by the
+    // stick, by Shift with the wheel (the first of them) or by sim.control.
+    struct Control {
+        std::string name;
+        Kind kind = Kind::Button;
+        std::string parameter;
+        bool logarithmic = false;
+        std::optional<std::array<double, 4>> area;
+    };
+    std::vector<Control> controls;
+    // A two-axis stick (SN-273): dragging inside `area` moves the first control
+    // (x, 0 at the left, 1 at the right) and the potentiometer named `y` (0 at
+    // the bottom, 1 at the top) together; with `spring` both go back to 0.5
+    // when the mouse is released.
+    struct Stick {
+        std::array<double, 4> area{};
+        std::string y;
+        bool spring = true;
+        std::string spring_parameter; // a yes/no parameter that may turn the spring off per part
+    };
+    std::optional<Stick> stick;
+
+    // The slot of the control named `name` ("" for the first), or -1.
+    int slot(std::string_view name) const;
+    // The control at `slot`: kind, parameter and scale (slot 0 is the first control).
+    Kind slot_kind(int slot) const;
+    const std::string& slot_parameter(int slot) const;
+    bool slot_logarithmic(int slot) const;
+    int slot_count() const { return 1 + static_cast<int>(controls.size()); }
 };
 
 // The control value (0..1) of a potentiometer whose parameter has `value`.

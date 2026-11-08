@@ -48,7 +48,8 @@ void EngineServer::handle(const std::string& payload)
         break;
     case Type::Control: {
         const model::Id id = r.u64();
-        session_.set_control(id, r.f64());
+        const int slot = static_cast<int>(r.u32());
+        session_.set_control(id, r.f64(), slot);
         break;
     }
     case Type::McuReset:
@@ -149,8 +150,9 @@ void EngineServer::publish(bool force)
     const auto& controls = session_.netlist().controls;
     w.size(controls.size());
     for (const auto& c : controls) {
-        const auto value = session_.control(c.component);
+        const auto value = session_.control(c.component, c.slot);
         w.u64(c.component);
+        w.u32(static_cast<std::uint32_t>(c.slot));
         w.boolean(value.has_value());
         w.f64(value.value_or(0.0));
     }

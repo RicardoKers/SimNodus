@@ -1,0 +1,222 @@
+{
+  "buses": [],
+  "components": [
+    {
+      "at": [
+        0,
+        0
+      ],
+      "designator": "U1",
+      "id": 1,
+      "mirrored": false,
+      "parameters": {
+        "firmware": "firmware/joystick/joystick.elf"
+      },
+      "rotation": 0,
+      "type": "bluepill"
+    },
+    {
+      "at": [
+        -9,
+        17
+      ],
+      "designator": "GND1",
+      "id": 2,
+      "mirrored": false,
+      "parameters": {},
+      "rotation": 0,
+      "type": "ground"
+    },
+    {
+      "at": [
+        24,
+        -16
+      ],
+      "designator": "JS1",
+      "id": 3,
+      "mirrored": false,
+      "parameters": {
+        "R": "10k",
+        "spring": "yes",
+        "x": "50",
+        "y": "50"
+      },
+      "rotation": 0,
+      "type": "joystick_ky023"
+    },
+    {
+      "at": [
+        20,
+        -8
+      ],
+      "designator": "GND2",
+      "id": 4,
+      "mirrored": false,
+      "parameters": {},
+      "rotation": 0,
+      "type": "ground"
+    }
+  ],
+  "format": "simnodus-project",
+  "labels": [
+    {
+      "at": [
+        24,
+        0
+      ],
+      "id": 9,
+      "name": "VRX"
+    },
+    {
+      "at": [
+        26,
+        2
+      ],
+      "id": 10,
+      "name": "VRY"
+    },
+    {
+      "at": [
+        28,
+        -5
+      ],
+      "id": 11,
+      "name": "SW"
+    }
+  ],
+  "next_id": 16,
+  "notes": [
+    {
+      "at": [
+        -30,
+        -26
+      ],
+      "id": 15,
+      "text": "Joystick module (KY-023 style) on a Blue Pill.\nThe module runs from 3.3 V: the Blue Pill's analog inputs do not take 5 V.\nWhile running, drag the stick (it springs back to the center), click the SW square to push it,\nor use the wheel (X) and Shift with the wheel (Y).\nAnalyzer > UART: \"X <code> Y <code> SW <0|1> <direction>\" every 200 ms; the board's LED lights while SW is pushed."
+    }
+  ],
+  "probes": [
+    {
+      "color": "",
+      "id": 12,
+      "kind": "voltage",
+      "target": {
+        "at": [
+          9,
+          11
+        ],
+        "item": 1,
+        "pin": "PA0"
+      }
+    },
+    {
+      "color": "",
+      "id": 13,
+      "kind": "voltage",
+      "target": {
+        "at": [
+          9,
+          9
+        ],
+        "item": 1,
+        "pin": "PA1"
+      }
+    },
+    {
+      "color": "",
+      "id": 14,
+      "kind": "voltage",
+      "target": {
+        "at": [
+          9,
+          -5
+        ],
+        "item": 1,
+        "pin": "PB0"
+      }
+    }
+  ],
+  "settings": {
+    "cortex_m3_timing": true,
+    "exact_edges": false,
+    "max_step": 0.0001,
+    "mcu_quantum": 0.001,
+    "mode": "interactive",
+    "segment": 1.0,
+    "speed": 1.0,
+    "transient_max_step": 1e-06,
+    "transient_stop": 0.01
+  },
+  "splitters": [],
+  "version": 1,
+  "wires": [
+    {
+      "id": 5,
+      "points": [
+        [
+          22,
+          -8
+        ],
+        [
+          22,
+          -15
+        ],
+        [
+          9,
+          -15
+        ]
+      ]
+    },
+    {
+      "id": 6,
+      "points": [
+        [
+          24,
+          -8
+        ],
+        [
+          24,
+          11
+        ],
+        [
+          9,
+          11
+        ]
+      ]
+    },
+    {
+      "id": 7,
+      "points": [
+        [
+          26,
+          -8
+        ],
+        [
+          26,
+          9
+        ],
+        [
+          9,
+          9
+        ]
+      ]
+    },
+    {
+      "id": 8,
+      "points": [
+        [
+          28,
+          -8
+        ],
+        [
+          28,
+          -5
+        ],
+        [
+          9,
+          -5
+        ]
+      ]
+    }
+  ]
+}

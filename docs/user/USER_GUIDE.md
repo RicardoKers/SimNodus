@@ -99,7 +99,7 @@ invalid value is outlined in red and not applied.
 |---|---|
 | **Passive** | Resistor, capacitor, inductor (ideal); potentiometer; transformer (primary P1-P2, secondary S1-S2) |
 | **Sources** | DC voltage source, battery (with internal resistance), DC current source (out of +), adjustable voltage and current sources (turned while running between a lower and an upper limit), voltage- and current-controlled voltage and current sources (VCVS, VCCS, CCVS, CCCS), pulse generator, sine generator, ground |
-| **Switches & Controls** | SPST switch, SPDT changeover switch, push buttons NO (closed while pressed) and NC (open while pressed) with optional contact bounce; 4x4 matrix keypad |
+| **Switches & Controls** | SPST switch, SPDT changeover switch, push buttons NO (closed while pressed) and NC (open while pressed) with optional contact bounce; 4x4 matrix keypad; two-axis joystick module |
 | **Instruments** | Voltmeter (1 GΩ input), ammeter (ideal; current into +) |
 | **Semiconductors** | Diode (silicon), Schottky, germanium, Zener, LED (glows with its current, color selectable), NPN and PNP transistors, N- and P-channel MOSFETs (body tied to source) |
 | **Simplified models** | Teaching models: diode with a fixed forward voltage; NPN and PNP with fixed Vbe, a beta shown on the symbol and a saturation voltage |
@@ -148,6 +148,14 @@ Notes on some parts:
 - **Keypad 4x4:** while running, hold the mouse on a key: it joins its row
   (R1-R4) to its column (C1-C4) until you release it. One key at a time.
   Example 30 scans it with a Blue Pill.
+- **Joystick module:** like the KY-023, two 10 kΩ potentiometers between
+  +5V and GND give VRx and VRy, and pushing the stick closes SW to GND (add
+  a pull-up, or the board's internal one). While running, drag the stick:
+  the knob follows the mouse on both axes (right and up raise VRx and VRy)
+  and springs back to the center when you release it (Properties > Spring
+  return turns that off); click the SW square to push it. The wheel moves X
+  and Shift with the wheel moves Y. On a 3.3 V board power the module from
+  3.3 V. Example 61 reads it with a Blue Pill.
 - **Controlled sources:** the control pins C+ and C- are on the left. A
   voltage-controlled source only senses the voltage between them (1 GΩ); a
   current-controlled source senses the current flowing from C+ to C-, so

@@ -110,6 +110,41 @@ TEST_CASE("session: a potentiometer and a closed switch start where their parame
     session.stop();
 }
 
+TEST_CASE("session: a joystick's axes and push switch are separate controls (SN-272, SN-273)")
+{
+    REQUIRE(test::engine() != nullptr);
+    test::CircuitBuilder b(components());
+    b.add("vdc", {{"+", "VCC"}, {"-", "0"}}, {{"V", "5"}});
+    const model::Id js = b.add("joystick_ky023", {{"GND", "0"}, {"+5V", "VCC"}, {"VRx", "X"}, {"VRy", "Y"}, {"SW", "S"}},
+                               {{"x", "25"}, {"y", "75"}});
+    b.add("resistor", {{"1", "VCC"}, {"2", "S"}}, {{"R", "10k"}}); // the board's pull-up
+    auto settings = b.schematic.settings();
+    settings.speed = 0.0;
+    b.schematic.set_settings(settings);
+    sim::RunRequest request;
+    request.schematic = b.schematic;
+    request.library = &components();
+    request.vectors = {"X", "Y", "S"};
+    sim::SimulationSession session;
+    std::string error;
+    REQUIRE(session.start(request, error));
+    REQUIRE(wait_for_time(session, 0.05));
+    CHECK(std::abs(session.latest("x").value_or(-1) - 1.25) < 1e-3);
+    CHECK(std::abs(session.latest("y").value_or(-1) - 3.75) < 1e-3);
+    CHECK(std::abs(session.latest("s").value_or(-1) - 5.0) < 1e-2);
+    CHECK(std::abs(session.control(js, 1).value_or(-1) - 0.75) < 1e-9);
+    CHECK(!session.control(js, 3).has_value());
+    session.set_control(js, 1.0, 0); // right
+    session.set_control(js, 0.0, 1); // bottom
+    session.set_control(js, 1.0, 2); // pushed
+    const double changed_at = session.status().sim_time;
+    REQUIRE(wait_for_time(session, changed_at + 0.05));
+    CHECK(session.latest("x").value_or(-1) > 4.99);
+    CHECK(session.latest("y").value_or(-1) < 0.01);
+    CHECK(session.latest("s").value_or(-1) < 0.01);
+    session.stop();
+}
+
 TEST_CASE("session: a button charges the capacitor in an interactive run")
 {
     REQUIRE(test::engine() != nullptr);
