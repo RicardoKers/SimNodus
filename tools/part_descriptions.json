@@ -6,7 +6,7 @@
   "decoder_hex_cc": "4-bit decoder showing 0-9 and A-F on a common-cathode display",
   "seven_segment_ca": "7-segment LED display, common anode, real pinout; one resistor per segment",
   "seven_segment_cc": "7-segment LED display, common cathode, real pinout; one resistor per segment",
-  "dcmotor": "Small permanent-magnet DC motor without load; shows its speed",
+  "dcmotor": "Small permanent-magnet DC motor with an adjustable load; shows its speed",
   "relay": "Relay with a coil and a changeover contact; add a flyback diode across the coil",
   "opamp": "Operational amplifier (behavioral or a vendor model), powered by V+ and V-",
   "and_gate": "Two-input AND gate (74HC-like, hidden supply VDD)",

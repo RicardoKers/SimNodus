@@ -3,7 +3,7 @@
   "name": "DC motor",
   "category": "Electromechanical",
   "prefix": "M",
-  "description": "Small permanent-magnet DC motor without load; shows its speed",
+  "description": "Small permanent-magnet DC motor with an adjustable load; shows its speed",
   "symbol": {
     "graphics": [
       {
@@ -110,8 +110,30 @@
       "description": "Current at the rated voltage without load (sets the friction)",
       "min": "100u",
       "max": "10"
+    },
+    {
+      "name": "tm",
+      "label": "Mechanical time constant",
+      "unit": "s",
+      "default": "50m",
+      "description": "Time to reach 63 % of the speed from rest with the shaft free; sets the inertia of the rotor and what it drives",
+      "min": "1m",
+      "max": "10"
+    },
+    {
+      "name": "load",
+      "label": "Load",
+      "unit": "%",
+      "default": "0",
+      "description": "Load torque on the shaft as a share of the stall torque; drag the part or use the wheel while running",
+      "min": "0",
+      "max": "100"
     }
   ],
+  "interactive": {
+    "kind": "potentiometer",
+    "parameter": "load"
+  },
   "readout": {
     "kind": "node",
     "element": "w_{ref}",
@@ -124,7 +146,8 @@
     "V_sense_{ref} b_{ref} e_{ref} DC 0",
     "B_{ref}_emf e_{ref} {node:-} V={= V * 60 / (6.2831853 * rpm)}*V(w_{ref})",
     "B_{ref}_t 0 w_{ref} I={= V * 60 / (6.2831853 * rpm)}*I(V_sense_{ref})",
-    "C_{ref}_j w_{ref} 0 {= 0.05 * (V * 60 / (6.2831853 * rpm)) * (V * 60 / (6.2831853 * rpm)) * Istall / V}",
-    "R_{ref}_b w_{ref} 0 {= (rpm * 6.2831853 / 60) / ((V * 60 / (6.2831853 * rpm)) * Inoload)}"
+    "C_{ref}_j w_{ref} 0 {= tm * (V * 60 / (6.2831853 * rpm)) * (V * 60 / (6.2831853 * rpm)) * Istall / V}",
+    "R_{ref}_b w_{ref} 0 {= (rpm * 6.2831853 / 60) / ((V * 60 / (6.2831853 * rpm)) * Inoload)}",
+    "B_{ref}_load w_{ref} 0 I={= (V * 60 / (6.2831853 * rpm)) * Istall}*V({control})*tanh(V(w_{ref})/{= rpm * 6.2831853 / 6000})"
   ]
 }
