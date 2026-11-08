@@ -28,6 +28,7 @@
 #include <condition_variable>
 #include <deque>
 #include <map>
+#include <unordered_map>
 #include <memory>
 #include <mutex>
 #include <optional>
@@ -273,6 +274,12 @@ private:
         std::vector<mcu::PinDrive> drives;
     };
     std::map<std::string, ExternalRef> external_refs_;
+    // The source handler's names resolved once per loaded circuit (engine thread).
+    struct ResolvedSource {
+        const ExternalRef* external = nullptr;
+        std::string control; // lower case, when not a pin driver
+    };
+    std::unordered_map<const char*, ResolvedSource> source_cache_;
     std::map<model::Id, McuCache> mcu_caches_; // engine thread only
     int debug_resumes_ = 0; // engine thread: debugger resumes seen (re-anchors the pacing)
     // Exact edges (ADR 0093, settings.exact_edges): for a board whose engine

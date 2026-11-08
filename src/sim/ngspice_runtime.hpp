@@ -51,7 +51,9 @@ public:
     using DataHandler = std::function<void(const AcceptedPoint&)>;
     // Value of an external voltage source at trial time `time`. Trial times
     // can repeat or move backward (E-01 finding 2): return a function of time.
-    using SourceHandler = std::function<double(const std::string& source, double time)>;
+    // `source` is ngspice's name of the instance, the same pointer for every
+    // call of one loaded circuit (a handler may cache by it, SN-278).
+    using SourceHandler = std::function<double(const char* source, double time)>;
     // Before each time step from accepted time `time`: may shorten `delta` (the
     // GetSyncData callback; ngspice keeps it registered once set).
     using StepHandler = std::function<void(double time, double& delta)>;

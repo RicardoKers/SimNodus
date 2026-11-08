@@ -642,6 +642,7 @@ bool SimulationSession::run_segment(NgspiceSession& engine, const std::vector<st
 {
     segment_t0_ = t0;
     last_time_ = 0.0;
+    source_cache_.clear(); // a new deck: new instance names
     for (auto& feed : edge_feeds_) {
         feed.done_ns = static_cast<std::uint64_t>(std::llround(t0 * 1e9)); // a new transient has no breakpoints
     }
@@ -1144,7 +1145,16 @@ double SimulationSession::external_value(const ExternalRef& ref, double time)
     // step's end, which made a 1 kHz PWM average 20-30 % instead of 25 %.
     auto& cache = mcu_caches_[ref.component];
     const auto time_ns = static_cast<std::uint64_t>(std::llround(std::max(0.0, time) * 1e9));
-    const auto from_ns = static_cast<std::uint64_t>(std::llround((segment_t0_ + last_time_) * 1e9));
+    auto from_ns = static_cast<std::uint64_t>(std::llround((segment_t0_ + last_time_) * 1e9));
+    // Without exact edges the average covers at least one maximum step (SN-278):
+    // a step ngspice shortened (after a breakpoint, in a stiff stretch) would
+    // otherwise see a fast PWM as real switching, whose edges keep the steps
+    // short; a board driving a three-phase bridge and a motor fell to 0.05x
+    // real time that way. A full-length step is averaged as before.
+    if (!settings_.exact_edges) {
+        const auto window_ns = static_cast<std::uint64_t>(std::llround(settings_.max_step * 1e9));
+        from_ns = std::min(from_ns, time_ns > window_ns ? time_ns - window_ns : 0);
+    }
     if (cache.time_ns != time_ns || cache.from_ns != from_ns || cache.drives.empty()) {
         auto& runner = *mcus_.at(ref.component);
         // Never wait for a firmware that may not run. When the firmware reaches this
@@ -1443,11 +1453,23 @@ void SimulationSession::run_interactive()
             delta = step_limit_ - time;
         }
     });
-    engine->set_source_handler([this](const std::string& source, double time) {
-        const std::string key = lower(source);
-        if (const auto e = external_refs_.find(key); e != external_refs_.end()) {
-            return external_value(e->second, segment_t0_ + time);
+    engine->set_source_handler([this](const char* source, double time) {
+        // ngspice asks for every external source at every Newton iteration (about
+        // 400 calls per time point with a board): each name is resolved once per
+        // loaded circuit, by its pointer (SN-278).
+        auto [resolved, added] = source_cache_.try_emplace(source);
+        if (added) {
+            const std::string key = lower(source);
+            if (const auto e = external_refs_.find(key); e != external_refs_.end()) {
+                resolved->second.external = &e->second;
+            } else {
+                resolved->second.control = key;
+            }
         }
+        if (const auto* external = resolved->second.external) {
+            return external_value(*external, segment_t0_ + time);
+        }
+        const std::string& key = resolved->second.control;
         std::lock_guard lock(mutex_);
         const auto it = controls_.find(key);
         if (it == controls_.end()) {

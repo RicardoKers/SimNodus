@@ -193,9 +193,10 @@ Notes on some parts:
   Hall outputs (add pull-ups) with the codes A B C = 101, 100, 110, 010,
   011, 001 for the sectors that drive U+V-, U+W-, V+W-, V+U-, W+U-, W+V-.
   The bridge has IN (the PWM) and EN (on, or the output left open) per
-  phase. Example 64 runs six-step from the Hall sensors on a Blue Pill. A
-  board driving these parts runs slowly, about 0.03x to 0.2x real time
-  (experiment E-11); a faster coupling is being investigated.
+  phase. Example 64 runs six-step from the Hall sensors on a Blue Pill.
+  Measured speed with a 10 kHz PWM (experiment E-11): six-step about 0.35x
+  real time, sinusoidal commutation about 1x; a 5 kHz PWM, slower than the
+  100 µs step, and exact microcontroller edges are much slower.
 - **Controlled sources:** the control pins C+ and C- are on the left. A
   voltage-controlled source only senses the voltage between them (1 GΩ); a
   current-controlled source senses the current flowing from C+ to C-, so
