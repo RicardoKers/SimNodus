@@ -3796,8 +3796,8 @@ Permitir para este projeto neste computador? Sem isso, a rede das placas fica de
             <translation>Eletromecânicos</translation>
         </message>
         <message>
-            <source>Small permanent-magnet DC motor without load; shows its speed</source>
-            <translation>Pequeno motor CC de ímã permanente sem carga; mostra a velocidade</translation>
+            <source>Small permanent-magnet DC motor with an adjustable load; shows its speed</source>
+            <translation>Pequeno motor CC de ímã permanente com carga ajustável; mostra a velocidade</translation>
         </message>
         <message>
             <source>Rated voltage</source>
@@ -3830,6 +3830,22 @@ Permitir para este projeto neste computador? Sem isso, a rede das placas fica de
         <message>
             <source>Current at the rated voltage without load (sets the friction)</source>
             <translation>Corrente na tensão nominal sem carga (define o atrito)</translation>
+        </message>
+        <message>
+            <source>Mechanical time constant</source>
+            <translation>Constante de tempo mecânica</translation>
+        </message>
+        <message>
+            <source>Time to reach 63 % of the speed from rest with the shaft free; sets the inertia of the rotor and what it drives</source>
+            <translation>Tempo para chegar a 63 % da velocidade, partindo do repouso com o eixo livre; define a inércia do rotor e do que ele aciona</translation>
+        </message>
+        <message>
+            <source>Load</source>
+            <translation>Carga</translation>
+        </message>
+        <message>
+            <source>Load torque on the shaft as a share of the stall torque; drag the part or use the wheel while running</source>
+            <translation>Torque de carga no eixo, como fração do torque de rotor travado; arraste o componente ou use a roda do mouse durante a simulação</translation>
         </message>
         <message>
             <source>Lamp</source>
@@ -5026,10 +5042,6 @@ Permitir para este projeto neste computador? Sem isso, a rede das placas fica de
         <message>
             <source>Resistance of each strain gauge</source>
             <translation>Resistência de cada extensômetro</translation>
-        </message>
-        <message>
-            <source>Load</source>
-            <translation>Carga</translation>
         </message>
         <message>
             <source>Load as a share of the capacity; drag the part or use the wheel while running (shown in kg)</source>

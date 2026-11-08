@@ -4,6 +4,10 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-11-08, SN-271)
+
+- DC motor with a load: a **Load** parameter (0-100 % of the stall torque) dragged on the part or turned with the wheel while running, so the current rises and the speed falls as on a real motor; a held load stops the shaft without turning it backwards. A **Mechanical time constant** parameter (50 ms by default, as before) sets the inertia of the rotor and what it drives. Projects saved before keep their behavior (load 0 %).
+
 ## 0.16.0 — 2026-11-08
 
 ### Fixed (2026-11-08, SN-270, owner's test of uploads through UART0)

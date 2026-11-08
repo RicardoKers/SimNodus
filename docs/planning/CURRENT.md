@@ -234,8 +234,8 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
    release.
 5. Classroom feedback (postponed: academic calendar).
 6. **Energy and motor control parts** (owner's request of 2026-11-08,
-   SN-271..SN-277 in the [backlog](BACKLOG.md)): a load on the DC motor,
-   several live controls per part with a two-axis joystick, a photovoltaic
+   SN-271..SN-277 in the [backlog](BACKLOG.md)): the load on the DC motor
+   is done (SN-271, unreleased); next, several live controls per part with a two-axis joystick, a photovoltaic
    module for MPPT lessons, a lithium cell for chargers, then a BLDC motor
    with a three-phase driver after a speed experiment (E-11).
 

@@ -516,6 +516,25 @@ TEST_CASE("library: component set B behaves like its parts")
         b.add("dcmotor", {{"+", "VM"}, {"-", "0"}}, {{"V", "6"}, {"rpm", "6000"}, {"Istall", "2"}, {"Inoload", "100m"}});
         CHECK(close_to(op(b, "w_m1") * 9.5492966, 6000 * (1 - 0.1 / 2), 60));
     }
+    for (const char* load : {"50", "100"}) { // DC motor with a load (SN-271): slower, more current
+        test::CircuitBuilder b(components());
+        supply(b, "VM", "6");
+        b.add("dcmotor", {{"+", "VM"}, {"-", "0"}},
+              {{"V", "6"}, {"rpm", "6000"}, {"Istall", "2"}, {"Inoload", "100m"}, {"load", load}});
+        const double share = std::atof(load) / 100;              // of the stall torque
+        // Istall (1 - x) = Inoload x + share Istall, x the speed over the speed without friction
+        const double x = (1 - share) * 2 / (2 + 0.1);
+        const double rpm = op(b, "w_m1") * 9.5492966;
+        const double amps = (6 - op(b, "a_m1")) / 3;              // through R = V / Istall
+        if (share < 1) {
+            CHECK(close_to(rpm, 6000 * x, 30));
+            CHECK(close_to(amps, 2 * (1 - x), 0.01));
+        } else { // held at the stall torque: almost stopped, never turned backwards
+            CHECK(rpm >= 0);
+            CHECK(rpm < 400);
+            CHECK(amps > 1.85);
+        }
+    }
     for (const char* vdd : {"5", "3.3"}) { // logic gates: truth tables, output loaded by 10 kohm
         const double high = std::atof(vdd);
         const std::vector<std::pair<const char*, int>> gates{
