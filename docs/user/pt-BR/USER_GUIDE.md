@@ -1,4 +1,4 @@
-<!-- source: USER_GUIDE.md sha256 982d676ca2dfd015148af9114175db6032788be57c36ae2b4073ab5261c0237c -->
+<!-- source: USER_GUIDE.md sha256 6ed244810105f375177bd04e3ce2496a5728b1a2f79f43ae0245c33e3d65bdf8 -->
 # Guia do usuário do SimNodus
 
 O SimNodus é um simulador para sala de aula: você desenha um circuito, aperta
@@ -102,7 +102,7 @@ aplicar. Um valor inválido fica contornado em vermelho e não é aplicado.
 | Categoria | Componentes |
 |---|---|
 | **Passivos** | Resistor, capacitor, indutor (ideais); potenciômetro; transformador (primário P1-P2, secundário S1-S2) |
-| **Fontes** | Fonte de tensão CC, bateria (com resistência interna), fonte de corrente CC (saindo pelo +), fontes de tensão e de corrente ajustáveis (giradas durante a execução entre um limite inferior e um superior), fontes de tensão e de corrente controladas por tensão e por corrente (VCVS, VCCS, CCVS, CCCS), gerador de pulsos, gerador senoidal, painéis solares de 1 W, 5 W, 10 W e 20 W, terra |
+| **Fontes** | Fonte de tensão CC, bateria (com resistência interna), fonte de corrente CC (saindo pelo +), fontes de tensão e de corrente ajustáveis (giradas durante a execução entre um limite inferior e um superior), fontes de tensão e de corrente controladas por tensão e por corrente (VCVS, VCCS, CCVS, CCCS), gerador de pulsos, gerador senoidal, painéis solares de 1 W, 5 W, 10 W e 20 W, baterias de íon-lítio e LiFePO4 (com ou sem proteção), terra |
 | **Chaves e controles** | Chave SPST, chave reversível SPDT, botões NA (fechado enquanto pressionado) e NF (aberto enquanto pressionado) com repique dos contatos opcional; teclado matricial 4x4; módulo joystick de dois eixos |
 | **Instrumentos** | Voltímetro (entrada de 1 GΩ), amperímetro (ideal; corrente entrando pelo +) |
 | **Semicondutores** | Diodo (silício), Schottky, germânio, Zener, LED (acende conforme a corrente, cor selecionável), transistores NPN e PNP, MOSFETs canal N e canal P (corpo ligado à fonte) |
@@ -180,6 +180,22 @@ Observações sobre alguns componentes:
   Sombreamento parcial, diodos de bypass, espectro e o comportamento térmico
   do painel ficam de fora. O exemplo 62 segue o máximo com uma Blue Pill e
   uma carga eletrônica.
+- **Baterias de lítio:** íon-lítio (NMC/LCO, 3,0-4,2 V por célula) e
+  LiFePO4 (2,5-3,65 V), de 1 a 4 células em série, com um modelo de
+  Thevenin: a tensão de circuito aberto pelo estado de carga (curvas típicas
+  a 25 °C), uma resistência série e um par RC. Defina a capacidade, o estado
+  de carga inicial e a **aceleração do tempo**, que divide a capacidade e a
+  constante de tempo do RC para que uma carga de horas aconteça em minutos
+  com as mesmas tensões e correntes (120 = uma hora em 30 s); o símbolo
+  mostra o estado de carga. As resistências padrão são as de uma célula de
+  2500 mAh (íon-lítio) ou de 1500 mAh (LiFePO4); células menores têm mais.
+  Acima de 100 % a tensão sobe bruscamente, então uma sobrecarga aparece. As
+  versões **com proteção** agem como um DW01 com dois MOSFETs: a carga para
+  acima de 4,25 V por célula (3,75 V no LiFePO4) até a célula cair a 4,15 V
+  (3,6 V), a descarga para abaixo de 2,5 V (2,0 V) até ela voltar a 3,0 V
+  (2,5 V); o outro sentido ainda passa por um diodo. Temperatura,
+  envelhecimento, autodescarga e a histerese da tensão ficam de fora. O
+  exemplo 63 carrega uma célula com um carregador CC/CV com LM317.
 - **Fontes controladas:** os pinos de controle C+ e C- ficam à esquerda. Uma
   fonte controlada por tensão apenas sente a tensão entre eles (1 GΩ); uma
   fonte controlada por corrente sente a corrente que flui de C+ para C-, por

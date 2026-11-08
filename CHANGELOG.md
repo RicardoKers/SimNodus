@@ -4,6 +4,11 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-11-08, SN-275)
+
+- **Lithium batteries** (Sources): lithium-ion (NMC/LCO) and LiFePO4, 1 to 4 cells in series, each with or without protection. Thevenin model: open-circuit voltage from the state of charge (typical curves at 25 °C), series resistance and an RC pair; capacity, initial state of charge and a **time acceleration** that divides the capacity and the RC time constant so a CC/CV charge runs in minutes. The symbol shows the state of charge; past 100 % the voltage rises steeply. The protected versions cut charging above 4.25 V per cell (3.75 V for LiFePO4) and discharging below 2.5 V (2.0 V), with hysteresis, like a DW01. `tools/generate_battery_parts.py` writes them.
+- Example 63: an LM317 CC/CV charger for one Li-ion cell (about 0.52 A, then 4.195 V while the current falls).
+
 ### Added (2026-11-08, SN-274)
 
 - **Solar panels** (Sources): 1 W and 5 W panels of 12 cells, 10 W and 20 W panels of 36 cells, with a single-diode model fitted from the datasheet values at STC (Voc, Isc, Vmp, Imp, cells, temperature coefficients; all editable; the ideality factor is fitted per preset so the maximum power falls at Vmp). Irradiance (0-1200 W/m², drag or wheel) and cell temperature (-20 to 85 °C, Shift with the wheel) change while running; the symbol shows the power taken as a share of the maximum power point at the present conditions, computed from the same model. `tools/generate_solar_parts.py` writes them.

@@ -560,6 +560,42 @@ TEST_CASE("library: component set B behaves like its parts")
         CHECK(std::abs(vdark) < 1e-3);
         CHECK(std::abs(sdark) < 1);
     }
+    { // Lithium batteries (SN-275): open-circuit voltage, charge counting, protection
+        auto run = [&](const char* type, std::map<std::string, std::string> parameters, const char* charger,
+                       const char* stop) {
+            test::CircuitBuilder b(components());
+            b.add(type, {{"+", "P"}, {"-", "0"}}, parameters);
+            if (std::string(charger) == "1A") {
+                b.add("idc", {{"+", "P"}, {"-", "0"}}, {{"I", "1"}});
+            } else if (std::string(charger) == "5V") {
+                b.add("vdc", {{"+", "S"}, {"-", "0"}}, {{"V", "5"}});
+                b.add("resistor", {{"1", "S"}, {"2", "P"}}, {{"R", "2"}});
+            } else {
+                b.add("resistor", {{"1", "P"}, {"2", "0"}}, {{"R", "1G"}});
+            }
+            const auto r = simulate(b, std::string(".tran 1m ") + stop + " 0 1m uic", {"p", "r_bt1"});
+            REQUIRE(r.count("p") && r.count("r_bt1") && !r.at("p").empty());
+            return std::pair<double, double>{r.at("p").back(), r.at("r_bt1").back()};
+        };
+        const auto [v50, soc50] = run("li_ion_battery", {{"soc0", "50"}}, "open", "10m");
+        CHECK(close_to(v50, 3.78, 0.005));
+        CHECK(close_to(soc50, 50, 0.01));
+        // 1 A into 1000 mAh for a quarter of an hour, an hour per second: +25 %.
+        const auto [v75, soc75] = run("li_ion_battery", {{"capacity", "1000"}, {"soc0", "50"}, {"accel", "3600"}}, "1A", "0.25");
+        CHECK(close_to(soc75, 75, 0.2));
+        CHECK(close_to(v75, 3.92 + 0.5 * (4.0 - 3.92) + 1 * (0.05 + 0.03), 0.02)); // OCV + I (R0 + R1)
+        const auto [v2s, soc2s] = run("lifepo4_battery", {{"cells", "2"}, {"soc0", "50"}}, "open", "10m");
+        CHECK(close_to(v2s, 2 * 3.28, 0.005));
+        // Protected, charged from 5 V through 2 ohm: the charge switch opens above 4.25 V.
+        const auto [vcut, soccut] = run("li_ion_battery_protected", {{"capacity", "1000"}, {"soc0", "90"}, {"accel", "3600"}}, "5V", "1");
+        CHECK(soccut < 101);
+        CHECK(soccut > 95);
+        CHECK(vcut > 4.9); // no current: the charger's full 5 V at the open switch
+        // Unprotected, the same charger takes it past full.
+        const auto [vover, socover] = run("li_ion_battery", {{"capacity", "1000"}, {"soc0", "90"}, {"accel", "3600"}}, "5V", "1");
+        CHECK(socover > 101);
+        CHECK(vover > 4.3);
+    }
     for (const char* vdd : {"5", "3.3"}) { // logic gates: truth tables, output loaded by 10 kohm
         const double high = std::atof(vdd);
         const std::vector<std::pair<const char*, int>> gates{
