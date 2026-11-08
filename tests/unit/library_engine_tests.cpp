@@ -535,6 +535,31 @@ TEST_CASE("library: component set B behaves like its parts")
             CHECK(amps > 1.85);
         }
     }
+    { // Photovoltaic module (SN-274): the 10 W preset's datasheet points at STC, light and heat
+        auto panel = [&](const char* load, const char* irradiance, const char* temperature) {
+            test::CircuitBuilder b(components());
+            b.add("solar_10w_12v", {{"+", "P"}, {"-", "0"}}, {{"irradiance", irradiance}, {"temperature", temperature}});
+            b.add("resistor", {{"1", "P"}, {"2", "0"}}, {{"R", load}});
+            const auto r = simulate(b, ".op", {"p", "r_pv1"});
+            REQUIRE(r.count("p") && r.count("r_pv1"));
+            return std::pair<double, double>{r.at("p").front(), r.at("r_pv1").front()};
+        };
+        CHECK(close_to(panel("1G", "1000", "25").first, 21.6, 0.05));        // Voc
+        CHECK(close_to(panel("0.01", "1000", "25").first / 0.01, 0.62, 0.01)); // Isc
+        const auto [vmp, share] = panel("30.594", "1000", "25");              // Vmp / Imp
+        CHECK(close_to(vmp, 17.5, 0.05));
+        CHECK(close_to(share, 100.0, 0.3));
+        const double pmax = vmp * vmp / 30.594 / (share / 100);
+        CHECK(close_to(pmax, 9.96, 0.05));                                     // the preset's 10 W
+        const auto [v15, share15] = panel("15", "1000", "25");                // off the maximum
+        CHECK(close_to(share15, 100 * v15 * v15 / 15 / pmax, 0.3));
+        CHECK(share15 < 80);
+        CHECK(close_to(panel("1G", "1000", "60").first, 21.6 * (1 - 0.0032 * 35), 0.1)); // beta
+        CHECK(close_to(panel("0.01", "500", "25").first / 0.01, 0.31, 0.005));          // half the light
+        const auto [vdark, sdark] = panel("30", "0", "25");
+        CHECK(std::abs(vdark) < 1e-3);
+        CHECK(std::abs(sdark) < 1);
+    }
     for (const char* vdd : {"5", "3.3"}) { // logic gates: truth tables, output loaded by 10 kohm
         const double high = std::atof(vdd);
         const std::vector<std::pair<const char*, int>> gates{

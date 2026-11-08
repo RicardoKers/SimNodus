@@ -4,6 +4,11 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-11-08, SN-274)
+
+- **Solar panels** (Sources): 1 W and 5 W panels of 12 cells, 10 W and 20 W panels of 36 cells, with a single-diode model fitted from the datasheet values at STC (Voc, Isc, Vmp, Imp, cells, temperature coefficients; all editable; the ideality factor is fitted per preset so the maximum power falls at Vmp). Irradiance (0-1200 W/m², drag or wheel) and cell temperature (-20 to 85 °C, Shift with the wheel) change while running; the symbol shows the power taken as a share of the maximum power point at the present conditions, computed from the same model. `tools/generate_solar_parts.py` writes them.
+- Example 62: maximum power point tracking by Perturb & Observe on a Blue Pill (`firmware/mppt_po`, bare metal) with an electronic load (op-amp, IRLZ44N, 1 Ω shunt); it reaches about 99.5 % of the 10 W panel's maximum within 2 s.
+
 ### Added (2026-11-08, SN-272 and SN-273)
 
 - **Joystick module** (Switches & Controls), like the KY-023: VRx and VRy from two 10 kΩ potentiometers between +5V and GND, SW closed to GND while the stick is pushed. While running, drag the stick: the knob follows the mouse on both axes and springs back to the center on release (**Spring return** turns that off); click the SW square to push it; the wheel moves X, Shift with the wheel moves Y.

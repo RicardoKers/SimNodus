@@ -664,6 +664,14 @@
       "sha256": "00b809d7f2e3057f3d5792e677a26c8a0cb96f4601813835b07a84019ebf3d8b",
       "size": 10784
     },
+    "mppt_po": {
+      "sources": [
+        "examples/firmware/mppt_po/mppt_po.c"
+      ],
+      "elf": "examples/firmware/mppt_po/mppt_po.elf",
+      "sha256": "5b308eceda20ce47cbce001712d95b936e0257b8569f17671a44f28ccdd3d7d5",
+      "size": 11516
+    },
     "shift595": {
       "sources": [
         "examples/firmware/shift595/shift595.c"
