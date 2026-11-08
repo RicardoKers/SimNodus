@@ -63,7 +63,11 @@ hello = c.call("hello", directory=OUT)
 if not hello.get("ok"):
     raise SystemExit(f"no window: {hello}")
 rows = []
-for path in sorted(glob.glob(os.path.join(ROOT, "examples", "*.snx"))):
+# A run of an example opened from its path keeps a board's flash beside it
+# (example 60's Wi-Fi writes NVS); the pass removes what it leaves there.
+EXAMPLES = os.path.join(ROOT, "examples")
+before = set(os.listdir(EXAMPLES))
+for path in sorted(glob.glob(os.path.join(EXAMPLES, "*.snx"))):
     name = os.path.basename(path)[:-4]
     row = {"example": name, "errors": []}
 
@@ -100,7 +104,8 @@ for path in sorted(glob.glob(os.path.join(ROOT, "examples", "*.snx"))):
         step("sim.pause")
         step("sim.advance", by="0.2")  # resumes
         status = step("sim.status") or {}
-        row["messages"] = status.get("messages", [])
+        # A gateway that stays off without "allow_network" is expected here.
+        row["messages"] = [m for m in status.get("messages", []) if '"allow_network": true' not in m]
         step("sim.stop")
     copy = os.path.join(OUT, name + "_copy.snx")
     step("project.save", path=copy)
@@ -113,6 +118,12 @@ for path in sorted(glob.glob(os.path.join(ROOT, "examples", "*.snx"))):
 
 c.p.stdin.close()
 app.terminate()
+for leftover in sorted(set(os.listdir(EXAMPLES)) - before):
+    if leftover.endswith("-flash.bin"):
+        try:
+            os.remove(os.path.join(EXAMPLES, leftover))
+        except OSError as error:
+            print(f"could not remove examples/{leftover}: {error}")
 try:
     log = app.communicate(timeout=20)[0]
 except subprocess.TimeoutExpired:
