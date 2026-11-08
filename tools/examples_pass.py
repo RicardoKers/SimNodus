@@ -68,7 +68,8 @@ for path in sorted(glob.glob(os.path.join(ROOT, "examples", "*.snx"))):
         st = r["result"]["status"]
         row["sim_time"] = st["time"]
         row["rtf"] = round(st.get("real_time_factor") or 0, 2)
-        row["messages"] = r["result"].get("messages", [])
+        # A gateway that stays off without "allow_network" is expected here.
+        row["messages"] = [m for m in r["result"].get("messages", []) if '"allow_network": true' not in m]
     else:
         row["run_error"] = r["error"]
     row["stderr"] = [l for l in s.close().splitlines() if l.strip()][:8]
