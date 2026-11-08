@@ -647,7 +647,7 @@ bool SchematicView::handle_control_press(model::Id id, const QPointF& scene_poin
                 return true;
             }
         }
-        if (const auto& stick = d->interactive->stick) {
+        if (d->interactive->stick) {
             // The stick moves anywhere on the symbol: the knob follows the mouse.
             stick_drag_ = id;
             move_stick(scene_point);
