@@ -1,6 +1,6 @@
 # Current state
 
-Updated: 2026-11-08 (release 0.16.0 being published: ESP32-C3 Wi-Fi, experimental (E-09), ping through the gateway, uploads through UART0 at 921600 baud; DE9 waits for the owner). Keep this file short: present state, last results, next
+Updated: 2026-11-08 (release 0.16.0 published: ESP32-C3 Wi-Fi, experimental (E-09), ping through the gateway, uploads through UART0 at 921600 baud; DE9 waits for the owner). Keep this file short: present state, last results, next
 steps. Replace it, do not append. History of the first development line
 (2026-08-31 → 2026-10-06) is in
 [archive/2026-10-legacy/CURRENT.md](../archive/2026-10-legacy/CURRENT.md);
@@ -8,7 +8,7 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 
 ## Where we are
 
-- **Release 0.16.0 (2026-11-08)** (tag `v0.16.0`, GitHub release with
+- **Release 0.16.0 published on 2026-11-08** (tag `v0.16.0`, GitHub release with
   `SimNodus-0.16.0-windows-x64.zip` and `-setup.exe`), after the owner's
   tests of the 2026-11-06b, 2026-11-08 and 2026-11-08b previews with the
   Arduino IDE (example 60; two boards as server and client; DHCP and a fixed
