@@ -1978,6 +1978,13 @@ const library::Parameter* live_parameter(Context& cx, const model::Component& c,
     if (const auto* p = d->parameter(d->value_parameter); p && p->live) {
         return p;
     }
+    // A chip worked with the mouse (SN-280): its control's parameter ("control"
+    // names a further one: the DHT22's humidity).
+    if (d->interactive) {
+        if (const auto* p = d->parameter(d->interactive->slot_parameter(control_slot(cx, c, args))); p && p->live) {
+            return p;
+        }
+    }
     const library::Parameter* only = nullptr;
     for (const auto& p : d->parameters) {
         if (p.live) {
@@ -2030,6 +2037,23 @@ json cmd_sim_control(Context& cx, const json& args)
     std::string text = given.is_string() ? given.get<std::string>() : given.dump();
     std::optional<double> target = given.is_number() ? std::optional<double>(given.get<double>())
                                                       : model::parse_engineering(text, p->unit);
+    // "80%" of a quantity that is not a percentage is the knob's position (SN-280).
+    if (definition && definition->interactive && p->unit != "%" && given.is_string() && !text.empty() && text.back() == '%') {
+        const auto& interactive = *definition->interactive;
+        for (int slot = 0; slot < interactive.slot_count(); ++slot) {
+            if (interactive.slot_parameter(slot) == p->name) {
+                const auto position = model::parse_engineering(text.substr(0, text.size() - 1), "");
+                if (!position || *position < 0 || *position > 100) {
+                    fail("invalid-argument", "A knob's position runs from 0% to 100%.");
+                }
+                target = library::potentiometer_value(*p, interactive.slot_logarithmic(slot), *position / 100.0);
+            }
+        }
+    }
+    if (target && ((p->min && *target < *p->min) || (p->max && *target > *p->max))) {
+        fail("invalid-argument", c.designator + "'s " + p->name + " runs from " + model::format_engineering(p->min.value_or(*target)) + " to "
+            + model::format_engineering(p->max.value_or(*target)) + " " + p->unit + ".");
+    }
     if (target) {
         text = model::format_engineering(*target, 6);
     }

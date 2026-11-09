@@ -237,6 +237,9 @@ TEST_CASE("automation: sim.control turns a knob over a time and sets a chip's va
             CHECK(c["parameters"]["distance"] == "150");
         }
     }
+    // The knob's position, and a value outside the range is refused (SN-280).
+    CHECK(f.ok("sim.control", {{"component", "U1"}, {"value", "50%"}})["value"] == "226");
+    CHECK(f.ok("sim.control", {{"component", "U1"}, {"value", "1 cm"}}).is_null());
     CHECK(f.ok("sim.control", {{"component", "V1"}, {"value", 1}}).is_null()); // neither a control nor a chip
     f.ok("sim.stop");
 }

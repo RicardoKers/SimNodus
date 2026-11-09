@@ -96,11 +96,11 @@ for path in sorted(glob.glob(os.path.join(EXAMPLES, "*.snx"))):
             elif kind == "button":
                 step("sim.control", component=designator, value="1")
             elif kind == "potentiometer":
-                step("sim.control", component=designator, value="0.8")
+                step("sim.control", component=designator, value="80%")
             else:
                 continue
             step("sim.advance", by="0.2")
-            step("sim.control", component=designator, value="0" if kind != "potentiometer" else "0.2")
+            step("sim.control", component=designator, value="0" if kind != "potentiometer" else "20%")
             step("sim.advance", by="0.2")
         step("sim.pause")
         step("sim.advance", by="0.2")  # resumes
