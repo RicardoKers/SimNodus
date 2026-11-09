@@ -8,7 +8,7 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ### Added (2026-11-09, SN-280, owner's tests of the examples)
 
-- Sensors worked with the mouse while running, like a potentiometer: the LM75's and DS18B20's temperature, the HC-SR04's distance, the DHT22's temperature (Shift with the wheel: its humidity); the value shows next to the symbol and goes to the chip at once (`sim.control` still sets it in the project).
+- Sensors worked with the mouse while running, like a potentiometer: the LM75's and DS18B20's temperature, the HC-SR04's distance, the DHT22's temperature (Shift with the wheel: its humidity); the value shows next to the symbol and goes to the chip at once. `sim.control` still sets the quantity in the project, takes the control's parameter (`"control": "humidity"`), a knob position as `"80%"`, and refuses values outside the parameter's range.
 - **Initial voltage** of a capacitor and **initial current** of an inductor (default 0), used when a run starts.
 - The Signal Analyzer has the **Pause / Resume** button (F6), so a signal can be studied without going back to the schematic.
 - Dragging a single wire moves only the segment under the mouse; the wire's ends stay on their pins, and wires and labels on the segment follow it.
