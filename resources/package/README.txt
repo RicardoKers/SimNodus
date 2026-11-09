@@ -1,7 +1,7 @@
 SimNodus - interactive circuit and STM32 simulator for teaching
 ================================================================
 
-Release 0.16 (analog and digital circuits, the Blue Pill / STM32F103
+Release 0.17 (analog and digital circuits, the Blue Pill / STM32F103
 microcontroller, AVR chips and the Arduino UNO, and an experimental
 ESP32-C3 board with Wi-Fi).
 Run simnodus.exe; no installation, account or network access is needed.
@@ -19,6 +19,18 @@ from STM32CubeIDE) in SimNodus's own STM32 emulator: GPIO, EXTI, USART
 watchdogs and CRC. Simulate >
 Debug Firmware with GDB lets STM32CubeIDE debug the firmware while it drives
 the circuit.
+
+New in 0.17: energy and motor control. Solar panels (single-diode model
+from datasheet values, irradiance and temperature set with the mouse) with
+an MPPT example; lithium-ion and LiFePO4 batteries (1-4 cells, with or
+without protection) with a CC/CV charger example; experimental BLDC and
+PMSM motors with a three-phase bridge (with current sense), six-step and
+field-oriented control examples on a Blue Pill; a two-axis joystick and a
+load set with the mouse on the DC motor. Sensors (LM75, DS18B20, DHT22,
+HC-SR04) are set with the mouse while running; capacitors and inductors
+take an initial voltage and current; the Signal Analyzer has Pause; a
+wire's segment can be dragged alone; a new ESP32-C3 starts without firmware
+and waits for an upload. Every example has a note on its diagram.
 
 New in 0.16 (experimental): Wi-Fi for the ESP32-C3 boards. They join
 SimNodus's virtual access point (SimNodus / simnodus-wifi, WPA2) and talk to

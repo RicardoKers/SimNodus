@@ -64,7 +64,8 @@ if not hello.get("ok"):
     raise SystemExit(f"no window: {hello}")
 rows = []
 # A run of an example opened from its path keeps a board's flash beside it
-# (example 60's Wi-Fi writes NVS); the pass removes what it leaves there.
+# (example 60's Wi-Fi writes NVS) or a chip's EEPROM; the pass removes what it
+# leaves there.
 EXAMPLES = os.path.join(ROOT, "examples")
 before = set(os.listdir(EXAMPLES))
 for path in sorted(glob.glob(os.path.join(EXAMPLES, "*.snx"))):
@@ -119,7 +120,7 @@ for path in sorted(glob.glob(os.path.join(EXAMPLES, "*.snx"))):
 c.p.stdin.close()
 app.terminate()
 for leftover in sorted(set(os.listdir(EXAMPLES)) - before):
-    if leftover.endswith("-flash.bin"):
+    if leftover.endswith("-flash.bin") or leftover.endswith("-eeprom.bin"):
         try:
             os.remove(os.path.join(EXAMPLES, leftover))
         except OSError as error:

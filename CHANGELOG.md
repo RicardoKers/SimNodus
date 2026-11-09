@@ -4,6 +4,8 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+## 0.17.0 — 2026-11-09
+
 ### Added (2026-11-09, SN-280, owner's tests of the examples)
 
 - Sensors worked with the mouse while running, like a potentiometer: the LM75's and DS18B20's temperature, the HC-SR04's distance, the DHT22's temperature (Shift with the wheel: its humidity); the value shows next to the symbol and goes to the chip at once (`sim.control` still sets it in the project).
