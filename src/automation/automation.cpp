@@ -2002,7 +2002,11 @@ json cmd_sim_control(Context& cx, const json& args)
     const auto& controls = cx.ws.session().netlist().controls;
     const bool control = std::any_of(
         controls.begin(), controls.end(), [&](const netlist::ControlSource& s) { return s.component == c.id; });
-    if (control) {
+    // A chip worked with the mouse too (SN-280: an HC-SR04's distance) still
+    // takes its quantity here, as before, and keeps it in the project.
+    const auto* definition = cx.ws.library().find(c.type);
+    const bool chip = definition && definition->device;
+    if (control && !chip) {
         const int slot = control_slot(cx, c, args);
         const double value = control_value(cx, c, required(args, "value"), slot);
         if (over > 0) {
@@ -2041,6 +2045,15 @@ json cmd_sim_control(Context& cx, const json& args)
     model::Schematic work = cx.schematic();
     set_parameters(cx, work, id, json{{name, text}});
     cx.apply(model::make_edit(cx.schematic(), work, "Change " + work.component(id)->designator));
+    // The knob on the symbol follows; the exact value goes to the chip last.
+    if (const auto& interactive = definition ? definition->interactive : std::nullopt; interactive && target) {
+        for (int slot = 0; slot < interactive->slot_count(); ++slot) {
+            if (interactive->slot_parameter(slot) == name
+                && interactive->slot_kind(slot) == library::Interactive::Kind::Potentiometer) {
+                cx.ws.session().set_control(id, library::potentiometer_control(*p, interactive->slot_logarithmic(slot), *target), slot);
+            }
+        }
+    }
     cx.ws.session().set_device_parameter(id, name, text);
     return {{"component", cx.schematic().component(id)->designator}, {"parameter", name}, {"value", text},
         {"time", cx.ws.session().status().sim_time}};

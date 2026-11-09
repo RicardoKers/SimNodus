@@ -252,7 +252,12 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
    live values of these parts fixed (a readout such as % MPP was shown as
    the current), the mouse-set values shown next to the symbol, examples
    61 and 63 laid out again, example 65 stable at a 10 µs step and with
-   exact edges. All of SN-271..SN-279 is unreleased.
+   exact edges. SN-280 (owner's tests of the examples): sensors worked
+   with the mouse, capacitor and inductor initial values, Pause in the
+   Signal Analyzer, wire segments dragged alone, selection while running,
+   an ESP32-C3 without firmware waits for an upload, the encoder's pulses
+   with the wheel, no per-segment pulse on a floating base, kept memory
+   files named after the project. All of SN-271..SN-280 is unreleased.
 
 ## Known constraints
 

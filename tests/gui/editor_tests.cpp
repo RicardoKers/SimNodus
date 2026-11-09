@@ -1540,7 +1540,7 @@ private slots:
     void esp32c3_keeps_what_its_firmware_writes_to_the_flash()
     {
         // SN-248: MicroPython's files live in the flash; a saved project keeps
-        // them in "U1-flash.bin", which the next run starts from.
+        // them in "<project>-U1-flash.bin", which the next run starts from.
 #if !defined(SIMNODUS_TEST_NGSPICE_LIBRARY)
         QSKIP("No ngspice configured for this build.");
 #else
@@ -1596,10 +1596,10 @@ private slots:
         QVERIFY2(doc().save(project, error), qPrintable(error));
         messages.clear();
         write_main();
-        const QString kept = dir_.filePath(QStringLiteral("micropython/U1-flash.bin"));
+        const QString kept = dir_.filePath(QStringLiteral("micropython/board-U1-flash.bin"));
         QVERIFY(QFile::exists(kept));
         QCOMPARE(QString::fromStdString(doc().schematic().component(board)->parameters.at("firmware")),
-            QStringLiteral("U1-flash.bin"));
+            QStringLiteral("board-U1-flash.bin"));
         QVERIFY(messages.join('\n').contains(QStringLiteral("now the board's firmware")));
         // The next run starts from it: main.py runs at boot.
         messages.clear();
@@ -1773,8 +1773,8 @@ private slots:
         const QString project = dir_.filePath(QStringLiteral("unsaved/serial.snx"));
         QVERIFY(QDir().mkpath(QFileInfo(project).absolutePath()));
         QVERIFY(window_->save_to(project));
-        QVERIFY(QFile::exists(dir_.filePath(QStringLiteral("unsaved/U1-eeprom.bin"))));
-        QCOMPARE(QString::fromStdString(doc().schematic().component(chip)->parameters.at("eeprom")), QStringLiteral("U1-eeprom.bin"));
+        QVERIFY(QFile::exists(dir_.filePath(QStringLiteral("unsaved/serial-U1-eeprom.bin"))));
+        QCOMPARE(QString::fromStdString(doc().schematic().component(chip)->parameters.at("eeprom")), QStringLiteral("serial-U1-eeprom.bin"));
         QVERIFY(!doc().modified());
         // The next run continues the count.
         window_->run();
@@ -1788,7 +1788,7 @@ private slots:
     void atmega8_keeps_its_eeprom_in_the_project()
     {
         // E-10, SN-258: what the firmware writes to the EEPROM is kept as
-        // "U1-eeprom.bin", the chip's EEPROM for the next run.
+        // "<project>-U1-eeprom.bin", the chip's EEPROM for the next run.
 #if !defined(SIMNODUS_TEST_NGSPICE_LIBRARY)
         QSKIP("No ngspice configured for this build.");
 #else
@@ -1839,9 +1839,9 @@ private slots:
         QVERIFY(QDir().mkpath(QFileInfo(project).absolutePath()));
         QVERIFY2(doc().save(project, error), qPrintable(error));
         session("ab?", "bytes: 3");
-        QVERIFY(QFile::exists(dir_.filePath(QStringLiteral("atmega8/U1-eeprom.bin"))));
+        QVERIFY(QFile::exists(dir_.filePath(QStringLiteral("atmega8/serial-U1-eeprom.bin"))));
         QCOMPARE(QString::fromStdString(doc().schematic().component(chip)->parameters.at("eeprom")),
-            QStringLiteral("U1-eeprom.bin"));
+            QStringLiteral("serial-U1-eeprom.bin"));
         QVERIFY(messages.join('\n').contains(QStringLiteral("now the chip's EEPROM")));
         // The next run continues the count.
         session("?", "bytes: 4");

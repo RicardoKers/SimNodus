@@ -52,6 +52,7 @@
         -14
       ],
       "id": 6,
+      "mirrored": true,
       "name": "GND"
     },
     {
@@ -87,8 +88,17 @@
       "name": "GND"
     }
   ],
-  "next_id": 16,
-  "notes": [],
+  "next_id": 17,
+  "notes": [
+    {
+      "at": [
+        -24,
+        21
+      ],
+      "id": 16,
+      "text": "A strip of 8 WS2812B LEDs on GPIO5 (5 V from V1),\ndriven by ESP-IDF's RMT driver. One LED runs along\nthe strip every 200 ms: red, then green, then blue.\nAnalyzer > UART (UART0) names each step; the Logic\ntab shows GPIO5's 0.4 / 0.8 us pulses."
+    }
+  ],
   "probes": [
     {
       "color": "#1f77b4",

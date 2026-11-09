@@ -126,7 +126,7 @@
       "min": "-55",
       "max": "125",
       "live": true,
-      "description": "Temperature of the sensor; change it while running to test the circuit"
+      "description": "Temperature of the sensor; while running, drag the part or use the wheel (-55 to 125 °C)"
     },
     {
       "name": "serial",
@@ -136,5 +136,9 @@
       "description": "48-bit serial number in hex (auto: from the designator)"
     }
   ],
-  "value_parameter": "temperature"
+  "value_parameter": "temperature",
+  "interactive": {
+    "kind": "potentiometer",
+    "parameter": "temperature"
+  }
 }

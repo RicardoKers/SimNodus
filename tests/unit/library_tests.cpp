@@ -400,6 +400,30 @@ TEST_CASE("parts list further shown values and their live values (SN-279)")
     CHECK(std::abs(library::potentiometer_value(*load, false, 0.35) - 35.0) < 1e-9);
 }
 
+TEST_CASE("sensor chips are worked with the mouse; the encoder turns through its detents (SN-280)")
+{
+    ComponentLibrary library;
+    library.load_directory(SIMNODUS_TEST_LIBRARY_DIR);
+    for (const char* type : {"lm75", "ds18b20", "hcsr04", "dht22"}) {
+        const auto* d = library.find(type);
+        REQUIRE(d != nullptr);
+        REQUIRE(d->interactive.has_value());
+        CHECK(d->interactive->kind == library::Interactive::Kind::Potentiometer);
+        const auto* p = d->parameter(d->interactive->parameter);
+        REQUIRE(p != nullptr);
+        CHECK(p->live); // the chip takes the value while running
+    }
+    const auto* dht = library.find("dht22");
+    CHECK((dht->more_values == std::vector<std::string>{"temperature", "humidity"}));
+    CHECK(dht->interactive->slot_parameter(1) == "humidity");
+    const auto* encoder = library.find("encoder");
+    CHECK(encoder->interactive->detents == 20);
+    CHECK(encoder->interactive->rate > 0.0);
+    // Capacitors and inductors start from a chosen voltage or current.
+    CHECK(library.find("capacitor")->parameter("V0") != nullptr);
+    CHECK(library.find("inductor")->parameter("I0") != nullptr);
+}
+
 TEST_CASE("the potentiometer's wiper moves along its track")
 {
     ComponentLibrary library;

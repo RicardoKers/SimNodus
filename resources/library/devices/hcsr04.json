@@ -154,8 +154,12 @@
       "min": "2",
       "max": "450",
       "live": true,
-      "description": "Distance to the obstacle; change it while running to test the circuit"
+      "description": "Distance to the obstacle; while running, drag the part or use the wheel (2 to 450 cm)"
     }
   ],
-  "value_parameter": "distance"
+  "value_parameter": "distance",
+  "interactive": {
+    "kind": "potentiometer",
+    "parameter": "distance"
+  }
 }

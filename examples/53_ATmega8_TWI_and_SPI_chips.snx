@@ -22,8 +22,8 @@
     },
     {
       "at": [
-        -30,
-        -10
+        -37,
+        -19
       ],
       "designator": "V1",
       "id": 2,
@@ -36,8 +36,8 @@
     },
     {
       "at": [
-        -30,
-        -7
+        -37,
+        -16
       ],
       "designator": "GND1",
       "id": 3,
@@ -72,8 +72,8 @@
     },
     {
       "at": [
-        40,
-        -24
+        -4,
+        -22
       ],
       "designator": "R1",
       "id": 11,
@@ -86,8 +86,8 @@
     },
     {
       "at": [
-        50,
-        -24
+        13,
+        -22
       ],
       "designator": "R2",
       "id": 14,
@@ -100,8 +100,8 @@
     },
     {
       "at": [
-        60,
-        -12
+        33,
+        -17
       ],
       "designator": "U2",
       "id": 17,
@@ -114,8 +114,8 @@
     },
     {
       "at": [
-        60,
-        -4
+        33,
+        -9
       ],
       "designator": "GND4",
       "id": 21,
@@ -126,8 +126,8 @@
     },
     {
       "at": [
-        54,
-        -12
+        27,
+        -17
       ],
       "designator": "GND5",
       "id": 22,
@@ -138,8 +138,8 @@
     },
     {
       "at": [
-        54,
-        -10
+        27,
+        -15
       ],
       "designator": "GND6",
       "id": 23,
@@ -150,8 +150,8 @@
     },
     {
       "at": [
-        54,
-        -8
+        27,
+        -13
       ],
       "designator": "GND7",
       "id": 24,
@@ -162,8 +162,8 @@
     },
     {
       "at": [
-        60,
-        14
+        33,
+        4
       ],
       "designator": "U3",
       "id": 25,
@@ -176,8 +176,8 @@
     },
     {
       "at": [
-        60,
-        22
+        33,
+        12
       ],
       "designator": "GND8",
       "id": 29,
@@ -188,8 +188,8 @@
     },
     {
       "at": [
-        54,
-        14
+        27,
+        4
       ],
       "designator": "GND9",
       "id": 30,
@@ -200,8 +200,8 @@
     },
     {
       "at": [
-        54,
-        16
+        27,
+        6
       ],
       "designator": "GND10",
       "id": 31,
@@ -212,8 +212,8 @@
     },
     {
       "at": [
-        54,
-        18
+        27,
+        8
       ],
       "designator": "GND11",
       "id": 32,
@@ -224,8 +224,8 @@
     },
     {
       "at": [
-        66,
-        14
+        39,
+        4
       ],
       "designator": "GND12",
       "id": 33,
@@ -236,8 +236,8 @@
     },
     {
       "at": [
-        -50,
-        30
+        -31,
+        3
       ],
       "designator": "U4",
       "id": 34,
@@ -248,8 +248,8 @@
     },
     {
       "at": [
-        -50,
-        42
+        -31,
+        15
       ],
       "designator": "GND13",
       "id": 43,
@@ -260,8 +260,8 @@
     },
     {
       "at": [
-        -56,
-        34
+        -37,
+        7
       ],
       "designator": "GND14",
       "id": 44,
@@ -275,8 +275,8 @@
   "labels": [
     {
       "at": [
-        -30,
-        -13
+        -37,
+        -22
       ],
       "id": 4,
       "name": "VCC"
@@ -287,6 +287,7 @@
         -1
       ],
       "id": 5,
+      "mirrored": true,
       "name": "VCC"
     },
     {
@@ -299,7 +300,7 @@
     },
     {
       "at": [
-        9,
+        11,
         -11
       ],
       "id": 9,
@@ -307,7 +308,7 @@
     },
     {
       "at": [
-        9,
+        11,
         -13
       ],
       "id": 10,
@@ -315,80 +316,86 @@
     },
     {
       "at": [
-        43,
-        -24
+        -1,
+        -22
       ],
       "id": 12,
       "name": "VCC"
     },
     {
       "at": [
-        37,
-        -24
+        -7,
+        -22
       ],
       "id": 13,
+      "mirrored": true,
       "name": "SDA"
     },
     {
       "at": [
-        53,
-        -24
+        16,
+        -22
       ],
       "id": 15,
       "name": "VCC"
     },
     {
       "at": [
-        47,
-        -24
+        10,
+        -22
       ],
       "id": 16,
+      "mirrored": true,
       "name": "SCL"
     },
     {
       "at": [
-        54,
-        -14
+        27,
+        -19
       ],
       "id": 18,
+      "mirrored": true,
       "name": "SDA"
     },
     {
       "at": [
-        54,
-        -16
+        27,
+        -21
       ],
       "id": 19,
+      "mirrored": true,
       "name": "SCL"
     },
     {
       "at": [
-        60,
-        -20
+        33,
+        -25
       ],
       "id": 20,
       "name": "VCC"
     },
     {
       "at": [
-        54,
-        12
+        27,
+        2
       ],
       "id": 26,
+      "mirrored": true,
       "name": "SDA"
     },
     {
       "at": [
-        54,
-        10
+        27,
+        0
       ],
       "id": 27,
+      "mirrored": true,
       "name": "SCL"
     },
     {
       "at": [
-        60,
-        6
+        33,
+        -4
       ],
       "id": 28,
       "name": "VCC"
@@ -419,70 +426,74 @@
     },
     {
       "at": [
-        -56,
-        26
+        -37,
+        -1
       ],
       "id": 38,
+      "mirrored": true,
       "name": "MOSI"
     },
     {
       "at": [
-        -56,
-        28
+        -37,
+        1
       ],
       "id": 39,
+      "mirrored": true,
       "name": "SCK"
     },
     {
       "at": [
-        -56,
-        30
+        -37,
+        3
       ],
       "id": 40,
+      "mirrored": true,
       "name": "LATCH"
     },
     {
       "at": [
-        -50,
-        18
+        -31,
+        -9
       ],
       "id": 41,
       "name": "VCC"
     },
     {
       "at": [
-        -56,
-        32
+        -37,
+        5
       ],
       "id": 42,
+      "mirrored": true,
       "name": "VCC"
     },
     {
       "at": [
-        -44,
-        22
+        -23,
+        -5
       ],
       "id": 45,
       "name": "Q0"
     },
     {
       "at": [
-        -44,
-        24
+        -23,
+        -3
       ],
       "id": 46,
       "name": "Q1"
     },
     {
       "at": [
-        -44,
-        26
+        -23,
+        -1
       ],
       "id": 47,
       "name": "Q2"
     }
   ],
-  "next_id": 53,
+  "next_id": 58,
   "notes": [
     {
       "at": [
@@ -490,7 +501,7 @@
         -34
       ],
       "id": 52,
-      "text": "ATmega8A at 8 MHz (internal RC, low fuse E4) running avr_bus: TWI at 100 kHz to an LM75 (0x48) and a 24C02\n(0x50, a byte written at 0x10 and read back), with 4.7 kOhm pull-ups; SPI at 2 MHz to a 74HC595 whose outputs\ncount every 100 ms (STCP on PB2). Every 0.5 s the terminal shows the temperature, the byte and the count.\nChange the LM75's temperature in Properties while running."
+      "text": "ATmega8A at 8 MHz (internal RC, low fuse E4) running avr_bus: TWI at 100 kHz to an LM75 (0x48) and a 24C02\n(0x50, a byte written at 0x10 and read back), with 4.7 kOhm pull-ups; SPI at 2 MHz to a 74HC595 whose outputs\ncount every 100 ms (STCP on PB2). Every 0.5 s the terminal shows the temperature, the byte and the count.\nWhile running, drag the LM75 or turn the wheel over it to change its temperature."
     }
   ],
   "probes": [
@@ -539,8 +550,8 @@
       "kind": "voltage",
       "target": {
         "at": [
-          -44,
-          24
+          -25,
+          -3
         ],
         "item": 34,
         "pin": "Q1"
@@ -560,5 +571,71 @@
   },
   "splitters": [],
   "version": 1,
-  "wires": []
+  "wires": [
+    {
+      "id": 53,
+      "points": [
+        [
+          9,
+          -13
+        ],
+        [
+          11,
+          -13
+        ]
+      ]
+    },
+    {
+      "id": 54,
+      "points": [
+        [
+          9,
+          -11
+        ],
+        [
+          11,
+          -11
+        ]
+      ]
+    },
+    {
+      "id": 55,
+      "points": [
+        [
+          -25,
+          -5
+        ],
+        [
+          -23,
+          -5
+        ]
+      ]
+    },
+    {
+      "id": 56,
+      "points": [
+        [
+          -25,
+          -3
+        ],
+        [
+          -23,
+          -3
+        ]
+      ]
+    },
+    {
+      "id": 57,
+      "points": [
+        [
+          -25,
+          -1
+        ],
+        [
+          -23,
+          -1
+        ]
+      ]
+    }
+  ]
 }

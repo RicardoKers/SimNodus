@@ -253,8 +253,12 @@
       "min": "-55",
       "max": "125",
       "live": true,
-      "description": "Temperature the sensor measures; change it while running to test the circuit"
+      "description": "Temperature the sensor measures; while running, drag the part or use the wheel (-55 to 125 °C)"
     }
   ],
-  "value_parameter": "temperature"
+  "value_parameter": "temperature",
+  "interactive": {
+    "kind": "potentiometer",
+    "parameter": "temperature"
+  }
 }

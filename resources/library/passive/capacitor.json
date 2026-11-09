@@ -67,9 +67,16 @@
       "default": "1u",
       "description": "Capacitance",
       "min": "1f"
+    },
+    {
+      "name": "V0",
+      "label": "Initial voltage",
+      "unit": "V",
+      "default": "0",
+      "description": "Voltage across the capacitor (pin 1 minus pin 2) when the simulation starts"
     }
   ],
   "spice": [
-    "C_{ref} {node:1} {node:2} {C}"
+    "C_{ref} {node:1} {node:2} {C} IC={V0}"
   ]
 }

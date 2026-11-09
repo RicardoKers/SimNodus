@@ -1,108 +1,170 @@
 {
-  "format": "simnodus-project",
-  "version": 1,
-  "next_id": 20,
-  "settings": {
-    "mode": "interactive",
-    "speed": 1,
-    "max_step": 0.0001,
-    "segment": 1,
-    "transient_stop": 0.01,
-    "transient_max_step": 1e-06,
-    "mcu_quantum": 0.001
-  },
+  "buses": [],
   "components": [
     {
-      "id": 1,
-      "type": "bluepill",
-      "designator": "U1",
       "at": [
         0,
         0
       ],
-      "rotation": 0,
+      "designator": "U1",
+      "id": 1,
       "mirrored": false,
       "parameters": {
         "firmware": "firmware/button_irq/button_irq.elf"
-      }
+      },
+      "rotation": 0,
+      "type": "bluepill"
     },
     {
-      "id": 2,
-      "type": "ground",
-      "designator": "GND1",
       "at": [
         -12,
         21
       ],
-      "rotation": 0,
+      "designator": "GND1",
+      "id": 2,
       "mirrored": false,
-      "parameters": {}
+      "parameters": {},
+      "rotation": 0,
+      "type": "ground"
     },
     {
-      "id": 5,
-      "type": "resistor",
-      "designator": "R1",
       "at": [
-        14,
+        20,
         11
       ],
-      "rotation": 90,
+      "designator": "R1",
+      "id": 5,
       "mirrored": false,
       "parameters": {
         "R": "330"
-      }
+      },
+      "rotation": 90,
+      "type": "resistor"
     },
     {
-      "id": 6,
-      "type": "led",
-      "designator": "LED1",
       "at": [
         26,
         14
       ],
-      "rotation": 0,
+      "designator": "LED1",
+      "id": 6,
       "mirrored": false,
       "parameters": {
         "color": "green"
-      }
+      },
+      "rotation": 0,
+      "type": "led"
     },
     {
-      "id": 7,
-      "type": "ground",
-      "designator": "GND2",
       "at": [
         26,
         21
       ],
-      "rotation": 0,
+      "designator": "GND2",
+      "id": 7,
       "mirrored": false,
-      "parameters": {}
+      "parameters": {},
+      "rotation": 0,
+      "type": "ground"
     },
     {
-      "id": 14,
-      "type": "button_no",
-      "designator": "SW1",
       "at": [
-        17,
-        3
+        21,
+        2
       ],
-      "rotation": 0,
+      "designator": "SW1",
+      "id": 14,
       "mirrored": false,
-      "parameters": {}
+      "parameters": {},
+      "rotation": 0,
+      "type": "button_no"
     },
     {
-      "id": 15,
-      "type": "ground",
-      "designator": "GND3",
       "at": [
-        23,
+        26,
         6
       ],
-      "rotation": 0,
+      "designator": "GND3",
+      "id": 15,
       "mirrored": false,
-      "parameters": {}
+      "parameters": {},
+      "rotation": 0,
+      "type": "ground"
     }
   ],
+  "format": "simnodus-project",
+  "labels": [
+    {
+      "at": [
+        13,
+        11
+      ],
+      "id": 13,
+      "name": "PA0"
+    },
+    {
+      "at": [
+        13,
+        2
+      ],
+      "id": 18,
+      "name": "PA1"
+    }
+  ],
+  "next_id": 20,
+  "notes": [],
+  "probes": [
+    {
+      "color": "#1f77b4",
+      "id": 11,
+      "kind": "voltage",
+      "target": {
+        "at": [
+          11,
+          11
+        ],
+        "item": 8
+      }
+    },
+    {
+      "color": "#d62728",
+      "id": 12,
+      "kind": "current",
+      "target": {
+        "at": [
+          26,
+          11
+        ],
+        "item": 6,
+        "pin": "A"
+      }
+    },
+    {
+      "color": "#2ca02c",
+      "id": 19,
+      "kind": "voltage",
+      "target": {
+        "at": [
+          11,
+          9
+        ],
+        "item": 16
+      }
+    }
+  ],
+  "settings": {
+    "cortex_m3_timing": true,
+    "exact_edges": false,
+    "max_step": 0.0001,
+    "mcu_quantum": 0.001,
+    "mode": "interactive",
+    "segment": 1.0,
+    "speed": 1.0,
+    "transient_max_step": 1e-06,
+    "transient_stop": 0.01
+  },
+  "splitters": [],
+  "version": 1,
   "wires": [
     {
       "id": 3,
@@ -129,7 +191,7 @@
           11
         ],
         [
-          11,
+          17,
           11
         ]
       ]
@@ -138,7 +200,7 @@
       "id": 9,
       "points": [
         [
-          17,
+          23,
           11
         ],
         [
@@ -173,11 +235,11 @@
         ],
         [
           12,
-          3
+          2
         ],
         [
-          14,
-          3
+          18,
+          2
         ]
       ]
     },
@@ -185,75 +247,18 @@
       "id": 17,
       "points": [
         [
-          20,
-          3
+          24,
+          2
         ],
         [
-          23,
-          3
+          26,
+          2
         ],
         [
-          23,
+          26,
           6
         ]
       ]
-    }
-  ],
-  "labels": [
-    {
-      "id": 13,
-      "at": [
-        10,
-        11
-      ],
-      "name": "PA0"
-    },
-    {
-      "id": 18,
-      "at": [
-        11,
-        9
-      ],
-      "name": "PA1"
-    }
-  ],
-  "probes": [
-    {
-      "id": 19,
-      "kind": "voltage",
-      "target": {
-        "item": 16,
-        "at": [
-          11,
-          9
-        ]
-      },
-      "color": "#2ca02c"
-    },
-    {
-      "id": 11,
-      "kind": "voltage",
-      "target": {
-        "item": 8,
-        "at": [
-          10,
-          11
-        ]
-      },
-      "color": "#1f77b4"
-    },
-    {
-      "id": 12,
-      "kind": "current",
-      "target": {
-        "item": 6,
-        "pin": "A",
-        "at": [
-          26,
-          11
-        ]
-      },
-      "color": "#d62728"
     }
   ]
 }

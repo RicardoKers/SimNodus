@@ -29,8 +29,8 @@
     },
     {
       "at": [
-        72,
-        -6
+        52,
+        -1
       ],
       "designator": "PV1",
       "id": 3,
@@ -53,8 +53,8 @@
     },
     {
       "at": [
-        72,
-        -2
+        52,
+        3
       ],
       "designator": "GND2",
       "id": 4,
@@ -65,8 +65,8 @@
     },
     {
       "at": [
-        62,
-        -6
+        39,
+        6
       ],
       "designator": "R1",
       "id": 5,
@@ -79,8 +79,8 @@
     },
     {
       "at": [
-        62,
-        4
+        39,
+        16
       ],
       "designator": "R2",
       "id": 6,
@@ -93,8 +93,8 @@
     },
     {
       "at": [
-        62,
-        7
+        39,
+        19
       ],
       "designator": "GND3",
       "id": 7,
@@ -105,8 +105,8 @@
     },
     {
       "at": [
-        48,
-        -6
+        37,
+        -17
       ],
       "designator": "Q1",
       "id": 9,
@@ -117,8 +117,8 @@
     },
     {
       "at": [
-        50,
-        2
+        39,
+        -9
       ],
       "designator": "R3",
       "id": 10,
@@ -131,8 +131,8 @@
     },
     {
       "at": [
-        50,
-        5
+        39,
+        -6
       ],
       "designator": "GND4",
       "id": 12,
@@ -143,8 +143,8 @@
     },
     {
       "at": [
-        32,
-        0
+        21,
+        -3
       ],
       "designator": "U2",
       "id": 13,
@@ -157,8 +157,8 @@
     },
     {
       "at": [
-        32,
-        4
+        21,
+        1
       ],
       "designator": "GND5",
       "id": 14,
@@ -169,8 +169,8 @@
     },
     {
       "at": [
-        40,
-        0
+        29,
+        -3
       ],
       "designator": "R4",
       "id": 15,
@@ -183,8 +183,8 @@
     },
     {
       "at": [
-        24,
-        -12
+        15,
+        -17
       ],
       "designator": "V1",
       "id": 16,
@@ -197,8 +197,8 @@
     },
     {
       "at": [
-        24,
-        -9
+        15,
+        -14
       ],
       "designator": "GND6",
       "id": 17,
@@ -278,39 +278,39 @@
   "labels": [
     {
       "at": [
-        72,
-        -10
+        52,
+        -7
       ],
       "id": 24,
       "name": "PV"
     },
     {
       "at": [
-        62,
-        -9
+        39,
+        3
       ],
       "id": 25,
       "name": "PV"
     },
     {
       "at": [
-        50,
-        -9
+        39,
+        -20
       ],
       "id": 26,
       "name": "PV"
     },
     {
       "at": [
-        62,
-        -3
+        39,
+        11
       ],
       "id": 27,
       "name": "VS"
     },
     {
       "at": [
-        9,
+        11,
         9
       ],
       "id": 28,
@@ -318,15 +318,15 @@
     },
     {
       "at": [
-        50,
-        -1
+        39,
+        -12
       ],
       "id": 29,
       "name": "SH"
     },
     {
       "at": [
-        9,
+        11,
         7
       ],
       "id": 30,
@@ -334,18 +334,20 @@
     },
     {
       "at": [
-        27,
-        -2
+        16,
+        -5
       ],
       "id": 31,
+      "mirrored": true,
       "name": "SH"
     },
     {
       "at": [
-        27,
-        2
+        16,
+        -1
       ],
       "id": 32,
+      "mirrored": true,
       "name": "SET"
     },
     {
@@ -374,43 +376,44 @@
     },
     {
       "at": [
-        43,
-        0
+        32,
+        -3
       ],
       "id": 36,
       "name": "GATE"
     },
     {
       "at": [
-        45,
-        -6
+        34,
+        -17
       ],
       "id": 37,
+      "mirrored": true,
       "name": "GATE"
     },
     {
       "at": [
-        24,
-        -15
+        15,
+        -20
       ],
       "id": 38,
       "name": "VCC"
     },
     {
       "at": [
-        32,
-        -4
+        21,
+        -7
       ],
       "id": 39,
       "name": "VCC"
     }
   ],
-  "next_id": 44,
+  "next_id": 47,
   "notes": [
     {
       "at": [
-        -30,
-        -34
+        -9,
+        -35
       ],
       "id": 43,
       "text": "Maximum power point tracking (Perturb & Observe) on a 10 W solar panel.\nThe Blue Pill sets the current of an electronic load (U2, Q1, R3 = 1 ohm) with a filtered PWM (PA0, R5, R6, C1),\nreads the panel voltage (PA1, R1/R2) and the current (PA2, 1 mV per mA), and moves the duty by 1 % every 50 ms towards more power.\nWhile running, drag PV1 (irradiance) or use Shift with the wheel (cell temperature): the symbol shows the power as % of the maximum.\nAnalyzer > UART: \"V <mV> mV I <mA> mA P <mW> mW D <duty> %\" every 250 ms.\nA real MPPT feeds a DC-DC converter instead of a load; the algorithm is the same."
@@ -475,12 +478,12 @@
       "id": 8,
       "points": [
         [
-          62,
-          -3
+          39,
+          9
         ],
         [
-          62,
-          1
+          39,
+          13
         ]
       ]
     },
@@ -488,12 +491,12 @@
       "id": 11,
       "points": [
         [
-          50,
-          -3
+          39,
+          -14
         ],
         [
-          50,
-          -1
+          39,
+          -12
         ]
       ]
     },
@@ -507,6 +510,45 @@
         [
           13,
           11
+        ]
+      ]
+    },
+    {
+      "id": 44,
+      "points": [
+        [
+          52,
+          -7
+        ],
+        [
+          52,
+          -5
+        ]
+      ]
+    },
+    {
+      "id": 45,
+      "points": [
+        [
+          9,
+          7
+        ],
+        [
+          11,
+          7
+        ]
+      ]
+    },
+    {
+      "id": 46,
+      "points": [
+        [
+          9,
+          9
+        ],
+        [
+          11,
+          9
         ]
       ]
     }

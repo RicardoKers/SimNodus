@@ -3,7 +3,7 @@
   "name": "Rotary encoder",
   "category": "Motors & motion",
   "prefix": "SW",
-  "description": "Incremental rotary encoder like an EC11 or KY-040: contacts A and B close to C in quadrature, one cycle per detent (A before B turning clockwise), both open at rest; 20 detents per turn. Turn it while running by dragging it or with the wheel (one detent per step); pull-ups on A and B (or the board's) give the pulses. For the push switch place a push button",
+  "description": "Incremental rotary encoder like an EC11 or KY-040: contacts A and B close to C in quadrature, one cycle per detent (A before B turning clockwise, B before A counter-clockwise), both open at rest. The simulated knob has 20 detents (one turn) between two stops; turning it by dragging or with the wheel (one detent per step) runs through each detent's four contact states at one detent per 20 ms, so the firmware counts the pulses. Pull-ups on A and B (or the board's) give the pulses. For the push switch place a push button",
   "symbol": {
     "graphics": [
       {
@@ -119,14 +119,16 @@
       "label": "Position",
       "unit": "",
       "default": "10",
-      "description": "Detent the knob starts at (0 to 20, one turn); drag or wheel while running",
+      "description": "Detent the knob starts at (0 to 20); the firmware only sees the pulses while it turns, not this number",
       "min": "0",
       "max": "20"
     }
   ],
   "interactive": {
     "kind": "potentiometer",
-    "parameter": "position"
+    "parameter": "position",
+    "detents": 20,
+    "rate": 2.5
   },
   "readout": {
     "kind": "node",

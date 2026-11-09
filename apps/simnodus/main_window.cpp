@@ -161,6 +161,7 @@ MainWindow::MainWindow(QSettings& settings, QWidget* parent) : QMainWindow(paren
 
     build_actions_and_menus();
     build_status_bar();
+    analyzer_->add_run_action(pause_action_);
 
     connect(components_, &ComponentPanel::placement_requested, this, [this](const QString& type) {
         view_->begin_place(document_->library().find(type.toStdString()));
@@ -1305,7 +1306,8 @@ QDialog* MainWindow::about_dialog()
     box->setAttribute(Qt::WA_DeleteOnClose);
     box->setWindowTitle(tr("About SimNodus"));
     box->setText(tr("<h3>SimNodus %1</h3>"
-                    "<p>Interactive circuit and STM32 simulator for teaching.</p>"
+                    "<p>Interactive circuit and microcontroller simulator for teaching.</p>"
+                    "<p>Author: Ricardo Kerschbaumer</p>"
                     "<p>MIT License. Analog engine: ngspice (BSD-3-Clause), loaded at run time. "
                     "Qt %2 (LGPL-3.0).</p>")
                      .arg(QStringLiteral(SIMNODUS_VERSION_FULL), QString::fromLatin1(qVersion())));

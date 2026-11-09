@@ -87,9 +87,16 @@
       "default": "1m",
       "description": "Inductance",
       "min": "1p"
+    },
+    {
+      "name": "I0",
+      "label": "Initial current",
+      "unit": "A",
+      "default": "0",
+      "description": "Current through the inductor (from pin 1 to pin 2) when the simulation starts"
     }
   ],
   "spice": [
-    "L_{ref} {node:1} {node:2} {L}"
+    "L_{ref} {node:1} {node:2} {L} IC={I0}"
   ]
 }

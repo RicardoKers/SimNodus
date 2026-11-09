@@ -1,4 +1,4 @@
-<!-- source: USER_GUIDE.md sha256 f6cb96f80528b51c1151e7fe24c660acc10d3c2fa8cc3b483ac48edd9d7a133d -->
+<!-- source: USER_GUIDE.md sha256 82ddb8a3d981d10b190020b7d477c5fa0d0933016d8ca363e43071b7ba17333b -->
 # Guia do usuário do SimNodus
 
 O SimNodus é um simulador para sala de aula: você desenha um circuito, aperta
@@ -84,7 +84,7 @@ da rede. Todo circuito precisa de um **terra**.
 | Ação | Como |
 |---|---|
 | Selecionar | Clique, Ctrl+clique para acrescentar, ou arraste um retângulo; Ctrl+A seleciona tudo |
-| Mover | Arraste (os fios continuam ligados) ou use as setas (um passo da grade) |
+| Mover | Arraste (os fios continuam ligados) ou use as setas (um passo da grade). Arrastar um fio sozinho move só o trecho sob o mouse; as pontas do fio ficam onde estão |
 | Girar, espelhar | Ctrl+R, Ctrl+E |
 | Excluir | Del |
 | Área de transferência | Ctrl+C, Ctrl+X, Ctrl+V |
@@ -394,7 +394,13 @@ desligados, valores inválidos) e lista os problemas no painel Mensagens.
 Durante a execução:
 
 - Clique numa **chave** para alterná-la; segure o mouse sobre um **botão**;
-  arraste ou use a roda num **potenciômetro**.
+  arraste ou use a roda num **potenciômetro**. Os sensores funcionam do mesmo
+  jeito: arraste ou gire a roda sobre um LM75, DS18B20 ou DHT22 (temperatura;
+  Shift com a roda para a umidade do DHT22) ou um HC-SR04 (distância); o valor
+  aparece ao lado do símbolo.
+- Um clique no nome ou no valor de uma peça, ou Ctrl+clique, seleciona a
+  peça em vez de acionar o seu controle, para ver as suas propriedades e os
+  valores ao vivo.
 - LEDs, lâmpadas e segmentos de displays acendem conforme a corrente, com a
   média dos últimos 20 ms, como o olho vê um display multiplexado, e com o
   brilho que o olho perceberia (um LED com poucos miliamperes parece
@@ -403,7 +409,8 @@ Durante a execução:
 - Passe o mouse sobre um fio para ver a sua tensão. **Exibir > Mostrar
   tensões** colore os fios.
 - Selecione um componente para ver as suas tensões, corrente e potência ao
-  vivo em Propriedades.
+  vivo em Propriedades (valores abaixo de um picovolt ou um picoampère
+  aparecem como 0).
 - A **caixa de velocidade** define a velocidade em relação ao tempo real
   (0,001x a 1x, ou Máxima). A barra de status mostra a velocidade
   efetivamente alcançada.
@@ -433,7 +440,8 @@ quadradas fiquem exatas no osciloscópio; as execuções ficam mais lentas.
 
 **Janela > Analisador de sinais** (Ctrl+Shift+A) o abre numa janela
 separada, que pode ficar em outro monitor. Ele tem três abas: Osciloscópio,
-Lógico e UART.
+Lógico e UART. O seu botão **Pausar / Retomar** (F6) pausa a simulação sem
+voltar ao esquemático.
 
 ### Pontas de prova
 
@@ -634,10 +642,12 @@ declarados para que os resultados sejam lidos corretamente.
   limite de corrente, então um LED sem resistor consome uma corrente
   irreal.
 - Execuções interativas são calculadas em segmentos (1 s por padrão). A
-  carga das junções dos semicondutores não passa de um segmento para o
-  seguinte, então um pequeno degrau pode aparecer uma vez por segmento em
-  circuitos que dependem dela. As tensões dos capacitores e as correntes dos
-  indutores são preservadas.
+  As tensões dos capacitores e as correntes dos indutores são preservadas,
+  assim como as tensões dos nós ligados só a semicondutores, resistores,
+  capacitores e chaves (a base de um transistor atrás de uma chave aberta).
+  A carga das junções em nós com um indutor, uma fonte ou um subcircuito não
+  passa de um segmento para o seguinte, então um pequeno degrau pode aparecer
+  uma vez por segmento em circuitos que dependem dela.
 - Eventos (um clique, uma chave, uma borda do firmware) são resolvidos no
   passo de tempo máximo, a menos que *Bordas exatas do microcontrolador*
   esteja ligada.

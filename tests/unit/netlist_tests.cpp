@@ -288,7 +288,7 @@ TEST_CASE("an RC circuit gives the expected netlist")
         dump(n);
     }
     CHECK(n.ok());
-    CHECK((n.lines == std::vector<std::string>{"V_V1 IN 0 DC 3.3", "R_R1 IN OUT 4700", "C_C1 OUT 0 1e-07"}));
+    CHECK((n.lines == std::vector<std::string>{"V_V1 IN 0 DC 3.3", "R_R1 IN OUT 4700", "C_C1 OUT 0 1e-07 IC=0"}));
     CHECK(n.models.empty());
     REQUIRE(n.elements.size() == 3);
     CHECK(n.elements[2].letter == 'C');

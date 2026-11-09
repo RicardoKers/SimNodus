@@ -396,6 +396,11 @@ ComponentDefinition parse_definition(const json& j)
         }
         interactive.parameter = text(i, "parameter");
         interactive.logarithmic = i.value("scale", std::string()) == "log";
+        interactive.rate = i.value("rate", 0.0);
+        interactive.detents = i.value("detents", 0);
+        if (interactive.rate < 0 || interactive.detents < 0) {
+            invalid("an interactive control's rate and detents cannot be negative");
+        }
         const auto check_parameter = [&d](Interactive::Kind kind, const std::string& name, bool logarithmic) {
             if (name.empty()) {
                 return;

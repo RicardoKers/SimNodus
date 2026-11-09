@@ -22,8 +22,8 @@
     },
     {
       "at": [
-        -30,
-        -10
+        -18,
+        -9
       ],
       "designator": "V1",
       "id": 2,
@@ -36,8 +36,8 @@
     },
     {
       "at": [
-        -30,
-        -7
+        -18,
+        -6
       ],
       "designator": "GND1",
       "id": 3,
@@ -72,8 +72,8 @@
     },
     {
       "at": [
-        24,
-        6
+        19,
+        -12
       ],
       "designator": "RV1",
       "id": 9,
@@ -87,8 +87,8 @@
     },
     {
       "at": [
-        24,
-        9
+        19,
+        -9
       ],
       "designator": "GND4",
       "id": 11,
@@ -100,7 +100,7 @@
     {
       "at": [
         -16,
-        18
+        13
       ],
       "designator": "R1",
       "id": 14,
@@ -113,8 +113,8 @@
     },
     {
       "at": [
-        -16,
-        26
+        -22,
+        19
       ],
       "designator": "LED1",
       "id": 16,
@@ -127,8 +127,8 @@
     },
     {
       "at": [
-        -16,
-        29
+        -22,
+        22
       ],
       "designator": "GND5",
       "id": 18,
@@ -139,8 +139,8 @@
     },
     {
       "at": [
-        24,
-        18
+        19,
+        1
       ],
       "designator": "R2",
       "id": 19,
@@ -153,8 +153,8 @@
     },
     {
       "at": [
-        32,
-        26
+        19,
+        16
       ],
       "designator": "C1",
       "id": 23,
@@ -167,8 +167,8 @@
     },
     {
       "at": [
-        32,
-        29
+        19,
+        19
       ],
       "designator": "GND6",
       "id": 25,
@@ -182,8 +182,8 @@
   "labels": [
     {
       "at": [
-        -30,
-        -13
+        -18,
+        -12
       ],
       "id": 4,
       "name": "VCC"
@@ -194,6 +194,7 @@
         -1
       ],
       "id": 5,
+      "mirrored": true,
       "name": "VCC"
     },
     {
@@ -206,23 +207,23 @@
     },
     {
       "at": [
-        24,
-        3
+        19,
+        -15
       ],
       "id": 10,
       "name": "VCC"
     },
     {
       "at": [
-        27,
-        6
+        22,
+        -12
       ],
       "id": 12,
       "name": "POT"
     },
     {
       "at": [
-        9,
+        11,
         -3
       ],
       "id": 13,
@@ -230,7 +231,7 @@
     },
     {
       "at": [
-        9,
+        11,
         9
       ],
       "id": 20,
@@ -238,35 +239,35 @@
     },
     {
       "at": [
-        24,
-        15
+        19,
+        -2
       ],
       "id": 21,
       "name": "PWM"
     },
     {
       "at": [
-        24,
-        21
+        19,
+        6
       ],
       "id": 22,
       "name": "FILTERED"
     },
     {
       "at": [
-        32,
-        23
+        19,
+        13
       ],
       "id": 24,
       "name": "FILTERED"
     }
   ],
-  "next_id": 30,
+  "next_id": 33,
   "notes": [
     {
       "at": [
-        -36,
-        -30
+        -25,
+        -25
       ],
       "id": 29,
       "text": "ATmega8A at 1 MHz running avr_station, a student project in small: a 1 ms tick from Timer1 reads the\npotentiometer on ADC0 every 10 ms, sets the PWM on OC2 (PB3, 3.9 kHz) from it, blinks the LED on PB0\nevery 500 ms and reports over the USART every 100 ms. Drag RV1 while running: the PWM's duty and the\nfiltered voltage (R2, C1) follow, and the terminal shows the readings."
@@ -337,10 +338,6 @@
         [
           -13,
           13
-        ],
-        [
-          -13,
-          18
         ]
       ]
     },
@@ -349,15 +346,54 @@
       "points": [
         [
           -19,
-          18
+          13
         ],
         [
-          -16,
-          18
+          -22,
+          13
         ],
         [
-          -16,
-          23
+          -22,
+          16
+        ]
+      ]
+    },
+    {
+      "id": 30,
+      "points": [
+        [
+          19,
+          4
+        ],
+        [
+          19,
+          6
+        ]
+      ]
+    },
+    {
+      "id": 31,
+      "points": [
+        [
+          9,
+          -3
+        ],
+        [
+          11,
+          -3
+        ]
+      ]
+    },
+    {
+      "id": 32,
+      "points": [
+        [
+          9,
+          9
+        ],
+        [
+          11,
+          9
         ]
       ]
     }

@@ -424,6 +424,65 @@ Edit move_items(const Schematic& schematic, const library::ComponentLibrary& lib
         schematic, library, ids, [delta](Point p) { return p + delta; }, [](Orientation o) { return o; }, "Move");
 }
 
+Edit move_wire_segment(const Schematic& schematic, Id wire, std::size_t segment, Point delta)
+{
+    const auto* w = schematic.wire(wire);
+    if (!w || segment + 1 >= w->points.size()) {
+        return {};
+    }
+    const Point a = w->points[segment];
+    const Point b = w->points[segment + 1];
+    // Only across the segment: along it the segment would leave its neighbours.
+    const Point shift = a.y == b.y ? Point{0, delta.y} : a.x == b.x ? Point{delta.x, 0} : Point{};
+    if (shift == Point{}) {
+        return {};
+    }
+    std::vector<Point> points = w->points;
+    points[segment] = a + shift;
+    points[segment + 1] = b + shift;
+    // An end of the wire stays put; a new segment joins it to the moved one.
+    if (segment + 2 == w->points.size()) {
+        points.push_back(b);
+    }
+    if (segment == 0) {
+        points.insert(points.begin(), a);
+    }
+    const bool first = segment == 0;
+    const bool last = segment + 2 == w->points.size();
+    // What ends on the old segment follows it, except at the wire's ends that stay.
+    auto follows = [&](Point p) {
+        return model::on_segment(p, a, b) && !(first && p == a) && !(last && p == b);
+    };
+    Schematic work = schematic;
+    work.put(Wire{w->id, normalize_polyline(std::move(points))});
+    for (const auto& other : schematic.wires()) {
+        if (other.id == wire || other.points.size() < 2) {
+            continue;
+        }
+        std::vector<Point> moved = other.points;
+        bool changed = false;
+        if (follows(moved.front())) {
+            moved.insert(moved.begin(), moved.front() + shift);
+            changed = true;
+        }
+        if (follows(moved.back())) {
+            moved.push_back(moved.back() + shift);
+            changed = true;
+        }
+        if (changed) {
+            work.put(Wire{other.id, normalize_polyline(std::move(moved))});
+        }
+    }
+    for (const auto& label : schematic.labels()) {
+        if (follows(label.position)) {
+            NetLabel updated = label;
+            updated.position = label.position + shift;
+            work.put(updated);
+        }
+    }
+    return make_edit(schematic, work, "Move wire segment");
+}
+
 Edit rotate_items(const Schematic& schematic, const library::ComponentLibrary& library, const std::set<Id>& ids)
 {
     if (ids.empty()) {

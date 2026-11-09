@@ -23,8 +23,8 @@
     },
     {
       "at": [
-        -24,
-        0
+        -27,
+        -8
       ],
       "designator": "V1",
       "id": 2,
@@ -37,8 +37,8 @@
     },
     {
       "at": [
-        -24,
-        3
+        -27,
+        -5
       ],
       "designator": "GND1",
       "id": 3,
@@ -197,6 +197,10 @@
         -3
       ],
       "designator": "SW1",
+      "designator_offset": [
+        1,
+        -2
+      ],
       "id": 29,
       "mirrored": false,
       "parameters": {
@@ -223,6 +227,10 @@
         -7
       ],
       "designator": "SW2",
+      "designator_offset": [
+        1,
+        -2
+      ],
       "id": 32,
       "mirrored": false,
       "parameters": {
@@ -248,8 +256,8 @@
   "labels": [
     {
       "at": [
-        -24,
-        -3
+        -27,
+        -11
       ],
       "id": 4,
       "name": "VCC"
@@ -260,6 +268,7 @@
         -1
       ],
       "id": 5,
+      "mirrored": true,
       "name": "VCC"
     },
     {

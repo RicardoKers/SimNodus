@@ -1,98 +1,150 @@
 {
+  "buses": [],
+  "components": [
+    {
+      "at": [
+        0,
+        0
+      ],
+      "designator": "U1",
+      "id": 1,
+      "mirrored": false,
+      "parameters": {
+        "firmware": "firmware/esp32c3_wifi_web/esp32c3_wifi_web.bin"
+      },
+      "rotation": 0,
+      "type": "esp32c3_devkitm1"
+    },
+    {
+      "at": [
+        -12,
+        -10
+      ],
+      "designator": "GND1",
+      "id": 2,
+      "mirrored": false,
+      "parameters": {},
+      "rotation": 0,
+      "type": "ground"
+    },
+    {
+      "at": [
+        21,
+        -4
+      ],
+      "designator": "R1",
+      "id": 5,
+      "mirrored": false,
+      "parameters": {
+        "R": "330"
+      },
+      "rotation": 90,
+      "type": "resistor"
+    },
+    {
+      "at": [
+        26,
+        -1
+      ],
+      "designator": "LED1",
+      "id": 6,
+      "mirrored": false,
+      "parameters": {
+        "color": "red"
+      },
+      "rotation": 0,
+      "type": "led"
+    },
+    {
+      "at": [
+        26,
+        6
+      ],
+      "designator": "GND2",
+      "id": 7,
+      "mirrored": false,
+      "parameters": {},
+      "rotation": 0,
+      "type": "ground"
+    }
+  ],
   "format": "simnodus-project",
-  "version": 1,
+  "labels": [
+    {
+      "at": [
+        12,
+        -4
+      ],
+      "id": 13,
+      "name": "GPIO8"
+    }
+  ],
   "next_id": 15,
+  "notes": [
+    {
+      "at": [
+        -12,
+        -26
+      ],
+      "id": 14,
+      "text": "Wi-Fi web server: the board joins the network SimNodus (password simnodus-wifi).\nRun (F5): it shows its address on UART0. With the gateway allowed, open\nhttp://127.0.0.1:8080/ in a browser and switch the LED (Simulate > Wi-Fi Network...)."
+    }
+  ],
+  "probes": [
+    {
+      "color": "#1f77b4",
+      "id": 11,
+      "kind": "voltage",
+      "target": {
+        "at": [
+          10,
+          -4
+        ],
+        "item": 8
+      }
+    },
+    {
+      "color": "#d62728",
+      "id": 12,
+      "kind": "current",
+      "target": {
+        "at": [
+          26,
+          -4
+        ],
+        "item": 6,
+        "pin": "A"
+      }
+    }
+  ],
   "settings": {
-    "mode": "interactive",
-    "speed": 1,
+    "cortex_m3_timing": true,
+    "exact_edges": false,
     "max_step": 0.0001,
-    "segment": 1,
-    "transient_stop": 0.01,
+    "mcu_quantum": 0.001,
+    "mode": "interactive",
+    "segment": 1.0,
+    "speed": 1.0,
     "transient_max_step": 1e-06,
+    "transient_stop": 0.01,
     "wifi": {
       "access_point": true,
-      "ssid": "SimNodus",
-      "security": "wpa2",
-      "passphrase": "simnodus-wifi",
       "channel": 6,
-      "gateway": true,
       "forwards": [
         {
           "host_port": 8080,
           "station": "192.168.4.2",
           "station_port": 80
         }
-      ]
+      ],
+      "gateway": true,
+      "passphrase": "simnodus-wifi",
+      "security": "wpa2",
+      "ssid": "SimNodus"
     }
   },
-  "components": [
-    {
-      "id": 1,
-      "type": "esp32c3_devkitm1",
-      "designator": "U1",
-      "at": [
-        0,
-        0
-      ],
-      "rotation": 0,
-      "mirrored": false,
-      "parameters": {
-        "firmware": "firmware/esp32c3_wifi_web/esp32c3_wifi_web.bin"
-      }
-    },
-    {
-      "id": 2,
-      "type": "ground",
-      "designator": "GND1",
-      "at": [
-        -12,
-        -10
-      ],
-      "rotation": 0,
-      "mirrored": false,
-      "parameters": {}
-    },
-    {
-      "id": 5,
-      "type": "resistor",
-      "designator": "R1",
-      "at": [
-        14,
-        -4
-      ],
-      "rotation": 90,
-      "mirrored": false,
-      "parameters": {
-        "R": "330"
-      }
-    },
-    {
-      "id": 6,
-      "type": "led",
-      "designator": "LED1",
-      "at": [
-        26,
-        -1
-      ],
-      "rotation": 0,
-      "mirrored": false,
-      "parameters": {
-        "color": "red"
-      }
-    },
-    {
-      "id": 7,
-      "type": "ground",
-      "designator": "GND2",
-      "at": [
-        26,
-        6
-      ],
-      "rotation": 0,
-      "mirrored": false,
-      "parameters": {}
-    }
-  ],
+  "splitters": [],
+  "version": 1,
   "wires": [
     {
       "id": 3,
@@ -119,7 +171,7 @@
           -4
         ],
         [
-          11,
+          18,
           -4
         ]
       ]
@@ -128,7 +180,7 @@
       "id": 9,
       "points": [
         [
-          17,
+          24,
           -4
         ],
         [
@@ -149,53 +201,6 @@
           6
         ]
       ]
-    }
-  ],
-  "labels": [
-    {
-      "id": 13,
-      "at": [
-        10,
-        -4
-      ],
-      "name": "GPIO8"
-    }
-  ],
-  "probes": [
-    {
-      "id": 11,
-      "kind": "voltage",
-      "target": {
-        "item": 8,
-        "at": [
-          10,
-          -4
-        ]
-      },
-      "color": "#1f77b4"
-    },
-    {
-      "id": 12,
-      "kind": "current",
-      "target": {
-        "item": 6,
-        "pin": "A",
-        "at": [
-          26,
-          -4
-        ]
-      },
-      "color": "#d62728"
-    }
-  ],
-  "notes": [
-    {
-      "id": 14,
-      "at": [
-        -12,
-        -26
-      ],
-      "text": "Wi-Fi web server: the board joins the network SimNodus (password simnodus-wifi).\nRun (F5): it shows its address on UART0. With the gateway allowed, open\nhttp://127.0.0.1:8080/ in a browser and switch the LED (Simulate > Wi-Fi Network...)."
     }
   ]
 }

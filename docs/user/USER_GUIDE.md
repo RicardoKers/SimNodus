@@ -80,7 +80,7 @@ needs a **ground**.
 | Action | How |
 |---|---|
 | Select | Click, Ctrl+click to add, or drag a rectangle; Ctrl+A selects all |
-| Move | Drag (wires stay attached) or arrow keys (one grid step) |
+| Move | Drag (wires stay attached) or arrow keys (one grid step). Dragging a single wire moves only the segment under the mouse; its ends stay where they are |
 | Rotate, mirror | Ctrl+R, Ctrl+E |
 | Delete | Del |
 | Clipboard | Ctrl+C, Ctrl+X, Ctrl+V |
@@ -370,13 +370,19 @@ values) and lists problems in the Messages panel.
 While running:
 
 - Click a **switch** to toggle it; hold the mouse on a **push button**; drag
-  or use the wheel on a **potentiometer**.
+  or use the wheel on a **potentiometer**. Sensors work the same way: drag
+  or turn the wheel over an LM75, DS18B20 or DHT22 (temperature; Shift with
+  the wheel for the DHT22's humidity) or an HC-SR04 (distance); the value
+  shows next to the symbol.
+- A click on a part's name or value text, or Ctrl+click, selects it
+  instead of working its control, to see its properties and live values.
 - LEDs, lamps and display segments glow with their current, averaged over
   the last 20 ms as the eye sees a multiplexed display, and as bright as the
   eye would see them (an LED at a few milliamperes looks clearly lit); meters show
   their reading; the relay contact moves; the motor shows its speed.
 - Hover a wire for its voltage. **View > Show Voltages** colors the wires.
-- Select a part to see its live voltages, current and power in Properties.
+- Select a part to see its live voltages, current and power in Properties
+  (values below a picovolt or picoampere show as 0).
 - The **speed box** sets the speed relative to real time (0.001x to 1x, or
   Maximum). The status bar shows the speed actually reached.
 - Changing the circuit asks to stop first. A new value of a part (a
@@ -404,6 +410,8 @@ scope; runs are slower.
 
 **Window > Signal Analyzer** (Ctrl+Shift+A) opens it as a separate window,
 which can sit on another monitor. It has three tabs: Scope, Logic and UART.
+Its **Pause / Resume** button (F6) pauses the simulation without going back
+to the schematic.
 
 ### Probes
 
@@ -590,9 +598,11 @@ results are read correctly.
   the ammeter is ideal; LEDs have no current limit, so an LED without a
   resistor draws an unrealistic current.
 - Interactive runs are computed in segments (1 s by default).
-  Semiconductor junction charge is not carried from one segment to the
-  next, so a tiny step may appear once per segment in circuits that depend
-  on it. Capacitor voltages and inductor currents are carried over.
+  Capacitor voltages and inductor currents are carried over, and so are
+  the voltages of nodes held only by semiconductors, resistors, capacitors
+  and switches (a transistor's base behind an open switch). Junction charge
+  on nodes with an inductor, a source or a subcircuit is not, so a tiny step
+  may appear once per segment in circuits that depend on it.
 - Events (a click, a switch, a firmware edge) are resolved to the maximum
   time step unless *Exact microcontroller edges* is on.
 - On Windows, pacing to real time can lag by up to about 25 ms (timer

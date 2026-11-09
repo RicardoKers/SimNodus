@@ -222,6 +222,27 @@ TEST_CASE("devices: a 74HC595 joins the board it is wired to, with its supply, p
     (void)board;
 }
 
+TEST_CASE("a new ESP32-C3 board starts with its flash erased, waiting for an upload")
+{
+    test::CircuitBuilder b(device_library());
+    b.add("esp32c3_devkitm1", {{"G1", "0"}});
+    std::vector<sim::McuRequest> requests;
+    std::vector<std::string> warnings;
+    std::string error;
+    sim::McuEnvironment environment;
+    environment.project_dir = SIMNODUS_TEST_EXAMPLES_DIR;
+    REQUIRE(sim::build_mcu_requests(b.schematic, device_library(), environment, requests, error, &warnings));
+    REQUIRE(requests.size() == 1);
+    CHECK(requests[0].options.firmware.empty());
+    REQUIRE(warnings.size() == 1);
+    CHECK(warnings[0].find("flash is erased") != std::string::npos);
+    // A Blue Pill still needs its firmware.
+    test::CircuitBuilder pill(device_library());
+    pill.add("bluepill", {{"G1", "0"}});
+    CHECK(!sim::build_mcu_requests(pill.schematic, device_library(), environment, requests, error, &warnings));
+    CHECK(error.find("has no firmware") != std::string::npos);
+}
+
 TEST_CASE("devices: a 74HC595 runs a light across eight LEDs in a whole run")
 {
     REQUIRE(test::engine() != nullptr);
@@ -262,7 +283,9 @@ TEST_CASE("devices: a 74HC595 runs a light across eight LEDs in a whole run")
             std::this_thread::sleep_for(2ms);
         }
         for (int i = 0; i < 8; ++i) {
-            const double volts = session.latest("q" + std::to_string(i)).value_or(-1);
+            // The sample at `at`: at full speed the run may be well past it by now.
+            const auto samples = session.samples_since("q" + std::to_string(i), at - 1e-3);
+            const double volts = samples.empty() ? -1.0 : samples.front().value;
             if (i == step) {
                 CHECK(volts > 3.0); // 3.3 V behind 50 ohm into 1k
             } else {

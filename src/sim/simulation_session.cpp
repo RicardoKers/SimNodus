@@ -19,6 +19,7 @@
 #include <filesystem>
 #include <set>
 #include <sstream>
+#include <string_view>
 
 namespace simnodus::sim {
 namespace {
@@ -372,8 +373,17 @@ bool SimulationSession::start(RunRequest request, std::string& error)
         control_source_.clear();
         bouncing_sources_.clear();
         bounces_.clear();
+        control_rates_.clear();
+        control_detents_.clear();
+        slews_.clear();
         for (const auto& c : netlist_.controls) {
             controls_[lower(c.source)] = c.initial;
+            if (c.rate > 0) {
+                control_rates_[lower(c.source)] = c.rate;
+            }
+            if (c.detents > 0) {
+                control_detents_[lower(c.source)] = c.detents;
+            }
             control_source_[{c.component, c.slot}] = lower(c.source);
             if (c.bounce) {
                 bouncing_sources_.insert(lower(c.source));
@@ -438,15 +448,50 @@ void SimulationSession::set_speed(double speed)
 
 void SimulationSession::set_control(model::Id component, double value, int slot)
 {
-    std::lock_guard lock(mutex_);
-    const auto it = control_source_.find({component, slot});
-    if (it != control_source_.end()) {
-        const double previous = controls_[it->second];
-        if (bouncing_sources_.count(it->second) && previous != value) {
-            bounces_[it->second] = {status_.sim_time, previous};
+    std::string parameter;
+    std::string text;
+    {
+        std::lock_guard lock(mutex_);
+        const auto it = control_source_.find({component, slot});
+        if (it != control_source_.end()) {
+            if (const auto d = control_detents_.find(it->second); d != control_detents_.end()) {
+                value = std::clamp(std::round(value * d->second) / d->second, 0.0, 1.0);
+            }
+            const double previous = controls_[it->second];
+            if (bouncing_sources_.count(it->second) && previous != value) {
+                bounces_[it->second] = {status_.sim_time, previous};
+            }
+            if (const auto rate = control_rates_.find(it->second); rate != control_rates_.end()) {
+                // From where the knob is now, not from the last target.
+                const auto slew = slews_.find(it->second);
+                const double now = slew == slews_.end() ? previous : slewed(slew->second, previous, status_.sim_time);
+                slews_[it->second] = {now, status_.sim_time, rate->second};
+            }
+            controls_[it->second] = value;
         }
-        controls_[it->second] = value;
+        // A chip's live parameter worked with the mouse (a DS18B20's
+        // temperature, an HC-SR04's distance): the chip takes the value.
+        const auto* c = request_.schematic.component(component);
+        const auto* d = c && request_.library ? request_.library->find(c->type) : nullptr;
+        if (d && d->device && d->interactive && slot < d->interactive->slot_count()
+            && d->interactive->slot_kind(slot) == library::Interactive::Kind::Potentiometer) {
+            const auto* p = d->parameter(d->interactive->slot_parameter(slot));
+            if (p && p->live) {
+                parameter = p->name;
+                text = model::format_engineering(
+                    library::potentiometer_value(*p, d->interactive->slot_logarithmic(slot), std::clamp(value, 0.0, 1.0)), 3);
+            }
+        }
     }
+    if (!parameter.empty()) {
+        set_device_parameter(component, parameter, text);
+    }
+}
+
+double SimulationSession::slewed(const Slew& slew, double target, double time)
+{
+    const double travel = std::max(0.0, time - slew.start) * slew.rate;
+    return target >= slew.from ? std::min(target, slew.from + travel) : std::max(target, slew.from - travel);
 }
 
 static double bounce_value(double since_change, double value, double previous)
@@ -596,6 +641,11 @@ std::vector<std::string> SimulationSession::segment_deck(double t0, double lengt
         std::string out = line;
         const std::string name = lower(line.substr(0, line.find(' ')));
         if (const auto it = carry_.find(name); it != carry_.end()) {
+            // The carried state replaces the part's initial condition (a
+            // capacitor's initial voltage), which only the first segment uses.
+            if (const auto ic = lower(out).find(" ic="); ic != std::string::npos) {
+                out.erase(ic);
+            }
             out += " IC=" + model::spice_number(it->second);
         }
         lines.push_back(out);
@@ -709,6 +759,29 @@ bool SimulationSession::run_segment(NgspiceSession& engine, const std::vector<st
                 }
             } else if (e.letter == 'L') {
                 carry_[lower(e.name)] = value(e.name + "#branch");
+            }
+        }
+        // Nodes held only through junctions, resistors, capacitors and
+        // switches (an open switch's transistor base) started each segment
+        // from 0 V and settled again: a pulse every segment (owner's test of
+        // example 4). Nodes on inductors, sources or subcircuits keep starting
+        // as before (with them, fixing the voltage broke convergence).
+        std::map<std::string, bool> quiet; // node -> only such parts
+        for (const auto& e : netlist_.elements) {
+            const bool calm = std::string_view("RCSWDQMJ").find(e.letter) != std::string_view::npos;
+            for (const auto& node : e.nodes) {
+                const auto [it, added] = quiet.try_emplace(lower(node), calm);
+                it->second = it->second && calm;
+            }
+        }
+        for (const auto& e : netlist_.elements) {
+            if (std::string_view("DQMJ").find(e.letter) == std::string_view::npos) {
+                continue;
+            }
+            for (const auto& node : e.nodes) {
+                if (node != "0" && quiet[lower(node)]) {
+                    carry_nodes_[lower(node)] = value(node);
+                }
             }
         }
     }
@@ -1064,7 +1137,16 @@ bool build_mcu_requests(const model::Schematic& schematic, const library::Compon
         // writes it, as with an ST-LINK.
         const bool loaded_by_debugger = firmware.empty() && environment.gdb_port >= 0;
         const bool bootloader_only = firmware.empty() && d->mcu->parameters.count("bootloader"); // an UNO waiting for an upload
-        if (firmware.empty() && !loaded_by_debugger && !bootloader_only) {
+        // A new ESP32-C3 board starts with its flash erased, like a blank
+        // module: its ROM waits for an upload (Arduino IDE, esptool), which
+        // the board then keeps as its firmware.
+        const bool erased_flash = firmware.empty() && d->mcu->chip == "esp32c3" && !loaded_by_debugger;
+        if (erased_flash && warnings) {
+            warnings->push_back(c.designator
+                + " has no firmware: its flash is erased and its ROM reports \"invalid header\" until a firmware "
+                  "is uploaded through its USB connector (Arduino IDE, esptool) or chosen in its properties.");
+        }
+        if (firmware.empty() && !loaded_by_debugger && !bootloader_only && !erased_flash) {
             error = c.designator + " has no firmware: choose "
                 + (d->mcu->chip == "esp32c3"                                 ? "a flash image (.bin)"
                    : library::avr_chip(d->mcu->chip) ? "a .hex or .elf file"
@@ -1077,7 +1159,7 @@ bool build_mcu_requests(const model::Schematic& schematic, const library::Compon
             path = environment.project_dir / path;
         }
         std::error_code ec;
-        if (!loaded_by_debugger && !bootloader_only && !std::filesystem::is_regular_file(path, ec)) {
+        if (!loaded_by_debugger && !bootloader_only && !erased_flash && !std::filesystem::is_regular_file(path, ec)) {
             const auto text = path.u8string();
             error = c.designator + ": the firmware file " + std::string(text.begin(), text.end()) + " does not exist.";
             return false;
@@ -1094,7 +1176,7 @@ bool build_mcu_requests(const model::Schematic& schematic, const library::Compon
                 }
             }
         }
-        request.options.firmware = loaded_by_debugger || bootloader_only ? std::filesystem::path() : path;
+        request.options.firmware = loaded_by_debugger || bootloader_only || erased_flash ? std::filesystem::path() : path;
         request.options.pin_model = {d->mcu->pin_model.supply, d->mcu->pin_model.output_resistance,
             d->mcu->pin_model.pull_resistance, d->mcu->pin_model.input_high, d->mcu->pin_model.input_low};
         request.ground_pin = d->mcu->ground_pin;
@@ -1474,6 +1556,9 @@ void SimulationSession::run_interactive()
         const auto it = controls_.find(key);
         if (it == controls_.end()) {
             return 0.0;
+        }
+        if (const auto s = slews_.find(key); s != slews_.end()) {
+            return slewed(s->second, it->second, segment_t0_ + time);
         }
         if (const auto b = bounces_.find(key); b != bounces_.end()) {
             const double since = segment_t0_ + time - b->second.start;

@@ -3,8 +3,8 @@
   "components": [
     {
       "at": [
-        0,
-        0
+        -15,
+        -2
       ],
       "designator": "U1",
       "id": 1,
@@ -17,8 +17,8 @@
     },
     {
       "at": [
-        -9,
-        17
+        -29,
+        18
       ],
       "designator": "GND1",
       "id": 2,
@@ -29,8 +29,8 @@
     },
     {
       "at": [
-        -60,
-        30
+        -68,
+        3
       ],
       "designator": "V1",
       "id": 9,
@@ -43,8 +43,8 @@
     },
     {
       "at": [
-        -60,
-        33
+        -68,
+        6
       ],
       "designator": "GND2",
       "id": 10,
@@ -55,8 +55,8 @@
     },
     {
       "at": [
-        -40,
-        -20
+        -49,
+        -32
       ],
       "designator": "U2",
       "id": 12,
@@ -70,8 +70,8 @@
     },
     {
       "at": [
-        -40,
-        -16
+        -49,
+        -28
       ],
       "designator": "GND3",
       "id": 15,
@@ -82,8 +82,8 @@
     },
     {
       "at": [
-        -50,
-        -24
+        -68,
+        -33
       ],
       "designator": "R1",
       "id": 16,
@@ -96,8 +96,8 @@
     },
     {
       "at": [
-        -40,
-        4
+        -49,
+        -15
       ],
       "designator": "U3",
       "id": 19,
@@ -112,8 +112,8 @@
     },
     {
       "at": [
-        -40,
-        8
+        -49,
+        -11
       ],
       "designator": "GND4",
       "id": 22,
@@ -124,8 +124,8 @@
     },
     {
       "at": [
-        -50,
-        0
+        -68,
+        -16
       ],
       "designator": "R2",
       "id": 23,
@@ -138,8 +138,8 @@
     },
     {
       "at": [
-        -40,
-        28
+        -48,
+        4
       ],
       "designator": "U4",
       "id": 26,
@@ -152,8 +152,8 @@
     },
     {
       "at": [
-        -40,
-        33
+        -48,
+        9
       ],
       "designator": "GND5",
       "id": 30,
@@ -164,8 +164,8 @@
     },
     {
       "at": [
-        10,
-        -34
+        -18,
+        -33
       ],
       "designator": "U5",
       "id": 31,
@@ -178,8 +178,8 @@
     },
     {
       "at": [
-        0,
-        -29
+        -28,
+        -28
       ],
       "designator": "GND6",
       "id": 34,
@@ -193,166 +193,177 @@
   "labels": [
     {
       "at": [
-        -9,
-        19
+        -24,
+        17
       ],
       "id": 3,
+      "mirrored": true,
       "name": "VDD"
     },
     {
       "at": [
-        -9,
-        5
+        -24,
+        3
       ],
       "id": 4,
+      "mirrored": true,
       "name": "DQ"
     },
     {
       "at": [
-        -9,
-        3
+        -24,
+        1
       ],
       "id": 5,
+      "mirrored": true,
       "name": "DHT"
     },
     {
       "at": [
-        -9,
-        1
+        -24,
+        -1
       ],
       "id": 6,
+      "mirrored": true,
       "name": "TRIG"
     },
     {
       "at": [
-        -9,
-        7
+        -24,
+        5
       ],
       "id": 7,
+      "mirrored": true,
       "name": "ECHO"
     },
     {
       "at": [
-        -9,
-        -11
+        -24,
+        -13
       ],
       "id": 8,
+      "mirrored": true,
       "name": "LEDS"
     },
     {
       "at": [
-        -60,
-        27
+        -68,
+        0
       ],
       "id": 11,
       "name": "5V"
     },
     {
       "at": [
-        -40,
-        -24
+        -49,
+        -36
       ],
       "id": 13,
       "name": "VDD"
     },
     {
       "at": [
-        -46,
-        -20
+        -55,
+        -32
       ],
       "id": 14,
+      "mirrored": true,
       "name": "DQ"
     },
     {
       "at": [
-        -50,
-        -27
+        -68,
+        -36
       ],
       "id": 17,
       "name": "VDD"
     },
     {
       "at": [
-        -50,
-        -21
+        -68,
+        -30
       ],
       "id": 18,
       "name": "DQ"
     },
     {
       "at": [
-        -40,
-        0
+        -49,
+        -19
       ],
       "id": 20,
       "name": "VDD"
     },
     {
       "at": [
-        -46,
-        4
+        -55,
+        -15
       ],
       "id": 21,
+      "mirrored": true,
       "name": "DHT"
     },
     {
       "at": [
-        -50,
-        -3
+        -68,
+        -19
       ],
       "id": 24,
       "name": "VDD"
     },
     {
       "at": [
-        -50,
-        3
+        -68,
+        -13
       ],
       "id": 25,
       "name": "DHT"
     },
     {
       "at": [
-        -40,
-        23
+        -48,
+        -1
       ],
       "id": 27,
       "name": "5V"
     },
     {
       "at": [
-        -46,
-        27
+        -54,
+        3
       ],
       "id": 28,
+      "mirrored": true,
       "name": "TRIG"
     },
     {
       "at": [
-        -46,
-        29
+        -54,
+        5
       ],
       "id": 29,
+      "mirrored": true,
       "name": "ECHO"
     },
     {
       "at": [
-        0,
-        -39
+        -28,
+        -38
       ],
       "id": 32,
       "name": "5V"
     },
     {
       "at": [
-        -6,
-        -34
+        -34,
+        -33
       ],
       "id": 33,
+      "mirrored": true,
       "name": "LEDS"
     }
   ],
-  "next_id": 39,
+  "next_id": 40,
   "notes": [
     {
       "at": [
@@ -360,7 +371,7 @@
         -48
       ],
       "id": 38,
-      "text": "Timed one-wire protocols (SN-225) bit-banged by the Blue Pill with the DWT cycle counter: a DS18B20 on PB5 and a DHT22 on PB4\n(open drain, 4.7 kOhm pull-ups), an HC-SR04 on PB3/PB6 and a strip of 8 WS2812B LEDs on PA8. Open the UART terminal: one line\nper second. The strip shows the distance, 25 cm per LED. Change the distance, temperature or humidity in Properties while running;\nthe Logic tab shows the pulses of DQ, DHT and ECHO."
+      "text": "Timed one-wire protocols (SN-225) bit-banged by the Blue Pill with the DWT cycle counter: a DS18B20 on PB5 and a DHT22 on PB4\n(open drain, 4.7 kOhm pull-ups), an HC-SR04 on PB3/PB6 and a strip of 8 WS2812B LEDs on PA8. Open the UART terminal: one line\nper second. The strip shows the distance, 25 cm per LED. While running, drag a sensor or turn the wheel over it (Shift: the DHT22's humidity);\nthe Logic tab shows the pulses of DQ, DHT and ECHO."
     }
   ],
   "probes": [
@@ -417,5 +428,23 @@
   },
   "splitters": [],
   "version": 1,
-  "wires": []
+  "wires": [
+    {
+      "id": 39,
+      "points": [
+        [
+          -29,
+          18
+        ],
+        [
+          -29,
+          15
+        ],
+        [
+          -24,
+          15
+        ]
+      ]
+    }
+  ]
 }

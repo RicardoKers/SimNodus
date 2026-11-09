@@ -26,6 +26,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <limits>
 #include <vector>
 
 namespace simnodus::ui {
@@ -851,18 +852,24 @@ void SchematicView::mousePressEvent(QMouseEvent* event)
 
     const QPointF scene_point = mapToScene(position);
     model::Id id = scene_->element_at(scene_point);
+    bool on_text = false;
     if (!id) {
         // Designator and value texts select their component (and can be dragged).
         if (const auto text = scene_->text_at(scene_point)) {
             id = text->first;
+            on_text = true;
         }
     }
-    if (running_ && id && handle_control_press(id, scene_point)) {
+    // While running, a click on the symbol works its control; on its
+    // designator or value text, or with Ctrl, it selects the part instead
+    // (its properties and live values).
+    const bool control = !on_text && !event->modifiers().testFlag(Qt::ControlModifier);
+    if (running_ && id && control && handle_control_press(id, scene_point)) {
         event->accept();
         return;
     }
     if (id) {
-        const bool toggle = event->modifiers().testFlag(Qt::ControlModifier);
+        const bool toggle = event->modifiers().testFlag(Qt::ControlModifier) && !running_;
         QGraphicsItem* item = scene_->item_of(id);
         if (toggle) {
             item->setSelected(!item->isSelected());
@@ -889,6 +896,24 @@ void SchematicView::mousePressEvent(QMouseEvent* event)
             if (const auto text = scene_->text_at(scene_point); text && drag_ids_.size() == 1) {
                 text_drag_ = text;
                 text_start_ = scene_->text_offset(text->first, text->second);
+            } else if (const auto* w = scene_->document().schematic().wire(id); w && drag_ids_.size() == 1) {
+                // The segment nearest the mouse.
+                const QPointF p = scene_point / grid;
+                double best = std::numeric_limits<double>::infinity();
+                for (std::size_t i = 0; i + 1 < w->points.size(); ++i) {
+                    const QPointF a(w->points[i].x, w->points[i].y);
+                    const QPointF b(w->points[i + 1].x, w->points[i + 1].y);
+                    const QPointF ab = b - a;
+                    const double length2 = QPointF::dotProduct(ab, ab);
+                    const double u = length2 > 0 ? std::clamp(QPointF::dotProduct(p - a, ab) / length2, 0.0, 1.0) : 0.0;
+                    const QPointF off = p - (a + u * ab);
+                    const double distance = QPointF::dotProduct(off, off);
+                    if (distance < best) {
+                        best = distance;
+                        segment_index_ = i;
+                    }
+                }
+                segment_wire_ = id;
             }
         }
         event->accept();
@@ -971,6 +996,8 @@ void SchematicView::mouseMoveEvent(QMouseEvent* event)
             model::Schematic preview = d.schematic();
             if (text_drag_) {
                 editing::move_text(preview, text_drag_->first, text_drag_->second, text_start_ + delta).apply(preview);
+            } else if (segment_wire_) {
+                editing::move_wire_segment(preview, segment_wire_, segment_index_, delta).apply(preview);
             } else {
                 editing::move_items(preview, d.library(), drag_ids_, delta).apply(preview);
             }
@@ -1045,10 +1072,15 @@ void SchematicView::mouseReleaseEvent(QMouseEvent* event)
             if (!d.apply(editing::move_text(d.schematic(), text_drag_->first, text_drag_->second, text_start_ + drag_delta_))) {
                 scene_->sync();
             }
+        } else if (segment_wire_) {
+            if (!d.apply(editing::move_wire_segment(d.schematic(), segment_wire_, segment_index_, drag_delta_))) {
+                scene_->sync();
+            }
         } else if (!d.apply(editing::move_items(d.schematic(), d.library(), ids, drag_delta_))) {
             scene_->sync();
         }
         text_drag_.reset();
+        segment_wire_ = model::no_id;
         scene_->select_ids(ids);
         event->accept();
         return;

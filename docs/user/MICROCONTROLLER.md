@@ -328,9 +328,14 @@ writes the flash (Upload in the Arduino IDE, `esptool write-flash`). On the
 USB Serial/JTAG port they follow the chip's reset logic (esptool's
 `--before usb_reset`, or the same sequence as on UART0). The Messages panel
 says when new firmware is being written; when the run stops, it is saved
-as `U1-flash.bin` (the board's designator) beside the project and becomes
-the board's firmware, as a real board keeps what was uploaded; the project
-must have been saved once.
+as `project-U1-flash.bin` (the project's name and the board's designator)
+beside the project and becomes the board's firmware, as a real board keeps
+what was uploaded; the project must have been saved once.
+
+A new board needs no firmware to start: without one its flash is erased, as
+on a blank module, and the ROM reports `invalid header: 0xffffffff` on UART0
+until the Arduino IDE or esptool uploads a firmware, which the board then
+keeps.
 
 Which port an Arduino sketch's `Serial` uses is the sketch's choice, as on a
 real board: UART0 by default, the USB Serial/JTAG port with **Tools > USB
@@ -357,7 +362,7 @@ fs cp main.py :main.py` (and `fs cp :data.txt .` for the way back).
 
 Whatever the firmware writes to the flash (MicroPython's files, ESP-IDF's
 NVS, Arduino's `Preferences`) is kept as uploads are: when the run stops,
-the flash is saved as `U1-flash.bin` beside the project and becomes the
+the flash is saved as `project-U1-flash.bin` beside the project and becomes the
 board's firmware, so the next run starts with the files and runs `main.py`
 at boot. The project must have been saved once: an example opened from
 **File > Examples** keeps nothing until it is saved under a name of its own.
@@ -508,7 +513,8 @@ emulator (experiment E-10, ADR 0108).
 - **Not yet**: SPI and TWI as slaves. The log says once when the firmware
   uses one.
 - **EEPROM**: what the firmware writes to it is kept beside a saved project
-  as `<designator>-eeprom.bin`, which becomes the chip's **EEPROM** property.
+  as `<project>-<designator>-eeprom.bin` (projects sharing a folder keep
+  their own), which becomes the chip's **EEPROM** property.
   The next run starts with it, as the chip keeps its EEPROM when it is
   powered off.
   - With no kept EEPROM, the chip starts erased, or with the ELF's EEPROM
@@ -646,9 +652,10 @@ experimental until it is compared with a real board.
      other end (COM11), then **Upload**. avrdude resets the board and
      Optiboot writes the sketch; the **Serial Monitor** (at the sketch's
      baud rate) works on the same port.
-  3. When the run stops, the flash is saved as `U1-flash.bin` beside the
-     project and becomes the board's firmware, and what the sketch wrote to
-     the EEPROM as `U1-eeprom.bin`. The project must have been saved once.
+  3. When the run stops, the flash is saved as `project-U1-flash.bin`
+     beside the project and becomes the board's firmware, and what the
+     sketch wrote to the EEPROM as `project-U1-eeprom.bin`. The project must
+     have been saved once.
 - **Not simulated**: the USB bridge (the ATmega16U2) itself, the 1 kΩ
   resistors from it to D0 and D1, the TX and RX LEDs, VIN's regulator.
 - **Example**: 58 (the serial example of section *ATmega328 and
