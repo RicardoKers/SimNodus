@@ -1,4 +1,4 @@
-<!-- source: USER_GUIDE.md sha256 170e22f5b36bdb4c8f1bbecf2a4d387a79e856103db2399bb55fbe91de6388af -->
+<!-- source: USER_GUIDE.md sha256 a4436d0ecbbd9a8bba5d554845f76d80c3d6239a2e9052decbf43cce244e7bef -->
 # Guia do usuário do SimNodus
 
 O SimNodus é um simulador para sala de aula: você desenha um circuito, aperta
@@ -202,10 +202,15 @@ Observações sobre alguns componentes:
   três saídas Hall de coletor aberto (acrescente pull-ups) com os códigos
   A B C = 101, 100, 110, 010, 011, 001 para os setores que acionam U+V-,
   U+W-, V+W-, V+U-, W+U-, W+V-. A ponte tem IN (o PWM) e EN (ligada, ou a
-  saída aberta) por fase. O exemplo 64 faz a comutação em seis passos pelos
-  sensores Hall numa Blue Pill. Velocidade medida com PWM de 10 kHz
+  saída aberta) por fase; a versão **com medição de corrente** também dá a
+  corrente de cada fase em SO1-SO3 como 1,65 V + 0,2 V/A (em linha, como sua
+  média por passo). O exemplo 64 faz a comutação em seis passos pelos
+  sensores Hall numa Blue Pill; o exemplo 65 faz controle por orientação de
+  campo (transformadas de Clarke e Park, malhas PI de id e iq, razões
+  cíclicas vetoriais) em ponto fixo com as saídas de medição de corrente. Velocidade medida com PWM de 10 kHz
   (experimento E-11): seis passos cerca de 0,35x do tempo real, comutação
-  senoidal cerca de 1x; um PWM de 5 kHz, mais lento que o passo de 100 µs, e
+  senoidal cerca de 1x, controle por orientação de campo cerca de 0,3x (um
+  par de conversões do ADC a cada período do PWM); um PWM de 5 kHz, mais lento que o passo de 100 µs, e
   as bordas exatas do microcontrolador são bem mais lentos.
 - **Fontes controladas:** os pinos de controle C+ e C- ficam à esquerda. Uma
   fonte controlada por tensão apenas sente a tensão entre eles (1 GΩ); uma

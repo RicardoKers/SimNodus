@@ -244,9 +244,11 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
    ran at 0.03-0.21x real time and fixed it for every board (drives averaged
    over at least one maximum step, ADR 0091 update; source names resolved
    once): now six-step about 0.35x, sinusoidal at 10 kHz 1.16x; G11b is
-   still not met for six-step. The parts stay experimental. **DE11 waits
-   for the owner** (recommended: go on with SN-277). Also fixed: the STM32's
-   watched pins start low, so a pull-up against a net held low reads low.
+   still not met for six-step. DE11 (owner, 2026-11-08): go on with the
+   measured speeds; SN-277 added the bridge with current sense and example
+   65 (FOC in fixed point, about 0.3x). The parts stay experimental. Also
+   fixed: the STM32's watched pins start low, so a pull-up against a net
+   held low reads low. All of SN-271..SN-278 is unreleased.
 
 ## Known constraints
 

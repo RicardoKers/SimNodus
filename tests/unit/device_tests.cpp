@@ -29,6 +29,7 @@
 #include <map>
 #include <memory>
 #include <set>
+#include <sstream>
 #include <string>
 #include <thread>
 
@@ -2432,6 +2433,55 @@ TEST_CASE("devices: example 64 runs a BLDC motor six-step from its Hall sensors 
     CHECK(text.find("BLDC six-step, PWM 10 kHz") != std::string::npos);
     CHECK(text.find("RPM 0 ") == std::string::npos);
     session.stop();
+}
+
+TEST_CASE("devices: example 65 holds id at 0 and iq at its setpoint with field-oriented control (SN-277)")
+{
+    REQUIRE(test::engine() != nullptr);
+    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "65_PMSM_field_oriented_control.snx");
+    REQUIRE(loaded.schematic.has_value());
+    sim::RunRequest request;
+    request.schematic = *loaded.schematic;
+    auto settings = request.schematic.settings();
+    settings.speed = 0.0;
+    request.schematic.set_settings(settings);
+    request.library = &device_library();
+    request.vectors = {"w_m1"};
+    model::Id board = model::no_id;
+    for (const auto& c : request.schematic.components()) {
+        board = c.type == "bluepill" ? c.id : board;
+    }
+    std::string error;
+    std::vector<std::string> warnings;
+    sim::McuEnvironment environment;
+    environment.project_dir = SIMNODUS_TEST_EXAMPLES_DIR;
+    REQUIRE(sim::build_mcu_requests(request.schematic, device_library(), environment, request.mcus, error, &warnings));
+    CHECK(warnings.empty());
+    sim::SimulationSession session;
+    REQUIRE(session.start(request, error));
+    const auto begin = std::chrono::steady_clock::now();
+    while (session.status().sim_time < 0.55) {
+        REQUIRE(session.active());
+        REQUIRE(std::chrono::steady_clock::now() - begin < 120s);
+        std::this_thread::sleep_for(2ms);
+    }
+    std::string text;
+    session.mcu_uart_received(board, "usart1", 0, text);
+    std::printf("%s", text.c_str());
+    session.stop();
+    // The first report, while the motor accelerates: "RPM <n> IQ* 800 IQ <iq> ID <id>".
+    const auto at = text.find("RPM ");
+    REQUIRE(at != std::string::npos);
+    std::istringstream report(text.substr(at));
+    std::string word;
+    int rpm = 0, target = 0, iq = 0, id = 0;
+    report >> word >> rpm >> word >> target >> word >> iq >> word >> id;
+    REQUIRE(!report.fail());
+    CHECK(rpm > 500);
+    CHECK(target > 750);
+    CHECK(target < 850);
+    CHECK(std::abs(iq - target) < 60);
+    CHECK(std::abs(id) < 60);
 }
 
 TEST_CASE("devices: example 42 plays a scale the passive buzzer reports and beeps the active one (SN-228)")

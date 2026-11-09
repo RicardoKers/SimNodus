@@ -2,7 +2,8 @@
 
 Date: 2026-11-08. [Plan](E-11-plan.md); task SN-276, then SN-278. Status:
 **G11a met; G11b failed**, then mostly recovered by SN-278 (below);
-decision DE11 waits for the owner.
+decision DE11 taken by the owner on 2026-11-08: go on with SN-277 at the
+measured speeds, the parts experimental.
 
 ## What was built
 

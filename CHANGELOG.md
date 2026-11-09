@@ -4,6 +4,11 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-11-08, SN-277, experimental)
+
+- **Three-phase half-bridge driver with current sense** (Electromechanical): the bridge of E-11 with SO1-SO3 giving each phase current as offset + gain x I (1.65 V + 0.2 V/A by default, DRV8323 style).
+- Example 65: field-oriented control of a PMSM motor on a Blue Pill (`firmware/bldc_foc`, fixed point): Clarke and Park transforms, PI loops holding id at 0 and iq at the potentiometer's setpoint, space-vector duties, the angle interpolated between Hall edges. About 0.3x real time.
+
 ### Added (2026-11-08, E-11 / SN-276, experimental)
 
 - **BLDC motor**, **PMSM motor (sinusoidal)** and **Three-phase half-bridge driver** (Electromechanical), experimental: three windings in star with trapezoidal or sinusoidal back-EMF, open-collector Hall outputs, inertia, friction and a live load; the bridge has IN and EN per phase and gives the average voltage with the microcontroller's step averages. `tools/generate_bldc_parts.py` writes them.
