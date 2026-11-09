@@ -234,6 +234,9 @@
     5
   ],
   "value_parameter": "V",
+  "more_values": [
+    "load"
+  ],
   "parameters": [
     {
       "name": "V",
@@ -321,6 +324,40 @@
     "scale": 9.549296585513721,
     "unit": "rpm"
   },
+  "live": [
+    {
+      "label": "I(U)",
+      "kind": "current",
+      "element": "V_{ref}_su",
+      "unit": "A"
+    },
+    {
+      "label": "I(V)",
+      "kind": "current",
+      "element": "V_{ref}_sv",
+      "unit": "A"
+    },
+    {
+      "label": "I(W)",
+      "kind": "current",
+      "element": "V_{ref}_sw",
+      "unit": "A"
+    },
+    {
+      "label": "Speed",
+      "kind": "node",
+      "element": "w_{ref}",
+      "scale": 9.549296585513721,
+      "unit": "rpm"
+    },
+    {
+      "label": "Load",
+      "kind": "node",
+      "element": "ctl_{ref}",
+      "scale": 100,
+      "unit": "%"
+    }
+  ],
   "spice": [
     "V_{ref}_su {node:U} au_{ref} DC 0",
     "R_{ref}_u au_{ref} bu_{ref} {R}",

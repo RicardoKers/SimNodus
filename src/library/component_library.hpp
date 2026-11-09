@@ -244,6 +244,8 @@ struct Interactive {
 
 // The control value (0..1) of a potentiometer whose parameter has `value`.
 double potentiometer_control(const Parameter& parameter, bool logarithmic, double value);
+// The inverse: the parameter value a control position 0..1 stands for.
+double potentiometer_value(const Parameter& parameter, bool logarithmic, double control);
 
 // Value shown on the symbol while running (INT-03).
 struct Readout {
@@ -267,6 +269,18 @@ struct Readout {
     std::string switch_on;
     std::string switch_off;
     bool switches() const { return !switch_on.empty(); }
+};
+
+// A line of the Properties panel's live values (SN-279): an internal node
+// or the current of a measuring source, times a scale. The line labeled "I"
+// is the part's current (into its first pin, or delivered by a source), used
+// with the voltage between its two pins for the power.
+struct LiveValue {
+    std::string label;
+    bool current = false;  // the branch current of `element` (a voltage source), else its node voltage
+    std::string element;   // "V_{ref}_i", "r_{ref}"
+    double scale = 1.0;
+    std::string unit;
 };
 
 // Shapes of the symbol that light with their own current (SN-202: the segments
@@ -297,6 +311,9 @@ struct ComponentDefinition {
     model::Point value_offset{2, 1};
     bool show_designator = true;
     std::string value_parameter; // shown next to the symbol
+    // Further parameters shown after it (SN-279: a solar panel's temperature, a
+    // motor's load), live while running when an interactive control sets them.
+    std::vector<std::string> more_values;
     std::vector<Parameter> parameters;
     std::vector<std::string> spice;  // template lines
     std::vector<std::string> models; // .model lines, emitted once per netlist
@@ -307,6 +324,7 @@ struct ComponentDefinition {
     std::string ties_net_parameter;  // non-empty: all pins belong to the net named by this parameter (block ports)
     std::optional<Interactive> interactive;
     std::optional<Readout> readout;
+    std::vector<LiveValue> live_values;
     std::optional<Lights> lights;
     std::optional<McuBoard> mcu;  // unconnected pins of a board are not reported
     std::optional<DigitalDevice> device;

@@ -1,4 +1,4 @@
-<!-- source: USER_GUIDE.md sha256 a4436d0ecbbd9a8bba5d554845f76d80c3d6239a2e9052decbf43cce244e7bef -->
+<!-- source: USER_GUIDE.md sha256 f6cb96f80528b51c1151e7fe24c660acc10d3c2fa8cc3b483ac48edd9d7a133d -->
 # Guia do usuário do SimNodus
 
 O SimNodus é um simulador para sala de aula: você desenha um circuito, aperta
@@ -174,7 +174,9 @@ Observações sobre alguns componentes:
   datasheet, a curva ainda passa por eles com cerca de 1 % de erro. Durante
   a execução, arraste o painel ou gire a roda do mouse para mudar a
   irradiância (0 a 1200 W/m²) e use Shift com a roda para a temperatura das
-  células (-20 a 85 °C). O símbolo mostra a potência retirada como fração do
+  células (-20 a 85 °C); os dois valores aparecem junto ao símbolo, e os
+  valores ao vivo em Propriedades acrescentam a corrente e a potência do
+  painel. O símbolo mostra a potência retirada como fração do
   ponto de máxima potência na luz e na temperatura atuais (calculado pelo
   mesmo modelo), então um MPPT pode ser avaliado: cerca de 100 % no máximo.
   Sombreamento parcial, diodos de bypass, espectro e o comportamento térmico

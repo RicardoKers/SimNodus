@@ -4,6 +4,14 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Fixed (2026-11-09, SN-279, owner's tests of the energy preview)
+
+- **Live values** in the Properties panel: a part whose symbol shows an internal quantity (a solar panel's % MPP, a motor's rpm, a battery's % SOC, a sensor's lux) showed that number as its current ("I = 100A"). The current now comes from the part's own measuring source: a solar panel's and a battery's terminal current (negative while a battery charges), the DC motor's current, each phase current of the BLDC and PMSM motors, with speed, load, irradiance, temperature and state of charge as further lines. V and P are given only for two-pin parts (a motor's "V" was the difference of two phases).
+- The values set with the mouse while running show next to the symbol: a solar panel's irradiance and temperature, the load of the DC, BLDC and PMSM motors (library field `more_values`).
+- Automation: a potentiometer control above 1 or below 0 is refused (`sim.control` with `"5"` on a motor was a load of 500 %); give `"5%"` or `0.05`.
+- Example 65 checked at a 10 µs step and with exact edges, in all four combinations: stable, the same speed under a 5 % load ([E-11 results](docs/experiments/E-11-results.md)).
+- Examples 61 and 63 laid out again: the note no longer covers the board and the joystick's supply reaches it by a label (61); Q1 mirrored, so its base faces R3, and the labels clear the values (63).
+
 ### Added (2026-11-08, SN-277, experimental)
 
 - **Three-phase half-bridge driver with current sense** (Electromechanical): the bridge of E-11 with SO1-SO3 giving each phase current as offset + gain x I (1.65 V + 0.2 V/A by default, DRV8323 style).

@@ -194,6 +194,7 @@ def part(kind, name, voc, isc, vmp, imp, cells, rsh):
         "designator_offset": [4, -2],
         "value_offset": [4, 2],
         "value_parameter": "irradiance",
+        "more_values": ["temperature"],
         "parameters": [
             number("irradiance", "Irradiance", "W/m²", "1000",
                    "Light on the panel (full sun 1000 W/m²); drag the part or use the wheel while running (0 to 1200 W/m²)",
@@ -218,6 +219,12 @@ def part(kind, name, voc, isc, vmp, imp, cells, rsh):
             "controls": [{"name": "temperature", "kind": "potentiometer", "parameter": "temperature"}],
         },
         "readout": {"kind": "node", "element": "r_{ref}", "scale": 1, "unit": "% MPP"},
+        "live": [
+            {"label": "I", "kind": "current", "element": "V_{ref}_i", "unit": "A"},
+            {"label": "Irradiance", "kind": "node", "element": "g_{ref}", "unit": "W/m²"},
+            {"label": "Temperature", "kind": "node", "element": "t_{ref}", "unit": "°C"},
+            {"label": "Share of maximum power", "kind": "node", "element": "r_{ref}", "unit": "%"},
+        ],
         "spice": spice(),
     }
 

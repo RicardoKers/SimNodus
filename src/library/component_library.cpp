@@ -227,6 +227,11 @@ ComponentDefinition parse_definition(const json& j)
     d.prefix = text(j, "prefix", true);
     d.description = text(j, "description");
     d.value_parameter = text(j, "value_parameter");
+    if (j.contains("more_values")) {
+        for (const auto& name : j["more_values"]) {
+            d.more_values.push_back(name.get<std::string>());
+        }
+    }
     d.ties_net = text(j, "ties_net");
     d.ties_net_parameter = text(j, "ties_net_parameter");
     d.show_designator = j.value("show_designator", true);
@@ -357,6 +362,11 @@ ComponentDefinition parse_definition(const json& j)
     }
     if (!d.value_parameter.empty() && !d.parameter(d.value_parameter)) {
         invalid("value_parameter \"" + d.value_parameter + "\" is not a parameter");
+    }
+    for (const auto& name : d.more_values) {
+        if (!d.parameter(name)) {
+            invalid("more_values \"" + name + "\" is not a parameter");
+        }
     }
 
     if (j.contains("interactive") && !j["interactive"].is_null()) {
@@ -543,6 +553,24 @@ ComponentDefinition parse_definition(const json& j)
             invalid("readout.kind must be voltage, current or node");
         }
         d.readout = readout;
+    }
+
+    if (j.contains("live")) {
+        for (const auto& l : j["live"]) {
+            LiveValue value;
+            value.label = text(l, "label", true);
+            const std::string kind = text(l, "kind", true);
+            if (kind != "node" && kind != "current") {
+                invalid("live.kind must be node or current");
+            }
+            value.current = kind == "current";
+            value.element = text(l, "element", true);
+            value.unit = text(l, "unit");
+            if (l.contains("scale")) {
+                value.scale = number(l["scale"], "live.scale");
+            }
+            d.live_values.push_back(std::move(value));
+        }
     }
 
     if (j.contains("mcu") && !j["mcu"].is_null()) {
@@ -907,6 +935,20 @@ double potentiometer_control(const Parameter& parameter, bool logarithmic, doubl
         return std::log(value / low) / std::log(high / low);
     }
     return (value - low) / (high - low);
+}
+
+double potentiometer_value(const Parameter& parameter, bool logarithmic, double control)
+{
+    control = std::clamp(control, 0.0, 1.0);
+    if (parameter.unit == "%" || !parameter.min || !parameter.max || *parameter.max <= *parameter.min) {
+        return control * 100.0;
+    }
+    const double low = *parameter.min;
+    const double high = *parameter.max;
+    if (logarithmic && low > 0) {
+        return low * std::pow(high / low, control);
+    }
+    return low + control * (high - low);
 }
 
 std::size_t DigitalDevice::memory_bytes(const std::map<std::string, std::string>& parameters) const

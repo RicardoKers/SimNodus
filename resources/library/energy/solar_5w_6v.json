@@ -147,6 +147,9 @@
     2
   ],
   "value_parameter": "irradiance",
+  "more_values": [
+    "temperature"
+  ],
   "parameters": [
     {
       "name": "irradiance",
@@ -265,6 +268,32 @@
     "scale": 1,
     "unit": "% MPP"
   },
+  "live": [
+    {
+      "label": "I",
+      "kind": "current",
+      "element": "V_{ref}_i",
+      "unit": "A"
+    },
+    {
+      "label": "Irradiance",
+      "kind": "node",
+      "element": "g_{ref}",
+      "unit": "W/m²"
+    },
+    {
+      "label": "Temperature",
+      "kind": "node",
+      "element": "t_{ref}",
+      "unit": "°C"
+    },
+    {
+      "label": "Share of maximum power",
+      "kind": "node",
+      "element": "r_{ref}",
+      "unit": "%"
+    }
+  ],
   "spice": [
     "B_{ref}_g g_{ref} 0 V=1200*V({control})",
     "B_{ref}_t t_{ref} 0 V=-20+(85-(-20))*V({control:temperature})",

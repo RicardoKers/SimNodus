@@ -377,6 +377,29 @@ TEST_CASE("a part may have several named controls and a stick (SN-272, SN-273)")
     CHECK(scratch.add_from_json(with("c")).has_value());
 }
 
+TEST_CASE("parts list further shown values and their live values (SN-279)")
+{
+    ComponentLibrary library;
+    library.load_directory(SIMNODUS_TEST_LIBRARY_DIR);
+    const auto* pv = library.find("solar_10w_12v");
+    REQUIRE(pv != nullptr);
+    CHECK(pv->more_values == std::vector<std::string>{"temperature"});
+    REQUIRE(!pv->live_values.empty());
+    CHECK(pv->live_values[0].label == "I");
+    CHECK(pv->live_values[0].current);
+    CHECK(pv->live_values[0].element == "V_{ref}_i");
+    const auto* battery = library.find("li_ion_battery");
+    REQUIRE(battery != nullptr && !battery->live_values.empty());
+    CHECK(battery->live_values[0].scale == -1.0); // delivered current
+    // The control position and the parameter value convert both ways.
+    const auto* irradiance = pv->parameter("irradiance");
+    REQUIRE(irradiance != nullptr);
+    CHECK(library::potentiometer_value(*irradiance, false, 0.5) == 600.0);
+    CHECK(library::potentiometer_control(*irradiance, false, 600.0) == 0.5);
+    const auto* load = library.find("dcmotor")->parameter("load");
+    CHECK(std::abs(library::potentiometer_value(*load, false, 0.35) - 35.0) < 1e-9);
+}
+
 TEST_CASE("the potentiometer's wiper moves along its track")
 {
     ComponentLibrary library;

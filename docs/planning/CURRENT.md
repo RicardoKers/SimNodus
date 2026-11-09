@@ -248,7 +248,11 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
    measured speeds; SN-277 added the bridge with current sense and example
    65 (FOC in fixed point, about 0.3x). The parts stay experimental. Also
    fixed: the STM32's watched pins start low, so a pull-up against a net
-   held low reads low. All of SN-271..SN-278 is unreleased.
+   held low reads low. SN-279 (owner's tests of the 2026-11-08 preview):
+   live values of these parts fixed (a readout such as % MPP was shown as
+   the current), the mouse-set values shown next to the symbol, examples
+   61 and 63 laid out again, example 65 stable at a 10 µs step and with
+   exact edges. All of SN-271..SN-279 is unreleased.
 
 ## Known constraints
 

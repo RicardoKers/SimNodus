@@ -143,9 +143,49 @@ public:
         if (!definition_ || definition_->value_parameter.empty()) {
             return {};
         }
-        const auto* p = definition_->parameter(definition_->value_parameter);
-        const auto it = component_.parameters.find(definition_->value_parameter);
+        QString text = parameter_text(definition_->value_parameter, false);
+        for (const auto& name : definition_->more_values) {
+            const QString more = parameter_text(name, true);
+            if (!more.isEmpty()) {
+                text += text.isEmpty() ? more : QStringLiteral("  ") + more;
+            }
+        }
+        return text;
+    }
+
+    // A parameter's text next to the symbol; while running, the value an
+    // interactive control set (SN-279: irradiance, a motor's load).
+    QString parameter_text(const std::string& name, bool more) const
+    {
+        const auto* p = definition_->parameter(name);
+        const auto it = component_.parameters.find(name);
         QString text = QString::fromStdString(it == component_.parameters.end() ? p->default_value : it->second);
+        if (p && p->choices.empty() && definition_->interactive && scene_.live().running) {
+            const auto& interactive = *definition_->interactive;
+            const auto& live = scene_.live();
+            for (int slot = 0; slot < interactive.slot_count(); ++slot) {
+                if (interactive.slot_parameter(slot) != name
+                    || interactive.slot_kind(slot) != library::Interactive::Kind::Potentiometer) {
+                    continue;
+                }
+                std::optional<double> control;
+                if (slot == 0) {
+                    if (const auto c = live.controls.find(component_.id); c != live.controls.end()) {
+                        control = c->second;
+                    }
+                } else if (const auto c = live.more_controls.find({component_.id, slot}); c != live.more_controls.end()) {
+                    control = c->second;
+                }
+                if (control) {
+                    const double value = library::potentiometer_value(*p, interactive.slot_logarithmic(slot), *control);
+                    text = std::abs(value) >= 10 ? QString::number(qRound(value)) : QString::number(value, 'f', 1);
+                }
+                break;
+            }
+        }
+        if (more && p && p->unit == "%") {
+            text += QStringLiteral("%");
+        }
         if (p && p->kind == library::Parameter::Kind::Model && text == QString::fromStdString(p->default_value)
             && (p->default_value == "Generic" || p->model_type.empty())) {
             return {}; // the generic or behavioral model needs no text; a named part (1N5819) does

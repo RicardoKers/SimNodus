@@ -45,6 +45,8 @@ def library_texts():
             add(p.get("description"))
             for choice in p.get("choices", []):
                 add(choice)
+        for value in d.get("live", []):
+            add(value.get("label"))
     # Definitions made in code: vendor subcircuit parts (src/library/blocks.cpp, SN-214).
     for text in ("Subcircuits", "Subcircuit", "Vendor subcircuit from the model folders",
                  "The vendor subcircuit this part runs; Pins... says which port is which pin"):

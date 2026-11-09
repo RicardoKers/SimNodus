@@ -165,7 +165,9 @@ Notes on some parts:
   Vmp; after editing the datasheet values the curve still passes through
   them within about 1 %. While running, drag the panel or turn the wheel to
   change the irradiance (0 to 1200 W/m²) and use Shift with the wheel for
-  the cell temperature (-20 to 85 °C). The symbol shows the power taken as a
+  the cell temperature (-20 to 85 °C); both values show next to the symbol,
+  and the live values in Properties add the panel's current and power. The
+  symbol shows the power taken as a
   share of the maximum power point at the present light and temperature
   (computed from the same model), so an MPPT can be graded: about 100 % at
   the maximum. Partial shading, bypass diodes, spectrum and the panel's

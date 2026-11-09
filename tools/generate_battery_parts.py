@@ -187,6 +187,11 @@ def part(chemistry, protected):
         "parameters": parameters,
         "models": models(chemistry) if protected else [],
         "readout": {"kind": "node", "element": "r_{ref}", "scale": 1, "unit": "% SOC"},
+        # Delivered current: negative while charging.
+        "live": [
+            {"label": "I", "kind": "current", "element": "V_{ref}_i", "scale": -1, "unit": "A"},
+            {"label": "State of charge", "kind": "node", "element": "r_{ref}", "unit": "%"},
+        ],
         "spice": spice(chemistry, protected),
     }
 

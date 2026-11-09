@@ -122,3 +122,24 @@ FOC at 10 kHz run about in real time, six-step at about a third of it,
 enough to watch a start and a load step. The fixes of SN-278 (the averaging
 window, the cached source names, the STM32's watched pins) help every board
 and stand on their own.
+
+## Example 65 across the step settings (2026-11-09, SN-279)
+
+The owner asked whether field-oriented control stays stable with a 10 µs
+maximum step and with exact microcontroller edges. Example 65 ran 3 s of
+simulated time for each combination with `simnodus-cli` (speed 0, as fast
+as the computer allows): free acceleration to 1 s, then a load of 5 % of
+the stall torque. Firmware reports (500 ms windows):
+
+| Maximum step | Exact edges | 0.5 s | 2.0-3.0 s with 5 % load | Wall time for 3 s |
+|---|---|---|---|---|
+| 100 µs | off | 1020 rpm, iq 801 mA | 2835-2865 rpm, iq 789-800 mA | 7 s |
+| 100 µs | on | 905 rpm, iq 779 mA | 2765-2865 rpm, iq 799-810 mA | 28 s |
+| 10 µs | off | 900 rpm, iq 801 mA | 2770-2815 rpm, iq 791-799 mA | 25 s |
+| 10 µs | on | 880 rpm, iq 785 mA | about the same | 33 s |
+
+All four hold iq at the 800 mA setpoint with id within ±60 mA and settle at
+the same speed; none diverged. With exact edges or a 10 µs step the run is
+4-5 times slower, as ADR 0093 expects. A load above the 0.8 A the
+potentiometer allows stalls the motor (100 % is the stall torque at 12 V,
+about 12 A); taking the load back to 5 % restarts it.

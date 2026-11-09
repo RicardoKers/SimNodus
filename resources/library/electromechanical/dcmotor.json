@@ -74,6 +74,7 @@
     1
   ],
   "value_parameter": "V",
+  "more_values": ["load"],
   "parameters": [
     {
       "name": "V",
@@ -140,6 +141,11 @@
     "scale": 9.5492966,
     "unit": "rpm"
   },
+  "live": [
+    {"label": "I", "kind": "current", "element": "V_sense_{ref}", "unit": "A"},
+    {"label": "Speed", "kind": "node", "element": "w_{ref}", "scale": 9.5492966, "unit": "rpm"},
+    {"label": "Load", "kind": "node", "element": "ctl_{ref}", "scale": 100, "unit": "%"}
+  ],
   "spice": [
     "R_{ref} {node:+} a_{ref} {= V / Istall}",
     "L_{ref} a_{ref} b_{ref} 1m",

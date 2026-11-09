@@ -1183,7 +1183,14 @@ double control_value(Context& cx, const model::Component& c, const json& v, int 
             }
         }
     }
-    return control_value(v);
+    const double value = control_value(v);
+    if (d && d->interactive && d->interactive->slot_kind(slot) == library::Interactive::Kind::Potentiometer
+        && (value < 0.0 || value > 1.0)) {
+        // A motor's load of "5" would be 500 %: say so instead of running it.
+        fail("invalid-argument", "A potentiometer's control runs from 0 to 1; give a percentage (\"5%\") or the "
+                                 "quantity with its unit.");
+    }
+    return value;
 }
 
 // The slot of the control named by "control" in `args` (SN-272: a part with
