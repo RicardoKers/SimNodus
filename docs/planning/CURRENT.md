@@ -1,6 +1,6 @@
 # Current state
 
-Updated: 2026-11-08 (release 0.16.0 published: ESP32-C3 Wi-Fi, experimental (E-09), ping through the gateway, uploads through UART0 at 921600 baud; DE9 waits for the owner). Keep this file short: present state, last results, next
+Updated: 2026-11-09 (release 0.17.0 being published: energy and motor control parts, BLDC/PMSM experimental (E-11), the owner's fixes of SN-279 and SN-280; DE9 waits for the owner). Keep this file short: present state, last results, next
 steps. Replace it, do not append. History of the first development line
 (2026-08-31 → 2026-10-06) is in
 [archive/2026-10-legacy/CURRENT.md](../archive/2026-10-legacy/CURRENT.md);
@@ -8,6 +8,22 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 
 ## Where we are
 
+- **Release 0.17.0 (2026-11-09)** (tag `v0.17.0`, GitHub release with
+  `SimNodus-0.17.0-windows-x64.zip` and `-setup.exe`), after the owner's
+  tests of the 2026-11-08 energy preview and the 2026-11-09 preview:
+  - SN-271..SN-275: the DC motor's live load, several live controls per
+    part, the two-axis joystick (example 61), solar panels with MPPT
+    (example 62), lithium batteries with a CC/CV charger (example 63).
+  - E-11 / SN-276..SN-278, experimental: BLDC and PMSM motors, the
+    three-phase bridge with current sense, six-step (example 64, about
+    0.35x real time) and FOC (example 65, about 0.3x); faster board runs
+    (drives averaged over at least one maximum step, ADR 0091 update).
+  - SN-279, SN-280: live values per part (`live`, `more_values`), sensors
+    set with the mouse, C and L initial values, Pause in the Signal
+    Analyzer, a wire's segment dragged alone, selection while running, an
+    ESP32-C3 without firmware waiting for an upload, the encoder's
+    quadrature (`rate`, `detents`), junction nodes carried over segments,
+    kept memory files named after the project, notes on every example.
 - **Release 0.16.0 published on 2026-11-08** (tag `v0.16.0`, GitHub release with
   `SimNodus-0.16.0-windows-x64.zip` and `-setup.exe`), after the owner's
   tests of the 2026-11-06b, 2026-11-08 and 2026-11-08b previews with the
@@ -233,37 +249,16 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
    `tools/examples_pass.py` and `tools/examples_gui_pass.py` before each
    release.
 5. Classroom feedback (postponed: academic calendar).
-6. **Energy and motor control parts** (owner's request of 2026-11-08,
-   SN-271..SN-277 in the [backlog](BACKLOG.md)): the load on the DC motor
-   (SN-271), several live controls per part and the two-axis joystick
-   (SN-272, SN-273, example 61) and the solar panels with an MPPT example
-   (SN-274, example 62) and the lithium batteries with a charger example
-   (SN-275, example 63) are done, unreleased. Experiment E-11 (SN-276,
-   [results](../experiments/E-11-results.md)): the BLDC and PMSM motors,
-   the three-phase bridge and example 64 work (G11a). SN-278 found why they
-   ran at 0.03-0.21x real time and fixed it for every board (drives averaged
-   over at least one maximum step, ADR 0091 update; source names resolved
-   once): now six-step about 0.35x, sinusoidal at 10 kHz 1.16x; G11b is
-   still not met for six-step. DE11 (owner, 2026-11-08): go on with the
-   measured speeds; SN-277 added the bridge with current sense and example
-   65 (FOC in fixed point, about 0.3x). The parts stay experimental. Also
-   fixed: the STM32's watched pins start low, so a pull-up against a net
-   held low reads low. SN-279 (owner's tests of the 2026-11-08 preview):
-   live values of these parts fixed (a readout such as % MPP was shown as
-   the current), the mouse-set values shown next to the symbol, examples
-   61 and 63 laid out again, example 65 stable at a 10 µs step and with
-   exact edges. SN-280 (owner's tests of the examples): sensors worked
-   with the mouse, capacitor and inductor initial values, Pause in the
-   Signal Analyzer, wire segments dragged alone, selection while running,
-   an ESP32-C3 without firmware waits for an upload, the encoder's pulses
-   with the wheel, no per-segment pulse on a floating base, kept memory
-   files named after the project. All of SN-271..SN-280 is unreleased.
+6. **Energy and motor control parts** (SN-271..SN-280): released in 0.17.0
+   ([E-11 results](../experiments/E-11-results.md)); the BLDC and PMSM
+   parts stay experimental. G11b (six-step in real time) is still not met.
 
 ## Known constraints
 
 - Release zips are built locally with Qt 6.11.1 (`tools/package_windows.py`);
   CI artifacts use Qt 6.10.2.
-- Semiconductor junction charge is not carried across interactive segments.
+- Junction charge on nodes with an inductor, a source or a subcircuit is not
+  carried across interactive segments (other junction nodes are, SN-280).
 - Windows sleep granularity gives up to ~25 ms pacing lag.
 - Exact microcontroller edges cost speed (0.8x–2.9x real time at 100 µs;
   0.2x at 10 µs with 10 kHz PWM).
