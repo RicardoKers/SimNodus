@@ -1,6 +1,6 @@
 # Current state
 
-Updated: 2026-11-09 (release 0.17.0 being published: energy and motor control parts, BLDC/PMSM experimental (E-11), the owner's fixes of SN-279 and SN-280; DE9 waits for the owner). Keep this file short: present state, last results, next
+Updated: 2026-11-09 (release 0.17.0 published: energy and motor control parts, BLDC/PMSM experimental (E-11), the owner's fixes of SN-279 and SN-280; DE9 waits for the owner). Keep this file short: present state, last results, next
 steps. Replace it, do not append. History of the first development line
 (2026-08-31 → 2026-10-06) is in
 [archive/2026-10-legacy/CURRENT.md](../archive/2026-10-legacy/CURRENT.md);
@@ -8,7 +8,7 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 
 ## Where we are
 
-- **Release 0.17.0 (2026-11-09)** (tag `v0.17.0`, GitHub release with
+- **Release 0.17.0 published on 2026-11-09** (tag `v0.17.0`, GitHub release with
   `SimNodus-0.17.0-windows-x64.zip` and `-setup.exe`), after the owner's
   tests of the 2026-11-08 energy preview and the 2026-11-09 preview:
   - SN-271..SN-275: the DC motor's live load, several live controls per
