@@ -61,44 +61,84 @@
   "labels": [
     {
       "at": [
-        24,
-        0
+        22,
+        -4
       ],
       "id": 9,
+      "name": "3V3"
+    },
+    {
+      "at": [
+        24,
+        -2
+      ],
+      "id": 10,
       "name": "VRX"
     },
     {
       "at": [
         26,
-        2
+        0
       ],
-      "id": 10,
+      "id": 11,
       "name": "VRY"
     },
     {
       "at": [
         28,
+        2
+      ],
+      "id": 12,
+      "name": "SW"
+    },
+    {
+      "at": [
+        9,
+        -15
+      ],
+      "id": 13,
+      "name": "3V3"
+    },
+    {
+      "at": [
+        9,
+        11
+      ],
+      "id": 14,
+      "name": "VRX"
+    },
+    {
+      "at": [
+        9,
+        9
+      ],
+      "id": 15,
+      "name": "VRY"
+    },
+    {
+      "at": [
+        9,
         -5
       ],
-      "id": 11,
+      "id": 16,
       "name": "SW"
     }
   ],
-  "next_id": 16,
+  "next_id": 21,
   "notes": [
     {
       "at": [
         -30,
-        -26
+        -34
       ],
-      "id": 15,
+      "id": 20,
       "text": "Joystick module (KY-023 style) on a Blue Pill.\nThe module runs from 3.3 V: the Blue Pill's analog inputs do not take 5 V.\nWhile running, drag the stick (it springs back to the center), click the SW square to push it,\nor use the wheel (X) and Shift with the wheel (Y).\nAnalyzer > UART: \"X <code> Y <code> SW <0|1> <direction>\" every 200 ms; the board's LED lights while SW is pushed."
     }
   ],
   "probes": [
     {
       "color": "",
-      "id": 12,
+      "id": 17,
       "kind": "voltage",
       "target": {
         "at": [
@@ -111,7 +151,7 @@
     },
     {
       "color": "",
-      "id": 13,
+      "id": 18,
       "kind": "voltage",
       "target": {
         "at": [
@@ -124,7 +164,7 @@
     },
     {
       "color": "",
-      "id": 14,
+      "id": 19,
       "kind": "voltage",
       "target": {
         "at": [
@@ -159,11 +199,7 @@
         ],
         [
           22,
-          -15
-        ],
-        [
-          9,
-          -15
+          -4
         ]
       ]
     },
@@ -176,11 +212,7 @@
         ],
         [
           24,
-          11
-        ],
-        [
-          9,
-          11
+          -2
         ]
       ]
     },
@@ -193,11 +225,7 @@
         ],
         [
           26,
-          9
-        ],
-        [
-          9,
-          9
+          0
         ]
       ]
     },
@@ -210,11 +238,7 @@
         ],
         [
           28,
-          -5
-        ],
-        [
-          9,
-          -5
+          2
         ]
       ]
     }

@@ -77,7 +77,7 @@
         4
       ],
       "designator": "BT1",
-      "id": 11,
+      "id": 12,
       "mirrored": false,
       "parameters": {
         "R0": "150m",
@@ -97,7 +97,7 @@
         14
       ],
       "designator": "RS",
-      "id": 13,
+      "id": 14,
       "mirrored": false,
       "parameters": {
         "R": "1.2"
@@ -111,7 +111,7 @@
         17
       ],
       "designator": "GND2",
-      "id": 15,
+      "id": 16,
       "mirrored": false,
       "parameters": {},
       "rotation": 0,
@@ -123,8 +123,8 @@
         13
       ],
       "designator": "Q1",
-      "id": 16,
-      "mirrored": false,
+      "id": 17,
+      "mirrored": true,
       "parameters": {
         "model": "Generic"
       },
@@ -133,11 +133,11 @@
     },
     {
       "at": [
-        4,
+        5,
         13
       ],
       "designator": "R3",
-      "id": 17,
+      "id": 18,
       "mirrored": false,
       "parameters": {
         "R": "1k"
@@ -147,11 +147,11 @@
     },
     {
       "at": [
-        0,
+        -4,
         16
       ],
       "designator": "GND3",
-      "id": 21,
+      "id": 22,
       "mirrored": false,
       "parameters": {},
       "rotation": 0,
@@ -163,17 +163,17 @@
     {
       "at": [
         -12,
-        16
+        18
       ],
-      "id": 10,
+      "id": 11,
       "name": "SENSE"
     },
     {
       "at": [
-        10,
+        6,
         0
       ],
-      "id": 22,
+      "id": 23,
       "name": "BAT"
     },
     {
@@ -181,25 +181,25 @@
         10,
         11
       ],
-      "id": 23,
+      "id": 24,
       "name": "SENSE"
     }
   ],
-  "next_id": 27,
+  "next_id": 28,
   "notes": [
     {
       "at": [
         -30,
         -12
       ],
-      "id": 26,
+      "id": 27,
       "text": "CC/CV charger for one Li-ion cell with an LM317 (1000 mAh with 150 mOhm + 150 mOhm inside, starting at 20 %, time accelerated 120 times: an hour in 30 s).\nCV: R1 and R2 set 4.2 V across the cell (R2 returns to its - terminal, so RS is outside the loop). CC: above about 0.55 A the drop on RS (1.2 ohm) turns Q1 on, which pulls ADJ down.\nWatch the battery's current and voltage in the Signal Analyzer: constant current, then constant voltage while the current falls;\nthe battery shows its state of charge. With protection, charging would stop above 4.25 V per cell."
     }
   ],
   "probes": [
     {
       "color": "",
-      "id": 24,
+      "id": 25,
       "kind": "voltage",
       "target": {
         "at": [
@@ -212,14 +212,14 @@
     },
     {
       "color": "",
-      "id": 25,
+      "id": 26,
       "kind": "current",
       "target": {
         "at": [
           10,
           0
         ],
-        "item": 11,
+        "item": 12,
         "pin": "+"
       }
     }
@@ -303,7 +303,20 @@
       ]
     },
     {
-      "id": 12,
+      "id": 10,
+      "points": [
+        [
+          -12,
+          16
+        ],
+        [
+          -12,
+          18
+        ]
+      ]
+    },
+    {
+      "id": 13,
       "points": [
         [
           -4,
@@ -320,7 +333,7 @@
       ]
     },
     {
-      "id": 14,
+      "id": 15,
       "points": [
         [
           10,
@@ -333,28 +346,28 @@
       ]
     },
     {
-      "id": 18,
+      "id": 19,
       "points": [
         [
-          -5,
+          1,
           13
         ],
         [
-          1,
+          2,
           13
         ]
       ]
     },
     {
-      "id": 19,
+      "id": 20,
       "points": [
         [
-          7,
+          8,
           13
         ],
         [
-          10,
-          13
+          8,
+          11
         ],
         [
           10,
@@ -363,15 +376,11 @@
       ]
     },
     {
-      "id": 20,
+      "id": 21,
       "points": [
         [
-          0,
+          -4,
           10
-        ],
-        [
-          0,
-          7
         ],
         [
           -4,

@@ -206,6 +206,7 @@ bool RunController::start(QString& error, const sim::RunRequest* base)
         }
     }
     readout_vectors_.clear();
+    live_vectors_.clear();
     switch_states_.clear();
     light_vectors_.clear();
     for (const auto& c : snapshot_.components()) {
@@ -215,6 +216,13 @@ bool RunController::start(QString& error, const sim::RunRequest* base)
             auto& vectors = light_vectors_[c.id];
             for (const auto& light : d->lights->lights) {
                 vectors.push_back(lower(element_name(light.element, c.designator)) + "#branch");
+                request.vectors.push_back(vectors.back());
+            }
+        }
+        if (d && !d->live_values.empty()) {
+            auto& vectors = live_vectors_[c.id];
+            for (const auto& value : d->live_values) {
+                vectors.push_back(lower(element_name(value.element, c.designator)) + (value.current ? "#branch" : ""));
                 request.vectors.push_back(vectors.back());
             }
         }
@@ -945,8 +953,28 @@ QString RunController::live_text(const std::set<model::Id>& selection) const
             }
         }
         std::optional<double> current;
-        if (const auto it = readout_vectors_.find(c->id); it != readout_vectors_.end()) {
-            current = session_->latest(it->second);
+        QStringList more;
+        if (const auto it = live_vectors_.find(c->id); it != live_vectors_.end()) {
+            // The library's live values (SN-279): the line labeled "I" is the part's current.
+            for (std::size_t i = 0; i < d->live_values.size() && i < it->second.size(); ++i) {
+                const auto& value = d->live_values[i];
+                const auto latest = session_->latest(it->second[i]);
+                if (!latest) {
+                    continue;
+                }
+                const double shown = *latest * value.scale;
+                if (value.label == "I") {
+                    current = shown;
+                    continue;
+                }
+                more << QStringLiteral("%1 = %2%3").arg(QCoreApplication::translate("ComponentLibrary", value.label.c_str()),
+                                                       QString::fromStdString(model::format_engineering(shown, 3)),
+                                                       QString::fromStdString(value.unit));
+            }
+        } else if (const auto readout = readout_vectors_.find(c->id);
+                   readout != readout_vectors_.end() && d->readout->kind == library::Readout::Kind::Current) {
+            // A meter's or an LED's measuring source; node readouts (a motor's speed) are no current.
+            current = session_->latest(readout->second);
         } else if (c->type == "resistor" && volts.size() == 2) {
             const auto r = model::parse_engineering(c->parameters.count("R") ? c->parameters.at("R") : "", "Ohm");
             if (r && *r > 0) {
@@ -955,14 +983,20 @@ QString RunController::live_text(const std::set<model::Id>& selection) const
         } else if (const auto vs = session_->latest("v_" + lower(netlist::sanitize_name(c->designator)) + "#branch")) {
             current = -*vs; // SPICE source current flows from + through the source: report the delivered current
         }
-        if (volts.size() >= 2) {
+        // The voltage across: two-pin parts, or the measured pins of a current readout.
+        const bool two_terminals = d->pins.size() == 2
+            || (d->readout && d->readout->kind == library::Readout::Kind::Current);
+        if (volts.size() >= 2 && two_terminals) {
             const double across = volts[0] - volts[1];
             lines << QStringLiteral("V = %1").arg(quantity(across, "V"));
             if (current) {
                 lines << QStringLiteral("I = %1").arg(quantity(*current, "A"));
                 lines << QStringLiteral("P = %1").arg(quantity(std::abs(across * *current), "W"));
             }
+        } else if (current) {
+            lines << QStringLiteral("I = %1").arg(quantity(*current, "A"));
         }
+        lines << more;
     }
     return lines.join(QLatin1Char('\n'));
 }

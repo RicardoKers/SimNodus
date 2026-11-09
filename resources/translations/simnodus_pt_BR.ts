@@ -3848,6 +3848,14 @@ Permitir para este projeto neste computador? Sem isso, a rede das placas fica de
             <translation>Torque de carga no eixo, como fração do torque de rotor travado; arraste o componente ou use a roda do mouse durante a simulação</translation>
         </message>
         <message>
+            <source>I</source>
+            <translation>I</translation>
+        </message>
+        <message>
+            <source>Speed</source>
+            <translation>Velocidade</translation>
+        </message>
+        <message>
             <source>Lamp</source>
             <translation>Lâmpada</translation>
         </message>
@@ -3950,6 +3958,10 @@ Permitir para este projeto neste computador? Sem isso, a rede das placas fica de
         <message>
             <source>Time constant of the RC pair (before the acceleration)</source>
             <translation>Constante de tempo do par RC (antes da aceleração)</translation>
+        </message>
+        <message>
+            <source>State of charge</source>
+            <translation>Estado de carga</translation>
         </message>
         <message>
             <source>Lithium-ion battery with protection</source>
@@ -4066,6 +4078,10 @@ Permitir para este projeto neste computador? Sem isso, a rede das placas fica de
         <message>
             <source>Leakage across the cells (left out of the fit; about 0.5 % of Imp at Vmp)</source>
             <translation>Fuga através das células (fora do ajuste; cerca de 0,5 % de Imp em Vmp)</translation>
+        </message>
+        <message>
+            <source>Share of maximum power</source>
+            <translation>Fração da potência máxima</translation>
         </message>
         <message>
             <source>Solar panel 1 W 6 V</source>
@@ -4694,6 +4710,18 @@ Permitir para este projeto neste computador? Sem isso, a rede das placas fica de
         <message>
             <source>Time to reach 63 % of the speed from rest with the shaft free; sets the inertia</source>
             <translation>Tempo para chegar a 63 % da velocidade, partindo do repouso com o eixo livre; define a inércia</translation>
+        </message>
+        <message>
+            <source>I(U)</source>
+            <translation>I(U)</translation>
+        </message>
+        <message>
+            <source>I(V)</source>
+            <translation>I(V)</translation>
+        </message>
+        <message>
+            <source>I(W)</source>
+            <translation>I(W)</translation>
         </message>
         <message>
             <source>Three-phase half-bridge driver</source>

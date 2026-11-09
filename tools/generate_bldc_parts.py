@@ -136,6 +136,7 @@ def motor(kind, name, sinusoidal):
         "designator_offset": [-3, -5],
         "value_offset": [-3, 5],
         "value_parameter": "V",
+        "more_values": ["load"],
         "parameters": [
             number("V", "Rated voltage", "V", "12", "Bus voltage for the no-load speed", "1", "100"),
             number("rpm", "No-load speed", "rpm", "3000",
@@ -157,6 +158,13 @@ def motor(kind, name, sinusoidal):
         "interactive": {"kind": "potentiometer", "parameter": "load"},
         "models": [".model SW_HALL SW(VT=0 VH=0.02 RON=10 ROFF=1e9)"],
         "readout": {"kind": "node", "element": "w_{ref}", "scale": 60 / TWO_PI, "unit": "rpm"},
+        "live": [
+            {"label": "I(U)", "kind": "current", "element": "V_{ref}_su", "unit": "A"},
+            {"label": "I(V)", "kind": "current", "element": "V_{ref}_sv", "unit": "A"},
+            {"label": "I(W)", "kind": "current", "element": "V_{ref}_sw", "unit": "A"},
+            {"label": "Speed", "kind": "node", "element": "w_{ref}", "scale": 60 / TWO_PI, "unit": "rpm"},
+            {"label": "Load", "kind": "node", "element": "ctl_{ref}", "scale": 100, "unit": "%"},
+        ],
         "spice": lines,
     }
 

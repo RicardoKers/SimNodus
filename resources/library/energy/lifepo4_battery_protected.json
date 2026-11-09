@@ -183,6 +183,21 @@
     "scale": 1,
     "unit": "% SOC"
   },
+  "live": [
+    {
+      "label": "I",
+      "kind": "current",
+      "element": "V_{ref}_i",
+      "scale": -1,
+      "unit": "A"
+    },
+    {
+      "label": "State of charge",
+      "kind": "node",
+      "element": "r_{ref}",
+      "unit": "%"
+    }
+  ],
   "spice": [
     "V_{ref}_i {node:+} a_{ref} DC 0",
     "B_{ref}_q 0 q_{ref} I=I(V_{ref}_i)/({capacity}*3.6/{accel})",

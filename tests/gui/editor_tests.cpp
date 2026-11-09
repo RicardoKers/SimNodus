@@ -25,6 +25,7 @@
 #ifndef Q_MOC_RUN // Qt 6.4's moc cannot parse the C++20 standard headers these pull in
 #include "automation/automation.hpp"
 #include "editing/operations.hpp"
+#include "model/engineering.hpp"
 #include "io/project_file.hpp"
 #include "netlist/connectivity.hpp"
 #include "sim/engine_host.hpp"
@@ -1053,6 +1054,40 @@ private slots:
         const model::Id wire = doc().schematic().wires().front().id;
         QVERIFY(window_->run_controller()->live_text({wire}).startsWith(QStringLiteral("V(")));
         QCOMPARE(window_->messages()->warning_count(), before);
+        window_->stop();
+#endif
+    }
+
+    void solar_panel_live_values_give_its_current()
+    {
+        // SN-279 (owner's report of 2026-11-09): the % MPP readout was shown as
+        // the current ("I = 100A"); the library's live values give the real one.
+#if !defined(SIMNODUS_TEST_NGSPICE_LIBRARY)
+        QSKIP("No ngspice configured for this build.");
+#else
+        const model::Id pv = place("solar_10w_12v", {0, 0}); // + at (0,-4), - at (0,4)
+        place("resistor", {10, 0});                          // 1k: pins at (10,-3) and (10,3)
+        place("ground", {0, 6});
+        doc().apply(editing::add_wire(doc().id_source(), {{0, -4}, {0, -6}, {10, -6}, {10, -3}}));
+        doc().apply(editing::add_wire(doc().id_source(), {{0, 4}, {0, 6}, {10, 6}, {10, 3}}));
+        window_->run();
+        QTRY_VERIFY_WITH_TIMEOUT(window_->run_controller()->active(), 5000);
+        auto value = [&](const QString& label) {
+            for (const QString& line : window_->run_controller()->live_text({pv}).split(QLatin1Char('\n'))) {
+                if (line.startsWith(label + QStringLiteral(" = "))) {
+                    return line.mid(label.size() + 3);
+                }
+            }
+            return QString();
+        };
+        QTRY_VERIFY_WITH_TIMEOUT(!value(QStringLiteral("I")).isEmpty(), 10000);
+        // About 21 V into 1 kOhm: some 21 mA, not the 100 of the readout.
+        const auto current = model::parse_engineering(value(QStringLiteral("I")).toStdString(), "A");
+        QVERIFY2(current && *current > 0.015 && *current < 0.025, qPrintable(value(QStringLiteral("I"))));
+        QVERIFY(!value(QStringLiteral("P")).isEmpty());
+        QCOMPARE(value(QStringLiteral("Irradiance")), QString::fromUtf8("1kW/m²"));
+        window_->run_controller()->set_control(pv, 0.5);
+        QTRY_COMPARE_WITH_TIMEOUT(value(QStringLiteral("Irradiance")), QString::fromUtf8("600W/m²"), 10000);
         window_->stop();
 #endif
     }
