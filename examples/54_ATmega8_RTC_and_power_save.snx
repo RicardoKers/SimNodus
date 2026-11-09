@@ -48,7 +48,7 @@
     },
     {
       "at": [
-        -9,
+        -15,
         1
       ],
       "designator": "GND2",
@@ -72,8 +72,8 @@
     },
     {
       "at": [
-        -24,
-        2
+        -19,
+        -10
       ],
       "designator": "Y1",
       "id": 9,
@@ -87,7 +87,7 @@
     {
       "at": [
         -16,
-        18
+        13
       ],
       "designator": "R1",
       "id": 14,
@@ -100,8 +100,8 @@
     },
     {
       "at": [
-        -16,
-        26
+        -22,
+        18
       ],
       "designator": "LED1",
       "id": 16,
@@ -114,8 +114,8 @@
     },
     {
       "at": [
-        -16,
-        29
+        -22,
+        21
       ],
       "designator": "GND4",
       "id": 18,
@@ -141,6 +141,7 @@
         -1
       ],
       "id": 5,
+      "mirrored": true,
       "name": "VCC"
     },
     {
@@ -153,16 +154,16 @@
     },
     {
       "at": [
-        -24,
-        -1
+        -19,
+        -13
       ],
       "id": 10,
       "name": "TOSC1"
     },
     {
       "at": [
-        -24,
-        5
+        -19,
+        -7
       ],
       "id": 11,
       "name": "TOSC2"
@@ -173,6 +174,7 @@
         3
       ],
       "id": 12,
+      "mirrored": true,
       "name": "TOSC1"
     },
     {
@@ -181,15 +183,16 @@
         5
       ],
       "id": 13,
+      "mirrored": true,
       "name": "TOSC2"
     }
   ],
-  "next_id": 21,
+  "next_id": 22,
   "notes": [
     {
       "at": [
-        -40,
-        -30
+        -31,
+        -23
       ],
       "id": 20,
       "text": "ATmega8A at the factory clock (internal RC, 1 MHz) as a small real-time clock: Timer2 counts a 32.768 kHz\nwatch crystal on TOSC1 and TOSC2 (AS2) and overflows once a second; in between the chip sleeps in\nPower-save. Each second the LED on PB0 toggles and the terminal shows \"seconds 12\"."
@@ -234,10 +237,6 @@
         [
           -13,
           13
-        ],
-        [
-          -13,
-          18
         ]
       ]
     },
@@ -246,15 +245,28 @@
       "points": [
         [
           -19,
-          18
+          13
         ],
         [
-          -16,
-          18
+          -22,
+          13
         ],
         [
-          -16,
-          23
+          -22,
+          15
+        ]
+      ]
+    },
+    {
+      "id": 21,
+      "points": [
+        [
+          -15,
+          1
+        ],
+        [
+          -9,
+          1
         ]
       ]
     }

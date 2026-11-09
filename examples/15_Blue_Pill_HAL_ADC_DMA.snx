@@ -1,150 +1,229 @@
 {
-  "format": "simnodus-project",
-  "version": 1,
-  "next_id": 40,
-  "settings": {
-    "mode": "interactive",
-    "speed": 1,
-    "max_step": 0.0001,
-    "segment": 1,
-    "transient_stop": 0.01,
-    "transient_max_step": 1e-06
-  },
+  "buses": [],
   "components": [
     {
-      "id": 1,
-      "type": "bluepill",
-      "designator": "U1",
       "at": [
         0,
         0
       ],
-      "rotation": 0,
+      "designator": "U1",
+      "id": 1,
       "mirrored": false,
       "parameters": {
         "firmware": "firmware/hal_adc_dma/hal_adc_dma.elf"
-      }
+      },
+      "rotation": 0,
+      "type": "bluepill"
     },
     {
-      "id": 2,
-      "type": "ground",
-      "designator": "GND1",
       "at": [
         -12,
         21
       ],
-      "rotation": 0,
+      "designator": "GND1",
+      "id": 2,
       "mirrored": false,
-      "parameters": {}
+      "parameters": {},
+      "rotation": 0,
+      "type": "ground"
     },
     {
-      "id": 3,
-      "type": "potentiometer",
-      "designator": "RV1",
       "at": [
-        13,
-        0
+        18,
+        -5
       ],
-      "rotation": 180,
+      "designator": "RV1",
+      "id": 3,
       "mirrored": false,
       "parameters": {
         "R": "10k",
         "position": "50"
-      }
+      },
+      "rotation": 180,
+      "type": "potentiometer"
     },
     {
-      "id": 4,
-      "type": "ground",
-      "designator": "GND2",
       "at": [
-        13,
-        6
+        18,
+        0
       ],
-      "rotation": 0,
+      "designator": "GND2",
+      "id": 4,
       "mirrored": false,
-      "parameters": {}
+      "parameters": {},
+      "rotation": 0,
+      "type": "ground"
     },
     {
-      "id": 5,
-      "type": "resistor",
-      "designator": "R1",
       "at": [
         14,
         11
       ],
-      "rotation": 90,
+      "designator": "R1",
+      "id": 5,
       "mirrored": false,
       "parameters": {
         "R": "330"
-      }
+      },
+      "rotation": 90,
+      "type": "resistor"
     },
     {
-      "id": 6,
-      "type": "led",
-      "designator": "LED1",
       "at": [
-        20,
+        22,
         14
       ],
-      "rotation": 0,
+      "designator": "LED1",
+      "id": 6,
       "mirrored": false,
       "parameters": {
         "color": "green"
-      }
-    },
-    {
-      "id": 7,
-      "type": "ground",
-      "designator": "GND3",
-      "at": [
-        20,
-        21
-      ],
+      },
       "rotation": 0,
-      "mirrored": false,
-      "parameters": {}
+      "type": "led"
     },
     {
-      "id": 8,
-      "type": "resistor",
-      "designator": "R2",
+      "at": [
+        22,
+        19
+      ],
+      "designator": "GND3",
+      "id": 7,
+      "mirrored": false,
+      "parameters": {},
+      "rotation": 0,
+      "type": "ground"
+    },
+    {
       "at": [
         14,
         24
       ],
-      "rotation": 90,
+      "designator": "R2",
+      "id": 8,
       "mirrored": false,
       "parameters": {
         "R": "10k"
-      }
+      },
+      "rotation": 90,
+      "type": "resistor"
     },
     {
-      "id": 9,
-      "type": "capacitor",
-      "designator": "C1",
       "at": [
-        20,
+        22,
         27
       ],
-      "rotation": 0,
+      "designator": "C1",
+      "id": 9,
       "mirrored": false,
       "parameters": {
         "C": "1u"
+      },
+      "rotation": 0,
+      "type": "capacitor"
+    },
+    {
+      "at": [
+        22,
+        32
+      ],
+      "designator": "GND4",
+      "id": 10,
+      "mirrored": false,
+      "parameters": {},
+      "rotation": 0,
+      "type": "ground"
+    }
+  ],
+  "format": "simnodus-project",
+  "labels": [
+    {
+      "at": [
+        15,
+        5
+      ],
+      "id": 30,
+      "name": "POT"
+    },
+    {
+      "at": [
+        10,
+        18
+      ],
+      "id": 31,
+      "name": "PA0"
+    },
+    {
+      "at": [
+        18,
+        24
+      ],
+      "id": 32,
+      "name": "RC"
+    }
+  ],
+  "next_id": 41,
+  "notes": [
+    {
+      "at": [
+        -12,
+        36
+      ],
+      "id": 40,
+      "text": "Example 14's circuit with a HAL project at 72 MHz: ADC1 scans\nPA1 and VREFINT into memory by circular DMA, TIM2 makes the\nPWM and USART1 reports by DMA. Analyzer > UART shows\n\"PA1 2048 VREFINT 1489 groups ...\" every 500 ms; drag RV1\nand the LED and V(RC) follow within 0.1 s."
+    }
+  ],
+  "probes": [
+    {
+      "color": "#2ca02c",
+      "id": 33,
+      "kind": "voltage",
+      "target": {
+        "at": [
+          15,
+          0
+        ],
+        "item": 12
       }
     },
     {
-      "id": 10,
-      "type": "ground",
-      "designator": "GND4",
-      "at": [
-        20,
-        33
-      ],
-      "rotation": 0,
-      "mirrored": false,
-      "parameters": {}
+      "color": "#1f77b4",
+      "id": 34,
+      "kind": "voltage",
+      "target": {
+        "at": [
+          10,
+          20
+        ],
+        "item": 19
+      }
+    },
+    {
+      "color": "#ff7f0e",
+      "id": 35,
+      "kind": "voltage",
+      "target": {
+        "at": [
+          21,
+          24
+        ],
+        "item": 20
+      }
     }
   ],
+  "settings": {
+    "cortex_m3_timing": true,
+    "exact_edges": false,
+    "max_step": 0.0001,
+    "mcu_quantum": 0.001,
+    "mode": "interactive",
+    "segment": 1.0,
+    "speed": 1.0,
+    "transient_max_step": 1e-06,
+    "transient_stop": 0.01
+  },
+  "splitters": [],
+  "version": 1,
   "wires": [
     {
       "id": 11,
@@ -171,12 +250,12 @@
           9
         ],
         [
-          10,
+          15,
           9
         ],
         [
-          10,
-          0
+          15,
+          -5
         ]
       ]
     },
@@ -184,11 +263,11 @@
       "id": 13,
       "points": [
         [
-          13,
-          -3
+          18,
+          -8
         ],
         [
-          13,
+          18,
           -15
         ],
         [
@@ -201,12 +280,12 @@
       "id": 14,
       "points": [
         [
-          13,
-          3
+          18,
+          -2
         ],
         [
-          13,
-          6
+          18,
+          0
         ]
       ]
     },
@@ -244,7 +323,7 @@
           11
         ],
         [
-          20,
+          22,
           11
         ]
       ]
@@ -253,12 +332,12 @@
       "id": 18,
       "points": [
         [
-          20,
+          22,
           17
         ],
         [
-          20,
-          21
+          22,
+          19
         ]
       ]
     },
@@ -287,7 +366,7 @@
           24
         ],
         [
-          20,
+          22,
           24
         ]
       ]
@@ -296,78 +375,14 @@
       "id": 21,
       "points": [
         [
-          20,
+          22,
           30
         ],
         [
-          20,
-          33
+          22,
+          32
         ]
       ]
-    }
-  ],
-  "labels": [
-    {
-      "id": 30,
-      "at": [
-        10,
-        4
-      ],
-      "name": "POT"
-    },
-    {
-      "id": 31,
-      "at": [
-        10,
-        18
-      ],
-      "name": "PA0"
-    },
-    {
-      "id": 32,
-      "at": [
-        18,
-        24
-      ],
-      "name": "RC"
-    }
-  ],
-  "probes": [
-    {
-      "id": 33,
-      "kind": "voltage",
-      "target": {
-        "item": 12,
-        "at": [
-          10,
-          6
-        ]
-      },
-      "color": "#2ca02c"
-    },
-    {
-      "id": 34,
-      "kind": "voltage",
-      "target": {
-        "item": 19,
-        "at": [
-          10,
-          20
-        ]
-      },
-      "color": "#1f77b4"
-    },
-    {
-      "id": 35,
-      "kind": "voltage",
-      "target": {
-        "item": 20,
-        "at": [
-          19,
-          24
-        ]
-      },
-      "color": "#ff7f0e"
     }
   ]
 }

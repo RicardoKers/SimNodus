@@ -55,9 +55,16 @@ double perceived(double current, double full)
     return 0.4 + 0.6 * std::sqrt(std::min(ratio, 1.0));
 }
 
+// Below a picovolt or a picoampere a value is the solver's rounding, not a
+// reading: "0.5fV" is shown as 0.
+double reading(double value)
+{
+    return std::abs(value) < 1e-12 ? 0.0 : value;
+}
+
 QString quantity(double value, const char* unit)
 {
-    return QString::fromStdString(model::format_engineering(value, 3)) + QString::fromLatin1(unit);
+    return QString::fromStdString(model::format_engineering(reading(value), 3)) + QString::fromLatin1(unit);
 }
 
 // Expands "{ref}" in a library readout element name.
@@ -388,7 +395,10 @@ bool RunController::keep_written_flash()
                                                  .arg(designator));
                 continue;
             }
-            const QString name = designator + (avr ? QStringLiteral("-eeprom.bin") : QStringLiteral("-flash.bin"));
+            // The project's name first: projects sharing a folder (the
+            // examples) keep their own files.
+            const QString name = QFileInfo(document_.file_path()).completeBaseName() + QLatin1Char('-') + designator
+                + (avr ? QStringLiteral("-eeprom.bin") : QStringLiteral("-flash.bin"));
             QFile file(QDir(document_.base_dir()).absoluteFilePath(name));
             if (!file.open(QIODevice::WriteOnly)
                 || file.write(reinterpret_cast<const char*>(bytes->data()), static_cast<qint64>(bytes->size()))
@@ -968,7 +978,7 @@ QString RunController::live_text(const std::set<model::Id>& selection) const
                     continue;
                 }
                 more << QStringLiteral("%1 = %2%3").arg(QCoreApplication::translate("ComponentLibrary", value.label.c_str()),
-                                                       QString::fromStdString(model::format_engineering(shown, 3)),
+                                                       QString::fromStdString(model::format_engineering(reading(shown), 3)),
                                                        QString::fromStdString(value.unit));
             }
         } else if (const auto readout = readout_vectors_.find(c->id);

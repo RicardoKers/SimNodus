@@ -1,7 +1,7 @@
 {
   "format": "simnodus-project",
   "version": 1,
-  "next_id": 12,
+  "next_id": 13,
   "settings": {
     "mode": "interactive",
     "speed": 1,
@@ -191,6 +191,16 @@
         ]
       },
       "color": "#1f77b4"
+    }
+  ],
+  "notes": [
+    {
+      "at": [
+        0,
+        10
+      ],
+      "id": 12,
+      "text": "Run (F5) and drag the potentiometer's wiper or turn\nthe wheel over it: the voltmeter follows the wiper,\nwhile the ammeter stays at 0.9 mA (9 V across 10 kOhm)."
     }
   ]
 }

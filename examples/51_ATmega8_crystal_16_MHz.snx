@@ -22,8 +22,8 @@
     },
     {
       "at": [
-        -24,
-        -10
+        14,
+        -9
       ],
       "designator": "V1",
       "id": 2,
@@ -36,8 +36,8 @@
     },
     {
       "at": [
-        -24,
-        -7
+        14,
+        -6
       ],
       "designator": "GND1",
       "id": 3,
@@ -48,7 +48,7 @@
     },
     {
       "at": [
-        -9,
+        -16,
         1
       ],
       "designator": "GND2",
@@ -138,8 +138,8 @@
     },
     {
       "at": [
-        -16,
-        18
+        -17,
+        13
       ],
       "designator": "R1",
       "id": 20,
@@ -152,8 +152,8 @@
     },
     {
       "at": [
-        -16,
-        26
+        -23,
+        18
       ],
       "designator": "LED1",
       "id": 22,
@@ -166,8 +166,8 @@
     },
     {
       "at": [
-        -16,
-        29
+        -23,
+        21
       ],
       "designator": "GND6",
       "id": 24,
@@ -181,8 +181,8 @@
   "labels": [
     {
       "at": [
-        -24,
-        -13
+        14,
+        -12
       ],
       "id": 4,
       "name": "VCC"
@@ -193,6 +193,7 @@
         -1
       ],
       "id": 5,
+      "mirrored": true,
       "name": "VCC"
     },
     {
@@ -225,6 +226,7 @@
         3
       ],
       "id": 12,
+      "mirrored": true,
       "name": "XTAL1"
     },
     {
@@ -233,6 +235,7 @@
         5
       ],
       "id": 13,
+      "mirrored": true,
       "name": "XTAL2"
     },
     {
@@ -252,12 +255,12 @@
       "name": "XTAL2"
     }
   ],
-  "next_id": 27,
+  "next_id": 28,
   "notes": [
     {
       "at": [
-        -40,
-        -30
+        -35,
+        -23
       ],
       "id": 26,
       "text": "ATmega8A with a 16 MHz crystal between XTAL1 and XTAL2 (and 22 pF to ground, as on a breadboard): the fuses\nlow EF, high C9 select it (CKSEL 1111, CKOPT). avr_blink_16mhz blinks the LED on PB0 once a second.\nSet the low fuse back to E1 (internal 1 MHz) or remove the crystal to see what a student's chip does."
@@ -300,12 +303,8 @@
           13
         ],
         [
-          -13,
+          -14,
           13
-        ],
-        [
-          -13,
-          18
         ]
       ]
     },
@@ -313,16 +312,29 @@
       "id": 23,
       "points": [
         [
-          -19,
-          18
+          -20,
+          13
         ],
         [
-          -16,
-          18
+          -23,
+          13
         ],
         [
+          -23,
+          15
+        ]
+      ]
+    },
+    {
+      "id": 27,
+      "points": [
+        [
           -16,
-          23
+          1
+        ],
+        [
+          -9,
+          1
         ]
       ]
     }

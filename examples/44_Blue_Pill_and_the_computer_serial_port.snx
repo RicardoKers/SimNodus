@@ -29,7 +29,7 @@
     },
     {
       "at": [
-        14,
+        21,
         11
       ],
       "designator": "R1",
@@ -103,7 +103,7 @@
   "labels": [
     {
       "at": [
-        10,
+        13,
         11
       ],
       "id": 13,
@@ -114,11 +114,11 @@
   "notes": [
     {
       "at": [
-        -46,
-        2
+        -36,
+        1
       ],
       "id": 18,
-      "text": "J1 is a serial port of this computer.\nChoose its Port in Properties (a USB-serial\nadapter's COM port, or loopback) and open\nthe same port in a terminal program (PuTTY,\nthe Arduino Serial Monitor) at 115200 baud.\nType 1 or 0 there to switch the LED."
+      "text": "J1 is a serial port of this computer.\nChoose its Port in Properties (a USB-serial\nadapter's COM port, or loopback) and open\nthe same port in a terminal program (PuTTY,\nthe Arduino Serial Monitor) at 115200 baud.\nType 1 or 0 there to switch the LED.\nWith loopback (no adapter needed) every echo\ncomes back and is echoed again without end: the\ngreeting and its echoes mix in the UART tab, as\nthey would with TX wired to RX on a real board."
     }
   ],
   "probes": [
@@ -187,7 +187,7 @@
           11
         ],
         [
-          11,
+          18,
           11
         ]
       ]
@@ -196,7 +196,7 @@
       "id": 9,
       "points": [
         [
-          17,
+          24,
           11
         ],
         [

@@ -22,8 +22,8 @@
     },
     {
       "at": [
-        -40,
-        0
+        -26,
+        10
       ],
       "designator": "V1",
       "id": 2,
@@ -36,7 +36,7 @@
     },
     {
       "at": [
-        20,
+        24,
         -19
       ],
       "designator": "RV1",
@@ -51,8 +51,8 @@
     },
     {
       "at": [
-        30,
-        -8
+        24,
+        -9
       ],
       "designator": "RV2",
       "id": 13,
@@ -108,8 +108,8 @@
     },
     {
       "at": [
-        20,
-        22
+        16,
+        19
       ],
       "designator": "R2",
       "id": 24,
@@ -117,13 +117,13 @@
       "parameters": {
         "R": "330"
       },
-      "rotation": 0,
+      "rotation": 270,
       "type": "resistor"
     },
     {
       "at": [
-        20,
-        28
+        24,
+        19
       ],
       "designator": "LED2",
       "id": 26,
@@ -131,7 +131,7 @@
       "parameters": {
         "color": "red"
       },
-      "rotation": 0,
+      "rotation": 270,
       "type": "led"
     }
   ],
@@ -139,16 +139,16 @@
   "labels": [
     {
       "at": [
-        -40,
-        -3
+        -26,
+        7
       ],
       "id": 3,
       "name": "VCC"
     },
     {
       "at": [
-        -40,
-        3
+        -26,
+        13
       ],
       "id": 4,
       "name": "GND"
@@ -159,6 +159,7 @@
         -1
       ],
       "id": 5,
+      "mirrored": true,
       "name": "VCC"
     },
     {
@@ -175,6 +176,7 @@
         1
       ],
       "id": 7,
+      "mirrored": true,
       "name": "GND"
     },
     {
@@ -187,7 +189,7 @@
     },
     {
       "at": [
-        20,
+        24,
         -22
       ],
       "id": 11,
@@ -195,7 +197,7 @@
     },
     {
       "at": [
-        20,
+        24,
         -16
       ],
       "id": 12,
@@ -203,16 +205,16 @@
     },
     {
       "at": [
-        30,
-        -11
+        24,
+        -12
       ],
       "id": 15,
       "name": "VCC"
     },
     {
       "at": [
-        30,
-        -5
+        24,
+        -6
       ],
       "id": 16,
       "name": "GND"
@@ -223,6 +225,7 @@
         -15
       ],
       "id": 19,
+      "mirrored": true,
       "name": "GND"
     },
     {
@@ -235,19 +238,19 @@
     },
     {
       "at": [
-        20,
-        31
+        27,
+        19
       ],
       "id": 27,
       "name": "GND"
     }
   ],
-  "next_id": 32,
+  "next_id": 34,
   "notes": [
     {
       "at": [
-        -44,
-        -34
+        -26,
+        -32
       ],
       "id": 31,
       "text": "ATmega32A (experimental) at the factory clock (internal RC, 1 MHz) running avr32_demo. The firmware\nwrites JTD twice, so PC2-PC5 count (with the factory fuses they are the JTAG pins). RV1 on ADC0 sets\nTimer0's PWM on OC0 (PB3, LED1); SW1 on INT2 (PB2) toggles LED2 (PD7); the terminal (USART) shows RV1's\ncode and the differential reading ADC1 - ADC0 with a gain of 10: move RV2 a little around RV1."
@@ -316,25 +319,8 @@
           -19
         ],
         [
-          17,
+          21,
           -19
-        ]
-      ]
-    },
-    {
-      "id": 14,
-      "points": [
-        [
-          10,
-          -17
-        ],
-        [
-          27,
-          -17
-        ],
-        [
-          27,
-          -8
         ]
       ]
     },
@@ -372,7 +358,41 @@
           19
         ],
         [
-          20,
+          13,
+          19
+        ]
+      ]
+    },
+    {
+      "id": 32,
+      "points": [
+        [
+          10,
+          -17
+        ],
+        [
+          16,
+          -17
+        ],
+        [
+          16,
+          -9
+        ],
+        [
+          21,
+          -9
+        ]
+      ]
+    },
+    {
+      "id": 33,
+      "points": [
+        [
+          19,
+          19
+        ],
+        [
+          21,
           19
         ]
       ]

@@ -1,7 +1,7 @@
 {
   "format": "simnodus-project",
   "version": 1,
-  "next_id": 13,
+  "next_id": 14,
   "settings": {
     "mode": "interactive",
     "speed": 1,
@@ -183,6 +183,16 @@
         ]
       },
       "color": "#d62728"
+    }
+  ],
+  "notes": [
+    {
+      "at": [
+        0,
+        12
+      ],
+      "id": 13,
+      "text": "Run (F5) and hold the mouse on the push button SW1:\nthe LED lights with about 9 mA through 330 Ohm.\nSelect the LED to see its voltage, current and power."
     }
   ]
 }

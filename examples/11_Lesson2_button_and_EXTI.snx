@@ -1,7 +1,7 @@
 {
   "format": "simnodus-project",
   "version": 1,
-  "next_id": 27,
+  "next_id": 28,
   "settings": {
     "mode": "interactive",
     "speed": 1,
@@ -354,6 +354,16 @@
         ]
       },
       "color": "#2ca02c"
+    }
+  ],
+  "notes": [
+    {
+      "at": [
+        -12,
+        27
+      ],
+      "id": 27,
+      "text": "Lesson 2 (examples/lessons/lesson2_button_exti.md):\na bouncing push button with a 10 kOhm pull-up on PA1,\ncounted by EXTI1 and reported on USART1. Without the\nfilter one press and release count 9 falling edges;\nclose SW2 to add the 1 uF RC filter and count exactly one."
     }
   ]
 }

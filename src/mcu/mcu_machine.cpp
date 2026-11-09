@@ -274,27 +274,26 @@ public:
             error = "The ESP32-C3's ROM file could not be read: " + error;
             return false;
         }
-        if (options.firmware.empty()) {
-            error = "The ESP32-C3 board has no firmware file (a .bin flash image).";
-            return false;
-        }
-        std::ifstream stream(options.firmware, std::ios::binary);
-        if (!stream) {
-            error = "Cannot open the firmware file " + options.firmware.string() + ".";
-            return false;
-        }
-        const std::vector<std::uint8_t> bytes((std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>());
-        if (bytes.size() >= 4 && bytes[0] == 0x7F && bytes[1] == 'E' && bytes[2] == 'L' && bytes[3] == 'F') {
-            error = "The ESP32-C3 runs a flash image (.bin, as written by esptool or the IDE's merged binary), "
-                    "not an ELF file.";
-            return false;
-        }
-        std::vector<std::uint8_t> flash = bytes;
-        if (application_image(bytes) && !assemble_from_flash_args(options.firmware, flash, error)) {
-            return false;
-        }
-        if (!machine_.load_flash(0, flash, error)) {
-            return false;
+        // Without a firmware the flash stays erased (a blank module, waiting for an upload).
+        if (!options.firmware.empty()) {
+            std::ifstream stream(options.firmware, std::ios::binary);
+            if (!stream) {
+                error = "Cannot open the firmware file " + options.firmware.string() + ".";
+                return false;
+            }
+            const std::vector<std::uint8_t> bytes((std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>());
+            if (bytes.size() >= 4 && bytes[0] == 0x7F && bytes[1] == 'E' && bytes[2] == 'L' && bytes[3] == 'F') {
+                error = "The ESP32-C3 runs a flash image (.bin, as written by esptool or the IDE's merged binary), "
+                        "not an ELF file.";
+                return false;
+            }
+            std::vector<std::uint8_t> flash = bytes;
+            if (application_image(bytes) && !assemble_from_flash_args(options.firmware, flash, error)) {
+                return false;
+            }
+            if (!machine_.load_flash(0, flash, error)) {
+                return false;
+            }
         }
         // UART RX from the pin (SN-254): GPIO20 on a net with a device has
         // exact edges; a port that gets another board's bytes does not decode.

@@ -58,6 +58,13 @@ Edit delete_items(const model::Schematic& schematic, const std::set<Id>& ids);
 Edit move_items(const model::Schematic& schematic, const library::ComponentLibrary& library, const std::set<Id>& ids,
     Point delta);
 
+// Moves one segment of a wire (`segment` between points segment and
+// segment+1) across its direction by `delta`'s perpendicular part; the next
+// segments stretch. An end segment keeps the wire's end where it was (a
+// pin, a label) with a new short segment. Wires ending on the segment and
+// labels on it move along and stay attached.
+Edit move_wire_segment(const model::Schematic& schematic, Id wire, std::size_t segment, Point delta);
+
 // Rotates the elements 90 degrees clockwise (a single component about its
 // origin, several about the center of their bounding box); attached wires follow.
 Edit rotate_items(const model::Schematic& schematic, const library::ComponentLibrary& library, const std::set<Id>& ids);

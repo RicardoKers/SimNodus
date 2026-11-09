@@ -1,211 +1,448 @@
 {
-  "format": "simnodus-project",
-  "version": 1,
-  "next_id": 44,
-  "settings": {
-    "mode": "interactive",
-    "speed": 1,
-    "max_step": 0.0001,
-    "segment": 1,
-    "transient_stop": 0.01,
-    "transient_max_step": 1e-06
-  },
+  "buses": [
+    {
+      "id": 37,
+      "name": "D",
+      "points": [
+        [
+          16,
+          0
+        ],
+        [
+          30,
+          0
+        ]
+      ]
+    }
+  ],
   "components": [
     {
-      "id": 1,
-      "type": "vdc",
-      "designator": "V1",
       "at": [
         -8,
         9
       ],
-      "rotation": 0,
+      "designator": "V1",
+      "id": 1,
       "mirrored": false,
       "parameters": {
         "V": "5"
-      }
+      },
+      "rotation": 0,
+      "type": "vdc"
     },
     {
-      "id": 3,
-      "type": "ground",
-      "designator": "GND1",
       "at": [
         -8,
         12
       ],
-      "rotation": 0,
+      "designator": "GND1",
+      "id": 3,
       "mirrored": false,
-      "parameters": {}
+      "parameters": {},
+      "rotation": 0,
+      "type": "ground"
     },
     {
-      "id": 4,
-      "type": "spdt",
-      "designator": "SW1",
       "at": [
         4,
         0
       ],
-      "rotation": 0,
+      "designator": "SW1",
+      "id": 4,
       "mirrored": true,
       "parameters": {
         "closed": "open"
-      }
+      },
+      "rotation": 0,
+      "type": "spdt"
     },
     {
-      "id": 9,
-      "type": "resistor",
-      "designator": "R1",
       "at": [
         43,
         0
       ],
-      "rotation": 90,
+      "designator": "R1",
+      "id": 9,
       "mirrored": false,
       "parameters": {
         "R": "330"
-      }
+      },
+      "rotation": 90,
+      "type": "resistor"
     },
     {
-      "id": 10,
-      "type": "led",
-      "designator": "LED1",
       "at": [
         49,
         0
       ],
-      "rotation": 270,
+      "designator": "LED1",
+      "id": 10,
       "mirrored": false,
       "parameters": {
         "color": "red"
-      }
+      },
+      "rotation": 270,
+      "type": "led"
     },
     {
-      "id": 12,
-      "type": "spdt",
-      "designator": "SW2",
       "at": [
         4,
         7
       ],
-      "rotation": 0,
+      "designator": "SW2",
+      "id": 12,
       "mirrored": true,
       "parameters": {
         "closed": "open"
-      }
+      },
+      "rotation": 0,
+      "type": "spdt"
     },
     {
-      "id": 17,
-      "type": "resistor",
-      "designator": "R2",
       "at": [
         43,
         7
       ],
-      "rotation": 90,
+      "designator": "R2",
+      "id": 17,
       "mirrored": false,
       "parameters": {
         "R": "330"
-      }
+      },
+      "rotation": 90,
+      "type": "resistor"
     },
     {
-      "id": 18,
-      "type": "led",
-      "designator": "LED2",
       "at": [
         49,
         7
       ],
-      "rotation": 270,
+      "designator": "LED2",
+      "id": 18,
       "mirrored": false,
       "parameters": {
         "color": "yellow"
-      }
+      },
+      "rotation": 270,
+      "type": "led"
     },
     {
-      "id": 20,
-      "type": "spdt",
-      "designator": "SW3",
       "at": [
         4,
         14
       ],
-      "rotation": 0,
+      "designator": "SW3",
+      "id": 20,
       "mirrored": true,
       "parameters": {
         "closed": "open"
-      }
+      },
+      "rotation": 0,
+      "type": "spdt"
     },
     {
-      "id": 25,
-      "type": "resistor",
-      "designator": "R3",
       "at": [
         43,
         14
       ],
-      "rotation": 90,
+      "designator": "R3",
+      "id": 25,
       "mirrored": false,
       "parameters": {
         "R": "330"
-      }
+      },
+      "rotation": 90,
+      "type": "resistor"
     },
     {
-      "id": 26,
-      "type": "led",
-      "designator": "LED3",
       "at": [
         49,
         14
       ],
-      "rotation": 270,
+      "designator": "LED3",
+      "id": 26,
       "mirrored": false,
       "parameters": {
         "color": "green"
-      }
+      },
+      "rotation": 270,
+      "type": "led"
     },
     {
-      "id": 28,
-      "type": "spdt",
-      "designator": "SW4",
       "at": [
         4,
         21
       ],
-      "rotation": 0,
+      "designator": "SW4",
+      "id": 28,
       "mirrored": true,
       "parameters": {
         "closed": "open"
-      }
+      },
+      "rotation": 0,
+      "type": "spdt"
     },
     {
-      "id": 33,
-      "type": "resistor",
-      "designator": "R4",
       "at": [
         43,
         21
       ],
-      "rotation": 90,
+      "designator": "R4",
+      "id": 33,
       "mirrored": false,
       "parameters": {
         "R": "330"
-      }
+      },
+      "rotation": 90,
+      "type": "resistor"
     },
     {
-      "id": 34,
-      "type": "led",
-      "designator": "LED4",
       "at": [
         49,
         21
       ],
-      "rotation": 270,
+      "designator": "LED4",
+      "id": 34,
       "mirrored": false,
       "parameters": {
         "color": "blue"
+      },
+      "rotation": 270,
+      "type": "led"
+    }
+  ],
+  "format": "simnodus-project",
+  "labels": [
+    {
+      "at": [
+        -8,
+        6
+      ],
+      "id": 2,
+      "name": "VCC"
+    },
+    {
+      "at": [
+        1,
+        -1
+      ],
+      "id": 5,
+      "mirrored": true,
+      "name": "VCC"
+    },
+    {
+      "at": [
+        1,
+        1
+      ],
+      "id": 6,
+      "mirrored": true,
+      "name": "GND"
+    },
+    {
+      "at": [
+        52,
+        0
+      ],
+      "id": 11,
+      "name": "GND"
+    },
+    {
+      "at": [
+        1,
+        6
+      ],
+      "id": 13,
+      "mirrored": true,
+      "name": "VCC"
+    },
+    {
+      "at": [
+        1,
+        8
+      ],
+      "id": 14,
+      "mirrored": true,
+      "name": "GND"
+    },
+    {
+      "at": [
+        52,
+        7
+      ],
+      "id": 19,
+      "name": "GND"
+    },
+    {
+      "at": [
+        1,
+        13
+      ],
+      "id": 21,
+      "mirrored": true,
+      "name": "VCC"
+    },
+    {
+      "at": [
+        1,
+        15
+      ],
+      "id": 22,
+      "mirrored": true,
+      "name": "GND"
+    },
+    {
+      "at": [
+        52,
+        14
+      ],
+      "id": 27,
+      "name": "GND"
+    },
+    {
+      "at": [
+        1,
+        20
+      ],
+      "id": 29,
+      "mirrored": true,
+      "name": "VCC"
+    },
+    {
+      "at": [
+        1,
+        22
+      ],
+      "id": 30,
+      "mirrored": true,
+      "name": "GND"
+    },
+    {
+      "at": [
+        52,
+        21
+      ],
+      "id": 35,
+      "name": "GND"
+    }
+  ],
+  "next_id": 44,
+  "notes": [
+    {
+      "at": [
+        -10,
+        -8
+      ],
+      "id": 43,
+      "text": "4-bit bus D: the left splitter puts SW1..SW4 on D0..D3, the right one takes them off again.\nRun (F5) and click the switches; the Logic tab shows V(D0)..V(D3)."
+    }
+  ],
+  "probes": [
+    {
+      "color": "#1f77b4",
+      "id": 39,
+      "kind": "voltage",
+      "target": {
+        "at": [
+          33,
+          0
+        ],
+        "item": 8
+      }
+    },
+    {
+      "color": "#ff7f0e",
+      "id": 40,
+      "kind": "voltage",
+      "target": {
+        "at": [
+          33,
+          2
+        ],
+        "item": 16
+      }
+    },
+    {
+      "color": "#2ca02c",
+      "id": 41,
+      "kind": "voltage",
+      "target": {
+        "at": [
+          33,
+          4
+        ],
+        "item": 24
+      }
+    },
+    {
+      "color": "#d62728",
+      "id": 42,
+      "kind": "voltage",
+      "target": {
+        "at": [
+          33,
+          6
+        ],
+        "item": 32
       }
     }
   ],
+  "settings": {
+    "cortex_m3_timing": true,
+    "exact_edges": false,
+    "max_step": 0.0001,
+    "mcu_quantum": 0.001,
+    "mode": "interactive",
+    "segment": 1.0,
+    "speed": 1.0,
+    "transient_max_step": 1e-06,
+    "transient_stop": 0.01
+  },
+  "splitters": [
+    {
+      "at": [
+        16,
+        0
+      ],
+      "bus": "D",
+      "count": 4,
+      "first": 0,
+      "id": 36,
+      "inputs": [
+        4
+      ],
+      "mirrored": true,
+      "outputs": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "rotation": 0
+    },
+    {
+      "at": [
+        30,
+        0
+      ],
+      "bus": "D",
+      "count": 4,
+      "first": 0,
+      "id": 38,
+      "inputs": [
+        4
+      ],
+      "mirrored": false,
+      "outputs": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "rotation": 0
+    }
+  ],
+  "version": 1,
   "wires": [
     {
       "id": 7,
@@ -358,214 +595,6 @@
           21
         ]
       ]
-    }
-  ],
-  "labels": [
-    {
-      "id": 2,
-      "at": [
-        -8,
-        6
-      ],
-      "name": "VCC"
-    },
-    {
-      "id": 5,
-      "at": [
-        1,
-        -1
-      ],
-      "name": "VCC"
-    },
-    {
-      "id": 6,
-      "at": [
-        1,
-        1
-      ],
-      "name": "GND"
-    },
-    {
-      "id": 11,
-      "at": [
-        52,
-        0
-      ],
-      "name": "GND"
-    },
-    {
-      "id": 13,
-      "at": [
-        1,
-        6
-      ],
-      "name": "VCC"
-    },
-    {
-      "id": 14,
-      "at": [
-        1,
-        8
-      ],
-      "name": "GND"
-    },
-    {
-      "id": 19,
-      "at": [
-        52,
-        7
-      ],
-      "name": "GND"
-    },
-    {
-      "id": 21,
-      "at": [
-        1,
-        13
-      ],
-      "name": "VCC"
-    },
-    {
-      "id": 22,
-      "at": [
-        1,
-        15
-      ],
-      "name": "GND"
-    },
-    {
-      "id": 27,
-      "at": [
-        52,
-        14
-      ],
-      "name": "GND"
-    },
-    {
-      "id": 29,
-      "at": [
-        1,
-        20
-      ],
-      "name": "VCC"
-    },
-    {
-      "id": 30,
-      "at": [
-        1,
-        22
-      ],
-      "name": "GND"
-    },
-    {
-      "id": 35,
-      "at": [
-        52,
-        21
-      ],
-      "name": "GND"
-    }
-  ],
-  "probes": [
-    {
-      "id": 39,
-      "kind": "voltage",
-      "target": {
-        "item": 8,
-        "at": [
-          33,
-          0
-        ]
-      },
-      "color": "#1f77b4"
-    },
-    {
-      "id": 40,
-      "kind": "voltage",
-      "target": {
-        "item": 16,
-        "at": [
-          33,
-          2
-        ]
-      },
-      "color": "#ff7f0e"
-    },
-    {
-      "id": 41,
-      "kind": "voltage",
-      "target": {
-        "item": 24,
-        "at": [
-          33,
-          4
-        ]
-      },
-      "color": "#2ca02c"
-    },
-    {
-      "id": 42,
-      "kind": "voltage",
-      "target": {
-        "item": 32,
-        "at": [
-          33,
-          6
-        ]
-      },
-      "color": "#d62728"
-    }
-  ],
-  "notes": [
-    {
-      "id": 43,
-      "at": [
-        -10,
-        -8
-      ],
-      "text": "4-bit bus D: the left splitter puts SW1..SW4 on D0..D3, the right one takes them off again.\nRun (F5) and click the switches; the Logic tab shows V(D0)..V(D3)."
-    }
-  ],
-  "buses": [
-    {
-      "id": 37,
-      "points": [
-        [
-          16,
-          0
-        ],
-        [
-          30,
-          0
-        ]
-      ],
-      "name": "D"
-    }
-  ],
-  "splitters": [
-    {
-      "id": 36,
-      "at": [
-        16,
-        0
-      ],
-      "rotation": 0,
-      "mirrored": true,
-      "bus": "D",
-      "first": 0,
-      "count": 4
-    },
-    {
-      "id": 38,
-      "at": [
-        30,
-        0
-      ],
-      "rotation": 0,
-      "mirrored": false,
-      "bus": "D",
-      "first": 0,
-      "count": 4
     }
   ]
 }

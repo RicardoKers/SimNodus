@@ -137,7 +137,7 @@
       "min": "-40",
       "max": "80",
       "live": true,
-      "description": "Air temperature; change it while running to test the circuit"
+      "description": "Air temperature; while running, drag the part or use the wheel (-40 to 80 °C)"
     },
     {
       "name": "humidity",
@@ -147,8 +147,23 @@
       "min": "0",
       "max": "100",
       "live": true,
-      "description": "Relative humidity of the air; change it while running to test the circuit"
+      "description": "Relative humidity of the air; while running, Shift with the wheel (0 to 100 %)"
     }
   ],
-  "value_parameter": "model"
+  "value_parameter": "model",
+  "more_values": [
+    "temperature",
+    "humidity"
+  ],
+  "interactive": {
+    "kind": "potentiometer",
+    "parameter": "temperature",
+    "controls": [
+      {
+        "name": "humidity",
+        "kind": "potentiometer",
+        "parameter": "humidity"
+      }
+    ]
+  }
 }

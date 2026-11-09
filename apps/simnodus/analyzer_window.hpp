@@ -27,7 +27,9 @@ class QListWidget;
 class QDoubleSpinBox;
 class QLabel;
 class QSettings;
+class QAction;
 class QTabWidget;
+class QToolBar;
 class QTreeWidget;
 
 namespace simnodus::ui {
@@ -42,6 +44,9 @@ public:
     explicit AnalyzerWindow(QWidget* parent = nullptr);
 
     void set_controller(RunController* controller);
+    // The main window's Pause / Resume, first on this window's toolbar: the
+    // signal can be studied without going back to the schematic.
+    void add_run_action(QAction* action);
     ScopeWidget* scope() const { return scope_; }
     QTabWidget* tabs() const { return tabs_; }
     UartTerminal* terminal() const { return terminal_; }
@@ -165,6 +170,7 @@ private:
     QLabel* measurements_ = nullptr;
     QLabel* history_ = nullptr;
     QAction* display_run_ = nullptr;
+    QToolBar* toolbar_ = nullptr;
     QAction* cursors_ = nullptr;
     QTimer timer_;
     std::vector<double> scales_;  // per channel volts or amperes per division

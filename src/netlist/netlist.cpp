@@ -622,6 +622,8 @@ Netlist generate_circuit(const model::Schematic& schematic, const library::Compo
                     }
                 }
                 control.bounce = slot == 0 && words.count("bounce") && words["bounce"] == "yes";
+                control.rate = slot == 0 ? interactive.rate : 0.0;
+                control.detents = slot == 0 ? interactive.detents : 0;
                 control_nodes[name] = control.node;
                 out.controls.push_back(control);
             }

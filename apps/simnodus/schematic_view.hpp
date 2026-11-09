@@ -159,6 +159,10 @@ private:
     std::set<model::Id> drag_ids_;
     std::optional<std::pair<model::Id, bool>> text_drag_; // component, value text
     model::Point text_start_;
+    // Dragging a lone wire moves the segment under the mouse (UI: a wire's
+    // segment is placed without moving the rest of it).
+    model::Id segment_wire_ = model::no_id;
+    std::size_t segment_index_ = 0;
 
     // Place tool.
     const library::ComponentDefinition* placing_ = nullptr;

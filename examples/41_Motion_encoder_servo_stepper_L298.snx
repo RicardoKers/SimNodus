@@ -29,8 +29,8 @@
     },
     {
       "at": [
-        -34,
-        26
+        -35,
+        10
       ],
       "designator": "V1",
       "id": 13,
@@ -43,8 +43,8 @@
     },
     {
       "at": [
-        -34,
-        29
+        -35,
+        13
       ],
       "designator": "GND2",
       "id": 14,
@@ -55,8 +55,8 @@
     },
     {
       "at": [
-        -34,
-        40
+        -28,
+        10
       ],
       "designator": "V2",
       "id": 16,
@@ -69,8 +69,8 @@
     },
     {
       "at": [
-        -34,
-        43
+        -28,
+        13
       ],
       "designator": "GND3",
       "id": 17,
@@ -95,7 +95,7 @@
     },
     {
       "at": [
-        -31,
+        -37,
         -22
       ],
       "designator": "GND4",
@@ -158,7 +158,7 @@
     },
     {
       "at": [
-        44,
+        47,
         -18
       ],
       "designator": "M1",
@@ -173,8 +173,8 @@
     },
     {
       "at": [
-        26,
-        22
+        29,
+        14
       ],
       "designator": "U4",
       "id": 44,
@@ -185,8 +185,8 @@
     },
     {
       "at": [
-        26,
-        31
+        29,
+        23
       ],
       "designator": "GND7",
       "id": 52,
@@ -197,8 +197,8 @@
     },
     {
       "at": [
-        33,
-        25
+        36,
+        17
       ],
       "designator": "GND8",
       "id": 53,
@@ -209,8 +209,8 @@
     },
     {
       "at": [
-        33,
-        27
+        36,
+        19
       ],
       "designator": "GND9",
       "id": 54,
@@ -221,8 +221,8 @@
     },
     {
       "at": [
-        48,
-        22
+        18,
+        -2
       ],
       "designator": "M2",
       "id": 55,
@@ -238,8 +238,8 @@
     },
     {
       "at": [
-        58,
-        22
+        28,
+        -2
       ],
       "designator": "D1",
       "id": 58,
@@ -252,8 +252,8 @@
     },
     {
       "at": [
-        63,
-        22
+        33,
+        -2
       ],
       "designator": "D2",
       "id": 61,
@@ -266,8 +266,8 @@
     },
     {
       "at": [
-        68,
-        22
+        38,
+        -2
       ],
       "designator": "D3",
       "id": 64,
@@ -280,8 +280,8 @@
     },
     {
       "at": [
-        68,
-        19
+        40,
+        -6
       ],
       "designator": "GND10",
       "id": 65,
@@ -292,8 +292,8 @@
     },
     {
       "at": [
-        73,
-        22
+        43,
+        -2
       ],
       "designator": "D4",
       "id": 67,
@@ -306,8 +306,8 @@
     },
     {
       "at": [
-        73,
-        19
+        45,
+        -6
       ],
       "designator": "GND11",
       "id": 68,
@@ -325,6 +325,7 @@
         7
       ],
       "id": 3,
+      "mirrored": true,
       "name": "ENC_A"
     },
     {
@@ -333,6 +334,7 @@
         9
       ],
       "id": 4,
+      "mirrored": true,
       "name": "ENC_B"
     },
     {
@@ -373,6 +375,7 @@
         -19
       ],
       "id": 9,
+      "mirrored": true,
       "name": "S1"
     },
     {
@@ -381,6 +384,7 @@
         -17
       ],
       "id": 10,
+      "mirrored": true,
       "name": "S2"
     },
     {
@@ -389,6 +393,7 @@
         -15
       ],
       "id": 11,
+      "mirrored": true,
       "name": "S3"
     },
     {
@@ -397,20 +402,21 @@
         -13
       ],
       "id": 12,
+      "mirrored": true,
       "name": "S4"
     },
     {
       "at": [
-        -34,
-        23
+        -35,
+        7
       ],
       "id": 15,
       "name": "5V"
     },
     {
       "at": [
-        -34,
-        37
+        -28,
+        7
       ],
       "id": 18,
       "name": "12V"
@@ -421,6 +427,7 @@
         -24
       ],
       "id": 20,
+      "mirrored": true,
       "name": "ENC_A"
     },
     {
@@ -429,6 +436,7 @@
         -20
       ],
       "id": 21,
+      "mirrored": true,
       "name": "ENC_B"
     },
     {
@@ -437,6 +445,7 @@
         -8
       ],
       "id": 24,
+      "mirrored": true,
       "name": "SERVO"
     },
     {
@@ -445,6 +454,7 @@
         -6
       ],
       "id": 25,
+      "mirrored": true,
       "name": "5V"
     },
     {
@@ -453,6 +463,7 @@
         -25
       ],
       "id": 28,
+      "mirrored": true,
       "name": "S1"
     },
     {
@@ -469,6 +480,7 @@
         -23
       ],
       "id": 30,
+      "mirrored": true,
       "name": "S2"
     },
     {
@@ -485,6 +497,7 @@
         -21
       ],
       "id": 32,
+      "mirrored": true,
       "name": "S3"
     },
     {
@@ -501,6 +514,7 @@
         -19
       ],
       "id": 34,
+      "mirrored": true,
       "name": "S4"
     },
     {
@@ -521,174 +535,182 @@
     },
     {
       "at": [
-        38,
+        41,
         -22
       ],
       "id": 39,
+      "mirrored": true,
       "name": "5V"
     },
     {
       "at": [
-        38,
+        41,
         -20
       ],
       "id": 40,
+      "mirrored": true,
       "name": "C1"
     },
     {
       "at": [
-        38,
+        41,
         -18
       ],
       "id": 41,
+      "mirrored": true,
       "name": "C2"
     },
     {
       "at": [
-        38,
+        41,
         -16
       ],
       "id": 42,
+      "mirrored": true,
       "name": "C3"
     },
     {
       "at": [
-        38,
+        41,
         -14
       ],
       "id": 43,
+      "mirrored": true,
       "name": "C4"
     },
     {
       "at": [
-        19,
-        17
+        22,
+        9
       ],
       "id": 45,
+      "mirrored": true,
       "name": "IN1"
     },
     {
       "at": [
-        19,
-        19
+        22,
+        11
       ],
       "id": 46,
+      "mirrored": true,
       "name": "IN2"
     },
     {
       "at": [
-        19,
-        21
+        22,
+        13
       ],
       "id": 47,
+      "mirrored": true,
       "name": "ENA"
     },
     {
       "at": [
-        28,
-        13
+        31,
+        5
       ],
       "id": 48,
       "name": "12V"
     },
     {
       "at": [
-        24,
-        13
+        27,
+        5
       ],
       "id": 49,
       "name": "5V"
     },
     {
       "at": [
-        33,
-        17
+        36,
+        9
       ],
       "id": 50,
       "name": "MA"
     },
     {
       "at": [
-        33,
-        19
+        36,
+        11
       ],
       "id": 51,
       "name": "MB"
     },
     {
       "at": [
-        48,
-        19
+        18,
+        -5
       ],
       "id": 56,
       "name": "MA"
     },
     {
       "at": [
-        48,
-        25
+        18,
+        1
       ],
       "id": 57,
       "name": "MB"
     },
     {
       "at": [
-        58,
-        19
+        28,
+        -5
       ],
       "id": 59,
       "name": "MA"
     },
     {
       "at": [
-        58,
-        25
+        28,
+        1
       ],
       "id": 60,
       "name": "12V"
     },
     {
       "at": [
-        63,
-        19
+        33,
+        -5
       ],
       "id": 62,
       "name": "MB"
     },
     {
       "at": [
-        63,
-        25
+        33,
+        1
       ],
       "id": 63,
       "name": "12V"
     },
     {
       "at": [
-        68,
-        25
+        38,
+        1
       ],
       "id": 66,
       "name": "MA"
     },
     {
       "at": [
-        73,
-        25
+        43,
+        1
       ],
       "id": 69,
       "name": "MB"
     }
   ],
-  "next_id": 75,
+  "next_id": 78,
   "notes": [
     {
       "at": [
         -40,
-        -40
+        -36
       ],
       "id": 74,
-      "text": "A rotary encoder (PB6/PB7, internal pull-ups) sets a position of 0-20 detents that three motors follow:\na servo on TIM2 CH1 (PA0, 9 degrees per detent), a 28BYJ-48 stepper through a ULN2003 (PB12-PB15) and a DC motor\nthrough an L298 (PB0/PB1 direction, PWM on ENA from TIM2 CH2). Run, then drag the encoder or turn the wheel over it;\nthe UART terminal reports the position. The four diodes protect the L298 from the motor's inductive kicks."
+      "text": "A rotary encoder (PB6/PB7, internal pull-ups) sets a position of 0-20 detents that three motors follow:\na servo on TIM2 CH1 (PA0, 9 degrees per detent), a 28BYJ-48 stepper through a ULN2003 (PB12-PB15) and a DC motor\nthrough an L298 (PB0/PB1 direction, PWM on ENA from TIM2 CH2). Run, then drag the encoder or turn the wheel over it: each detent gives one\nquadrature cycle on A and B, A first one way, B first the other, which the firmware counts\n(0 to 20, clamped; the knob also stops at 0 and 20). The UART terminal reports the position. The four diodes protect the L298 from the motor's inductive kicks."
     }
   ],
   "probes": [
@@ -758,5 +780,53 @@
   },
   "splitters": [],
   "version": 1,
-  "wires": []
+  "wires": [
+    {
+      "id": 75,
+      "points": [
+        [
+          -37,
+          -22
+        ],
+        [
+          -31,
+          -22
+        ]
+      ]
+    },
+    {
+      "id": 76,
+      "points": [
+        [
+          40,
+          -6
+        ],
+        [
+          38,
+          -6
+        ],
+        [
+          38,
+          -5
+        ]
+      ]
+    },
+    {
+      "id": 77,
+      "points": [
+        [
+          45,
+          -6
+        ],
+        [
+          43,
+          -6
+        ],
+        [
+          43,
+          -5
+        ]
+      ]
+    }
+  ]
 }

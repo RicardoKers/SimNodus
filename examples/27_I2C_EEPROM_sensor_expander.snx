@@ -1,270 +1,768 @@
 {
-  "format": "simnodus-project",
-  "version": 1,
-  "next_id": 83,
-  "settings": {
-    "mode": "interactive",
-    "speed": 1,
-    "max_step": 0.0001,
-    "segment": 1,
-    "transient_stop": 0.01,
-    "transient_max_step": 1e-06,
-    "mcu_quantum": 0.001
-  },
+  "buses": [],
   "components": [
     {
-      "id": 1,
-      "type": "bluepill",
-      "designator": "U1",
       "at": [
         0,
         0
       ],
-      "rotation": 0,
+      "designator": "U1",
+      "id": 1,
       "mirrored": false,
       "parameters": {
         "firmware": "firmware/hal_i2c_devices/hal_i2c_devices.elf"
-      }
+      },
+      "rotation": 0,
+      "type": "bluepill"
     },
     {
-      "id": 8,
-      "type": "ground",
+      "at": [
+        -14,
+        22
+      ],
       "designator": "GND1",
-      "at": [
-        -6,
-        23
-      ],
-      "rotation": 0,
+      "id": 8,
       "mirrored": false,
-      "parameters": {}
+      "parameters": {},
+      "rotation": 0,
+      "type": "ground"
     },
     {
-      "id": 11,
-      "type": "resistor",
+      "at": [
+        -22,
+        -13
+      ],
       "designator": "R1",
-      "at": [
-        -20,
-        -8
-      ],
-      "rotation": 0,
+      "id": 11,
       "mirrored": false,
       "parameters": {
         "R": "4k7"
-      }
-    },
-    {
-      "id": 14,
+      },
+      "rotation": 0,
       "type": "resistor",
-      "designator": "R2",
+      "value_offset": [
+        2,
+        0
+      ]
+    },
+    {
       "at": [
-        -24,
-        -8
+        -27,
+        -13
       ],
-      "rotation": 0,
+      "designator": "R2",
+      "id": 14,
       "mirrored": false,
       "parameters": {
         "R": "4k7"
-      }
+      },
+      "rotation": 0,
+      "type": "resistor",
+      "value_offset": [
+        2,
+        0
+      ]
     },
     {
-      "id": 17,
-      "type": "24c02",
+      "at": [
+        -45,
+        -13
+      ],
       "designator": "U2",
-      "at": [
-        -45,
-        -15
-      ],
-      "rotation": 0,
+      "id": 17,
       "mirrored": false,
-      "parameters": {}
+      "parameters": {},
+      "rotation": 0,
+      "type": "24c02"
     },
     {
-      "id": 26,
-      "type": "lm75",
-      "designator": "U3",
       "at": [
-        -45,
-        12
+        -30,
+        15
       ],
-      "rotation": 0,
+      "designator": "U3",
+      "id": 26,
       "mirrored": false,
       "parameters": {
         "temperature": "23.5"
-      }
+      },
+      "rotation": 0,
+      "type": "lm75"
     },
     {
-      "id": 34,
-      "type": "pcf8574",
+      "at": [
+        -79,
+        -10
+      ],
       "designator": "U4",
-      "at": [
-        -80,
-        40
-      ],
-      "rotation": 0,
+      "id": 34,
       "mirrored": false,
-      "parameters": {}
+      "parameters": {},
+      "rotation": 0,
+      "type": "pcf8574"
     },
     {
-      "id": 50,
-      "type": "resistor",
+      "at": [
+        -59,
+        11
+      ],
       "designator": "R3",
-      "at": [
-        -58,
-        28
-      ],
-      "rotation": 270,
+      "id": 50,
       "mirrored": false,
       "parameters": {
         "R": "330"
-      }
+      },
+      "rotation": 270,
+      "type": "resistor"
     },
     {
-      "id": 53,
-      "type": "led",
+      "at": [
+        -51,
+        11
+      ],
       "designator": "LED1",
-      "at": [
-        -50,
-        28
-      ],
-      "rotation": 270,
+      "id": 53,
       "mirrored": false,
       "parameters": {
         "color": "green"
-      }
+      },
+      "rotation": 270,
+      "type": "led"
     },
     {
-      "id": 55,
-      "type": "resistor",
+      "at": [
+        -59,
+        14
+      ],
       "designator": "R4",
-      "at": [
-        -58,
-        31
-      ],
-      "rotation": 270,
+      "id": 55,
       "mirrored": false,
       "parameters": {
         "R": "330"
-      }
+      },
+      "rotation": 270,
+      "type": "resistor"
     },
     {
-      "id": 58,
-      "type": "led",
+      "at": [
+        -51,
+        14
+      ],
       "designator": "LED2",
-      "at": [
-        -50,
-        31
-      ],
-      "rotation": 270,
+      "id": 58,
       "mirrored": false,
       "parameters": {
         "color": "green"
-      }
+      },
+      "rotation": 270,
+      "type": "led"
     },
     {
-      "id": 60,
-      "type": "resistor",
+      "at": [
+        -59,
+        17
+      ],
       "designator": "R5",
-      "at": [
-        -58,
-        34
-      ],
-      "rotation": 270,
+      "id": 60,
       "mirrored": false,
       "parameters": {
         "R": "330"
-      }
+      },
+      "rotation": 270,
+      "type": "resistor"
     },
     {
-      "id": 63,
-      "type": "led",
+      "at": [
+        -51,
+        17
+      ],
       "designator": "LED3",
-      "at": [
-        -50,
-        34
-      ],
-      "rotation": 270,
+      "id": 63,
       "mirrored": false,
       "parameters": {
         "color": "green"
-      }
+      },
+      "rotation": 270,
+      "type": "led"
     },
     {
-      "id": 65,
-      "type": "resistor",
-      "designator": "R6",
       "at": [
-        -58,
-        37
+        -59,
+        20
       ],
-      "rotation": 270,
+      "designator": "R6",
+      "id": 65,
       "mirrored": false,
       "parameters": {
         "R": "330"
-      }
+      },
+      "rotation": 270,
+      "type": "resistor"
     },
     {
-      "id": 68,
-      "type": "led",
-      "designator": "LED4",
       "at": [
-        -50,
-        37
+        -51,
+        20
       ],
-      "rotation": 270,
+      "designator": "LED4",
+      "id": 68,
       "mirrored": false,
       "parameters": {
         "color": "green"
-      }
+      },
+      "rotation": 270,
+      "type": "led"
     },
     {
-      "id": 70,
-      "type": "button_no",
+      "at": [
+        -83,
+        10
+      ],
       "designator": "SW1",
-      "at": [
-        -62,
-        42
-      ],
-      "rotation": 0,
+      "id": 70,
       "mirrored": false,
-      "parameters": {}
+      "parameters": {},
+      "rotation": 0,
+      "type": "button_no"
     },
     {
-      "id": 73,
-      "type": "button_no",
+      "at": [
+        -83,
+        13
+      ],
       "designator": "SW2",
-      "at": [
-        -62,
-        45
-      ],
-      "rotation": 0,
+      "id": 73,
       "mirrored": false,
-      "parameters": {}
+      "parameters": {},
+      "rotation": 0,
+      "type": "button_no"
     },
     {
-      "id": 76,
-      "type": "button_no",
+      "at": [
+        -83,
+        16
+      ],
       "designator": "SW3",
-      "at": [
-        -62,
-        48
-      ],
-      "rotation": 0,
+      "id": 76,
       "mirrored": false,
-      "parameters": {}
+      "parameters": {},
+      "rotation": 0,
+      "type": "button_no"
     },
     {
-      "id": 79,
-      "type": "button_no",
-      "designator": "SW4",
       "at": [
-        -62,
-        51
+        -83,
+        19
       ],
-      "rotation": 0,
+      "designator": "SW4",
+      "id": 79,
       "mirrored": false,
-      "parameters": {}
+      "parameters": {},
+      "rotation": 0,
+      "type": "button_no"
     }
   ],
+  "format": "simnodus-project",
+  "labels": [
+    {
+      "at": [
+        -14,
+        7
+      ],
+      "id": 3,
+      "name": "SCL"
+    },
+    {
+      "at": [
+        -14,
+        9
+      ],
+      "id": 6,
+      "name": "SDA"
+    },
+    {
+      "at": [
+        -9,
+        19
+      ],
+      "id": 10,
+      "mirrored": true,
+      "name": "VDD"
+    },
+    {
+      "at": [
+        -22,
+        -16
+      ],
+      "id": 12,
+      "name": "VDD"
+    },
+    {
+      "at": [
+        -22,
+        -10
+      ],
+      "id": 13,
+      "name": "SCL"
+    },
+    {
+      "at": [
+        -27,
+        -16
+      ],
+      "id": 15,
+      "name": "VDD"
+    },
+    {
+      "at": [
+        -27,
+        -10
+      ],
+      "id": 16,
+      "name": "SDA"
+    },
+    {
+      "at": [
+        -51,
+        -17
+      ],
+      "id": 18,
+      "mirrored": true,
+      "name": "SCL"
+    },
+    {
+      "at": [
+        -51,
+        -15
+      ],
+      "id": 19,
+      "mirrored": true,
+      "name": "SDA"
+    },
+    {
+      "at": [
+        -51,
+        -13
+      ],
+      "id": 20,
+      "mirrored": true,
+      "name": "GND"
+    },
+    {
+      "at": [
+        -51,
+        -11
+      ],
+      "id": 21,
+      "mirrored": true,
+      "name": "GND"
+    },
+    {
+      "at": [
+        -51,
+        -9
+      ],
+      "id": 22,
+      "mirrored": true,
+      "name": "GND"
+    },
+    {
+      "at": [
+        -39,
+        -13
+      ],
+      "id": 23,
+      "name": "GND"
+    },
+    {
+      "at": [
+        -45,
+        -21
+      ],
+      "id": 24,
+      "name": "VDD"
+    },
+    {
+      "at": [
+        -45,
+        -5
+      ],
+      "id": 25,
+      "name": "GND"
+    },
+    {
+      "at": [
+        -36,
+        11
+      ],
+      "id": 27,
+      "mirrored": true,
+      "name": "SCL"
+    },
+    {
+      "at": [
+        -36,
+        13
+      ],
+      "id": 28,
+      "mirrored": true,
+      "name": "SDA"
+    },
+    {
+      "at": [
+        -36,
+        15
+      ],
+      "id": 29,
+      "mirrored": true,
+      "name": "GND"
+    },
+    {
+      "at": [
+        -36,
+        17
+      ],
+      "id": 30,
+      "mirrored": true,
+      "name": "GND"
+    },
+    {
+      "at": [
+        -36,
+        19
+      ],
+      "id": 31,
+      "mirrored": true,
+      "name": "GND"
+    },
+    {
+      "at": [
+        -30,
+        7
+      ],
+      "id": 32,
+      "name": "VDD"
+    },
+    {
+      "at": [
+        -30,
+        23
+      ],
+      "id": 33,
+      "name": "GND"
+    },
+    {
+      "at": [
+        -85,
+        -15
+      ],
+      "id": 35,
+      "mirrored": true,
+      "name": "SCL"
+    },
+    {
+      "at": [
+        -85,
+        -13
+      ],
+      "id": 36,
+      "mirrored": true,
+      "name": "SDA"
+    },
+    {
+      "at": [
+        -85,
+        -11
+      ],
+      "id": 37,
+      "mirrored": true,
+      "name": "GND"
+    },
+    {
+      "at": [
+        -85,
+        -9
+      ],
+      "id": 38,
+      "mirrored": true,
+      "name": "GND"
+    },
+    {
+      "at": [
+        -85,
+        -7
+      ],
+      "id": 39,
+      "mirrored": true,
+      "name": "GND"
+    },
+    {
+      "at": [
+        -79,
+        -21
+      ],
+      "id": 40,
+      "name": "VDD"
+    },
+    {
+      "at": [
+        -79,
+        1
+      ],
+      "id": 41,
+      "name": "GND"
+    },
+    {
+      "at": [
+        -73,
+        -17
+      ],
+      "id": 42,
+      "name": "P0"
+    },
+    {
+      "at": [
+        -73,
+        -15
+      ],
+      "id": 43,
+      "name": "P1"
+    },
+    {
+      "at": [
+        -73,
+        -13
+      ],
+      "id": 44,
+      "name": "P2"
+    },
+    {
+      "at": [
+        -73,
+        -11
+      ],
+      "id": 45,
+      "name": "P3"
+    },
+    {
+      "at": [
+        -73,
+        -9
+      ],
+      "id": 46,
+      "name": "P4"
+    },
+    {
+      "at": [
+        -73,
+        -7
+      ],
+      "id": 47,
+      "name": "P5"
+    },
+    {
+      "at": [
+        -73,
+        -5
+      ],
+      "id": 48,
+      "name": "P6"
+    },
+    {
+      "at": [
+        -73,
+        -3
+      ],
+      "id": 49,
+      "name": "P7"
+    },
+    {
+      "at": [
+        -62,
+        11
+      ],
+      "id": 51,
+      "mirrored": true,
+      "name": "VDD"
+    },
+    {
+      "at": [
+        -48,
+        11
+      ],
+      "id": 54,
+      "name": "P0"
+    },
+    {
+      "at": [
+        -62,
+        14
+      ],
+      "id": 56,
+      "mirrored": true,
+      "name": "VDD"
+    },
+    {
+      "at": [
+        -48,
+        14
+      ],
+      "id": 59,
+      "name": "P1"
+    },
+    {
+      "at": [
+        -62,
+        17
+      ],
+      "id": 61,
+      "mirrored": true,
+      "name": "VDD"
+    },
+    {
+      "at": [
+        -48,
+        17
+      ],
+      "id": 64,
+      "name": "P2"
+    },
+    {
+      "at": [
+        -62,
+        20
+      ],
+      "id": 66,
+      "mirrored": true,
+      "name": "VDD"
+    },
+    {
+      "at": [
+        -48,
+        20
+      ],
+      "id": 69,
+      "name": "P3"
+    },
+    {
+      "at": [
+        -86,
+        10
+      ],
+      "id": 71,
+      "mirrored": true,
+      "name": "P4"
+    },
+    {
+      "at": [
+        -80,
+        10
+      ],
+      "id": 72,
+      "name": "GND"
+    },
+    {
+      "at": [
+        -86,
+        13
+      ],
+      "id": 74,
+      "mirrored": true,
+      "name": "P5"
+    },
+    {
+      "at": [
+        -80,
+        13
+      ],
+      "id": 75,
+      "name": "GND"
+    },
+    {
+      "at": [
+        -86,
+        16
+      ],
+      "id": 77,
+      "mirrored": true,
+      "name": "P6"
+    },
+    {
+      "at": [
+        -80,
+        16
+      ],
+      "id": 78,
+      "name": "GND"
+    },
+    {
+      "at": [
+        -86,
+        19
+      ],
+      "id": 80,
+      "mirrored": true,
+      "name": "P7"
+    },
+    {
+      "at": [
+        -80,
+        19
+      ],
+      "id": 81,
+      "name": "GND"
+    }
+  ],
+  "next_id": 83,
+  "notes": [
+    {
+      "at": [
+        -90,
+        -32
+      ],
+      "id": 82,
+      "text": "Three chips on I2C1 of the Blue Pill (PB6 SCL, PB7 SDA, 100 kHz) with 4.7 kOhm pull-ups to 3.3 V; their\nA0-A2 pins on GND give the addresses 0x50 (24C02 EEPROM), 0x48 (LM75 sensor) and 0x20 (PCF8574\nexpander). Run (F5) and open Analyzer > UART: the EEPROM stores and reads back a word, the LM75 reports\n23.5 C (change it in its properties), and each push button on P4-P7 lights the LED on P0-P3. Remove a\npull-up resistor to see what happens."
+    }
+  ],
+  "probes": [
+    {
+      "color": "#1f77b4",
+      "id": 4,
+      "kind": "voltage",
+      "target": {
+        "at": [
+          -11,
+          7
+        ],
+        "item": 2
+      }
+    },
+    {
+      "color": "#ff7f0e",
+      "id": 7,
+      "kind": "voltage",
+      "target": {
+        "at": [
+          -11,
+          9
+        ],
+        "item": 5
+      }
+    }
+  ],
+  "settings": {
+    "cortex_m3_timing": true,
+    "exact_edges": false,
+    "max_step": 0.0001,
+    "mcu_quantum": 0.001,
+    "mode": "interactive",
+    "segment": 1.0,
+    "speed": 1.0,
+    "transient_max_step": 1e-06,
+    "transient_stop": 0.01
+  },
+  "splitters": [],
+  "version": 1,
   "wires": [
     {
       "id": 2,
@@ -300,12 +798,12 @@
           17
         ],
         [
-          -6,
+          -14,
           17
         ],
         [
-          -6,
-          23
+          -14,
+          22
         ]
       ]
     },
@@ -313,12 +811,12 @@
       "id": 52,
       "points": [
         [
-          -55,
-          28
+          -56,
+          11
         ],
         [
-          -53,
-          28
+          -54,
+          11
         ]
       ]
     },
@@ -326,12 +824,12 @@
       "id": 57,
       "points": [
         [
-          -55,
-          31
+          -56,
+          14
         ],
         [
-          -53,
-          31
+          -54,
+          14
         ]
       ]
     },
@@ -339,12 +837,12 @@
       "id": 62,
       "points": [
         [
-          -55,
-          34
+          -56,
+          17
         ],
         [
-          -53,
-          34
+          -54,
+          17
         ]
       ]
     },
@@ -352,476 +850,14 @@
       "id": 67,
       "points": [
         [
-          -55,
-          37
+          -56,
+          20
         ],
         [
-          -53,
-          37
+          -54,
+          20
         ]
       ]
-    }
-  ],
-  "labels": [
-    {
-      "id": 3,
-      "at": [
-        -14,
-        7
-      ],
-      "name": "SCL"
-    },
-    {
-      "id": 6,
-      "at": [
-        -14,
-        9
-      ],
-      "name": "SDA"
-    },
-    {
-      "id": 10,
-      "at": [
-        -9,
-        19
-      ],
-      "name": "VDD"
-    },
-    {
-      "id": 12,
-      "at": [
-        -20,
-        -11
-      ],
-      "name": "VDD"
-    },
-    {
-      "id": 13,
-      "at": [
-        -20,
-        -5
-      ],
-      "name": "SCL"
-    },
-    {
-      "id": 15,
-      "at": [
-        -24,
-        -11
-      ],
-      "name": "VDD"
-    },
-    {
-      "id": 16,
-      "at": [
-        -24,
-        -5
-      ],
-      "name": "SDA"
-    },
-    {
-      "id": 18,
-      "at": [
-        -51,
-        -19
-      ],
-      "name": "SCL"
-    },
-    {
-      "id": 19,
-      "at": [
-        -51,
-        -17
-      ],
-      "name": "SDA"
-    },
-    {
-      "id": 20,
-      "at": [
-        -51,
-        -15
-      ],
-      "name": "GND"
-    },
-    {
-      "id": 21,
-      "at": [
-        -51,
-        -13
-      ],
-      "name": "GND"
-    },
-    {
-      "id": 22,
-      "at": [
-        -51,
-        -11
-      ],
-      "name": "GND"
-    },
-    {
-      "id": 23,
-      "at": [
-        -39,
-        -15
-      ],
-      "name": "GND"
-    },
-    {
-      "id": 24,
-      "at": [
-        -45,
-        -23
-      ],
-      "name": "VDD"
-    },
-    {
-      "id": 25,
-      "at": [
-        -45,
-        -7
-      ],
-      "name": "GND"
-    },
-    {
-      "id": 27,
-      "at": [
-        -51,
-        8
-      ],
-      "name": "SCL"
-    },
-    {
-      "id": 28,
-      "at": [
-        -51,
-        10
-      ],
-      "name": "SDA"
-    },
-    {
-      "id": 29,
-      "at": [
-        -51,
-        12
-      ],
-      "name": "GND"
-    },
-    {
-      "id": 30,
-      "at": [
-        -51,
-        14
-      ],
-      "name": "GND"
-    },
-    {
-      "id": 31,
-      "at": [
-        -51,
-        16
-      ],
-      "name": "GND"
-    },
-    {
-      "id": 32,
-      "at": [
-        -45,
-        4
-      ],
-      "name": "VDD"
-    },
-    {
-      "id": 33,
-      "at": [
-        -45,
-        20
-      ],
-      "name": "GND"
-    },
-    {
-      "id": 35,
-      "at": [
-        -86,
-        35
-      ],
-      "name": "SCL"
-    },
-    {
-      "id": 36,
-      "at": [
-        -86,
-        37
-      ],
-      "name": "SDA"
-    },
-    {
-      "id": 37,
-      "at": [
-        -86,
-        39
-      ],
-      "name": "GND"
-    },
-    {
-      "id": 38,
-      "at": [
-        -86,
-        41
-      ],
-      "name": "GND"
-    },
-    {
-      "id": 39,
-      "at": [
-        -86,
-        43
-      ],
-      "name": "GND"
-    },
-    {
-      "id": 40,
-      "at": [
-        -80,
-        29
-      ],
-      "name": "VDD"
-    },
-    {
-      "id": 41,
-      "at": [
-        -80,
-        51
-      ],
-      "name": "GND"
-    },
-    {
-      "id": 42,
-      "at": [
-        -74,
-        33
-      ],
-      "name": "P0"
-    },
-    {
-      "id": 43,
-      "at": [
-        -74,
-        35
-      ],
-      "name": "P1"
-    },
-    {
-      "id": 44,
-      "at": [
-        -74,
-        37
-      ],
-      "name": "P2"
-    },
-    {
-      "id": 45,
-      "at": [
-        -74,
-        39
-      ],
-      "name": "P3"
-    },
-    {
-      "id": 46,
-      "at": [
-        -74,
-        41
-      ],
-      "name": "P4"
-    },
-    {
-      "id": 47,
-      "at": [
-        -74,
-        43
-      ],
-      "name": "P5"
-    },
-    {
-      "id": 48,
-      "at": [
-        -74,
-        45
-      ],
-      "name": "P6"
-    },
-    {
-      "id": 49,
-      "at": [
-        -74,
-        47
-      ],
-      "name": "P7"
-    },
-    {
-      "id": 51,
-      "at": [
-        -61,
-        28
-      ],
-      "name": "VDD"
-    },
-    {
-      "id": 54,
-      "at": [
-        -47,
-        28
-      ],
-      "name": "P0"
-    },
-    {
-      "id": 56,
-      "at": [
-        -61,
-        31
-      ],
-      "name": "VDD"
-    },
-    {
-      "id": 59,
-      "at": [
-        -47,
-        31
-      ],
-      "name": "P1"
-    },
-    {
-      "id": 61,
-      "at": [
-        -61,
-        34
-      ],
-      "name": "VDD"
-    },
-    {
-      "id": 64,
-      "at": [
-        -47,
-        34
-      ],
-      "name": "P2"
-    },
-    {
-      "id": 66,
-      "at": [
-        -61,
-        37
-      ],
-      "name": "VDD"
-    },
-    {
-      "id": 69,
-      "at": [
-        -47,
-        37
-      ],
-      "name": "P3"
-    },
-    {
-      "id": 71,
-      "at": [
-        -65,
-        42
-      ],
-      "name": "P4"
-    },
-    {
-      "id": 72,
-      "at": [
-        -59,
-        42
-      ],
-      "name": "GND"
-    },
-    {
-      "id": 74,
-      "at": [
-        -65,
-        45
-      ],
-      "name": "P5"
-    },
-    {
-      "id": 75,
-      "at": [
-        -59,
-        45
-      ],
-      "name": "GND"
-    },
-    {
-      "id": 77,
-      "at": [
-        -65,
-        48
-      ],
-      "name": "P6"
-    },
-    {
-      "id": 78,
-      "at": [
-        -59,
-        48
-      ],
-      "name": "GND"
-    },
-    {
-      "id": 80,
-      "at": [
-        -65,
-        51
-      ],
-      "name": "P7"
-    },
-    {
-      "id": 81,
-      "at": [
-        -59,
-        51
-      ],
-      "name": "GND"
-    }
-  ],
-  "probes": [
-    {
-      "id": 4,
-      "kind": "voltage",
-      "target": {
-        "item": 2,
-        "at": [
-          -11,
-          7
-        ]
-      },
-      "color": "#1f77b4"
-    },
-    {
-      "id": 7,
-      "kind": "voltage",
-      "target": {
-        "item": 5,
-        "at": [
-          -11,
-          9
-        ]
-      },
-      "color": "#ff7f0e"
-    }
-  ],
-  "notes": [
-    {
-      "id": 82,
-      "at": [
-        -90,
-        -32
-      ],
-      "text": "Three chips on I2C1 of the Blue Pill (PB6 SCL, PB7 SDA, 100 kHz) with 4.7 kOhm pull-ups to 3.3 V; their\nA0-A2 pins on GND give the addresses 0x50 (24C02 EEPROM), 0x48 (LM75 sensor) and 0x20 (PCF8574\nexpander). Run (F5) and open Analyzer > UART: the EEPROM stores and reads back a word, the LM75 reports\n23.5 C (change it in its properties), and each push button on P4-P7 lights the LED on P0-P3. Remove a\npull-up resistor to see what happens."
     }
   ]
 }

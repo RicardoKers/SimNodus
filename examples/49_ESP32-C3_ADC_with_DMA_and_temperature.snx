@@ -49,7 +49,7 @@
     },
     {
       "at": [
-        -22,
+        -19,
         2
       ],
       "designator": "R1",
@@ -58,13 +58,13 @@
       "parameters": {
         "R": "1k"
       },
-      "rotation": 0,
+      "rotation": 270,
       "type": "resistor"
     },
     {
       "at": [
-        -20,
-        -12
+        -27,
+        -7
       ],
       "designator": "RV1",
       "id": 7,
@@ -81,24 +81,24 @@
   "labels": [
     {
       "at": [
-        -20,
-        -15
+        -27,
+        -10
       ],
       "id": 8,
       "name": "3V3"
     },
     {
       "at": [
-        -20,
-        -9
+        -27,
+        -4
       ],
       "id": 9,
       "name": "GND"
     },
     {
       "at": [
-        -17,
-        -12
+        -24,
+        -7
       ],
       "id": 10,
       "name": "POT"
@@ -109,6 +109,7 @@
         4
       ],
       "id": 11,
+      "mirrored": true,
       "name": "POT"
     },
     {
@@ -117,6 +118,7 @@
         -12
       ],
       "id": 12,
+      "mirrored": true,
       "name": "3V3"
     },
     {
@@ -125,11 +127,21 @@
         -14
       ],
       "id": 13,
+      "mirrored": true,
       "name": "GND"
     }
   ],
-  "next_id": 16,
-  "notes": [],
+  "next_id": 17,
+  "notes": [
+    {
+      "at": [
+        -30,
+        21
+      ],
+      "id": 16,
+      "text": "ESP-IDF's continuous ADC driver with DMA samples\nGPIO0 (a 50 Hz sine of 0.25-2.25 V from V1 through R1)\nand GPIO1 (the potentiometer RV1) at 20 kHz, and the\nchip reads its temperature sensor. Every second\nAnalyzer > UART (UART0) shows each pin's sample count,\nminimum, maximum and mean in mV, and the temperature;\ndrag RV1, or change U1's Chip temperature, while running."
+    }
+  ],
   "probes": [
     {
       "color": "",
@@ -181,11 +193,11 @@
         ],
         [
           -30,
-          -1
+          2
         ],
         [
           -22,
-          -1
+          2
         ]
       ]
     },
@@ -193,11 +205,7 @@
       "id": 6,
       "points": [
         [
-          -22,
-          5
-        ],
-        [
-          -22,
+          -16,
           2
         ],
         [

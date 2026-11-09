@@ -1457,6 +1457,10 @@ Pinos: %2</translation>
             <translation>Verificação</translation>
         </message>
         <message>
+            <source>&lt;h3&gt;SimNodus %1&lt;/h3&gt;&lt;p&gt;Interactive circuit and microcontroller simulator for teaching.&lt;/p&gt;&lt;p&gt;Author: Ricardo Kerschbaumer&lt;/p&gt;&lt;p&gt;MIT License. Analog engine: ngspice (BSD-3-Clause), loaded at run time. Qt %2 (LGPL-3.0).&lt;/p&gt;</source>
+            <translation>&lt;h3&gt;SimNodus %1&lt;/h3&gt;&lt;p&gt;Simulador interativo de circuitos e microcontroladores para o ensino.&lt;/p&gt;&lt;p&gt;Autor: Ricardo Kerschbaumer&lt;/p&gt;&lt;p&gt;Licença MIT. Motor analógico: ngspice (BSD-3-Clause), carregado na execução. Qt %2 (LGPL-3.0).&lt;/p&gt;</translation>
+        </message>
+        <message>
             <source>riscv32-esp-elf-gdb</source>
             <translation>o riscv32-esp-elf-gdb</translation>
         </message>
@@ -1687,10 +1691,6 @@ Permitir para este projeto neste computador? Sem isso, a rede das placas fica de
         <message>
             <source>About SimNodus</source>
             <translation>Sobre o SimNodus</translation>
-        </message>
-        <message>
-            <source>&lt;h3&gt;SimNodus %1&lt;/h3&gt;&lt;p&gt;Interactive circuit and STM32 simulator for teaching.&lt;/p&gt;&lt;p&gt;MIT License. Analog engine: ngspice (BSD-3-Clause), loaded at run time. Qt %2 (LGPL-3.0).&lt;/p&gt;</source>
-            <translation>&lt;h3&gt;SimNodus %1&lt;/h3&gt;&lt;p&gt;Simulador interativo de circuitos e STM32 para o ensino.&lt;/p&gt;&lt;p&gt;Licença MIT. Motor analógico: ngspice (BSD-3-Clause), carregado durante a execução. Qt %2 (LGPL-3.0).&lt;/p&gt;</translation>
         </message>
         <message>
             <source> or </source>
@@ -2992,16 +2992,16 @@ Permitir para este projeto neste computador? Sem isso, a rede das placas fica de
             <translation>DHT11</translation>
         </message>
         <message>
-            <source>Air temperature; change it while running to test the circuit</source>
-            <translation>Temperatura do ar; altere-a durante a simulação para testar o circuito</translation>
+            <source>Air temperature; while running, drag the part or use the wheel (-40 to 80 °C)</source>
+            <translation>Temperatura do ar; durante a simulação, arraste a peça ou use a roda (-40 a 80 °C)</translation>
         </message>
         <message>
             <source>Humidity</source>
             <translation>Umidade</translation>
         </message>
         <message>
-            <source>Relative humidity of the air; change it while running to test the circuit</source>
-            <translation>Umidade relativa do ar; altere-a durante a simulação para testar o circuito</translation>
+            <source>Relative humidity of the air; while running, Shift with the wheel (0 to 100 %)</source>
+            <translation>Umidade relativa do ar; durante a simulação, Shift com a roda (0 a 100 %)</translation>
         </message>
         <message>
             <source>Temperature sensor DS18B20 (1-Wire)</source>
@@ -3010,6 +3010,10 @@ Permitir para este projeto neste computador? Sem isso, a rede das placas fica de
         <message>
             <source>1-Wire temperature sensor; set the temperature in Properties</source>
             <translation>Sensor de temperatura 1-Wire; defina a temperatura em Propriedades</translation>
+        </message>
+        <message>
+            <source>Temperature of the sensor; while running, drag the part or use the wheel (-55 to 125 °C)</source>
+            <translation>Temperatura do sensor; durante a simulação, arraste a peça ou use a roda (-55 a 125 °C)</translation>
         </message>
         <message>
             <source>Serial number</source>
@@ -3052,8 +3056,8 @@ Permitir para este projeto neste computador? Sem isso, a rede das placas fica de
             <translation>Distância</translation>
         </message>
         <message>
-            <source>Distance to the obstacle; change it while running to test the circuit</source>
-            <translation>Distância até o obstáculo; altere-a durante a simulação para testar o circuito</translation>
+            <source>Distance to the obstacle; while running, drag the part or use the wheel (2 to 450 cm)</source>
+            <translation>Distância até o obstáculo; durante a simulação, arraste a peça ou use a roda (2 a 450 cm)</translation>
         </message>
         <message>
             <source>Load cell amplifier HX711</source>
@@ -3144,8 +3148,8 @@ Permitir para este projeto neste computador? Sem isso, a rede das placas fica de
             <translation>Sensor de temperatura I2C; ajuste a temperatura em Propriedades</translation>
         </message>
         <message>
-            <source>Temperature the sensor measures; change it while running to test the circuit</source>
-            <translation>Temperatura que o sensor mede; altere durante a simulação para testar o circuito</translation>
+            <source>Temperature the sensor measures; while running, drag the part or use the wheel (-55 to 125 °C)</source>
+            <translation>Temperatura que o sensor mede; durante a simulação, arraste a peça ou use a roda (-55 a 125 °C)</translation>
         </message>
         <message>
             <source>LED display driver MAX7219</source>
@@ -4776,16 +4780,16 @@ Permitir para este projeto neste computador? Sem isso, a rede das placas fica de
             <translation>Encoder rotativo</translation>
         </message>
         <message>
-            <source>Incremental rotary encoder like an EC11 or KY-040: contacts A and B close to C in quadrature, one cycle per detent (A before B turning clockwise), both open at rest; 20 detents per turn. Turn it while running by dragging it or with the wheel (one detent per step); pull-ups on A and B (or the board's) give the pulses. For the push switch place a push button</source>
-            <translation>Encoder rotativo incremental como um EC11 ou KY-040: os contatos A e B fecham com C em quadratura, um ciclo por detent (A antes de B no sentido horário), ambos abertos em repouso; 20 detents por volta. Gire-o durante a simulação arrastando ou com a roda (um detent por passo); pull-ups em A e B (ou os da placa) dão os pulsos. Para a chave de pressão, ponha um botão</translation>
+            <source>Incremental rotary encoder like an EC11 or KY-040: contacts A and B close to C in quadrature, one cycle per detent (A before B turning clockwise, B before A counter-clockwise), both open at rest. The simulated knob has 20 detents (one turn) between two stops; turning it by dragging or with the wheel (one detent per step) runs through each detent's four contact states at one detent per 20 ms, so the firmware counts the pulses. Pull-ups on A and B (or the board's) give the pulses. For the push switch place a push button</source>
+            <translation>Encoder rotativo incremental como um EC11 ou KY-040: os contatos A e B fecham com C em quadratura, um ciclo por detent (A antes de B no sentido horário, B antes de A no anti-horário), ambos abertos em repouso. O botão simulado tem 20 detents (uma volta) entre dois batentes; girá-lo arrastando ou com a roda (um detent por passo) percorre os quatro estados dos contatos de cada detent, a um detent a cada 20 ms, para o firmware contar os pulsos. Pull-ups em A e B (ou os da placa) geram os pulsos. Para a chave de pressão coloque um botão</translation>
         </message>
         <message>
             <source>Position</source>
             <translation>Posição</translation>
         </message>
         <message>
-            <source>Detent the knob starts at (0 to 20, one turn); drag or wheel while running</source>
-            <translation>Detent em que o botão começa (0 a 20, uma volta); arraste ou use a roda durante a simulação</translation>
+            <source>Detent the knob starts at (0 to 20); the firmware only sees the pulses while it turns, not this number</source>
+            <translation>Detent em que o botão começa (0 a 20); o firmware só vê os pulsos enquanto ele gira, não este número</translation>
         </message>
         <message>
             <source>Dual H-bridge L298</source>
@@ -4884,6 +4888,14 @@ Permitir para este projeto neste computador? Sem isso, a rede das placas fica de
             <translation>Capacitância</translation>
         </message>
         <message>
+            <source>Initial voltage</source>
+            <translation>Tensão inicial</translation>
+        </message>
+        <message>
+            <source>Voltage across the capacitor (pin 1 minus pin 2) when the simulation starts</source>
+            <translation>Tensão no capacitor (pino 1 menos pino 2) quando a simulação começa</translation>
+        </message>
+        <message>
             <source>Crystal</source>
             <translation>Cristal</translation>
         </message>
@@ -4910,6 +4922,14 @@ Permitir para este projeto neste computador? Sem isso, a rede das placas fica de
         <message>
             <source>Inductance</source>
             <translation>Indutância</translation>
+        </message>
+        <message>
+            <source>Initial current</source>
+            <translation>Corrente inicial</translation>
+        </message>
+        <message>
+            <source>Current through the inductor (from pin 1 to pin 2) when the simulation starts</source>
+            <translation>Corrente no indutor (do pino 1 para o pino 2) quando a simulação começa</translation>
         </message>
         <message>
             <source>Potentiometer</source>

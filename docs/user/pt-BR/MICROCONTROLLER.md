@@ -1,4 +1,4 @@
-<!-- source: MICROCONTROLLER.md sha256 8d5967b02dea036bb5ee48a4ca97cce25f1609366eed16c93c7a7852c652b006 -->
+<!-- source: MICROCONTROLLER.md sha256 80838957d9a27fd68fa27fe35b18700c7d353512d2a1ec727d4fb56b03f7c751 -->
 # Microcontrolador: o que é simulado
 
 O SimNodus executa o firmware da **Blue Pill (STM32F103C8)** em seu próprio emulador
@@ -345,9 +345,14 @@ grava a flash (Carregar no Arduino IDE, `esptool write-flash`). Na porta USB
 Serial/JTAG eles seguem a lógica de reset do chip (o `--before usb_reset` do
 esptool, ou a mesma sequência da UART0). O painel Mensagens avisa quando um
 firmware novo está sendo gravado; quando a simulação para, ele é salvo como
-`U1-flash.bin` (o designador da placa) ao lado do projeto e passa a ser o
-firmware da placa, como uma placa real guarda o que foi gravado; o projeto
-precisa ter sido salvo uma vez.
+`projeto-U1-flash.bin` (o nome do projeto e o designador da placa) ao lado do
+projeto e passa a ser o firmware da placa, como uma placa real guarda o que
+foi gravado; o projeto precisa ter sido salvo uma vez.
+
+Uma placa nova não precisa de firmware para começar: sem ele a flash fica
+apagada, como num módulo em branco, e a ROM mostra `invalid header:
+0xffffffff` na UART0 até o Arduino IDE ou o esptool gravar um firmware, que a
+placa então guarda.
 
 Qual porta o `Serial` de um sketch do Arduino usa é escolha do sketch, como
 numa placa real: a UART0 por padrão, a porta USB Serial/JTAG com **Ferramentas
@@ -375,7 +380,7 @@ o caminho de volta).
 
 O que o firmware grava na flash (os arquivos do MicroPython, o NVS do
 ESP-IDF, as `Preferences` do Arduino) é guardado como as gravações pelo USB:
-quando a simulação para, a flash é salva como `U1-flash.bin` ao lado do
+quando a simulação para, a flash é salva como `projeto-U1-flash.bin` ao lado do
 projeto e passa a ser o firmware da placa, então a próxima execução começa
 com os arquivos e roda o `main.py` ao iniciar. O projeto precisa ter sido
 salvo uma vez: um exemplo aberto por **Arquivo > Exemplos** não guarda nada
@@ -531,7 +536,8 @@ próprio SimNodus (experimento E-10, ADR 0108).
 - **Ainda não**: SPI e TWI como escravos. O log avisa uma vez quando o
   firmware usa um deles.
 - **EEPROM**: o que o firmware grava nela fica guardado ao lado de um
-  projeto salvo como `<designador>-eeprom.bin`, que passa a ser a
+  projeto salvo como `<projeto>-<designador>-eeprom.bin` (projetos na mesma
+  pasta guardam cada um o seu), que passa a ser a
   propriedade **EEPROM** do chip. A próxima simulação começa com ele, como o
   chip guarda a EEPROM desligado.
   - Sem EEPROM guardada, o chip começa apagado, ou com os dados da EEPROM
@@ -672,9 +678,10 @@ experimental até ser comparada com uma placa real.
      outra ponta (COM11), e então **Carregar**. O avrdude reinicia a placa e
      o Optiboot grava o sketch; o **Monitor Serial** (na velocidade do
      sketch) funciona na mesma porta.
-  3. Quando a simulação para, a flash é salva como `U1-flash.bin` ao lado
-     do projeto e vira o firmware da placa, e o que o sketch escreveu na
-     EEPROM como `U1-eeprom.bin`. O projeto precisa ter sido salvo uma vez.
+  3. Quando a simulação para, a flash é salva como `projeto-U1-flash.bin`
+     ao lado do projeto e vira o firmware da placa, e o que o sketch
+     escreveu na EEPROM como `projeto-U1-eeprom.bin`. O projeto precisa ter
+     sido salvo uma vez.
 - **Não simulados**: a ponte USB (o ATmega16U2) em si, os resistores de
   1 kΩ dela para o D0 e o D1, os LEDs TX e RX, o regulador do VIN.
 - **Exemplo**: 58 (o exemplo serial da seção *ATmega328 e ATmega328P*

@@ -82,6 +82,30 @@ TEST_CASE("moving a component keeps attached wires connected and orthogonal")
     CHECK(s == before);
 }
 
+TEST_CASE("moving a wire's segment keeps its ends and what is attached to it")
+{
+    Schematic s;
+    Id w = 0, branch = 0;
+    // A U-shaped wire; another wire ends on its middle segment, a label sits on it.
+    applied(s, editing::add_wire(s, {{0, 0}, {0, 4}, {10, 4}, {10, 0}}, &w));
+    applied(s, editing::add_wire(s, {{5, 4}, {5, 9}}, &branch));
+    Id label = 0;
+    applied(s, editing::add_label(s, {7, 4}, "OUT", &label));
+    const Schematic before = s;
+    // The middle segment moves down by 2; a sideways part of the move is ignored.
+    const Edit move = applied(s, editing::move_wire_segment(s, w, 1, {3, 2}));
+    CHECK((s.wire(w)->points == std::vector<Point>{{0, 0}, {0, 6}, {10, 6}, {10, 0}}));
+    CHECK((s.wire(branch)->points == std::vector<Point>{{5, 6}, {5, 9}}));
+    CHECK((s.label(label)->position == Point{7, 6}));
+    move.revert(s);
+    CHECK(s == before);
+    // An end segment keeps the wire's end (a pin there) with a new short segment.
+    applied(s, editing::move_wire_segment(s, w, 0, {-2, 0}));
+    CHECK((s.wire(w)->points == std::vector<Point>{{0, 0}, {-2, 0}, {-2, 4}, {10, 4}, {10, 0}}));
+    CHECK(is_orthogonal(s.wire(w)->points));
+    CHECK(editing::move_wire_segment(s, w, 9, {0, 1}).empty());
+}
+
 TEST_CASE("moving everything translates wires unchanged")
 {
     const auto lib = test_library();

@@ -1,7 +1,7 @@
 {
   "format": "simnodus-project",
   "version": 1,
-  "next_id": 11,
+  "next_id": 12,
   "settings": {
     "mode": "transient",
     "speed": 1,
@@ -159,6 +159,16 @@
         ]
       },
       "color": "#ff7f0e"
+    }
+  ],
+  "notes": [
+    {
+      "at": [
+        0,
+        10
+      ],
+      "id": 11,
+      "text": "A transient run: F5 computes 50 ms of a 5 V step into\nR1 and C1 and opens the whole curve in the Signal\nAnalyzer. With the cursors, read 63 % of 5 V at\ntau = R1 x C1 = 10 ms."
     }
   ]
 }

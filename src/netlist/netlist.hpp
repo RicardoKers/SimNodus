@@ -47,6 +47,8 @@ struct ControlSource {
     library::Interactive::Kind kind = library::Interactive::Kind::Toggle;
     int slot = 0;        // 0: the part's first control; i + 1: interactive.controls[i] (SN-272)
     bool bounce = false; // parameter "bounce" = "yes": contacts bounce after each change
+    double rate = 0.0;   // the library's rate: fastest change per second (0: at once)
+    int detents = 0;     // the library's detents: the value rests on k / detents
 };
 
 // External voltage source set by the simulation, from a template's {ext:NAME}

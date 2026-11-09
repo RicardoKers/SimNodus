@@ -4,6 +4,26 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-11-09, SN-280, owner's tests of the examples)
+
+- Sensors worked with the mouse while running, like a potentiometer: the LM75's and DS18B20's temperature, the HC-SR04's distance, the DHT22's temperature (Shift with the wheel: its humidity); the value shows next to the symbol and goes to the chip at once (`sim.control` still sets it in the project).
+- **Initial voltage** of a capacitor and **initial current** of an inductor (default 0), used when a run starts.
+- The Signal Analyzer has the **Pause / Resume** button (F6), so a signal can be studied without going back to the schematic.
+- Dragging a single wire moves only the segment under the mouse; the wire's ends stay on their pins, and wires and labels on the segment follow it.
+- While running, a click on a part's designator or value text, or Ctrl+click, selects the part (its properties and live values) instead of working its control.
+- A new ESP32-C3 board runs without a firmware: its flash is erased, the ROM reports `invalid header` and waits for an upload from the Arduino IDE or esptool, which the board keeps.
+- The About box names the author.
+- Notes on the diagrams of examples 1 to 16, 24 and 45 to 49: every example now explains itself on the canvas.
+
+### Fixed (2026-11-09, SN-280)
+
+- The rotary encoder gave no pulses when turned with the wheel (one step is a whole detent, so A and B never changed) and skipped states when dragged. Its knob now turns through every contact state of each detent at one detent per 20 ms and rests only on whole detents (library fields `rate` and `detents`); example 41 counts each step.
+- A transistor's base behind an open switch jumped to 0.5 V at the start of every 1 s segment and settled again (example 4). The voltages of nodes held only by semiconductors, resistors, capacitors and switches now carry over between segments.
+- What a run writes to a chip's EEPROM or a board's flash is kept as `<project>-<designator>-eeprom.bin` (or `-flash.bin`): examples 50, 55 and 58 share a folder and all wrote `U1-eeprom.bin`.
+- Live values below a picovolt or picoampere show as 0 instead of "0.5fV".
+- Example 43: a probe on a short loose wire (an open wire end in the checks) is back on TT1's pin; examples 27 and 40 keep their sensors' original values; example 44's note explains why loopback mixes the greeting with its own echoes.
+- A device test read the latest value instead of the one at the asked time and failed when the run got ahead.
+
 ### Fixed (2026-11-09, SN-279, owner's tests of the energy preview)
 
 - **Live values** in the Properties panel: a part whose symbol shows an internal quantity (a solar panel's % MPP, a motor's rpm, a battery's % SOC, a sensor's lux) showed that number as its current ("I = 100A"). The current now comes from the part's own measuring source: a solar panel's and a battery's terminal current (negative while a battery charges), the DC motor's current, each phase current of the BLDC and PMSM motors, with speed, load, irradiance, temperature and state of charge as further lines. V and P are given only for two-pin parts (a motor's "V" was the difference of two phases).

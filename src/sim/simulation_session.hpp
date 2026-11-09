@@ -257,6 +257,17 @@ private:
     };
     std::set<std::string> bouncing_sources_; // lower case
     std::map<std::string, Bounce> bounces_;
+    // Controls with a rate (an encoder's knob): the value moves from `from`
+    // at `start` (seconds) towards controls_'s target at `rate` per second.
+    struct Slew {
+        double from = 0.0;
+        double start = 0.0;
+        double rate = 0.0;
+    };
+    std::map<std::string, double> control_rates_; // source -> rate
+    std::map<std::string, int> control_detents_;  // source -> detents
+    std::map<std::string, Slew> slews_;
+    static double slewed(const Slew& slew, double target, double time);
     // Created by start() before the worker exists and kept until the next start;
     // the runners themselves are thread-safe.
     std::map<model::Id, std::unique_ptr<mcu::McuBackend>> mcus_;

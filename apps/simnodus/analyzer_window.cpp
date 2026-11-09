@@ -54,6 +54,14 @@ QString quantity(double value, const QString& unit)
 
 } // namespace
 
+void AnalyzerWindow::add_run_action(QAction* action)
+{
+    QAction* first = toolbar_->actions().value(0);
+    toolbar_->insertAction(first, action);
+    toolbar_->insertSeparator(first);
+    toolbar_->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+}
+
 AnalyzerWindow::AnalyzerWindow(QWidget* parent) : QMainWindow(parent)
 {
     setObjectName(QStringLiteral("analyzerWindow"));
@@ -62,7 +70,7 @@ AnalyzerWindow::AnalyzerWindow(QWidget* parent) : QMainWindow(parent)
     setAttribute(Qt::WA_QuitOnClose, false);
     resize(960, 600);
 
-    auto* toolbar = addToolBar(tr("Analyzer"));
+    auto* toolbar = toolbar_ = addToolBar(tr("Analyzer"));
     toolbar->setObjectName(QStringLiteral("analyzerToolbar"));
     toolbar->setMovable(false);
     display_run_ = toolbar->addAction(tr("Stop display"));

@@ -3,7 +3,7 @@
   "components": [
     {
       "at": [
-        0,
+        -11,
         0
       ],
       "designator": "U1",
@@ -49,7 +49,7 @@
     },
     {
       "at": [
-        -9,
+        -20,
         1
       ],
       "designator": "GND2",
@@ -61,7 +61,7 @@
     },
     {
       "at": [
-        9,
+        -2,
         -1
       ],
       "designator": "GND3",
@@ -73,8 +73,8 @@
     },
     {
       "at": [
-        24,
-        6
+        9,
+        -10
       ],
       "designator": "RV1",
       "id": 9,
@@ -88,8 +88,8 @@
     },
     {
       "at": [
-        24,
-        9
+        9,
+        -7
       ],
       "designator": "GND4",
       "id": 11,
@@ -100,8 +100,8 @@
     },
     {
       "at": [
-        24,
-        18
+        18,
+        -10
       ],
       "designator": "R2",
       "id": 19,
@@ -114,8 +114,8 @@
     },
     {
       "at": [
-        32,
-        26
+        12,
+        6
       ],
       "designator": "C1",
       "id": 23,
@@ -128,8 +128,8 @@
     },
     {
       "at": [
-        32,
-        29
+        12,
+        9
       ],
       "designator": "GND6",
       "id": 25,
@@ -151,15 +151,16 @@
     },
     {
       "at": [
-        -9,
+        -20,
         -1
       ],
       "id": 5,
+      "mirrored": true,
       "name": "VCC"
     },
     {
       "at": [
-        9,
+        -2,
         3
       ],
       "id": 6,
@@ -167,23 +168,23 @@
     },
     {
       "at": [
-        24,
-        3
+        9,
+        -13
       ],
       "id": 10,
       "name": "VCC"
     },
     {
       "at": [
-        27,
-        6
+        12,
+        -10
       ],
       "id": 12,
       "name": "POT"
     },
     {
       "at": [
-        9,
+        0,
         -3
       ],
       "id": 13,
@@ -191,7 +192,7 @@
     },
     {
       "at": [
-        9,
+        0,
         9
       ],
       "id": 20,
@@ -199,35 +200,35 @@
     },
     {
       "at": [
-        24,
-        15
+        18,
+        -13
       ],
       "id": 21,
       "name": "PWM"
     },
     {
       "at": [
-        24,
-        21
+        18,
+        -5
       ],
       "id": 22,
       "name": "FILTERED"
     },
     {
       "at": [
-        32,
-        23
+        12,
+        3
       ],
       "id": 24,
       "name": "FILTERED"
     }
   ],
-  "next_id": 34,
+  "next_id": 37,
   "notes": [
     {
       "at": [
-        -36,
-        -30
+        -32,
+        -24
       ],
       "id": 29,
       "text": "ATmega328P at the factory clock (1 MHz) with avr328_pwm: Timer0's fast PWM on OC0A (PD6, 25 %) and\nOC0B (PD5, inverting), Timer2's phase-correct PWM on OC2A (PB3) from the potentiometer and OC2B (PD3)\nopposite, Timer1's 50 Hz square wave on OC1A (PB1). The ADC converts on its own at each Timer0\noverflow (auto trigger). Drag RV1 while running: PB3's duty and the filtered voltage (R2, C1) follow."
@@ -339,5 +340,45 @@
   },
   "splitters": [],
   "version": 1,
-  "wires": []
+  "wires": [
+    {
+      "id": 34,
+      "points": [
+        [
+          -2,
+          -3
+        ],
+        [
+          0,
+          -3
+        ]
+      ]
+    },
+    {
+      "id": 35,
+      "points": [
+        [
+          -2,
+          9
+        ],
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "id": 36,
+      "points": [
+        [
+          18,
+          -7
+        ],
+        [
+          18,
+          -5
+        ]
+      ]
+    }
+  ]
 }

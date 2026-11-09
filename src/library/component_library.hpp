@@ -207,6 +207,13 @@ struct Interactive {
     // parameter with a unit other than % and a min and max goes from min (0) to
     // max (1), on a logarithmic scale when `logarithmic` (light from 0.1 to 100k lux).
     bool logarithmic = false;
+    // Fastest change of the first control in the simulation, of its 0..1 range
+    // per simulated second (0: at once). A rotary encoder turns through every
+    // contact state of each detent instead of jumping to the next detent.
+    double rate = 0.0;
+    // Detents of the first control over its range (0: none): it rests only
+    // on a whole detent, like an encoder's knob.
+    int detents = 0;
     // Further live controls of the same part (SN-272), read in the template as
     // {control:NAME}: toggles, buttons and potentiometers with the same values
     // as the first control. Control slot 0 is the first control, slot i + 1 is

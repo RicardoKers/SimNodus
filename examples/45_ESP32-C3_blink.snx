@@ -1,83 +1,135 @@
 {
-  "format": "simnodus-project",
-  "version": 1,
-  "next_id": 14,
-  "settings": {
-    "mode": "interactive",
-    "speed": 1,
-    "max_step": 0.0001,
-    "segment": 1,
-    "transient_stop": 0.01,
-    "transient_max_step": 1e-06
-  },
+  "buses": [],
   "components": [
     {
-      "id": 1,
-      "type": "esp32c3_devkitm1",
-      "designator": "U1",
       "at": [
         0,
         0
       ],
-      "rotation": 0,
+      "designator": "U1",
+      "id": 1,
       "mirrored": false,
       "parameters": {
         "firmware": "firmware/esp32c3_blink/blink.bin"
-      }
+      },
+      "rotation": 0,
+      "type": "esp32c3_devkitm1"
     },
     {
-      "id": 2,
-      "type": "ground",
-      "designator": "GND1",
       "at": [
         -12,
         -10
       ],
-      "rotation": 0,
+      "designator": "GND1",
+      "id": 2,
       "mirrored": false,
-      "parameters": {}
+      "parameters": {},
+      "rotation": 0,
+      "type": "ground"
     },
     {
-      "id": 5,
-      "type": "resistor",
-      "designator": "R1",
       "at": [
-        14,
+        20,
         -4
       ],
-      "rotation": 90,
+      "designator": "R1",
+      "id": 5,
       "mirrored": false,
       "parameters": {
         "R": "330"
-      }
+      },
+      "rotation": 90,
+      "type": "resistor"
     },
     {
-      "id": 6,
-      "type": "led",
-      "designator": "LED1",
       "at": [
         26,
         -1
       ],
-      "rotation": 0,
+      "designator": "LED1",
+      "id": 6,
       "mirrored": false,
       "parameters": {
         "color": "red"
-      }
+      },
+      "rotation": 0,
+      "type": "led"
     },
     {
-      "id": 7,
-      "type": "ground",
-      "designator": "GND2",
       "at": [
         26,
         6
       ],
-      "rotation": 0,
+      "designator": "GND2",
+      "id": 7,
       "mirrored": false,
-      "parameters": {}
+      "parameters": {},
+      "rotation": 0,
+      "type": "ground"
     }
   ],
+  "format": "simnodus-project",
+  "labels": [
+    {
+      "at": [
+        12,
+        -4
+      ],
+      "id": 13,
+      "name": "GPIO8"
+    }
+  ],
+  "next_id": 15,
+  "notes": [
+    {
+      "at": [
+        -12,
+        21
+      ],
+      "id": 14,
+      "text": "ESP32-C3-DevKitM-1 (experimental) running ESP-IDF's\nblink example (a flash image). The LED on GPIO8\nblinks at 1 Hz; Analyzer > UART (UART0) shows the\nboot log and \"Turning the LED ON!\" / \"OFF!\".\nClick RESET on the board to start it again."
+    }
+  ],
+  "probes": [
+    {
+      "color": "#1f77b4",
+      "id": 11,
+      "kind": "voltage",
+      "target": {
+        "at": [
+          10,
+          -4
+        ],
+        "item": 8
+      }
+    },
+    {
+      "color": "#d62728",
+      "id": 12,
+      "kind": "current",
+      "target": {
+        "at": [
+          26,
+          -4
+        ],
+        "item": 6,
+        "pin": "A"
+      }
+    }
+  ],
+  "settings": {
+    "cortex_m3_timing": true,
+    "exact_edges": false,
+    "max_step": 0.0001,
+    "mcu_quantum": 0.001,
+    "mode": "interactive",
+    "segment": 1.0,
+    "speed": 1.0,
+    "transient_max_step": 1e-06,
+    "transient_stop": 0.01
+  },
+  "splitters": [],
+  "version": 1,
   "wires": [
     {
       "id": 3,
@@ -104,7 +156,7 @@
           -4
         ],
         [
-          11,
+          17,
           -4
         ]
       ]
@@ -113,7 +165,7 @@
       "id": 9,
       "points": [
         [
-          17,
+          23,
           -4
         ],
         [
@@ -134,43 +186,6 @@
           6
         ]
       ]
-    }
-  ],
-  "labels": [
-    {
-      "id": 13,
-      "at": [
-        10,
-        -4
-      ],
-      "name": "GPIO8"
-    }
-  ],
-  "probes": [
-    {
-      "id": 11,
-      "kind": "voltage",
-      "target": {
-        "item": 8,
-        "at": [
-          10,
-          -4
-        ]
-      },
-      "color": "#1f77b4"
-    },
-    {
-      "id": 12,
-      "kind": "current",
-      "target": {
-        "item": 6,
-        "pin": "A",
-        "at": [
-          26,
-          -4
-        ]
-      },
-      "color": "#d62728"
     }
   ]
 }

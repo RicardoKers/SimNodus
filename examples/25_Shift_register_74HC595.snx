@@ -1,280 +1,632 @@
 {
-  "format": "simnodus-project",
-  "version": 1,
-  "next_id": 88,
-  "settings": {
-    "mode": "interactive",
-    "speed": 1,
-    "max_step": 0.0001,
-    "segment": 1,
-    "transient_stop": 0.01,
-    "transient_max_step": 1e-06,
-    "mcu_quantum": 0.001
-  },
+  "buses": [],
   "components": [
     {
-      "id": 1,
-      "type": "bluepill",
-      "designator": "U1",
       "at": [
         0,
         0
       ],
-      "rotation": 0,
+      "designator": "U1",
+      "id": 1,
       "mirrored": false,
       "parameters": {
         "firmware": "firmware/shift595/shift595.elf"
-      }
-    },
-    {
-      "id": 10,
-      "type": "ground",
-      "designator": "GND1",
-      "at": [
-        -12,
-        21
-      ],
+      },
       "rotation": 0,
-      "mirrored": false,
-      "parameters": {}
+      "type": "bluepill"
     },
     {
-      "id": 13,
-      "type": "74hc595",
-      "designator": "U2",
+      "at": [
+        -14,
+        20
+      ],
+      "designator": "GND1",
+      "id": 10,
+      "mirrored": false,
+      "parameters": {},
+      "rotation": 0,
+      "type": "ground"
+    },
+    {
       "at": [
         40,
         0
       ],
+      "designator": "U2",
+      "id": 13,
+      "mirrored": false,
+      "parameters": {},
       "rotation": 0,
-      "mirrored": false,
-      "parameters": {}
+      "type": "74hc595"
     },
     {
-      "id": 39,
-      "type": "resistor",
+      "at": [
+        60,
+        -14
+      ],
       "designator": "R1",
-      "at": [
-        60,
-        -14
-      ],
-      "rotation": 270,
+      "id": 39,
       "mirrored": false,
       "parameters": {
         "R": "330"
-      }
+      },
+      "rotation": 270,
+      "type": "resistor"
     },
     {
-      "id": 42,
-      "type": "led",
+      "at": [
+        68,
+        -14
+      ],
       "designator": "LED1",
+      "id": 42,
+      "mirrored": false,
+      "parameters": {
+        "color": "red"
+      },
+      "rotation": 270,
+      "type": "led"
+    },
+    {
+      "at": [
+        60,
+        -10
+      ],
+      "designator": "R2",
+      "id": 45,
+      "mirrored": false,
+      "parameters": {
+        "R": "330"
+      },
+      "rotation": 270,
+      "type": "resistor"
+    },
+    {
       "at": [
         68,
+        -10
+      ],
+      "designator": "LED2",
+      "id": 48,
+      "mirrored": false,
+      "parameters": {
+        "color": "red"
+      },
+      "rotation": 270,
+      "type": "led"
+    },
+    {
+      "at": [
+        60,
+        -6
+      ],
+      "designator": "R3",
+      "id": 51,
+      "mirrored": false,
+      "parameters": {
+        "R": "330"
+      },
+      "rotation": 270,
+      "type": "resistor"
+    },
+    {
+      "at": [
+        68,
+        -6
+      ],
+      "designator": "LED3",
+      "id": 54,
+      "mirrored": false,
+      "parameters": {
+        "color": "red"
+      },
+      "rotation": 270,
+      "type": "led"
+    },
+    {
+      "at": [
+        60,
+        -2
+      ],
+      "designator": "R4",
+      "id": 57,
+      "mirrored": false,
+      "parameters": {
+        "R": "330"
+      },
+      "rotation": 270,
+      "type": "resistor"
+    },
+    {
+      "at": [
+        68,
+        -2
+      ],
+      "designator": "LED4",
+      "id": 60,
+      "mirrored": false,
+      "parameters": {
+        "color": "red"
+      },
+      "rotation": 270,
+      "type": "led"
+    },
+    {
+      "at": [
+        60,
+        2
+      ],
+      "designator": "R5",
+      "id": 63,
+      "mirrored": false,
+      "parameters": {
+        "R": "330"
+      },
+      "rotation": 270,
+      "type": "resistor"
+    },
+    {
+      "at": [
+        68,
+        2
+      ],
+      "designator": "LED5",
+      "id": 66,
+      "mirrored": false,
+      "parameters": {
+        "color": "red"
+      },
+      "rotation": 270,
+      "type": "led"
+    },
+    {
+      "at": [
+        60,
+        6
+      ],
+      "designator": "R6",
+      "id": 69,
+      "mirrored": false,
+      "parameters": {
+        "R": "330"
+      },
+      "rotation": 270,
+      "type": "resistor"
+    },
+    {
+      "at": [
+        68,
+        6
+      ],
+      "designator": "LED6",
+      "id": 72,
+      "mirrored": false,
+      "parameters": {
+        "color": "red"
+      },
+      "rotation": 270,
+      "type": "led"
+    },
+    {
+      "at": [
+        60,
+        10
+      ],
+      "designator": "R7",
+      "id": 75,
+      "mirrored": false,
+      "parameters": {
+        "R": "330"
+      },
+      "rotation": 270,
+      "type": "resistor"
+    },
+    {
+      "at": [
+        68,
+        10
+      ],
+      "designator": "LED7",
+      "id": 78,
+      "mirrored": false,
+      "parameters": {
+        "color": "red"
+      },
+      "rotation": 270,
+      "type": "led"
+    },
+    {
+      "at": [
+        60,
+        14
+      ],
+      "designator": "R8",
+      "id": 81,
+      "mirrored": false,
+      "parameters": {
+        "R": "330"
+      },
+      "rotation": 270,
+      "type": "resistor"
+    },
+    {
+      "at": [
+        68,
+        14
+      ],
+      "designator": "LED8",
+      "id": 84,
+      "mirrored": false,
+      "parameters": {
+        "color": "red"
+      },
+      "rotation": 270,
+      "type": "led"
+    }
+  ],
+  "format": "simnodus-project",
+  "labels": [
+    {
+      "at": [
+        13,
+        -3
+      ],
+      "id": 3,
+      "name": "SER"
+    },
+    {
+      "at": [
+        13,
+        1
+      ],
+      "id": 5,
+      "name": "SCK"
+    },
+    {
+      "at": [
+        13,
+        3
+      ],
+      "id": 8,
+      "name": "LATCH"
+    },
+    {
+      "at": [
+        -9,
+        19
+      ],
+      "id": 12,
+      "mirrored": true,
+      "name": "VDD"
+    },
+    {
+      "at": [
+        34,
+        -4
+      ],
+      "id": 14,
+      "mirrored": true,
+      "name": "SER"
+    },
+    {
+      "at": [
+        34,
+        -2
+      ],
+      "id": 15,
+      "mirrored": true,
+      "name": "SCK"
+    },
+    {
+      "at": [
+        34,
+        0
+      ],
+      "id": 16,
+      "mirrored": true,
+      "name": "LATCH"
+    },
+    {
+      "at": [
+        34,
+        2
+      ],
+      "id": 17,
+      "mirrored": true,
+      "name": "VDD"
+    },
+    {
+      "at": [
+        34,
+        4
+      ],
+      "id": 18,
+      "mirrored": true,
+      "name": "GND"
+    },
+    {
+      "at": [
+        40,
+        -12
+      ],
+      "id": 19,
+      "name": "VDD"
+    },
+    {
+      "at": [
+        40,
+        12
+      ],
+      "id": 20,
+      "name": "GND"
+    },
+    {
+      "at": [
+        49,
+        -8
+      ],
+      "id": 22,
+      "name": "Q0"
+    },
+    {
+      "at": [
+        49,
+        -6
+      ],
+      "id": 25,
+      "name": "Q1"
+    },
+    {
+      "at": [
+        49,
+        -4
+      ],
+      "id": 28,
+      "name": "Q2"
+    },
+    {
+      "at": [
+        49,
+        -2
+      ],
+      "id": 30,
+      "name": "Q3"
+    },
+    {
+      "at": [
+        49,
+        0
+      ],
+      "id": 32,
+      "name": "Q4"
+    },
+    {
+      "at": [
+        49,
+        2
+      ],
+      "id": 34,
+      "name": "Q5"
+    },
+    {
+      "at": [
+        49,
+        4
+      ],
+      "id": 36,
+      "name": "Q6"
+    },
+    {
+      "at": [
+        49,
+        6
+      ],
+      "id": 38,
+      "name": "Q7"
+    },
+    {
+      "at": [
+        54,
         -14
       ],
-      "rotation": 270,
-      "mirrored": false,
-      "parameters": {
-        "color": "red"
-      }
+      "id": 41,
+      "name": "Q0"
     },
     {
-      "id": 45,
-      "type": "resistor",
-      "designator": "R2",
       "at": [
-        60,
+        71,
+        -14
+      ],
+      "id": 44,
+      "name": "GND"
+    },
+    {
+      "at": [
+        54,
         -10
       ],
-      "rotation": 270,
-      "mirrored": false,
-      "parameters": {
-        "R": "330"
-      }
+      "id": 47,
+      "name": "Q1"
     },
     {
-      "id": 48,
-      "type": "led",
-      "designator": "LED2",
       "at": [
-        68,
+        71,
         -10
       ],
-      "rotation": 270,
-      "mirrored": false,
-      "parameters": {
-        "color": "red"
-      }
+      "id": 50,
+      "name": "GND"
     },
     {
-      "id": 51,
-      "type": "resistor",
-      "designator": "R3",
       "at": [
-        60,
+        54,
         -6
       ],
-      "rotation": 270,
-      "mirrored": false,
-      "parameters": {
-        "R": "330"
-      }
+      "id": 53,
+      "name": "Q2"
     },
     {
-      "id": 54,
-      "type": "led",
-      "designator": "LED3",
       "at": [
-        68,
+        71,
         -6
       ],
-      "rotation": 270,
-      "mirrored": false,
-      "parameters": {
-        "color": "red"
-      }
+      "id": 56,
+      "name": "GND"
     },
     {
-      "id": 57,
-      "type": "resistor",
-      "designator": "R4",
       "at": [
-        60,
+        54,
         -2
       ],
-      "rotation": 270,
-      "mirrored": false,
-      "parameters": {
-        "R": "330"
-      }
+      "id": 59,
+      "name": "Q3"
     },
     {
-      "id": 60,
-      "type": "led",
-      "designator": "LED4",
       "at": [
-        68,
+        71,
         -2
       ],
-      "rotation": 270,
-      "mirrored": false,
-      "parameters": {
-        "color": "red"
-      }
+      "id": 62,
+      "name": "GND"
     },
     {
-      "id": 63,
-      "type": "resistor",
-      "designator": "R5",
       "at": [
-        60,
+        54,
         2
       ],
-      "rotation": 270,
-      "mirrored": false,
-      "parameters": {
-        "R": "330"
-      }
+      "id": 65,
+      "name": "Q4"
     },
     {
-      "id": 66,
-      "type": "led",
-      "designator": "LED5",
       "at": [
-        68,
+        71,
         2
       ],
-      "rotation": 270,
-      "mirrored": false,
-      "parameters": {
-        "color": "red"
-      }
+      "id": 68,
+      "name": "GND"
     },
     {
-      "id": 69,
-      "type": "resistor",
-      "designator": "R6",
       "at": [
-        60,
+        54,
         6
       ],
-      "rotation": 270,
-      "mirrored": false,
-      "parameters": {
-        "R": "330"
-      }
+      "id": 71,
+      "name": "Q5"
     },
     {
-      "id": 72,
-      "type": "led",
-      "designator": "LED6",
       "at": [
-        68,
+        71,
         6
       ],
-      "rotation": 270,
-      "mirrored": false,
-      "parameters": {
-        "color": "red"
-      }
+      "id": 74,
+      "name": "GND"
     },
     {
-      "id": 75,
-      "type": "resistor",
-      "designator": "R7",
       "at": [
-        60,
+        54,
         10
       ],
-      "rotation": 270,
-      "mirrored": false,
-      "parameters": {
-        "R": "330"
-      }
+      "id": 77,
+      "name": "Q6"
     },
     {
-      "id": 78,
-      "type": "led",
-      "designator": "LED7",
       "at": [
-        68,
+        71,
         10
       ],
-      "rotation": 270,
-      "mirrored": false,
-      "parameters": {
-        "color": "red"
+      "id": 80,
+      "name": "GND"
+    },
+    {
+      "at": [
+        54,
+        14
+      ],
+      "id": 83,
+      "name": "Q7"
+    },
+    {
+      "at": [
+        71,
+        14
+      ],
+      "id": 86,
+      "name": "GND"
+    }
+  ],
+  "next_id": 88,
+  "notes": [
+    {
+      "at": [
+        -12,
+        -34
+      ],
+      "id": 87,
+      "text": "A 74HC595 shift register drives eight LEDs. The firmware shifts each byte out bit by bit on PA7 (data),\nPA5 (shift clock) and PA4 (latch), the pins of SPI1. MR goes to VDD and OE to GND, and the chip needs\nits supply on VCC and GND. Run (F5): a light runs across the LEDs, then they count in binary.\nAnalyzer > Logic shows the clock and data lanes of the board and the chip's outputs (U2.Q0...)."
+    }
+  ],
+  "probes": [
+    {
+      "color": "#1f77b4",
+      "id": 6,
+      "kind": "voltage",
+      "target": {
+        "at": [
+          11,
+          1
+        ],
+        "item": 4
       }
     },
     {
-      "id": 81,
-      "type": "resistor",
-      "designator": "R8",
-      "at": [
-        60,
-        14
-      ],
-      "rotation": 270,
-      "mirrored": false,
-      "parameters": {
-        "R": "330"
+      "color": "#ff7f0e",
+      "id": 9,
+      "kind": "voltage",
+      "target": {
+        "at": [
+          11,
+          3
+        ],
+        "item": 7
       }
     },
     {
-      "id": 84,
-      "type": "led",
-      "designator": "LED8",
-      "at": [
-        68,
-        14
-      ],
-      "rotation": 270,
-      "mirrored": false,
-      "parameters": {
-        "color": "red"
+      "color": "#2ca02c",
+      "id": 23,
+      "kind": "voltage",
+      "target": {
+        "at": [
+          48,
+          -8
+        ],
+        "item": 21
+      }
+    },
+    {
+      "color": "#d62728",
+      "id": 26,
+      "kind": "voltage",
+      "target": {
+        "at": [
+          48,
+          -6
+        ],
+        "item": 24
       }
     }
   ],
+  "settings": {
+    "cortex_m3_timing": true,
+    "exact_edges": false,
+    "max_step": 0.0001,
+    "mcu_quantum": 0.001,
+    "mode": "interactive",
+    "segment": 1.0,
+    "speed": 1.0,
+    "transient_max_step": 1e-06,
+    "transient_stop": 0.01
+  },
+  "splitters": [],
+  "version": 1,
   "wires": [
     {
       "id": 2,
@@ -323,12 +675,12 @@
           17
         ],
         [
-          -12,
+          -14,
           17
         ],
         [
-          -12,
-          21
+          -14,
+          20
         ]
       ]
     },
@@ -643,348 +995,6 @@
           14
         ]
       ]
-    }
-  ],
-  "labels": [
-    {
-      "id": 3,
-      "at": [
-        13,
-        -3
-      ],
-      "name": "SER"
-    },
-    {
-      "id": 5,
-      "at": [
-        13,
-        1
-      ],
-      "name": "SCK"
-    },
-    {
-      "id": 8,
-      "at": [
-        13,
-        3
-      ],
-      "name": "LATCH"
-    },
-    {
-      "id": 12,
-      "at": [
-        -9,
-        19
-      ],
-      "name": "VDD"
-    },
-    {
-      "id": 14,
-      "at": [
-        34,
-        -4
-      ],
-      "name": "SER"
-    },
-    {
-      "id": 15,
-      "at": [
-        34,
-        -2
-      ],
-      "name": "SCK"
-    },
-    {
-      "id": 16,
-      "at": [
-        34,
-        0
-      ],
-      "name": "LATCH"
-    },
-    {
-      "id": 17,
-      "at": [
-        34,
-        2
-      ],
-      "name": "VDD"
-    },
-    {
-      "id": 18,
-      "at": [
-        34,
-        4
-      ],
-      "name": "GND"
-    },
-    {
-      "id": 19,
-      "at": [
-        40,
-        -12
-      ],
-      "name": "VDD"
-    },
-    {
-      "id": 20,
-      "at": [
-        40,
-        12
-      ],
-      "name": "GND"
-    },
-    {
-      "id": 22,
-      "at": [
-        49,
-        -8
-      ],
-      "name": "Q0"
-    },
-    {
-      "id": 25,
-      "at": [
-        49,
-        -6
-      ],
-      "name": "Q1"
-    },
-    {
-      "id": 28,
-      "at": [
-        49,
-        -4
-      ],
-      "name": "Q2"
-    },
-    {
-      "id": 30,
-      "at": [
-        49,
-        -2
-      ],
-      "name": "Q3"
-    },
-    {
-      "id": 32,
-      "at": [
-        49,
-        0
-      ],
-      "name": "Q4"
-    },
-    {
-      "id": 34,
-      "at": [
-        49,
-        2
-      ],
-      "name": "Q5"
-    },
-    {
-      "id": 36,
-      "at": [
-        49,
-        4
-      ],
-      "name": "Q6"
-    },
-    {
-      "id": 38,
-      "at": [
-        49,
-        6
-      ],
-      "name": "Q7"
-    },
-    {
-      "id": 41,
-      "at": [
-        54,
-        -14
-      ],
-      "name": "Q0"
-    },
-    {
-      "id": 44,
-      "at": [
-        71,
-        -14
-      ],
-      "name": "GND"
-    },
-    {
-      "id": 47,
-      "at": [
-        54,
-        -10
-      ],
-      "name": "Q1"
-    },
-    {
-      "id": 50,
-      "at": [
-        71,
-        -10
-      ],
-      "name": "GND"
-    },
-    {
-      "id": 53,
-      "at": [
-        54,
-        -6
-      ],
-      "name": "Q2"
-    },
-    {
-      "id": 56,
-      "at": [
-        71,
-        -6
-      ],
-      "name": "GND"
-    },
-    {
-      "id": 59,
-      "at": [
-        54,
-        -2
-      ],
-      "name": "Q3"
-    },
-    {
-      "id": 62,
-      "at": [
-        71,
-        -2
-      ],
-      "name": "GND"
-    },
-    {
-      "id": 65,
-      "at": [
-        54,
-        2
-      ],
-      "name": "Q4"
-    },
-    {
-      "id": 68,
-      "at": [
-        71,
-        2
-      ],
-      "name": "GND"
-    },
-    {
-      "id": 71,
-      "at": [
-        54,
-        6
-      ],
-      "name": "Q5"
-    },
-    {
-      "id": 74,
-      "at": [
-        71,
-        6
-      ],
-      "name": "GND"
-    },
-    {
-      "id": 77,
-      "at": [
-        54,
-        10
-      ],
-      "name": "Q6"
-    },
-    {
-      "id": 80,
-      "at": [
-        71,
-        10
-      ],
-      "name": "GND"
-    },
-    {
-      "id": 83,
-      "at": [
-        54,
-        14
-      ],
-      "name": "Q7"
-    },
-    {
-      "id": 86,
-      "at": [
-        71,
-        14
-      ],
-      "name": "GND"
-    }
-  ],
-  "probes": [
-    {
-      "id": 6,
-      "kind": "voltage",
-      "target": {
-        "item": 4,
-        "at": [
-          11,
-          1
-        ]
-      },
-      "color": "#1f77b4"
-    },
-    {
-      "id": 9,
-      "kind": "voltage",
-      "target": {
-        "item": 7,
-        "at": [
-          11,
-          3
-        ]
-      },
-      "color": "#ff7f0e"
-    },
-    {
-      "id": 23,
-      "kind": "voltage",
-      "target": {
-        "item": 21,
-        "at": [
-          48,
-          -8
-        ]
-      },
-      "color": "#2ca02c"
-    },
-    {
-      "id": 26,
-      "kind": "voltage",
-      "target": {
-        "item": 24,
-        "at": [
-          48,
-          -6
-        ]
-      },
-      "color": "#d62728"
-    }
-  ],
-  "notes": [
-    {
-      "id": 87,
-      "at": [
-        -12,
-        -34
-      ],
-      "text": "A 74HC595 shift register drives eight LEDs. The firmware shifts each byte out bit by bit on PA7 (data),\nPA5 (shift clock) and PA4 (latch), the pins of SPI1. MR goes to VDD and OE to GND, and the chip needs\nits supply on VCC and GND. Run (F5): a light runs across the LEDs, then they count in binary.\nAnalyzer > Logic shows the clock and data lanes of the board and the chip's outputs (U2.Q0...)."
     }
   ]
 }

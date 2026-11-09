@@ -1,7 +1,7 @@
 {
   "format": "simnodus-project",
   "version": 1,
-  "next_id": 16,
+  "next_id": 17,
   "settings": {
     "mode": "interactive",
     "speed": 1,
@@ -229,6 +229,16 @@
         ]
       },
       "color": "#2ca02c"
+    }
+  ],
+  "notes": [
+    {
+      "at": [
+        0,
+        12
+      ],
+      "id": 16,
+      "text": "Run (F5) and click SW1: the base current through R1\nturns Q1 on and the LED lights. The scope shows the base\nvoltage and the LED current. A real circuit would add\na pull-down from base to emitter, as the open switch\nleaves the base floating."
     }
   ]
 }
