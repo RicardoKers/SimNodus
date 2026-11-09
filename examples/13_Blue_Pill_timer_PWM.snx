@@ -1,7 +1,7 @@
 {
   "format": "simnodus-project",
   "version": 1,
-  "next_id": 30,
+  "next_id": 31,
   "settings": {
     "mode": "interactive",
     "speed": 1,
@@ -295,6 +295,16 @@
         ]
       },
       "color": "#ff7f0e"
+    }
+  ],
+  "notes": [
+    {
+      "at": [
+        -20,
+        29
+      ],
+      "id": 30,
+      "text": "Timers, registers only: TIM2 makes a 1 kHz, 25 % PWM on PA0\ninto 10 kOhm / 1 uF, so V(RC) settles at 0.825 V; PA0 is\nwired back to PB6, where TIM4 captures the period and the\nLED on PB12 lights when it is 0.9-1.1 ms. TIM3 toggles PC13\nevery 10 ms; TIM1 gives complementary PWM on PA8 / PB13."
     }
   ]
 }

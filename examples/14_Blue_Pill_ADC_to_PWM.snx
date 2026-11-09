@@ -162,8 +162,17 @@
       "name": "RC"
     }
   ],
-  "next_id": 41,
-  "notes": [],
+  "next_id": 42,
+  "notes": [
+    {
+      "at": [
+        -12,
+        36
+      ],
+      "id": 41,
+      "text": "ADC to PWM, registers only: the potentiometer's wiper on PA1\nis converted continuously (ADC1 IN1, interrupt), and its code\nsets the duty of a 1 kHz PWM on PA0 into the LED and the RC\nfilter. Drag RV1 while running: the LED and V(RC) follow and\nAnalyzer > UART shows \"ADC 2048 = 1650 mV\"."
+    }
+  ],
   "probes": [
     {
       "color": "#2ca02c",

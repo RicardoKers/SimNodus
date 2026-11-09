@@ -1,7 +1,7 @@
 {
   "format": "simnodus-project",
   "version": 1,
-  "next_id": 40,
+  "next_id": 41,
   "settings": {
     "mode": "interactive",
     "speed": 1,
@@ -285,6 +285,16 @@
         ]
       },
       "color": "#ff7f0e"
+    }
+  ],
+  "notes": [
+    {
+      "at": [
+        -12,
+        25
+      ],
+      "id": 40,
+      "text": "Lesson 3 (examples/lessons/lesson3_adc_uart.md): the\npotentiometer on PA2 (ADC1 IN2) and a 1 kHz PWM on PA0 into\na 10 kOhm / 1 uF filter read back on PA1 (IN1), with single\nconversions. Analyzer > UART: \"POT 2048 = 1650 mV duty 50.0 %\nRC 1621 mV\"; drag RV1 and watch V(RC) settle."
     }
   ]
 }

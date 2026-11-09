@@ -79,8 +79,17 @@
       "name": "PA0"
     }
   ],
-  "next_id": 14,
-  "notes": [],
+  "next_id": 15,
+  "notes": [
+    {
+      "at": [
+        -12,
+        25
+      ],
+      "id": 14,
+      "text": "USART1 at 115200 baud: Analyzer > UART shows \"tick N\"\nevery second. Type 1 or 0 there to switch the LED on\nPA0; each character is echoed back."
+    }
+  ],
   "probes": [
     {
       "color": "#1f77b4",

@@ -13,7 +13,7 @@ All entries describe actual repository changes, not promised simulator capabilit
 - While running, a click on a part's designator or value text, or Ctrl+click, selects the part (its properties and live values) instead of working its control.
 - A new ESP32-C3 board runs without a firmware: its flash is erased, the ROM reports `invalid header` and waits for an upload from the Arduino IDE or esptool, which the board keeps.
 - The About box names the author.
-- Notes on the diagrams of examples 45 to 49.
+- Notes on the diagrams of examples 1 to 16, 24 and 45 to 49: every example now explains itself on the canvas.
 
 ### Fixed (2026-11-09, SN-280)
 

@@ -135,8 +135,17 @@
       "name": "RC"
     }
   ],
-  "next_id": 23,
-  "notes": [],
+  "next_id": 24,
+  "notes": [
+    {
+      "at": [
+        -12,
+        25
+      ],
+      "id": 23,
+      "text": "Lesson 1 (examples/lessons/lesson1_gpio_output.md):\nan LED on PA0 and a 1 kHz square wave on PA1 into a\n10 kOhm / 100 nF RC filter. The scope shows V(PA1) and\nthe ramps of V(RC), about 0.8 V peak to peak."
+    }
+  ],
   "probes": [
     {
       "color": "#1f77b4",

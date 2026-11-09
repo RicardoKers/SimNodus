@@ -1,7 +1,7 @@
 {
   "format": "simnodus-project",
   "version": 1,
-  "next_id": 13,
+  "next_id": 14,
   "settings": {
     "mode": "interactive",
     "speed": 1,
@@ -190,6 +190,16 @@
         ]
       },
       "color": "#d62728"
+    }
+  ],
+  "notes": [
+    {
+      "at": [
+        0,
+        10
+      ],
+      "id": 13,
+      "text": "Half-wave rectifier: a 5 V, 50 Hz sine through D1 into\nR1, smoothed by C1. Run (F5) and watch the ripple on\nthe scope at 10 ms/div; stop, delete C1 and compare."
     }
   ]
 }

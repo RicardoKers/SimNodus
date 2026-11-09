@@ -79,8 +79,17 @@
       "name": "PA0"
     }
   ],
-  "next_id": 14,
-  "notes": [],
+  "next_id": 15,
+  "notes": [
+    {
+      "at": [
+        -12,
+        25
+      ],
+      "id": 14,
+      "text": "The Blue Pill runs firmware/blink: the PC13 LED blinks\nevery 500 ms, PA0..PA3 count, and the LED on PA0 blinks\nat 2 Hz (about 3.8 mA). Click the board's RESET button\nwhile running to start the firmware again."
+    }
+  ],
   "probes": [
     {
       "color": "#1f77b4",

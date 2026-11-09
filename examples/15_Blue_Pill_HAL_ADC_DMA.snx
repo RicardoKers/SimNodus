@@ -162,8 +162,17 @@
       "name": "RC"
     }
   ],
-  "next_id": 40,
-  "notes": [],
+  "next_id": 41,
+  "notes": [
+    {
+      "at": [
+        -12,
+        36
+      ],
+      "id": 40,
+      "text": "Example 14's circuit with a HAL project at 72 MHz: ADC1 scans\nPA1 and VREFINT into memory by circular DMA, TIM2 makes the\nPWM and USART1 reports by DMA. Analyzer > UART shows\n\"PA1 2048 VREFINT 1489 groups ...\" every 500 ms; drag RV1\nand the LED and V(RC) follow within 0.1 s."
+    }
+  ],
   "probes": [
     {
       "color": "#2ca02c",

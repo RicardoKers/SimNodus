@@ -111,8 +111,17 @@
       "name": "PA1"
     }
   ],
-  "next_id": 20,
-  "notes": [],
+  "next_id": 21,
+  "notes": [
+    {
+      "at": [
+        -12,
+        25
+      ],
+      "id": 20,
+      "text": "Each press of SW1 (PA1 to ground) toggles the LED on\nPA0 from the EXTI1 interrupt, within about 1 ms;\nPC13 lights while the button is held."
+    }
+  ],
   "probes": [
     {
       "color": "#1f77b4",

@@ -79,8 +79,17 @@
       "name": "PA1"
     }
   ],
-  "next_id": 14,
-  "notes": [],
+  "next_id": 15,
+  "notes": [
+    {
+      "at": [
+        -12,
+        25
+      ],
+      "id": 14,
+      "text": "An STM32CubeIDE-style HAL project at 72 MHz (HSE + PLL x9).\nAnalyzer > UART shows SYSCLK 72000000 Hz; PC13 blinks\nevery 500 ms and PA1 pulses for 1 ms (72000 instructions)\nevery 500 ms."
+    }
+  ],
   "probes": [
     {
       "color": "#1f77b4",
