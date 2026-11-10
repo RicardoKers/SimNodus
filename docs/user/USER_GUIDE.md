@@ -11,7 +11,7 @@ Contents: [Installing](#installing) · [The window](#the-window) ·
 [Drawing a circuit](#drawing-a-circuit) · [Components](#components) ·
 [Models](#device-models) · [Buses](#buses-and-splitters) ·
 [Blocks](#blocks) · [Running](#running-a-simulation) ·
-[Signal Analyzer](#signal-analyzer) · [Microcontroller](#microcontroller) ·
+[Chart recorder](#chart-recorder) · [Signal Analyzer](#signal-analyzer) · [Microcontroller](#microcontroller) ·
 [Files](#files-examples-and-lessons) · [Preferences](#preferences) ·
 [Command line](#command-line) · [Troubleshooting](#troubleshooting) ·
 [Known limitations](#known-limitations) ·
@@ -100,7 +100,7 @@ invalid value is outlined in red and not applied.
 | **Passive** | Resistor, capacitor, inductor (ideal); potentiometer; transformer (primary P1-P2, secondary S1-S2) |
 | **Sources** | DC voltage source, battery (with internal resistance), DC current source (out of +), adjustable voltage and current sources (turned while running between a lower and an upper limit), voltage- and current-controlled voltage and current sources (VCVS, VCCS, CCVS, CCCS), pulse generator, sine generator, solar panels of 1 W, 5 W, 10 W and 20 W, lithium-ion and LiFePO4 batteries (with or without protection), ground |
 | **Switches & Controls** | SPST switch, SPDT changeover switch, push buttons NO (closed while pressed) and NC (open while pressed) with optional contact bounce; 4x4 matrix keypad; two-axis joystick module |
-| **Instruments** | Voltmeter (1 GΩ input), ammeter (ideal; current into +) |
+| **Instruments** | Voltmeter (1 GΩ input), ammeter (ideal; current into +), chart recorder (two channels plotted on the schematic over the whole run, see [Chart recorder](#chart-recorder)) |
 | **Semiconductors** | Diode (silicon), Schottky, germanium, Zener, LED (glows with its current, color selectable), NPN and PNP transistors, N- and P-channel MOSFETs (body tied to source) |
 | **Simplified models** | Teaching models: diode with a fixed forward voltage; NPN and PNP with fixed Vbe, a beta shown on the symbol and a saturation voltage |
 | **Integrated circuits** | Op-amp (behavioral or a vendor model, powered by V+ and V-); 78xx regulator (set Vout); 3.3 V low-dropout regulator; LM317 (OUT 1.25 V above ADJ); TL431 shunt reference (2.495 V between REF and A); 555 timer |
@@ -383,8 +383,8 @@ While running:
 - Hover a wire for its voltage. **View > Show Voltages** colors the wires.
 - Select a part to see its live voltages, current and power in Properties
   (values below a picovolt or picoampere show as 0).
-- The **speed box** sets the speed relative to real time (0.001x to 1x, or
-  Maximum). The status bar shows the speed actually reached.
+- The **speed box** sets the speed relative to real time (0.001x to 100x,
+  or Maximum); 10x and 100x suit slow experiments of minutes or hours. The status bar shows the speed actually reached.
 - Changing the circuit asks to stop first. A new value of a part (a
   resistor, a capacitor, a source's voltage) applies at once in an interactive
   run: the simulation goes on from the present state with it, as at a segment
@@ -405,6 +405,48 @@ Edges of switches and generators are resolved to the time step. With a
 microcontroller, **Exact microcontroller edges** gives the circuit a time
 point at every firmware edge, so PWM and other square waves are exact on the
 scope; runs are slower.
+
+## Chart recorder
+
+The **Chart Recorder** (Instruments) is a plot placed on the schematic, for
+slow experiments of seconds to hours, such as a capacitor charging over a few
+minutes, compared with measurements from the bench. It is simpler than the
+Signal Analyzer's scope: no trigger, no divisions, just the whole run from
+its start with axes in seconds, minutes or hours and in volts.
+
+- **Channels:** CH1 shows the voltage of its pin 1+ relative to 1-, CH2 that
+  of 2+ relative to 2-. A channel whose + pin is not connected is off; one
+  whose - pin is not connected is measured relative to ground. Each pin has
+  1 GΩ to ground, like a voltmeter's input.
+- **Size:** select the chart and drag its lower-right corner, or set
+  **Width** and **Height** (grid units). It does not rotate.
+- **Time axis:** **Time window** is the time across the plot. **Time axis**
+  *fixed* shows 0 to the window (the trace stops at the right edge);
+  *rolling* shows the last window. **Time unit** *auto* picks seconds,
+  minutes or hours from the window.
+- **Vertical scale:** *auto* fits the traces and references in view;
+  *manual* goes from **Minimum** to **Maximum**.
+- **Reference data:** in the Properties panel, **Import...** next to *CH1
+  reference* or *CH2 reference* reads a CSV file of bench measurements: choose
+  the time and value columns, the time unit (seconds, milliseconds, minutes,
+  hours), a time offset so the bench's start matches the run's start, and
+  volts or millivolts. Fields may be separated by commas, semicolons, tabs or
+  spaces; with semicolons or tabs a decimal comma is fine (a spreadsheet saved
+  in Portuguese). Lines without numbers (a header) are skipped. The data is
+  kept in the project, so it opens on another computer without the file; it
+  is drawn dashed in the channel's color (with a circle at each point when
+  there are few). **Clear** removes it.
+- **Record:** the chart keeps the whole run in bounded memory: up to 4096
+  steps of time, each with the first, lowest, highest and last value, which
+  merge in pairs when the run grows longer, so an hour costs as much as a
+  minute. It stays after **Stop** and is cleared when the next run starts; it
+  is not saved in the project. **Export CSV...** saves it (one row per step,
+  each channel interpolated at that time) and **Export PNG...** saves the
+  chart as an image.
+- Long experiments run faster than real time with a higher speed
+  (the speed box): example 66 charges a capacitor
+  with τ = 100 s over ten minutes at 10x. Automation sets the chart's
+  properties with `component.set`; the measured nets read with `sim.read`.
 
 ## Signal Analyzer
 

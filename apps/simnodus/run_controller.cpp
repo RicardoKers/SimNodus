@@ -102,6 +102,7 @@ RunController::RunController(Document& document, SchematicScene& scene, QObject*
         engine_ = std::make_unique<EngineProcess>();
         session_ = std::make_unique<sim::RemoteSession>(*engine_, setup);
     }
+    scene_.set_chart_records(&charts_);
     timer_.setInterval(50); // live display at 20 Hz (INT-03)
     connect(&timer_, &QTimer::timeout, this, &RunController::refresh);
 }
@@ -249,6 +250,7 @@ bool RunController::start(QString& error, const sim::RunRequest* base)
         }
     }
     current_probes_ = request.current_probes;
+    build_charts(connectivity);
     std::sort(request.vectors.begin(), request.vectors.end());
     request.vectors.erase(std::unique(request.vectors.begin(), request.vectors.end()), request.vectors.end());
     std::string reason;
@@ -286,6 +288,67 @@ bool RunController::start(QString& error, const sim::RunRequest* base)
     emit started();
     emit state_changed();
     return true;
+}
+
+void RunController::build_charts(const netlist::Connectivity& connectivity)
+{
+    chart_feeds_.clear();
+    charts_.clear();
+    const auto& library = document_.library();
+    // The net of a pin when something else is on it; nullopt for a pin left
+    // unconnected, "" for ground.
+    auto net_of = [&](model::Id component, const std::string& pin) -> std::optional<std::string> {
+        const auto it = connectivity.pin_net.find({component, pin});
+        if (it == connectivity.pin_net.end()) {
+            return std::nullopt;
+        }
+        const auto& net = connectivity.nets[static_cast<std::size_t>(it->second)];
+        if (net.pins.size() < 2 && net.wires.empty() && net.labels.empty()) {
+            return std::nullopt;
+        }
+        return net.ground ? std::string() : lower(net.name);
+    };
+    for (const auto& c : snapshot_.components()) {
+        const auto* d = library.find(c.type);
+        if (!d || !d->chart) {
+            continue;
+        }
+        auto& records = charts_[c.id];
+        records.resize(d->chart->channels.size());
+        for (std::size_t i = 0; i < d->chart->channels.size(); ++i) {
+            const auto& channel = d->chart->channels[i];
+            const auto plus = net_of(c.id, channel.plus);
+            if (!plus || plus->empty()) {
+                continue; // off: + unconnected (or on ground, which reads nothing)
+            }
+            chart_feeds_.push_back({c.id, static_cast<int>(i), *plus, net_of(c.id, channel.minus).value_or("")});
+        }
+    }
+}
+
+bool RunController::chart_channel_on(model::Id chart, int channel) const
+{
+    return std::any_of(chart_feeds_.begin(), chart_feeds_.end(),
+        [&](const ChartFeed& f) { return f.chart == chart && f.channel == channel; });
+}
+
+void RunController::pull_charts()
+{
+    for (const auto& feed : chart_feeds_) {
+        auto& record = charts_[feed.chart][static_cast<std::size_t>(feed.channel)];
+        const double from = record.end_time();
+        // Thinned in the engine to half the record's bucket: the record keeps no more.
+        const double bucket = record.bucket_time() / 2;
+        const auto plus = session_->samples_since(feed.plus, from, bucket);
+        const auto values = feed.minus.empty()
+            ? plus
+            : sim::difference(plus, session_->samples_since(feed.minus, from, bucket));
+        for (const auto& sample : values) {
+            if (record.empty() || sample.time > from) {
+                record.add(sample.time, sample.value);
+            }
+        }
+    }
 }
 
 void RunController::build_channels()
@@ -431,6 +494,9 @@ bool RunController::keep_written_flash()
 void RunController::stop()
 {
     const bool was_active = session_->active();
+    if (was_active) {
+        pull_charts(); // the samples since the last refresh
+    }
     session_->stop();
     if (was_active) {
         keep_written_flash(); // the engine's last update carries the last writes
@@ -465,6 +531,13 @@ bool RunController::apply_live_parameters()
         model::Component c = original;
         const auto* d = library.find(c.type);
         const auto* now = document_.schematic().component(c.id);
+        if (d && d->chart && now && now->parameters != c.parameters) {
+            // A chart's size, axes and references only change what it shows (SN-281).
+            c.parameters = now->parameters;
+            snapshot_.put(c);
+            applied = true;
+            continue;
+        }
         if (!d || (!d->device && !d->mcu) || !now) { // chips, and a board's chip temperature
             continue;
         }
@@ -720,6 +793,7 @@ void RunController::refresh()
         || (status.state == sim::RunState::Finished && mode_ == model::SimulationMode::Transient);
     const auto latest = session_->latest_all();
     live.nets = latest;
+    pull_charts();
     for (const auto& [id, text] : session_->device_texts()) {
         live.texts[id] = QString::fromUtf8(text.data(), static_cast<qsizetype>(text.size()));
     }

@@ -103,13 +103,13 @@ A separate top-level window that can be placed on another monitor.
 | AN-08 | UART terminal: receive/send text for each enabled MCU UART, with time stamps optional | 2 | done |
 | AN-09 | Retained history is bounded and configurable (for example the last 10 s at full resolution); limits are visible to the user | 1 | done |
 | AN-10 | Export selected digital signals (logic lanes and MCU pins chosen by the user, not all of them) to a VCD (Value Change Dump) file for later analysis in tools such as PulseView | later | done (SN-190, 2026-10-18) |
-| AN-11 | Chart recorder on the schematic: a resizable two-channel chart part with adjustable time and value axes that records the whole run from its start (bounded memory), overlays reference data imported from a CSV of bench measurements, and exports its record to CSV and PNG | later | todo (SN-281) |
+| AN-11 | Chart recorder on the schematic: a resizable two-channel chart part with adjustable time and value axes that records the whole run from its start (bounded memory), overlays reference data imported from a CSV of bench measurements, and exports its record to CSV and PNG | later | done (SN-281, 2026-11-10) |
 
 ## 5. Simulation
 
 | ID | Requirement | Phase | Status |
 |---|---|---|---|
-| SIM-01 | **Interactive mode (default):** continuous transient simulation without a fixed end time, paced to real time multiplied by a user speed factor (for example 0.001x to 1x, or maximum speed). If the engine cannot keep up, the achieved factor is shown instead of pretending real time | 1 | done |
+| SIM-01 | **Interactive mode (default):** continuous transient simulation without a fixed end time, paced to real time multiplied by a user speed factor (for example 0.001x to 100x, or maximum speed). If the engine cannot keep up, the achieved factor is shown instead of pretending real time | 1 | done |
 | SIM-02 | Unlimited interactive runs use bounded memory in the engine and in acquisition | 1 | done |
 | SIM-03 | **Transient mode:** a deterministic `.tran` with stop time and maximum step; reproducible results for the same project and versions | 1 | done |
 | SIM-04 | Analog engine: ngspice as a shared library loaded at run time, never during project opening | 1 | done |

@@ -12,6 +12,7 @@
 #include "mcu/mcu_backend.hpp"
 #include "model/schematic.hpp"
 #include "netlist/connectivity.hpp"
+#include "sim/chart_record.hpp"
 #endif
 
 #include <QGraphicsScene>
@@ -101,6 +102,15 @@ public:
     // Net name at a grid point, if a pin, wire or label is there.
     std::optional<std::string> net_name_at(const model::Point& point) const;
 
+    // Chart recorders (SN-281): the records they draw, owned by the run
+    // controller; null for none.
+    using ChartRecords = std::map<model::Id, std::vector<sim::ChartRecord>>;
+    void set_chart_records(const ChartRecords* records);
+    const std::vector<sim::ChartRecord>* chart_records(model::Id chart) const;
+    void refresh_charts();
+    // The selected chart whose resize corner is at a scene point, or no_id.
+    model::Id chart_handle_at(const QPointF& scene_point) const;
+
     void set_live(LiveState live);
     void clear_live();
     bool show_voltages() const { return show_voltages_; }
@@ -133,6 +143,7 @@ private:
     ComponentItem* ghost_ = nullptr;
     WireItem* wire_preview_ = nullptr;
     LiveState live_;
+    const ChartRecords* chart_records_ = nullptr;
     bool show_voltages_ = false;
     model::Schematic preview_copy_;
 };

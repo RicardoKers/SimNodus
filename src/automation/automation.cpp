@@ -351,7 +351,12 @@ std::array<double, 4> symbol_bounds(const library::ComponentDefinition& d)
 // The box in schematic coordinates for a placed component.
 json placed_bounds(const library::ComponentDefinition& d, const model::Component& c)
 {
-    const auto b = symbol_bounds(d);
+    auto b = symbol_bounds(d);
+    if (d.chart) {
+        // A chart recorder's plot, sized by its parameters (SN-281).
+        const auto r = library::chart_rect(*d.chart, d, c.parameters);
+        b = {std::min(b[0], r[0]), std::min(b[1], r[1]), std::max(b[2], r[0] + r[2]), std::max(b[3], r[1] + r[3])};
+    }
     double x0 = std::numeric_limits<double>::max();
     double y0 = x0;
     double x1 = -x0;
@@ -1312,9 +1317,16 @@ json cmd_parts_describe(Context& cx, const json& args)
         if (p.live) {
             entry["live"] = true;
         }
+        if (p.hidden) {
+            entry["hidden"] = true; // not in the Properties panel; component.set still sets it
+        }
         parameters.push_back(entry);
     }
-    const auto b = symbol_bounds(*d);
+    auto b = symbol_bounds(*d);
+    if (d->chart) {
+        const auto r = library::chart_rect(*d->chart, *d, d->default_parameters());
+        b = {std::min(b[0], r[0]), std::min(b[1], r[1]), std::max(b[2], r[0] + r[2]), std::max(b[3], r[1] + r[3])};
+    }
     json out{{"type", d->type}, {"name", d->name}, {"category", d->category}, {"description", d->description},
         {"prefix", d->prefix}, {"pins", pins}, {"parameters", parameters},
         {"bounds", json::array({std::lround(b[0]), std::lround(b[1]), std::lround(b[2]), std::lround(b[3])})}};

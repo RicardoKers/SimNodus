@@ -50,6 +50,8 @@ signals:
     // A block's file (PRJ-06): open it for editing, or read it again into the project.
     void block_open_requested(model::Id component);
     void block_update_requested(model::Id component);
+    // A chart recorder's record to a CSV file (false) or the chart to a PNG image (SN-281).
+    void chart_export_requested(model::Id component, bool png);
 
 private:
     void rebuild();
@@ -57,6 +59,7 @@ private:
     void schedule_rebuild();
     void commit_parameter(const std::string& name, const QString& text);
     void edit_fuses(model::Id id, const std::string& chip); // the Fuses... dialog of an AVR chip
+    void add_chart_rows(const model::Component& component, const library::ComponentDefinition& definition);
     QWidget* file_editor(const library::Parameter& parameter, const QString& value, bool firmware);
     QWidget* model_editor(const library::Parameter& parameter, const model::Component& first, const QString& value);
     void commit_model(const std::string& parameter, const std::string& name, const std::string& statement);

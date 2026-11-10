@@ -11,6 +11,7 @@
 #include "tone_output.hpp"
 #include "model/schematic.hpp"
 #include "netlist/netlist.hpp"
+#include "sim/chart_record.hpp"
 #include "sim/sample_ring.hpp"
 #include "sim/simulation_session.hpp"
 #endif
@@ -134,6 +135,14 @@ public:
     // (SIM-09); used in exports.
     QString mode_description() const;
 
+    // Chart recorders (SN-281): the record of each channel of each chart of the
+    // current or last run (empty for an unconnected channel); kept after the
+    // run ends, cleared when the next one starts.
+    using ChartRecords = std::map<model::Id, std::vector<sim::ChartRecord>>;
+    const ChartRecords& chart_records() const { return charts_; }
+    // Whether a chart's channel was measured in the current or last run.
+    bool chart_channel_on(model::Id chart, int channel) const;
+
     // Live values of the selected components for the Properties panel.
     QString live_text(const std::set<model::Id>& selection) const;
 
@@ -161,6 +170,8 @@ private:
     bool unkept_ = false; // the last run wrote memory that an unsaved project could not keep
     void refresh();
     void build_channels();
+    void build_charts(const netlist::Connectivity& connectivity);
+    void pull_charts(); // new samples of the running engine into charts_
     std::optional<double> net_voltage(const std::string& net) const;
     // A light's current as the eye sees it: averaged over the last 20 ms (SN-204).
     double glow_current(const std::string& vector, double latest, double now) const;
@@ -183,6 +194,14 @@ private:
     std::map<model::Id, bool> switch_states_;           // relay contacts: closed after pull-in
     std::map<model::Id, std::vector<std::string>> light_vectors_; // display segments' currents
     std::vector<std::pair<model::Id, std::string>> device_lanes_; // board, device pin (U2.Q0)
+    struct ChartFeed {
+        model::Id chart = model::no_id;
+        int channel = 0;
+        std::string plus;  // net vector of the + pin
+        std::string minus; // of the - pin; empty: ground
+    };
+    std::vector<ChartFeed> chart_feeds_;
+    ChartRecords charts_;
     sim::RunState last_state_ = sim::RunState::Idle;
     int gdb_port_ = -1;
     bool network_allowed_ = false;

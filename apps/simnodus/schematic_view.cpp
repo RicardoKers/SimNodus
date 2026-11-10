@@ -851,6 +851,20 @@ void SchematicView::mousePressEvent(QMouseEvent* event)
     }
 
     const QPointF scene_point = mapToScene(position);
+    if (const model::Id chart = scene_->chart_handle_at(scene_point)) {
+        // A chart's size is not part of the circuit: it changes while running too.
+        const auto* c = scene_->document().schematic().component(chart);
+        const auto* d = c ? scene_->library().find(c->type) : nullptr;
+        if (d && d->chart) {
+            const auto r = library::chart_rect(*d->chart, *d, c->parameters);
+            resize_chart_ = chart;
+            resize_origin_ = at;
+            resize_start_ = {static_cast<int>(r[2]), static_cast<int>(r[3])};
+            resize_size_ = resize_start_;
+            event->accept();
+            return;
+        }
+    }
     model::Id id = scene_->element_at(scene_point);
     bool on_text = false;
     if (!id) {
@@ -946,6 +960,28 @@ void SchematicView::mouseMoveEvent(QMouseEvent* event)
         return;
     }
     const model::Point at = grid_at(position);
+    if (resize_chart_) {
+        const auto* c = scene_->document().schematic().component(resize_chart_);
+        const auto* d = c ? scene_->library().find(c->type) : nullptr;
+        if (d && d->chart) {
+            const auto& chart = *d->chart;
+            const model::Point delta = at - resize_origin_;
+            const model::Point size{
+                static_cast<int>(std::clamp<double>(resize_start_.x + delta.x, chart.min_width, chart.max_width)),
+                static_cast<int>(std::clamp<double>(resize_start_.y + delta.y, chart.min_height, chart.max_height))};
+            if (!(size == resize_size_)) {
+                resize_size_ = size;
+                model::Schematic preview = scene_->document().schematic();
+                editing::set_parameters(preview, resize_chart_,
+                    {{chart.width_parameter, std::to_string(size.x)}, {chart.height_parameter, std::to_string(size.y)}},
+                    "Resize")
+                    .apply(preview);
+                scene_->sync_from(preview);
+            }
+        }
+        event->accept();
+        return;
+    }
     if (stick_drag_) {
         move_stick(mapToScene(position));
         event->accept();
@@ -1007,6 +1043,11 @@ void SchematicView::mouseMoveEvent(QMouseEvent* event)
         return;
     }
     if (tool_ == Tool::Select) {
+        if (scene_->chart_handle_at(scene_position)) {
+            viewport()->setCursor(Qt::SizeFDiagCursor);
+        } else if (viewport()->cursor().shape() == Qt::SizeFDiagCursor) {
+            update_cursor_shape();
+        }
         show_live_tooltip(position);
     }
     QGraphicsView::mouseMoveEvent(event);
@@ -1024,6 +1065,22 @@ void SchematicView::mouseReleaseEvent(QMouseEvent* event)
         emit control_changed(held_button_, 0.0, held_slot_);
         held_button_ = model::no_id;
         held_slot_ = 0;
+        event->accept();
+        return;
+    }
+    if (resize_chart_) {
+        const model::Id chart = std::exchange(resize_chart_, model::no_id);
+        auto& d = scene_->document();
+        const auto* c = d.schematic().component(chart);
+        const auto* definition = c ? d.library().find(c->type) : nullptr;
+        if (definition && definition->chart && !(resize_size_ == resize_start_)) {
+            d.apply(editing::set_parameters(d.schematic(), chart,
+                {{definition->chart->width_parameter, std::to_string(resize_size_.x)},
+                    {definition->chart->height_parameter, std::to_string(resize_size_.y)}},
+                "Resize"));
+        }
+        scene_->sync();
+        scene_->select_ids({chart});
         event->accept();
         return;
     }

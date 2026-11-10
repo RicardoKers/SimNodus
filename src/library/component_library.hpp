@@ -81,6 +81,9 @@ struct Parameter {
     // Choice: the part's orientation for some values (a block port's side turns
     // the port so that its wire attaches on that side).
     std::map<std::string, model::Orientation> orientations;
+    // Kept in the project and set by automation, but not listed in the
+    // Properties panel (SN-281: a chart's reference data, imported from a CSV).
+    bool hidden = false;
 };
 
 // The bare AVR chips (experiment E-10): .hex or .elf firmware with fuses and
@@ -149,6 +152,28 @@ struct Screen {
     // the pixels are lit in the color of the parameter `color_parameter`.
     bool pixels = false;
     std::string color_parameter;
+};
+
+// A chart recorder (SN-281, AN-11): a plot on the schematic of the voltage of
+// each channel's + pin relative to its - pin over the run. The plot's top-left
+// corner is `at` (symbol coordinates); its size in grid units comes from the
+// parameters `width_parameter` and `height_parameter`, so it can be resized
+// on the canvas. A channel whose + pin is not connected is off; one whose -
+// pin is not connected is measured relative to ground.
+struct Chart {
+    model::PointF at;
+    std::string width_parameter = "width";
+    std::string height_parameter = "height";
+    struct Channel {
+        std::string plus;
+        std::string minus;
+        std::string reference_parameter; // a hidden Text parameter with the reference data (io::encode_series)
+    };
+    std::vector<Channel> channels;
+    double min_width = 16;
+    double min_height = 10;
+    double max_width = 160;
+    double max_height = 100;
 };
 
 // A digital device on a microcontroller's nets (SN-203, ADR 0102): its logic
@@ -336,6 +361,7 @@ struct ComponentDefinition {
     std::optional<McuBoard> mcu;  // unconnected pins of a board are not reported
     std::optional<DigitalDevice> device;
     std::optional<Screen> screen;
+    std::optional<Chart> chart;
     // A buzzer (SN-228): its node readout is the frequency it sounds at (0: silent).
     bool sound = false;
     std::filesystem::path source; // file it was loaded from
@@ -383,6 +409,11 @@ private:
     std::vector<ComponentDefinition> definitions_;
     std::vector<SpiceModel> models_;
 };
+
+// The plot of a chart recorder (SN-281) in symbol coordinates: x, y, width,
+// height, the size from the component's parameters within the chart's limits.
+std::array<double, 4> chart_rect(const Chart& chart, const ComponentDefinition& definition,
+    const std::map<std::string, std::string>& parameters);
 
 // Schematic position of a pin of a placed component.
 model::Point pin_position(const ComponentDefinition& definition, const Pin& pin, const model::Component& component);

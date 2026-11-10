@@ -1412,3 +1412,20 @@ TEST_CASE("library: the A3144 draws about 4 mA at any supply and limits its outp
     CHECK(supply5 - 0.004 < 0.026);
     CHECK(out5 > 4.6);
 }
+
+TEST_CASE("library: a chart recorder with one channel left open in a slow RC charge (SN-281)")
+{
+    REQUIRE(test::engine() != nullptr);
+    test::CircuitBuilder b(components());
+    b.add("vdc", {{"+", "IN"}, {"-", "0"}}, {{"V", "5"}});
+    b.add("resistor", {{"1", "IN"}, {"2", "OUT"}}, {{"R", "100k"}});
+    b.add("capacitor", {{"1", "OUT"}, {"2", "0"}}, {{"C", "1m"}});
+    // CH2's pins stay unconnected: their 1 GOhm to ground keeps the matrix solvable.
+    b.add("chart_recorder", {{"CH1+", "OUT"}, {"CH1-", "0"}});
+    const auto r = simulate(b, ".tran 1 300 0 1 uic", {"time", "out"});
+    const auto& time = r.at("time");
+    const auto& out = r.at("out");
+    REQUIRE(!out.empty() && time.size() == out.size());
+    CHECK(close_to(time.back(), 300.0, 1e-6));
+    CHECK(close_to(out.back(), 5.0 * (1.0 - std::exp(-3.0)), 0.02)); // tau = 100 s
+}

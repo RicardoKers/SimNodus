@@ -4,6 +4,7 @@
 // End-to-end tests of the Circuit Editor and the run controls (SN-112..SN-122),
 // driven through the real main window, offscreen.
 #include "analyzer_window.hpp"
+#include "chart_painter.hpp"
 #include "app_settings.hpp"
 #include "document.hpp"
 #include "logic_widget.hpp"
@@ -820,6 +821,81 @@ private slots:
         QVERIFY2(std::abs(scope->traces()[1].offset - expected) < 1e-9,
             qPrintable(QStringLiteral("offset %1, expected %2").arg(scope->traces()[1].offset).arg(expected)));
         window_->stop();
+    }
+
+    void chart_recorder_is_resized_by_its_corner()
+    {
+        const model::Id chart = place("chart_recorder", {0, 0});
+        window_->scene()->select_ids({chart});
+        // The plot starts at (4, -1) and is 30 x 18 grid units: its corner is at (34, 17).
+        QCOMPARE(window_->scene()->chart_handle_at(to_scene({34, 17})), chart);
+        QCOMPARE(window_->scene()->chart_handle_at(to_scene({20, 8})), model::no_id);
+        QTest::mousePress(view()->viewport(), Qt::LeftButton, {}, at({34, 17}));
+        move_to({44, 22}, Qt::LeftButton);
+        QTest::mouseRelease(view()->viewport(), Qt::LeftButton, {}, at({44, 22}));
+        const auto* c = doc().schematic().component(chart);
+        QCOMPARE(c->parameters.at("width"), std::string("40"));
+        QCOMPARE(c->parameters.at("height"), std::string("23"));
+        QCOMPARE(c->position, (model::Point{0, 0})); // resized, not moved
+        doc().undo_stack()->undo(); // one step
+        QVERIFY(!doc().schematic().component(chart)->parameters.count("width")
+            || doc().schematic().component(chart)->parameters.at("width") == "30");
+    }
+
+    void chart_recorder_records_a_transient_run()
+    {
+        if (!engine_available()) {
+            QSKIP("No ngspice library configured for this build.");
+        }
+        const model::Id v = place("vdc", {0, 0});
+        label(v, "+", "IN");
+        label(v, "-", "0");
+        const model::Id r = place("resistor", {20, 0});
+        label(r, "1", "IN");
+        label(r, "2", "OUT");
+        const model::Id c = place("capacitor", {40, 0});
+        doc().apply(editing::set_parameter(doc().schematic(), c, "C", "1m"));
+        label(c, "1", "OUT");
+        label(c, "2", "0");
+        const model::Id chart = place("chart_recorder", {60, 0});
+        label(chart, "CH1+", "OUT");
+        label(chart, "CH1-", "0");
+        doc().apply(editing::set_parameters(doc().schematic(), chart,
+            {{"time_window", "5"}, {"ch1_reference", "0 0;1 3.0;2 4.2;3 4.7;4 4.85;5 4.95"}}, "Set"));
+        auto settings = doc().schematic().settings();
+        settings.mode = model::SimulationMode::Transient;
+        settings.transient_stop = 5.0;
+        settings.transient_max_step = 1e-2;
+        doc().apply(editing::set_settings(doc().schematic(), settings));
+        window_->run();
+        QTRY_COMPARE_WITH_TIMEOUT(window_->run_controller()->state(), sim::RunState::Finished, 20000);
+        // The last refresh after the end pulls the rest of the record.
+        QTRY_VERIFY_WITH_TIMEOUT(window_->run_controller()->chart_records().at(chart)[0].end_time() > 4.9, 5000);
+        const auto& records = window_->run_controller()->chart_records().at(chart);
+        QCOMPARE(records.size(), std::size_t{2});
+        QVERIFY(window_->run_controller()->chart_channel_on(chart, 0));
+        QVERIFY(!window_->run_controller()->chart_channel_on(chart, 1)); // CH2 left open
+        QVERIFY(records[1].empty());
+        QVERIFY(std::abs(records[0].latest()->value - 5.0 * (1 - std::exp(-5.0))) < 0.05); // tau = 1 s
+        QVERIFY(records[0].buckets().size() > 50);
+        // The record stays after the run for the chart and its export.
+        window_->stop();
+        QVERIFY(!window_->run_controller()->chart_records().at(chart)[0].empty());
+        const auto* part = doc().schematic().component(chart);
+        const QImage image = render_chart(*window_->library().find("chart_recorder"), *part, &records);
+        QCOMPARE(image.size(), QSize(600, 360)); // 30 x 18 grid units at twice 100 %
+        if (const QString out = qEnvironmentVariable("SIMNODUS_CHART_PNG"); !out.isEmpty()) {
+            image.save(out); // for a look at the chart and at the schematic
+            const QRectF area = window_->scene()->itemsBoundingRect().adjusted(-10, -10, 10, 10);
+            QImage scene_image((area.size() * 1.5).toSize(), QImage::Format_ARGB32_Premultiplied);
+            scene_image.fill(Qt::white);
+            QPainter painter(&scene_image);
+            window_->scene()->render(&painter, QRectF(), area);
+            painter.end();
+            scene_image.save(QString(out).replace(QStringLiteral(".png"), QStringLiteral("-scene.png")));
+        }
+        const std::string csv = sim::chart_csv(records, {"CH1 (V)", "CH2 (V)"});
+        QVERIFY(csv.rfind("time (s),CH1 (V),CH2 (V)\n", 0) == 0);
     }
 
     void transient_run_opens_the_record_in_the_analyzer()

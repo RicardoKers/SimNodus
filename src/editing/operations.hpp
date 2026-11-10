@@ -73,6 +73,9 @@ Edit rotate_items(const model::Schematic& schematic, const library::ComponentLib
 Edit mirror_items(const model::Schematic& schematic, const library::ComponentLibrary& library, const std::set<Id>& ids);
 
 Edit set_parameter(const model::Schematic& schematic, Id component, const std::string& name, const std::string& value);
+// Several parameters in one step ("Resize" a chart's width and height, SN-281).
+Edit set_parameters(const model::Schematic& schematic, Id component, const std::map<std::string, std::string>& values,
+    const std::string& description);
 // Chooses a SPICE model (PRJ-07): `statement` is the `.model` text of a model
 // that is not built in, kept in the component; empty for a built-in model.
 Edit set_model(const model::Schematic& schematic, Id component, const std::string& parameter, const std::string& name,

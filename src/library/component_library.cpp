@@ -292,6 +292,7 @@ ComponentDefinition parse_definition(const json& j)
             parameter.live = p.value("live", false);
             parameter.serial_port = p.value("serial_port", false);
             parameter.host_link = p.value("host_link", false);
+            parameter.hidden = p.value("hidden", false);
             parameter.default_value = text(p, "default", true);
             parameter.description = text(p, "description");
             parameter.choices = strings(p, "choices");
@@ -686,6 +687,46 @@ ComponentDefinition parse_definition(const json& j)
         }
         d.screen = screen;
     }
+    if (j.contains("chart") && !j["chart"].is_null()) {
+        const auto& s = j["chart"];
+        Chart chart;
+        const auto at = numbers(s["at"], 2, "chart.at");
+        chart.at = {at[0], at[1]};
+        if (s.contains("width_parameter")) {
+            chart.width_parameter = text(s, "width_parameter", true);
+        }
+        if (s.contains("height_parameter")) {
+            chart.height_parameter = text(s, "height_parameter", true);
+        }
+        if (s.contains("limits")) {
+            const auto l = numbers(s["limits"], 4, "chart.limits");
+            chart.min_width = l[0];
+            chart.min_height = l[1];
+            chart.max_width = l[2];
+            chart.max_height = l[3];
+        }
+        if (!s.contains("channels") || !s["channels"].is_array() || s["channels"].empty()) {
+            invalid("chart needs a list of channels");
+        }
+        for (const auto& c : s["channels"]) {
+            Chart::Channel channel;
+            channel.plus = text(c, "plus", true);
+            channel.minus = text(c, "minus", true);
+            channel.reference_parameter = text(c, "reference_parameter");
+            if (!d.pin(channel.plus) || !d.pin(channel.minus)) {
+                invalid("chart channel pins must be pins of the part");
+            }
+            if (!channel.reference_parameter.empty() && !d.parameter(channel.reference_parameter)) {
+                invalid("chart reference_parameter must be a parameter of the part");
+            }
+            chart.channels.push_back(channel);
+        }
+        if (!d.parameter(chart.width_parameter) || !d.parameter(chart.height_parameter) || chart.min_width <= 0
+            || chart.min_height <= 0 || chart.max_width < chart.min_width || chart.max_height < chart.min_height) {
+            invalid("chart needs its width and height parameters and positive limits");
+        }
+        d.chart = chart;
+    }
     if (j.contains("device") && !j["device"].is_null()) {
         const auto& m = j["device"];
         DigitalDevice device;
@@ -1001,6 +1042,20 @@ std::vector<std::string> ComponentLibrary::categories() const
     }
     result.insert(result.end(), others.begin(), others.end());
     return result;
+}
+
+std::array<double, 4> chart_rect(const Chart& chart, const ComponentDefinition& definition,
+    const std::map<std::string, std::string>& parameters)
+{
+    auto size = [&](const std::string& name, double low, double high) {
+        const auto* p = definition.parameter(name);
+        const auto it = parameters.find(name);
+        const std::string value = it != parameters.end() ? it->second : p ? p->default_value : std::string();
+        const auto v = model::parse_engineering(value, "");
+        return std::clamp(std::round(v.value_or(low)), low, high);
+    };
+    return {chart.at.x, chart.at.y, size(chart.width_parameter, chart.min_width, chart.max_width),
+        size(chart.height_parameter, chart.min_height, chart.max_height)};
 }
 
 model::Point pin_position(const ComponentDefinition&, const Pin& pin, const model::Component& component)

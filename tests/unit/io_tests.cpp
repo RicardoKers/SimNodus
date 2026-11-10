@@ -6,7 +6,9 @@
 #include "editing/project_files.hpp"
 #include "io/memory_file.hpp"
 #include "io/project_file.hpp"
+#include "io/reference_csv.hpp"
 
+#include <cmath>
 #include <filesystem>
 #include <fstream>
 #include <sstream>
@@ -317,4 +319,52 @@ TEST_CASE("saving with files copies firmware and contents next to the project")
     CHECK(moved.component(u2)->parameters.at("firmware") == s.component(u2)->parameters.at("firmware"));
     CHECK(editing::rebase_project_files(s, lib, dir / "work", dir / "work") == s);
     std::filesystem::remove_all(dir);
+}
+
+TEST_CASE("reference CSV with a header, semicolons and decimal commas")
+{
+    std::string error;
+    const auto table = io::parse_csv("\xEF\xBB\xBFtempo;tensao;outra\n0;0,00;9\n30;1,58;9\n\n60;2,52;9\n", error);
+    REQUIRE(table.has_value());
+    CHECK(table->separator == ';');
+    CHECK(table->columns == 3);
+    CHECK(table->rows.size() == 3);
+    REQUIRE(table->header.size() == 3);
+    CHECK(table->header[1] == "tensao");
+    io::ReferenceOptions options;
+    options.time_scale = 60.0; // minutes
+    options.time_offset = 1.0;
+    const auto series = io::reference_series(*table, options);
+    REQUIRE(series.size() == 3);
+    CHECK(series[1].first == 1801.0);
+    CHECK(std::abs(series[1].second - 1.58) < 1e-12);
+    // The text kept in the project reads back.
+    const auto back = io::decode_series(io::encode_series(series));
+    REQUIRE(back.size() == 3);
+    CHECK(back[2].first == 3601.0);
+    CHECK(std::abs(back[2].second - 2.52) < 1e-9);
+    CHECK(io::decode_series("").empty());
+    CHECK(io::decode_series("1 2;bad;3 x;4 5").size() == 2);
+}
+
+TEST_CASE("reference CSV with commas, spaces, unsorted rows and thinning")
+{
+    std::string error;
+    auto table = io::parse_csv("# bench\nt,v\n2,0.2\n1,0.1\n3,abc\n", error);
+    REQUIRE(table.has_value());
+    CHECK(table->separator == ',');
+    const auto series = io::reference_series(*table, {});
+    REQUIRE(series.size() == 2); // the row without a value is left out
+    CHECK(series[0].first == 1.0);
+    table = io::parse_csv("0 1\n1 2\n2 3\n3 4\n4 5\n", error);
+    REQUIRE(table.has_value());
+    CHECK(table->separator == ' ');
+    io::ReferenceOptions few;
+    few.max_points = 2;
+    const auto thinned = io::reference_series(*table, few);
+    CHECK(thinned.size() == 3);
+    CHECK(thinned.back().first == 4.0);
+    CHECK(!io::parse_csv("time\nvalue\n", error).has_value());
+    CHECK(!error.empty());
+    CHECK(!io::parse_csv("1\n2\n", error).has_value());
 }

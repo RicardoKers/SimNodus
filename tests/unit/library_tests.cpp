@@ -556,3 +556,31 @@ TEST_CASE("decoders have the real parts' pins; displays have theirs on top and b
         CHECK((pin.direction == library::PinDirection::Up || pin.direction == library::PinDirection::Down));
     }
 }
+
+TEST_CASE("the chart recorder has two channels and a plot sized by its parameters")
+{
+    ComponentLibrary library;
+    library.load_directory(SIMNODUS_TEST_LIBRARY_DIR);
+    const auto* chart = library.find("chart_recorder");
+    REQUIRE(chart != nullptr);
+    REQUIRE(chart->chart.has_value());
+    CHECK(chart->chart->channels.size() == 2);
+    CHECK(chart->chart->channels[1].plus == "CH2+");
+    CHECK(chart->parameter("ch1_reference")->hidden);
+    CHECK(!chart->parameter("width")->hidden);
+    auto r = library::chart_rect(*chart->chart, *chart, chart->default_parameters());
+    CHECK(r[2] == 30.0);
+    CHECK(r[3] == 18.0);
+    r = library::chart_rect(*chart->chart, *chart, {{"width", "500"}, {"height", "3"}});
+    CHECK(r[2] == 160.0); // within the chart's limits
+    CHECK(r[3] == 10.0);
+    for (const auto& pin : chart->pins) {
+        CHECK(pin.optional);
+    }
+    // A chart needs its size parameters and pins of the part.
+    ComponentLibrary other;
+    const std::string chart_json = "\"prefix\": \"T\", \"chart\": {\"at\": [0, 0], \"channels\": [{\"plus\": \"1\", \"minus\": \"2\"}]},";
+    const auto problem = other.add_from_json(with("\"prefix\": \"T\",", chart_json));
+    REQUIRE(problem.has_value());
+    CHECK(problem->find("width") != std::string::npos);
+}

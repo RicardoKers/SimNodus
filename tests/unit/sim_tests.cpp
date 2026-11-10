@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: MIT
 #include "test_support.hpp"
 
+#include "sim/chart_record.hpp"
 #include "sim/measurements.hpp"
 #include "sim/ngspice_runtime.hpp"
 #include "sim/process_memory.hpp"
@@ -234,4 +235,59 @@ TEST_CASE("thinning keeps peaks, edges and the time order")
     const auto edges = ring.transitions(0.0, 2.5, initial);
     CHECK(!initial);
     CHECK(edges.size() == 199 + 2); // 199 square-wave edges; the spike rises from 0 V and falls back
+}
+
+TEST_CASE("chart record keeps the whole run in its buckets")
+{
+    ChartRecord record(8, 1.0);
+    CHECK(record.empty());
+    for (int i = 0; i < 8; ++i) {
+        record.add(i + 0.25, i);
+        record.add(i + 0.75, -i);
+    }
+    REQUIRE(record.buckets().size() == 8);
+    CHECK(record.buckets()[3].first == 3.0);
+    CHECK(record.buckets()[3].last == -3.0);
+    CHECK(record.buckets()[3].low == -3.0);
+    CHECK(record.buckets()[3].high == 3.0);
+    // Beyond the eight buckets: they merge in pairs and the bucket time doubles.
+    record.add(8.5, 100.0);
+    CHECK(record.bucket_time() == 2.0);
+    REQUIRE(record.buckets().size() == 5);
+    CHECK(record.buckets()[0].first == 0.0);
+    CHECK(record.buckets()[0].last == -1.0);
+    CHECK(record.buckets()[0].high == 1.0);
+    CHECK(record.buckets()[4].last == 100.0);
+    CHECK(record.latest()->value == 100.0);
+    CHECK(record.end_time() == 8.5);
+    // An older sample is ignored; an hour later still fits in the capacity.
+    record.add(1.0, 50.0);
+    CHECK(record.latest()->value == 100.0);
+    record.add(3600.0, 7.0);
+    CHECK(record.buckets().size() <= record.capacity());
+    CHECK(record.buckets().back().last == 7.0);
+    CHECK(record.buckets().front().first == 0.0);
+}
+
+TEST_CASE("chart difference interpolates the minus series")
+{
+    const std::vector<Sample> plus{{0.0, 5.0}, {1.0, 5.0}, {2.0, 5.0}, {3.0, 5.0}};
+    const std::vector<Sample> minus{{0.5, 1.0}, {2.5, 3.0}};
+    const auto d = difference(plus, minus);
+    REQUIRE(d.size() == 4);
+    CHECK(d[0].value == 4.0); // held before the first sample
+    CHECK(std::abs(d[1].value - 3.5) < 1e-12);
+    CHECK(std::abs(d[2].value - 2.5) < 1e-12);
+    CHECK(d[3].value == 2.0); // held after the last
+    CHECK(difference(plus, {}).size() == 4);
+}
+
+TEST_CASE("chart CSV has one row per time and empty cells outside a record")
+{
+    std::vector<ChartRecord> records(2, ChartRecord(16, 1.0));
+    records[0].add(0.5, 1.0);
+    records[0].add(2.5, 3.0);
+    records[1].add(1.5, 10.0);
+    const auto csv = chart_csv(records, {"CH1 (V)", "CH2 (V)"});
+    CHECK(csv == "time (s),CH1 (V),CH2 (V)\n0.5,1,\n1.5,2,10\n2.5,3,\n");
 }

@@ -1,0 +1,53 @@
+{
+  "type": "chart_recorder",
+  "name": "Chart Recorder",
+  "category": "Instruments",
+  "prefix": "CR",
+  "description": "Plots the voltage of two channels over the whole run on the schematic; reference data from a CSV of bench measurements can be drawn over it",
+  "symbol": {
+    "graphics": [
+      { "rect": [1, -1, 3, 10] },
+      { "line": [0, 0, 1, 0] },
+      { "line": [0, 2, 1, 2] },
+      { "line": [0, 5, 1, 5] },
+      { "line": [0, 7, 1, 7] },
+      { "text": "1+", "at": [2.5, 0], "size": 0.9 },
+      { "text": "1-", "at": [2.5, 2], "size": 0.9 },
+      { "text": "2+", "at": [2.5, 5], "size": 0.9 },
+      { "text": "2-", "at": [2.5, 7], "size": 0.9 }
+    ],
+    "pins": [
+      { "name": "CH1+", "at": [0, 0], "dir": "left", "optional": true },
+      { "name": "CH1-", "at": [0, 2], "dir": "left", "optional": true },
+      { "name": "CH2+", "at": [0, 5], "dir": "left", "optional": true },
+      { "name": "CH2-", "at": [0, 7], "dir": "left", "optional": true }
+    ]
+  },
+  "designator_offset": [4, -2],
+  "parameters": [
+    { "name": "width", "label": "Width", "default": "30", "min": "16", "max": "160", "description": "Width of the plot in grid units (also set by dragging its corner)" },
+    { "name": "height", "label": "Height", "default": "18", "min": "10", "max": "100", "description": "Height of the plot in grid units (also set by dragging its corner)" },
+    { "name": "time_window", "label": "Time window", "unit": "s", "default": "60", "min": "0.001", "max": "360000", "description": "Time shown across the plot" },
+    { "name": "time_mode", "label": "Time axis", "default": "fixed", "choices": ["fixed", "rolling"], "description": "fixed: from the start of the run to the time window; rolling: the last time window" },
+    { "name": "time_unit", "label": "Time unit", "default": "auto", "choices": ["auto", "s", "min", "h"], "description": "Unit of the time axis" },
+    { "name": "vertical", "label": "Vertical scale", "default": "auto", "choices": ["auto", "manual"], "description": "auto: fits the traces and references shown; manual: from Minimum to Maximum" },
+    { "name": "v_min", "label": "Minimum", "unit": "V", "default": "0", "description": "Bottom of the vertical axis (manual scale)" },
+    { "name": "v_max", "label": "Maximum", "unit": "V", "default": "5", "description": "Top of the vertical axis (manual scale)" },
+    { "name": "ch1_reference", "label": "CH1 reference", "kind": "text", "default": "", "hidden": true, "description": "Reference data of channel 1: \"time value\" pairs in seconds and volts, separated by ';' (imported from a CSV)" },
+    { "name": "ch2_reference", "label": "CH2 reference", "kind": "text", "default": "", "hidden": true, "description": "Reference data of channel 2: \"time value\" pairs in seconds and volts, separated by ';' (imported from a CSV)" }
+  ],
+  "chart": {
+    "at": [4, -1],
+    "limits": [16, 10, 160, 100],
+    "channels": [
+      { "plus": "CH1+", "minus": "CH1-", "reference_parameter": "ch1_reference" },
+      { "plus": "CH2+", "minus": "CH2-", "reference_parameter": "ch2_reference" }
+    ]
+  },
+  "spice": [
+    "R_{ref}_1p {node:CH1+} 0 1e9",
+    "R_{ref}_1m {node:CH1-} 0 1e9",
+    "R_{ref}_2p {node:CH2+} 0 1e9",
+    "R_{ref}_2m {node:CH2-} 0 1e9"
+  ]
+}

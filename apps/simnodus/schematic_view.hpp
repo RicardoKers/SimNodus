@@ -162,6 +162,11 @@ private:
     // Dragging a lone wire moves the segment under the mouse (UI: a wire's
     // segment is placed without moving the rest of it).
     model::Id segment_wire_ = model::no_id;
+    // A chart recorder resized by its corner (SN-281): its size at the press, grid units.
+    model::Id resize_chart_ = model::no_id;
+    model::Point resize_origin_;
+    model::Point resize_start_;
+    model::Point resize_size_;
     std::size_t segment_index_ = 0;
 
     // Place tool.

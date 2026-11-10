@@ -1,4 +1,4 @@
-<!-- source: USER_GUIDE.md sha256 52e46c0be76581e1aa0b56779d50390d224d832d2b10c013478d826f73a5d88e -->
+<!-- source: USER_GUIDE.md sha256 2b7b36f6878fe7923dd6f84e896ec4d327449ead12246abb5813985779cb0588 -->
 # Guia do usuário do SimNodus
 
 O SimNodus é um simulador para sala de aula: você desenha um circuito, aperta
@@ -14,7 +14,7 @@ Conteúdo: [Instalação](#instalação) · [A janela](#a-janela) ·
 [Desenhando um circuito](#desenhando-um-circuito) · [Componentes](#componentes) ·
 [Modelos](#modelos-de-dispositivos) · [Barramentos](#barramentos-e-distribuidores) ·
 [Blocos](#blocos) · [Execução](#executando-uma-simulação) ·
-[Analisador de sinais](#analisador-de-sinais) · [Microcontrolador](#microcontrolador) ·
+[Registrador gráfico](#registrador-gráfico) · [Analisador de sinais](#analisador-de-sinais) · [Microcontrolador](#microcontrolador) ·
 [Arquivos](#arquivos-exemplos-e-aulas) · [Preferências](#preferências) ·
 [Linha de comando](#linha-de-comando) · [Solução de problemas](#solução-de-problemas) ·
 [Limitações conhecidas](#limitações-conhecidas) ·
@@ -104,7 +104,7 @@ aplicar. Um valor inválido fica contornado em vermelho e não é aplicado.
 | **Passivos** | Resistor, capacitor, indutor (ideais); potenciômetro; transformador (primário P1-P2, secundário S1-S2) |
 | **Fontes** | Fonte de tensão CC, bateria (com resistência interna), fonte de corrente CC (saindo pelo +), fontes de tensão e de corrente ajustáveis (giradas durante a execução entre um limite inferior e um superior), fontes de tensão e de corrente controladas por tensão e por corrente (VCVS, VCCS, CCVS, CCCS), gerador de pulsos, gerador senoidal, painéis solares de 1 W, 5 W, 10 W e 20 W, baterias de íon-lítio e LiFePO4 (com ou sem proteção), terra |
 | **Chaves e controles** | Chave SPST, chave reversível SPDT, botões NA (fechado enquanto pressionado) e NF (aberto enquanto pressionado) com repique dos contatos opcional; teclado matricial 4x4; módulo joystick de dois eixos |
-| **Instrumentos** | Voltímetro (entrada de 1 GΩ), amperímetro (ideal; corrente entrando pelo +) |
+| **Instrumentos** | Voltímetro (entrada de 1 GΩ), amperímetro (ideal; corrente entrando pelo +), registrador gráfico (dois canais traçados no esquemático durante toda a execução, veja [Registrador gráfico](#registrador-gráfico)) |
 | **Semicondutores** | Diodo (silício), Schottky, germânio, Zener, LED (acende conforme a corrente, cor selecionável), transistores NPN e PNP, MOSFETs canal N e canal P (corpo ligado à fonte) |
 | **Modelos simplificados** | Modelos didáticos: diodo com tensão direta fixa; NPN e PNP com Vbe fixo, um beta mostrado no símbolo e uma tensão de saturação |
 | **Circuitos integrados** | Amplificador operacional (comportamental ou modelo de fabricante, alimentado por V+ e V-); regulador 78xx (ajuste Vout); regulador de 3,3 V de baixo dropout; LM317 (OUT 1,25 V acima de ADJ); referência shunt TL431 (2,495 V entre REF e A); temporizador 555 |
@@ -412,7 +412,8 @@ Durante a execução:
   vivo em Propriedades (valores abaixo de um picovolt ou um picoampère
   aparecem como 0).
 - A **caixa de velocidade** define a velocidade em relação ao tempo real
-  (0,001x a 1x, ou Máxima). A barra de status mostra a velocidade
+  (0,001x a 100x, ou Máxima); 10x e 100x servem a experimentos lentos, de
+  minutos ou horas. A barra de status mostra a velocidade
   efetivamente alcançada.
 - Alterar o circuito pede para parar antes. Um novo valor de uma peça (um
   resistor, um capacitor, a tensão de uma fonte) vale na hora numa execução
@@ -435,6 +436,51 @@ As bordas de chaves e geradores são resolvidas no passo de tempo. Com um
 microcontrolador, **Bordas exatas do microcontrolador** dá ao circuito um
 ponto de tempo em cada borda do firmware, para que PWM e outras ondas
 quadradas fiquem exatas no osciloscópio; as execuções ficam mais lentas.
+
+## Registrador gráfico
+
+O **Registrador gráfico** (Instrumentos) é um gráfico colocado no
+esquemático, para experimentos lentos, de segundos a horas, como a carga de
+um capacitor ao longo de alguns minutos, comparados com medições de
+bancada. É mais simples que o osciloscópio do Analisador de sinais: sem
+disparo e sem divisões, apenas a execução inteira desde o início, com eixos
+em segundos, minutos ou horas e em volts.
+
+- **Canais:** o CH1 mostra a tensão do pino 1+ em relação ao 1-, o CH2 a do
+  2+ em relação ao 2-. Um canal cujo pino + não está ligado fica desligado;
+  um cujo pino - não está ligado é medido em relação ao terra. Cada pino tem
+  1 GΩ para o terra, como a entrada de um voltímetro.
+- **Tamanho:** selecione o gráfico e arraste o canto inferior direito, ou
+  ajuste **Largura** e **Altura** (unidades da grade). Ele não gira.
+- **Eixo do tempo:** **Janela de tempo** é o tempo na largura do gráfico.
+  **Eixo do tempo** *fixo* mostra de 0 até a janela (o traço para na borda
+  direita); *rolante* mostra a última janela. **Unidade de tempo**
+  *automática* escolhe segundos, minutos ou horas pela janela.
+- **Escala vertical:** *automática* ajusta-se aos traços e referências
+  visíveis; *manual* vai de **Mínimo** a **Máximo**.
+- **Dados de referência:** no painel Propriedades, **Importar...** ao lado de
+  *Referência do CH1* ou *Referência do CH2* lê um arquivo CSV de medições de
+  bancada: escolha as colunas do tempo e do valor, a unidade de tempo
+  (segundos, milissegundos, minutos, horas), um deslocamento do tempo para
+  que o início da bancada coincida com o início da execução, e volts ou
+  milivolts. Os campos podem ser separados por vírgulas, ponto e vírgula,
+  tabulações ou espaços; com ponto e vírgula ou tabulação a vírgula decimal
+  funciona (uma planilha salva em português). Linhas sem números (um
+  cabeçalho) são ignoradas. Os dados ficam guardados no projeto, que abre em
+  outro computador sem o arquivo; aparecem tracejados na cor do canal (com um
+  círculo em cada ponto quando são poucos). **Limpar** os remove.
+- **Registro:** o gráfico guarda a execução inteira com memória limitada:
+  até 4096 passos de tempo, cada um com o primeiro, o menor, o maior e o
+  último valor, que se juntam aos pares quando a execução cresce, de modo
+  que uma hora custa o mesmo que um minuto. Ele continua após **Parar** e é
+  apagado quando a próxima execução começa; não é salvo no projeto.
+  **Exportar CSV...** o salva (uma linha por passo, cada canal interpolado
+  naquele tempo) e **Exportar PNG...** salva o gráfico como imagem.
+- Experimentos longos rodam mais rápido que o tempo real com uma velocidade
+  maior (a caixa de velocidade): o exemplo 66
+  carrega um capacitor com τ = 100 s em dez minutos a 10x. A automação ajusta
+  as propriedades do gráfico com `component.set`; as redes medidas são lidas
+  com `sim.read`.
 
 ## Analisador de sinais
 

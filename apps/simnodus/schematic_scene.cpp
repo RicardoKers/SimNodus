@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: MIT
 #include "schematic_scene.hpp"
 
+#include "chart_painter.hpp"
 #include "document.hpp"
 #include "symbol_painter.hpp"
 #include "theme.hpp"
@@ -221,14 +222,45 @@ public:
         QTransform t;
         t.rotate(component_.orientation.rotation);
         t.scale(component_.orientation.mirrored ? -1 : 1, 1);
-        const QRectF b = symbol_bounds(*definition_);
+        QRectF b = symbol_bounds(*definition_);
+        if (definition_->chart) {
+            const auto r = library::chart_rect(*definition_->chart, *definition_, component_.parameters);
+            b = b.united(QRectF(r[0], r[1], r[2], r[3]));
+        }
         const QRectF scaled(b.x() * scene_grid, b.y() * scene_grid, b.width() * scene_grid, b.height() * scene_grid);
         return t.mapRect(scaled);
+    }
+
+    // A chart recorder's plot (SN-281), in item coordinates; null for other parts.
+    QRectF chart_box() const
+    {
+        if (!definition_ || !definition_->chart) {
+            return {};
+        }
+        const auto r = library::chart_rect(*definition_->chart, *definition_, component_.parameters);
+        QTransform t;
+        t.rotate(component_.orientation.rotation);
+        t.scale(component_.orientation.mirrored ? -1 : 1, 1);
+        return t.mapRect(QRectF(r[0] * scene_grid, r[1] * scene_grid, r[2] * scene_grid, r[3] * scene_grid));
+    }
+
+    // The corner a selected chart is resized by, in item coordinates.
+    QRectF chart_handle() const
+    {
+        const QRectF box = chart_box();
+        if (box.isNull()) {
+            return {};
+        }
+        constexpr double size = 7.0;
+        return QRectF(box.right() - size / 2, box.bottom() - size / 2, size, size);
     }
 
     QRectF boundingRect() const override
     {
         QRectF r = symbol_rect();
+        if (const QRectF handle = chart_handle(); !handle.isNull()) {
+            r = r.united(handle);
+        }
         if (definition_ && definition_->readout && definition_->readout->glows()) {
             // The halo of a lit LED or lamp reaches beyond the symbol: without it here,
             // the scene neither repaints nor clears that part (a cut-off, stale glow).
@@ -498,6 +530,15 @@ public:
             paint_screen(*painter, live);
         }
         painter->restore();
+        if (definition_->chart) {
+            if (ghost_) {
+                painter->setPen(QPen(ink, line_width, Qt::DashLine));
+                painter->setBrush(Qt::NoBrush);
+                painter->drawRect(chart_box());
+            } else {
+                paint_chart_box(*painter);
+            }
+        }
         if (ghost_) {
             return;
         }
@@ -529,6 +570,37 @@ public:
     }
 
 private:
+    // The plot of a chart recorder (SN-281) with its records and references.
+    void paint_chart_box(QPainter& painter) const
+    {
+        const auto& chart = *definition_->chart;
+        ChartInput input;
+        input.definition = definition_;
+        input.parameters = &component_.parameters;
+        input.records = scene_.chart_records(component_.id);
+        input.selected = isSelected();
+        references_.resize(chart.channels.size());
+        for (std::size_t i = 0; i < chart.channels.size(); ++i) {
+            input.colors.push_back(probe_color(static_cast<int>(i)));
+            const auto& name = chart.channels[i].reference_parameter;
+            const auto it = component_.parameters.find(name);
+            const std::string text = name.empty() || it == component_.parameters.end() ? std::string() : it->second;
+            auto& cached = references_[i];
+            if (cached.first != text) {
+                cached = {text, io::decode_series(text)};
+            }
+            input.references.push_back(&cached.second);
+        }
+        paint_chart(painter, chart_box(), input);
+        if (isSelected()) {
+            painter.setPen(QPen(theme::selection, 1.0));
+            painter.setBrush(theme::plot_background);
+            painter.drawRect(chart_handle());
+        }
+    }
+    // Decoded reference data per channel, with the text it came from.
+    mutable std::vector<std::pair<std::string, io::Series>> references_;
+
     // A character display (SN-206): the glass, and while running the text of
     // its chip in a grid of the part's rows and columns, in symbol coordinates.
     void paint_screen(QPainter& painter, const LiveState& live) const
@@ -1438,6 +1510,39 @@ void SchematicScene::set_live(LiveState live)
     }
     if (show_voltages_) {
         for (auto& [id, item] : wires_) {
+            item->update();
+        }
+    }
+}
+
+void SchematicScene::set_chart_records(const ChartRecords* records)
+{
+    chart_records_ = records;
+}
+
+const std::vector<sim::ChartRecord>* SchematicScene::chart_records(model::Id chart) const
+{
+    if (!chart_records_) {
+        return nullptr;
+    }
+    const auto it = chart_records_->find(chart);
+    return it == chart_records_->end() ? nullptr : &it->second;
+}
+
+model::Id SchematicScene::chart_handle_at(const QPointF& scene_point) const
+{
+    for (const auto& [id, item] : components_) {
+        if (item->isSelected() && item->chart_handle().adjusted(-3, -3, 3, 3).contains(item->mapFromScene(scene_point))) {
+            return id;
+        }
+    }
+    return model::no_id;
+}
+
+void SchematicScene::refresh_charts()
+{
+    for (auto& [id, item] : components_) {
+        if (item->definition() && item->definition()->chart) {
             item->update();
         }
     }
