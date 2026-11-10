@@ -34,7 +34,7 @@ target_link_libraries(simnodus_library PUBLIC simnodus::model PRIVATE simnodus_j
 target_compile_definitions(simnodus_library PRIVATE
     SIMNODUS_SOURCE_LIBRARY_DIR="${PROJECT_SOURCE_DIR}/resources/library")
 
-add_library(simnodus_io STATIC io/memory_file.cpp io/project_file.cpp)
+add_library(simnodus_io STATIC io/memory_file.cpp io/project_file.cpp io/reference_csv.cpp)
 add_library(simnodus::io ALIAS simnodus_io)
 target_link_libraries(simnodus_io PUBLIC simnodus::model PRIVATE simnodus_json simnodus::warnings)
 

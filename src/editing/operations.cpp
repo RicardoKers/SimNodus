@@ -146,6 +146,9 @@ Edit transform_items(const Schematic& schematic, const library::ComponentLibrary
             Component updated = *c;
             updated.position = map_point(c->position);
             updated.orientation = map_orientation(c->orientation);
+            if (const auto* d = library.find(c->type); d && d->chart) {
+                updated.orientation = c->orientation; // a chart's plot and text stay upright (SN-281)
+            }
             const auto before = pin_points(library, *c);
             const auto after = pin_points(library, updated);
             for (std::size_t i = 0; i < before.size() && i < after.size(); ++i) {
@@ -535,6 +538,22 @@ Edit set_parameter(const Schematic& schematic, Id component, const std::string& 
     updated.parameters[name] = value;
     work.put(updated);
     return make_edit(schematic, work, "Set " + c->designator + " " + name);
+}
+
+Edit set_parameters(const Schematic& schematic, Id component, const std::map<std::string, std::string>& values,
+    const std::string& description)
+{
+    const auto* c = schematic.component(component);
+    if (!c) {
+        return {};
+    }
+    Schematic work = schematic;
+    Component updated = *c;
+    for (const auto& [name, value] : values) {
+        updated.parameters[name] = value;
+    }
+    work.put(updated);
+    return make_edit(schematic, work, description + " " + c->designator);
 }
 
 Edit set_model(const Schematic& schematic, Id component, const std::string& parameter, const std::string& name,

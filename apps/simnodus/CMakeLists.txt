@@ -16,6 +16,10 @@ add_library(simnodus_ui STATIC
     analyzer_window.hpp
     app_settings.cpp
     app_settings.hpp
+    chart_import_dialog.cpp
+    chart_import_dialog.hpp
+    chart_painter.cpp
+    chart_painter.hpp
     component_panel.cpp
     component_panel.hpp
     control_server.cpp
@@ -153,7 +157,7 @@ if(WIN32)
     install(DIRECTORY "${PROJECT_SOURCE_DIR}/resources/library/" DESTINATION library)
     # Example projects with their firmware (ELF, C source and linker script) and memory contents.
     install(DIRECTORY "${PROJECT_SOURCE_DIR}/examples/" DESTINATION examples
-        FILES_MATCHING PATTERN "*.snx" PATTERN "*.elf" PATTERN "*.c" PATTERN "*.ld" PATTERN "*.md" PATTERN "*.hex" PATTERN "*.bin" PATTERN "*.lib")
+        FILES_MATCHING PATTERN "*.snx" PATTERN "*.elf" PATTERN "*.c" PATTERN "*.ld" PATTERN "*.md" PATTERN "*.hex" PATTERN "*.bin" PATTERN "*.lib" PATTERN "*.csv")
     # MSVC C++ runtime next to the executable (app-local deployment).
     set(CMAKE_INSTALL_SYSTEM_RUNTIME_DESTINATION .)
     set(CMAKE_INSTALL_UCRT_LIBRARIES OFF)
@@ -177,7 +181,7 @@ else()
     install(DIRECTORY "${PROJECT_SOURCE_DIR}/third_party/optiboot/"
         DESTINATION "${CMAKE_INSTALL_DATADIR}/simnodus/licenses/optiboot")
     install(DIRECTORY "${PROJECT_SOURCE_DIR}/examples/" DESTINATION "${CMAKE_INSTALL_DATADIR}/simnodus/examples"
-        FILES_MATCHING PATTERN "*.snx" PATTERN "*.elf" PATTERN "*.c" PATTERN "*.ld" PATTERN "*.hex" PATTERN "*.bin" PATTERN "*.lib")
+        FILES_MATCHING PATTERN "*.snx" PATTERN "*.elf" PATTERN "*.c" PATTERN "*.ld" PATTERN "*.hex" PATTERN "*.bin" PATTERN "*.lib" PATTERN "*.csv")
     install(FILES "${PROJECT_SOURCE_DIR}/resources/package/simnodus.desktop" DESTINATION "${CMAKE_INSTALL_DATADIR}/applications")
     foreach(_size 16 24 32 48 64 128 256 512)
         install(FILES "${PROJECT_SOURCE_DIR}/resources/icons/simnodus_${_size}.png"

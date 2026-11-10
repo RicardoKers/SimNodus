@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: MIT
 #include "properties_panel.hpp"
 
+#include "chart_import_dialog.hpp"
 #include "fuses_dialog.hpp"
 
 #include "document.hpp"
@@ -363,6 +364,9 @@ void PropertiesPanel::rebuild()
         return;
     }
     for (const auto& p : d->parameters) {
+        if (p.hidden) {
+            continue; // kept in the project, edited by its own controls (a chart's references)
+        }
         // The common value, or empty when the selected components differ.
         QString value;
         bool common = true;
@@ -464,6 +468,9 @@ void PropertiesPanel::rebuild()
         const std::string chip = d->mcu->chip;
         connect(fuses, &QPushButton::clicked, this, [this, id, chip] { edit_fuses(id, chip); });
         form_->addRow(QString(), fuses);
+    }
+    if (d->chart && components.size() == 1) {
+        add_chart_rows(*components.front(), *d);
     }
     if (d->block && components.size() == 1) {
         // A block (PRJ-06): the project keeps a copy of its file.
@@ -736,6 +743,64 @@ QWidget* PropertiesPanel::file_editor(const library::Parameter& p, const QString
         row->addWidget(view);
     }
     return host;
+}
+
+void PropertiesPanel::add_chart_rows(const model::Component& component, const library::ComponentDefinition& d)
+{
+    // A chart recorder (SN-281): reference data per channel, imported from a
+    // CSV and kept in the project; the record exported after a run.
+    const model::Id id = component.id;
+    for (std::size_t i = 0; i < d.chart->channels.size(); ++i) {
+        const std::string name = d.chart->channels[i].reference_parameter;
+        if (name.empty()) {
+            continue;
+        }
+        const auto it = component.parameters.find(name);
+        const auto series = io::decode_series(it == component.parameters.end() ? std::string() : it->second);
+        auto* row = new QWidget;
+        auto* layout = new QHBoxLayout(row);
+        layout->setContentsMargins(0, 0, 0, 0);
+        auto* info = new QLabel(series.empty() ? tr("(none)")
+                                               : tr("%n points, %1 to %2 s", nullptr, static_cast<int>(series.size()))
+                                                     .arg(series.front().first, 0, 'g', 4)
+                                                     .arg(series.back().first, 0, 'g', 4));
+        auto* load = new QPushButton(tr("Import..."));
+        load->setObjectName(QStringLiteral("importReference%1").arg(i + 1));
+        load->setToolTip(tr("Read bench measurements from a CSV file and draw them over this channel"));
+        auto* clear = new QPushButton(tr("Clear"));
+        clear->setEnabled(!series.empty());
+        layout->addWidget(info, 1);
+        layout->addWidget(load);
+        layout->addWidget(clear);
+        connect(load, &QPushButton::clicked, this, [this, id, name] {
+            QString error;
+            const auto series = import_reference_csv(this, error);
+            if (!error.isEmpty()) {
+                emit message(error);
+            }
+            if (series && document_->schematic().component(id)) {
+                document_->apply(editing::set_parameter(document_->schematic(), id, name, io::encode_series(*series)));
+            }
+        });
+        connect(clear, &QPushButton::clicked, this, [this, id, name] {
+            document_->apply(editing::set_parameter(document_->schematic(), id, name, std::string()));
+        });
+        form_->addRow(tr("CH%1 reference").arg(i + 1), row);
+    }
+    auto* exports = new QWidget;
+    auto* layout = new QHBoxLayout(exports);
+    layout->setContentsMargins(0, 0, 0, 0);
+    auto* csv = new QPushButton(tr("Export CSV..."));
+    csv->setObjectName(QStringLiteral("exportChartCsv"));
+    csv->setToolTip(tr("Save the recorded channels of the last run to a CSV file"));
+    auto* png = new QPushButton(tr("Export PNG..."));
+    png->setObjectName(QStringLiteral("exportChartPng"));
+    png->setToolTip(tr("Save the chart as an image"));
+    layout->addWidget(csv);
+    layout->addWidget(png);
+    connect(csv, &QPushButton::clicked, this, [this, id] { emit chart_export_requested(id, false); });
+    connect(png, &QPushButton::clicked, this, [this, id] { emit chart_export_requested(id, true); });
+    form_->addRow(tr("Record"), exports);
 }
 
 void PropertiesPanel::edit_fuses(model::Id id, const std::string& chip)

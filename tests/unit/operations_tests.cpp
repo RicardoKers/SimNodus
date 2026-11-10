@@ -299,3 +299,18 @@ TEST_CASE("a net label mirrors so that its name sits left of the point")
     CHECK(!s.label(l)->mirrored);
     edit.revert(s);
 }
+
+TEST_CASE("a chart recorder stays upright and is resized in one step")
+{
+    const auto lib = test_library();
+    Schematic s;
+    Id c = 0;
+    applied(s, editing::add_component(s, *lib.find("chart_recorder"), {0, 0}, {}, &c));
+    const auto before = s.component(c)->orientation;
+    editing::rotate_items(s, lib, {c}).apply(s);
+    editing::mirror_items(s, lib, {c}).apply(s);
+    CHECK(s.component(c)->orientation == before);
+    applied(s, editing::set_parameters(s, c, {{"width", "40"}, {"height", "25"}}, "Resize"));
+    CHECK(s.component(c)->parameters.at("width") == "40");
+    CHECK(s.component(c)->parameters.at("height") == "25");
+}

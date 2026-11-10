@@ -253,8 +253,11 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
    ([E-11 results](../experiments/E-11-results.md)); the BLDC and PMSM
    parts stay experimental. G11b (six-step in real time) is still not met.
 7. **Chart recorder on the schematic** (SN-281, AN-11, owner's request of
-   2026-11-10): two channels, resizable, adjustable axes, CSV reference
-   overlay for bench comparisons. Registered, not started.
+   2026-11-10): done on `main` after 0.17.0 (two channels, resized by its
+   corner, fixed or rolling time axis, auto or manual scale, CSV reference
+   overlay kept in the project, CSV/PNG export, example 66, 10x and 100x in
+   the speed box). Waits for the owner's test with real bench data in the
+   next preview.
 
 ## Known constraints
 

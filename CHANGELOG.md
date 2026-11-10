@@ -4,6 +4,15 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-11-10, SN-281, chart recorder)
+
+- **Chart Recorder** (Instruments): a two-channel plot placed on the schematic for slow experiments of seconds to hours. Each channel shows the voltage of its + pin relative to its - pin over the whole run from its start; an unconnected + pin turns the channel off, an unconnected - pin measures against ground (1 GΩ to ground per pin). Resized by dragging its corner (or **Width** and **Height**); a **Time window** with a *fixed* (0 to the window) or *rolling* axis in seconds, minutes or hours; an *auto* or *manual* vertical scale.
+- Reference data from the bench: **Import...** in the Properties panel reads a CSV (commas, semicolons, tabs or spaces; decimal commas with semicolons or tabs; a header is skipped), with the time and value columns, the time unit and offset and volts or millivolts; the data is kept in the project and drawn dashed over the channel.
+- The record keeps the whole run in bounded memory (4096 time steps with first, lowest, highest and last values, merged in pairs as the run grows), stays after Stop and is exported with **Export CSV...** and **Export PNG...**.
+- The speed box offers 10x and 100x for slow experiments.
+- Example 66: a capacitor charging with τ = 100 s on a chart recorder over ten minutes at 10x, with illustrative (not measured) reference data and the same data as a CSV in `examples/data`.
+- Library format: a `chart` section and `"hidden"` parameters (kept in the project and set by `component.set`, not listed in the Properties panel); `parts.describe` marks them.
+
 ## 0.17.0 — 2026-11-09
 
 ### Added (2026-11-09, SN-280, owner's tests of the examples)

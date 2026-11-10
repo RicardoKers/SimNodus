@@ -1,0 +1,243 @@
+{
+  "buses": [],
+  "components": [
+    {
+      "at": [
+        0,
+        10
+      ],
+      "designator": "V1",
+      "id": 1,
+      "mirrored": false,
+      "parameters": {
+        "V": "5"
+      },
+      "rotation": 0,
+      "type": "vdc"
+    },
+    {
+      "at": [
+        8,
+        4
+      ],
+      "designator": "R1",
+      "id": 2,
+      "mirrored": false,
+      "parameters": {
+        "R": "100k"
+      },
+      "rotation": 270,
+      "type": "resistor"
+    },
+    {
+      "at": [
+        16,
+        10
+      ],
+      "designator": "C1",
+      "id": 3,
+      "mirrored": false,
+      "parameters": {
+        "C": "1000u",
+        "V0": "0"
+      },
+      "rotation": 0,
+      "type": "capacitor"
+    },
+    {
+      "at": [
+        8,
+        17
+      ],
+      "designator": "GND1",
+      "id": 4,
+      "mirrored": false,
+      "parameters": {},
+      "rotation": 0,
+      "type": "ground"
+    },
+    {
+      "at": [
+        30,
+        4
+      ],
+      "designator": "CR1",
+      "id": 11,
+      "mirrored": false,
+      "parameters": {
+        "ch1_reference": "0 0;30 1.19;60 2.09;90 2.77;120 3.29;150 3.68;180 3.98;210 4.2;240 4.37;270 4.5;300 4.6;330 4.67;360 4.73;390 4.77;420 4.8;450 4.83;480 4.84;510 4.86;540 4.87;570 4.88;600 4.88",
+        "ch2_reference": "",
+        "height": "24",
+        "time_mode": "fixed",
+        "time_unit": "min",
+        "time_window": "600",
+        "v_max": "5",
+        "v_min": "0",
+        "vertical": "manual",
+        "width": "44"
+      },
+      "rotation": 0,
+      "type": "chart_recorder"
+    }
+  ],
+  "format": "simnodus-project",
+  "labels": [
+    {
+      "at": [
+        5,
+        4
+      ],
+      "id": 9,
+      "name": "IN"
+    },
+    {
+      "at": [
+        16,
+        7
+      ],
+      "id": 10,
+      "name": "OUT"
+    },
+    {
+      "at": [
+        30,
+        4
+      ],
+      "id": 12,
+      "name": "OUT"
+    },
+    {
+      "at": [
+        30,
+        6
+      ],
+      "id": 13,
+      "name": "GND"
+    },
+    {
+      "at": [
+        30,
+        9
+      ],
+      "id": 14,
+      "name": "IN"
+    },
+    {
+      "at": [
+        30,
+        11
+      ],
+      "id": 15,
+      "name": "OUT"
+    }
+  ],
+  "next_id": 18,
+  "notes": [
+    {
+      "at": [
+        0,
+        32
+      ],
+      "id": 17,
+      "text": "Capacitor charge over ten minutes (tau = R1 x C1 = 100 s). CR1 records the run from its start: CH1 is the capacitor's voltage, CH2 the resistor's (IN minus OUT). The run goes at 10x real time (Simulate > Settings); drag CR1's corner to resize it.\nThe dashed CH1 reference is illustrative data, not a measurement (C 10 % high, a small leak): select CR1 and use Import... next to CH1 reference to load your own bench CSV (examples/data/66_rc_charge_bench_example.csv shows the format)."
+    }
+  ],
+  "probes": [
+    {
+      "color": "",
+      "id": 16,
+      "kind": "voltage",
+      "target": {
+        "at": [
+          11,
+          4
+        ],
+        "item": 2,
+        "pin": "2"
+      }
+    }
+  ],
+  "settings": {
+    "cortex_m3_timing": true,
+    "exact_edges": false,
+    "max_step": 0.01,
+    "mcu_quantum": 0.001,
+    "mode": "interactive",
+    "segment": 1.0,
+    "speed": 10.0,
+    "transient_max_step": 1e-06,
+    "transient_stop": 0.01
+  },
+  "splitters": [],
+  "version": 1,
+  "wires": [
+    {
+      "id": 5,
+      "points": [
+        [
+          0,
+          7
+        ],
+        [
+          0,
+          4
+        ],
+        [
+          5,
+          4
+        ]
+      ]
+    },
+    {
+      "id": 6,
+      "points": [
+        [
+          11,
+          4
+        ],
+        [
+          16,
+          4
+        ],
+        [
+          16,
+          7
+        ]
+      ]
+    },
+    {
+      "id": 7,
+      "points": [
+        [
+          0,
+          13
+        ],
+        [
+          0,
+          17
+        ],
+        [
+          8,
+          17
+        ]
+      ]
+    },
+    {
+      "id": 8,
+      "points": [
+        [
+          16,
+          13
+        ],
+        [
+          16,
+          17
+        ],
+        [
+          8,
+          17
+        ]
+      ]
+    }
+  ]
+}

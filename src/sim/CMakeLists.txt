@@ -1,6 +1,7 @@
 add_library(simnodus_sim STATIC
     engine_check.cpp
     engine_host.cpp
+    chart_record.cpp
     measurements.cpp
     vcd.cpp
     ngspice_runtime.cpp

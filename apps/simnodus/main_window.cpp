@@ -6,6 +6,7 @@
 
 #include "analyzer_window.hpp"
 #include "app_settings.hpp"
+#include "chart_painter.hpp"
 #include "component_panel.hpp"
 #include "control_server.hpp"
 #include "document.hpp"
@@ -212,6 +213,7 @@ MainWindow::MainWindow(QSettings& settings, QWidget* parent) : QMainWindow(paren
     connect(properties_, &PropertiesPanel::models_read, this, &MainWindow::report_model_issues);
     connect(properties_, &PropertiesPanel::block_open_requested, this, &MainWindow::open_block);
     connect(properties_, &PropertiesPanel::block_update_requested, this, &MainWindow::update_block);
+    connect(properties_, &PropertiesPanel::chart_export_requested, this, &MainWindow::export_chart);
     connect(document_, &Document::library_changed, this, [this] {
         components_->set_library(document_->library());
         for (const auto& problem : document_->block_problems()) {
@@ -583,7 +585,7 @@ void MainWindow::build_actions_and_menus()
     toolbar->addAction(stop_action_);
     speed_ = new QComboBox;
     speed_->setObjectName(QStringLiteral("speedFactor"));
-    for (double s : {0.001, 0.01, 0.1, 0.5, 1.0, 0.0}) {
+    for (double s : {0.001, 0.01, 0.1, 0.5, 1.0, 10.0, 100.0, 0.0}) { // 10x and 100x: slow experiments (SN-281)
         speed_->addItem(speed_text(s), s);
     }
     speed_->setCurrentIndex(4);
@@ -1671,6 +1673,58 @@ void MainWindow::open_block(model::Id component)
               .arg(QFileInfo(path).fileName(), QFileInfo(project).fileName());
     messages_->add(Severity::Info, text, tr("Blocks"));
     statusBar()->showMessage(text, 10000);
+}
+
+void MainWindow::export_chart(model::Id component, bool png)
+{
+    const auto* c = document_->schematic().component(component);
+    const auto* d = c ? document_->library().find(c->type) : nullptr;
+    if (!d || !d->chart) {
+        return;
+    }
+    const auto& records = run_->chart_records();
+    const auto it = records.find(component);
+    const std::vector<sim::ChartRecord>* record = it == records.end() ? nullptr : &it->second;
+    const QString base = document_->base_dir().isEmpty() ? QDir::homePath() : document_->base_dir();
+    const QString name = QString::fromStdString(c->designator);
+    if (png) {
+        const QString path = QFileDialog::getSaveFileName(
+            this, tr("Export Chart"), QDir(base).filePath(name + QStringLiteral(".png")), tr("PNG image (*.png)"));
+        if (path.isEmpty()) {
+            return;
+        }
+        if (!render_chart(*d, *c, record).save(path, "PNG")) {
+            QMessageBox::warning(this, tr("Export Chart"), tr("Could not write %1.").arg(path));
+        }
+        return;
+    }
+    bool any = false;
+    if (record) {
+        for (const auto& r : *record) {
+            any = any || !r.empty();
+        }
+    }
+    if (!any) {
+        QMessageBox::information(this, tr("Export Chart"), tr("%1 has no record yet: run the simulation first.").arg(name));
+        return;
+    }
+    const QString path = QFileDialog::getSaveFileName(
+        this, tr("Export Chart"), QDir(base).filePath(name + QStringLiteral(".csv")), tr("CSV file (*.csv)"));
+    if (path.isEmpty()) {
+        return;
+    }
+    std::vector<std::string> names;
+    for (std::size_t i = 0; i < d->chart->channels.size(); ++i) {
+        names.push_back("CH" + std::to_string(i + 1) + " (V)");
+    }
+    QFile file(path);
+    const std::string text = sim::chart_csv(*record, names);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate)
+        || file.write(text.data(), static_cast<qint64>(text.size())) != static_cast<qint64>(text.size())) {
+        QMessageBox::warning(this, tr("Export Chart"), tr("Could not write %1.").arg(path));
+        return;
+    }
+    statusBar()->showMessage(tr("Saved the record of %1 to %2.").arg(name, QDir::toNativeSeparators(path)), 6000);
 }
 
 void MainWindow::update_block(model::Id component)

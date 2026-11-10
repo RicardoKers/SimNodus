@@ -39,6 +39,30 @@
             <source>(no firmware)</source>
             <translation>(sem firmware)</translation>
         </message>
+        <message>
+            <source>Import Reference Data</source>
+            <translation>Importar dados de referência</translation>
+        </message>
+        <message>
+            <source>Measurements (*.csv *.txt *.tsv);;All files (*)</source>
+            <translation>Medições (*.csv *.txt *.tsv);;Todos os arquivos (*)</translation>
+        </message>
+        <message>
+            <source>Could not read %1.</source>
+            <translation>Não foi possível ler %1.</translation>
+        </message>
+        <message>
+            <source>%1: %2</source>
+            <translation>%1: %2</translation>
+        </message>
+        <message>
+            <source>  (ref ---)</source>
+            <translation>  (ref ---)</translation>
+        </message>
+        <message>
+            <source>Records the run from its start</source>
+            <translation>Registra a execução desde o início</translation>
+        </message>
     </context>
     <context>
         <name>main</name>
@@ -380,6 +404,83 @@
         <message>
             <source>The image could not be written.</source>
             <translation>Não foi possível gravar a imagem.</translation>
+        </message>
+    </context>
+    <context>
+        <name>simnodus::ui::ChartImportDialog</name>
+        <message>
+            <source>Import Reference Data</source>
+            <translation>Importar dados de referência</translation>
+        </message>
+        <message numerus="yes">
+            <source>%1: %n rows of numbers.</source>
+            <translation>
+                <numerusform>%1: %n linha de números.</numerusform>
+                <numerusform>%1: %n linhas de números.</numerusform>
+            </translation>
+        </message>
+        <message>
+            <source>Column %1</source>
+            <translation>Coluna %1</translation>
+        </message>
+        <message>
+            <source>seconds</source>
+            <translation>segundos</translation>
+        </message>
+        <message>
+            <source>milliseconds</source>
+            <translation>milissegundos</translation>
+        </message>
+        <message>
+            <source>minutes</source>
+            <translation>minutos</translation>
+        </message>
+        <message>
+            <source>hours</source>
+            <translation>horas</translation>
+        </message>
+        <message>
+            <source>Seconds added to every time, so that the bench's start matches the run's start</source>
+            <translation>Segundos somados a cada tempo, para que o início da bancada coincida com o início da execução</translation>
+        </message>
+        <message>
+            <source>volts</source>
+            <translation>volts</translation>
+        </message>
+        <message>
+            <source>millivolts</source>
+            <translation>milivolts</translation>
+        </message>
+        <message>
+            <source>Time column</source>
+            <translation>Coluna do tempo</translation>
+        </message>
+        <message>
+            <source>Time unit</source>
+            <translation>Unidade de tempo</translation>
+        </message>
+        <message>
+            <source>Time offset (s)</source>
+            <translation>Deslocamento do tempo (s)</translation>
+        </message>
+        <message>
+            <source>Value column</source>
+            <translation>Coluna do valor</translation>
+        </message>
+        <message>
+            <source>Value unit</source>
+            <translation>Unidade do valor</translation>
+        </message>
+        <message>
+            <source>No rows have numbers in both columns.</source>
+            <translation>Nenhuma linha tem números nas duas colunas.</translation>
+        </message>
+        <message numerus="yes">
+            <source>%n points from %1 s to %2 s, values from %3 V to %4 V.</source>
+            <translation>
+                <numerusform>%n ponto de %1 s a %2 s, valores de %3 V a %4 V.</numerusform>
+                <numerusform>%n pontos de %1 s a %2 s, valores de %3 V a %4 V.</numerusform>
+            </translation>
         </message>
     </context>
     <context>
@@ -1881,6 +1982,30 @@ Permitir para este projeto neste computador? Sem isso, a rede das placas fica de
             <translation>Editando o bloco %1. Salve-o e abra %2 de novo (Arquivo &gt; Recente) para atualizar a cópia do projeto.</translation>
         </message>
         <message>
+            <source>Export Chart</source>
+            <translation>Exportar gráfico</translation>
+        </message>
+        <message>
+            <source>PNG image (*.png)</source>
+            <translation>Imagem PNG (*.png)</translation>
+        </message>
+        <message>
+            <source>Could not write %1.</source>
+            <translation>Não foi possível gravar %1.</translation>
+        </message>
+        <message>
+            <source>%1 has no record yet: run the simulation first.</source>
+            <translation>%1 ainda não tem registro: execute a simulação primeiro.</translation>
+        </message>
+        <message>
+            <source>CSV file (*.csv)</source>
+            <translation>Arquivo CSV (*.csv)</translation>
+        </message>
+        <message>
+            <source>Saved the record of %1 to %2.</source>
+            <translation>Registro de %1 salvo em %2.</translation>
+        </message>
+        <message>
             <source>The file of block %1 (%2) was not found; the project keeps its copy.</source>
             <translation>O arquivo do bloco %1 (%2) não foi encontrado; o projeto mantém sua cópia.</translation>
         </message>
@@ -2373,6 +2498,53 @@ Permitir para este projeto neste computador? Sem isso, a rede das placas fica de
         <message>
             <source>Show the memory's contents (Window &gt; Memory Viewer)</source>
             <translation>Mostra o conteúdo da memória (Janela &gt; Visualizador de memória)</translation>
+        </message>
+        <message>
+            <source>(none)</source>
+            <translation>(nenhum)</translation>
+        </message>
+        <message numerus="yes">
+            <source>%n points, %1 to %2 s</source>
+            <translation>
+                <numerusform>%n ponto, %1 a %2 s</numerusform>
+                <numerusform>%n pontos, %1 a %2 s</numerusform>
+            </translation>
+        </message>
+        <message>
+            <source>Import...</source>
+            <translation>Importar...</translation>
+        </message>
+        <message>
+            <source>Read bench measurements from a CSV file and draw them over this channel</source>
+            <translation>Lê medições de bancada de um arquivo CSV e as desenha sobre este canal</translation>
+        </message>
+        <message>
+            <source>Clear</source>
+            <translation>Limpar</translation>
+        </message>
+        <message>
+            <source>CH%1 reference</source>
+            <translation>Referência do CH%1</translation>
+        </message>
+        <message>
+            <source>Export CSV...</source>
+            <translation>Exportar CSV...</translation>
+        </message>
+        <message>
+            <source>Save the recorded channels of the last run to a CSV file</source>
+            <translation>Salva os canais registrados na última execução num arquivo CSV</translation>
+        </message>
+        <message>
+            <source>Export PNG...</source>
+            <translation>Exportar PNG...</translation>
+        </message>
+        <message>
+            <source>Save the chart as an image</source>
+            <translation>Salva o gráfico como imagem</translation>
+        </message>
+        <message>
+            <source>Record</source>
+            <translation>Registro</translation>
         </message>
         <message>
             <source>The name %1 is already used.</source>
@@ -4154,6 +4326,118 @@ Permitir para este projeto neste computador? Sem isso, a rede das placas fica de
         <message>
             <source>Shows the current flowing into + while running</source>
             <translation>Mostra a corrente que entra por + durante a execução</translation>
+        </message>
+        <message>
+            <source>Chart Recorder</source>
+            <translation>Registrador gráfico</translation>
+        </message>
+        <message>
+            <source>Plots the voltage of two channels over the whole run on the schematic; reference data from a CSV of bench measurements can be drawn over it</source>
+            <translation>Traça no esquemático a tensão de dois canais durante toda a execução; dados de referência de um CSV de medições de bancada podem ser desenhados por cima</translation>
+        </message>
+        <message>
+            <source>Width</source>
+            <translation>Largura</translation>
+        </message>
+        <message>
+            <source>Width of the plot in grid units (also set by dragging its corner)</source>
+            <translation>Largura do gráfico em unidades da grade (também ajustada arrastando o canto)</translation>
+        </message>
+        <message>
+            <source>Height of the plot in grid units (also set by dragging its corner)</source>
+            <translation>Altura do gráfico em unidades da grade (também ajustada arrastando o canto)</translation>
+        </message>
+        <message>
+            <source>Time window</source>
+            <translation>Janela de tempo</translation>
+        </message>
+        <message>
+            <source>Time shown across the plot</source>
+            <translation>Tempo mostrado na largura do gráfico</translation>
+        </message>
+        <message>
+            <source>Time axis</source>
+            <translation>Eixo do tempo</translation>
+        </message>
+        <message>
+            <source>fixed: from the start of the run to the time window; rolling: the last time window</source>
+            <translation>fixo: do início da execução até a janela de tempo; rolante: a última janela de tempo</translation>
+        </message>
+        <message>
+            <source>fixed</source>
+            <translation>fixo</translation>
+        </message>
+        <message>
+            <source>rolling</source>
+            <translation>rolante</translation>
+        </message>
+        <message>
+            <source>Time unit</source>
+            <translation>Unidade de tempo</translation>
+        </message>
+        <message>
+            <source>Unit of the time axis</source>
+            <translation>Unidade do eixo do tempo</translation>
+        </message>
+        <message>
+            <source>auto</source>
+            <translation>automática</translation>
+        </message>
+        <message>
+            <source>s</source>
+            <translation>s</translation>
+        </message>
+        <message>
+            <source>min</source>
+            <translation>min</translation>
+        </message>
+        <message>
+            <source>h</source>
+            <translation>h</translation>
+        </message>
+        <message>
+            <source>Vertical scale</source>
+            <translation>Escala vertical</translation>
+        </message>
+        <message>
+            <source>auto: fits the traces and references shown; manual: from Minimum to Maximum</source>
+            <translation>automática: ajusta-se aos traços e referências mostrados; manual: de Mínimo a Máximo</translation>
+        </message>
+        <message>
+            <source>manual</source>
+            <translation>manual</translation>
+        </message>
+        <message>
+            <source>Minimum</source>
+            <translation>Mínimo</translation>
+        </message>
+        <message>
+            <source>Bottom of the vertical axis (manual scale)</source>
+            <translation>Base do eixo vertical (escala manual)</translation>
+        </message>
+        <message>
+            <source>Maximum</source>
+            <translation>Máximo</translation>
+        </message>
+        <message>
+            <source>Top of the vertical axis (manual scale)</source>
+            <translation>Topo do eixo vertical (escala manual)</translation>
+        </message>
+        <message>
+            <source>CH1 reference</source>
+            <translation>Referência do CH1</translation>
+        </message>
+        <message>
+            <source>Reference data of channel 1: "time value" pairs in seconds and volts, separated by ';' (imported from a CSV)</source>
+            <translation>Dados de referência do canal 1: pares "tempo valor" em segundos e volts, separados por ';' (importados de um CSV)</translation>
+        </message>
+        <message>
+            <source>CH2 reference</source>
+            <translation>Referência do CH2</translation>
+        </message>
+        <message>
+            <source>Reference data of channel 2: "time value" pairs in seconds and volts, separated by ';' (imported from a CSV)</source>
+            <translation>Dados de referência do canal 2: pares "tempo valor" em segundos e volts, separados por ';' (importados de um CSV)</translation>
         </message>
         <message>
             <source>Voltmeter</source>

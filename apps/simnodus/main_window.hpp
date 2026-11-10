@@ -190,6 +190,7 @@ private:
     void place_subcircuit();
     void open_block(model::Id component);
     void update_block(model::Id component);
+    void export_chart(model::Id component, bool png); // SN-281
     void offer_block_updates();
     // A block's file on disk: its source resolved against the project's folder.
     QString block_path(const model::Block& block) const;
