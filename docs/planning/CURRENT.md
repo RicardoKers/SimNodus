@@ -256,8 +256,8 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
    2026-11-10): done on `main` after 0.17.0 (two channels, resized by its
    corner, fixed or rolling time axis, auto or manual scale, CSV reference
    overlay kept in the project, CSV/PNG export, example 66, 10x and 100x in
-   the speed box). Waits for the owner's test with real bench data in the
-   next preview.
+   the speed box). The owner tested the 2026-11-10 preview: everything
+   worked.
 
 ## Known constraints
 
