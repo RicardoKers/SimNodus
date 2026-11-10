@@ -236,6 +236,17 @@ table's order; each task brings its parts, an example, the guide sections
 | SN-279 | Owner's tests of the energy preview (2026-11-09): live values of parts with a node readout (the readout was shown as the current), the values set with the mouse next to the symbol, layouts of examples 61 and 63, example 65 at a 10 µs step and with exact edges | done 2026-11-09: library fields `live` and `more_values`; V and P only for two-pin parts; automation refuses potentiometer controls outside 0..1; example 65 stable in all four combinations (E-11 results) |
 | SN-280 | Owner's tests of the examples (2026-11-09): sensors (LM75, DS18B20, DHT22, HC-SR04) worked with the mouse; initial voltage and current of capacitors and inductors; Pause in the Signal Analyzer; dragging a wire's segment; selecting a part while running (its text, Ctrl+click); an ESP32-C3 without firmware waits for an upload; the encoder's quadrature when turned with the wheel; the per-segment pulse of a floating base (example 4); kept EEPROM and flash files named after the project; tiny live values as 0; author in About; notes on examples 1-16, 24 and 45-49 | done 2026-11-09: library fields `rate` and `detents` (encoder), `V0` and `I0`; junction nodes held only by R, C, switches and semiconductors carry over between segments |
 
+## Schematic instruments (from 2026-11-10)
+
+Owner's request of 2026-11-10: a chart placed on the diagram, simpler than
+the Signal Analyzer's oscilloscope, for slow experiments of seconds to
+minutes (for example the charge of a capacitor) compared with measurements
+from the bench (AN-11).
+
+| ID | Task | Status |
+|---|---|---|
+| SN-281 | Chart recorder part (AN-11): two differential channels (pins CH1+, CH1−, CH2+, CH2−; a channel with no wire is off), a plot area drawn on the schematic and resized with handles (the size kept in the project with the part's stable ID); time axis from the run's start: a fixed window 0..T (the trace stops at the right edge) or a rolling last-T window, unit s, min or h; vertical axis auto or min/max per channel, ticks with values and units instead of divisions; the whole run kept in a bounded record (first/min/max/last per time bucket, a few thousand buckets, coarsened when the run outgrows them), so minutes at fine SPICE steps stay light and work at any speed factor; reference data: a CSV (time, value; header, `,` or `;` and decimal comma accepted, time offset and scale) imported per channel, stored in the project (no file read on open) and drawn over the simulated trace; export of the record to CSV and the chart to PNG; properties through `component.set`, the last value through `sim.read`, both listed by `parts.describe`; example (RC charge over a few minutes with a reference CSV); guide sections in English and pt-BR; tests in `model-unit`, `gui-editor` and the offscreen smoke test | todo |
+
 ## Later (after freeze or after classroom)
 
 | ID | Task |

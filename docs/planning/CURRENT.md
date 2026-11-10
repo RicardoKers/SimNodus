@@ -252,6 +252,9 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 6. **Energy and motor control parts** (SN-271..SN-280): released in 0.17.0
    ([E-11 results](../experiments/E-11-results.md)); the BLDC and PMSM
    parts stay experimental. G11b (six-step in real time) is still not met.
+7. **Chart recorder on the schematic** (SN-281, AN-11, owner's request of
+   2026-11-10): two channels, resizable, adjustable axes, CSV reference
+   overlay for bench comparisons. Registered, not started.
 
 ## Known constraints
 

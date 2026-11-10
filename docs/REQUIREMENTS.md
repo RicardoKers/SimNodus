@@ -103,6 +103,7 @@ A separate top-level window that can be placed on another monitor.
 | AN-08 | UART terminal: receive/send text for each enabled MCU UART, with time stamps optional | 2 | done |
 | AN-09 | Retained history is bounded and configurable (for example the last 10 s at full resolution); limits are visible to the user | 1 | done |
 | AN-10 | Export selected digital signals (logic lanes and MCU pins chosen by the user, not all of them) to a VCD (Value Change Dump) file for later analysis in tools such as PulseView | later | done (SN-190, 2026-10-18) |
+| AN-11 | Chart recorder on the schematic: a resizable two-channel chart part with adjustable time and value axes that records the whole run from its start (bounded memory), overlays reference data imported from a CSV of bench measurements, and exports its record to CSV and PNG | later | todo (SN-281) |
 
 ## 5. Simulation
 
