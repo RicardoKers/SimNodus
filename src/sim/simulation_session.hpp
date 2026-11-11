@@ -158,6 +158,12 @@ public:
     virtual void load_device_memory(model::Id component, const std::vector<std::uint8_t>& bytes) = 0;
     static constexpr model::Id eeprom_memory(model::Id board) { return board | eeprom_flag; }
     static constexpr model::Id eeprom_flag = model::Id{1} << 62;
+    // The register view (SN-290): ranges (address, bytes) of a board's chip to
+    // look at while it runs; their bytes are the memory registers_memory(board),
+    // in the form of mcu::board_registers.
+    virtual void watch_registers(model::Id board, const std::vector<std::pair<std::uint32_t, std::uint32_t>>& ranges) = 0;
+    static constexpr model::Id registers_memory(model::Id board) { return board | registers_flag; }
+    static constexpr model::Id registers_flag = model::Id{1} << 61;
 };
 
 class SimulationSession : public Session {
@@ -211,6 +217,7 @@ public:
     // Changes whenever device_memory() would give other bytes; 0 without the memory (SN-285).
     std::uint64_t device_memory_serial(model::Id component) const;
     void load_device_memory(model::Id component, const std::vector<std::uint8_t>& bytes) override;
+    void watch_registers(model::Id board, const std::vector<std::pair<std::uint32_t, std::uint32_t>>& ranges) override;
 
 private:
     bool start_mcus();

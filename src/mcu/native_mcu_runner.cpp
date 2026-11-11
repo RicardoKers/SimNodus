@@ -399,6 +399,26 @@ void NativeMcuRunner::load_device_memory(std::uint64_t component, const std::vec
     changed_.notify_all();
 }
 
+void NativeMcuRunner::watch_registers(std::vector<std::pair<std::uint32_t, std::uint32_t>> ranges)
+{
+    // No more than the limit, whatever is asked for.
+    std::uint32_t total = 0;
+    std::size_t kept = 0;
+    for (; kept < ranges.size() && kept < 4096; ++kept) {
+        if (ranges[kept].second > register_watch_limit - total) {
+            break;
+        }
+        total += ranges[kept].second;
+    }
+    ranges.resize(kept);
+    {
+        std::lock_guard lock(mutex_);
+        register_watch_ = std::move(ranges);
+    }
+    register_watch_changed_ = true;
+    changed_.notify_all();
+}
+
 std::map<std::uint64_t, std::string> NativeMcuRunner::device_texts() const
 {
     std::lock_guard lock(mutex_);
@@ -573,6 +593,51 @@ void NativeMcuRunner::work()
             ++status_.debug_resumes;
         }
     };
+    // The register view (SN-290): the watched ranges as the memory
+    // board_registers, at most every 40 ms of the computer's time and at once
+    // when the ranges change; a new copy only when a byte changed.
+    std::vector<std::pair<std::uint32_t, std::uint32_t>> register_watch;
+    auto last_registers = std::chrono::steady_clock::time_point{};
+    auto show_registers = [&](bool now) {
+        if (register_watch_changed_.exchange(false)) {
+            std::lock_guard lock(mutex_);
+            register_watch = register_watch_;
+            now = true;
+        }
+        if (register_watch.empty()) {
+            return;
+        }
+        const auto wall = std::chrono::steady_clock::now();
+        if (!now && wall - last_registers < std::chrono::milliseconds(40)) {
+            return;
+        }
+        last_registers = wall;
+        std::vector<std::uint8_t> bytes;
+        auto word = [&bytes](std::uint32_t v) {
+            for (int i = 0; i < 4; ++i) {
+                bytes.push_back(static_cast<std::uint8_t>(v >> (8 * i)));
+            }
+        };
+        for (const auto& [address, size] : register_watch) {
+            const std::size_t at = bytes.size();
+            word(address);
+            word(size);
+            for (std::uint32_t i = 0; i < size; ++i) {
+                std::uint8_t value = 0;
+                if (!machine->peek(address + i, value)) { // not there: the range comes empty
+                    bytes.resize(at + 8);
+                    bytes[at + 4] = bytes[at + 5] = bytes[at + 6] = bytes[at + 7] = 0;
+                    break;
+                }
+                bytes.push_back(value);
+            }
+        }
+        std::lock_guard lock(mutex_);
+        const auto known = memories_.find(board_registers);
+        if (known == memories_.end() || known->second.bytes != bytes) {
+            memories_[board_registers] = {0, std::move(bytes), machine->time_ns(), ++memory_serial_};
+        }
+    };
     machine->set_analog_source([this, &watched](int pin, std::uint64_t time_ns) {
         const auto it = watched.find(pin);
         return it == watched.end() ? 0.0 : analog_value(it->second, time_ns);
@@ -718,6 +783,7 @@ void NativeMcuRunner::work()
         if (gdb) {
             service_debugger();
             if (!gdb_may_run) {
+                show_registers(false);
                 changed_.notify_all();
                 continue; // halted: the firmware's time stands still, and so does the circuit
             }
@@ -841,8 +907,10 @@ void NativeMcuRunner::work()
             status_.time_ns = machine->time_ns();
             time_seen_.store(status_.time_ns, std::memory_order_release);
         }
+        show_registers(false);
         changed_.notify_all();
     }
+    show_registers(true); // as the run leaves them
     machine->set_pin_hook(nullptr); // the bus goes first
     std::lock_guard lock(mutex_);
     if (const std::uint64_t version = machine->flash_version(); version != 0) {

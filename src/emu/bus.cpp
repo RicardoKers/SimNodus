@@ -91,6 +91,27 @@ const Bus::Region* Bus::find(std::uint32_t address) const
     return nullptr;
 }
 
+bool Bus::peek(std::uint32_t address, unsigned size, std::uint32_t& value)
+{
+    const Region* region = find(address);
+    if (!region || address - region->base > region->size - size) {
+        return false;
+    }
+    if (region->storage) {
+        std::uint32_t v = 0;
+        std::memcpy(&v, region->storage->bytes.data() + (address - region->base), size);
+        value = v;
+        return true;
+    }
+    if (!region->device) {
+        return false;
+    }
+    region->device->peeking_ = true;
+    const bool ok = region->device->read(address - region->base, size, value);
+    region->device->peeking_ = false;
+    return ok;
+}
+
 bool Bus::read_slow(std::uint32_t address, unsigned size, std::uint32_t& value)
 {
     const Region* region = find(address);

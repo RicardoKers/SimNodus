@@ -68,7 +68,7 @@ std::uint32_t Stm32F1Spi::read16(std::uint32_t offset)
     case 0x08: {
         const std::uint32_t sr = (rxne_ ? 1u : 0u) | (txe_ ? 2u : 0u) | (modf_ ? 0x20u : 0u) | (ovr_ ? 0x40u : 0u)
             | (busy_ ? 0x80u : 0u);
-        if (ovr_dr_read_) {
+        if (ovr_dr_read_ && !peeking()) {
             ovr_ = false; // DR, then SR: OVR clears
             ovr_dr_read_ = false;
             service();
@@ -77,9 +77,11 @@ std::uint32_t Stm32F1Spi::read16(std::uint32_t offset)
     }
     case 0x0C: {
         const std::uint32_t value = rx_;
-        rxne_ = false;
-        ovr_dr_read_ = ovr_;
-        service();
+        if (!peeking()) {
+            rxne_ = false;
+            ovr_dr_read_ = ovr_;
+            service();
+        }
         return value;
     }
     case 0x10: return 7; // CRCPR reset value

@@ -83,6 +83,12 @@ public:
     {
         session_->load_device_memory(component, bytes);
     }
+    // The register view (SN-290): the ranges of a board's chip to show as the
+    // memory sim::Session::registers_memory(board).
+    void watch_registers(model::Id board, const std::vector<std::pair<std::uint32_t, std::uint32_t>>& ranges)
+    {
+        session_->watch_registers(board, ranges);
+    }
     // While running: sends the document's changed live parameters (an LM75's
     // temperature) to their chips (SN-207), and new values of circuit parts
     // (a resistor) to an interactive run that keeps its topology (SN-232);

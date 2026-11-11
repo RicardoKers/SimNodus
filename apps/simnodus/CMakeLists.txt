@@ -36,6 +36,8 @@ add_library(simnodus_ui STATIC
     main_window.hpp
     memory_window.cpp
     memory_window.hpp
+    register_window.cpp
+    register_window.hpp
     messages_panel.cpp
     messages_panel.hpp
     presenter.cpp

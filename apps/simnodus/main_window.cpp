@@ -3,6 +3,7 @@
 #include "main_window.hpp"
 
 #include "memory_window.hpp"
+#include "register_window.hpp"
 
 #include "analyzer_window.hpp"
 #include "app_settings.hpp"
@@ -159,6 +160,7 @@ MainWindow::MainWindow(QSettings& settings, QWidget* parent) : QMainWindow(paren
     analyzer_ = std::make_unique<AnalyzerWindow>();
     analyzer_->set_controller(run_);
     memory_ = std::make_unique<MemoryWindow>(*document_, *run_);
+    registers_ = std::make_unique<RegisterWindow>(*document_, *run_);
 
     build_actions_and_menus();
     build_status_bar();
@@ -556,6 +558,15 @@ void MainWindow::build_actions_and_menus()
     connect(memory, &QAction::triggered, this, [this] {
         const auto selected = scene_->selected_ids();
         memory_->show_chip(selected.empty() ? model::no_id : *selected.begin());
+    });
+
+    auto* registers = window->addAction(tr("&Register Viewer"));
+    registers->setObjectName(QStringLiteral("registerViewerAction"));
+    registers->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_R));
+    registers->setStatusTip(tr("The peripheral registers of a microcontroller while it runs, with their fields by name"));
+    connect(registers, &QAction::triggered, this, [this] {
+        const auto selected = scene_->selected_ids();
+        registers_->show_board(selected.empty() ? model::no_id : *selected.begin());
     });
 
     auto* help = menuBar()->addMenu(tr("&Help"));

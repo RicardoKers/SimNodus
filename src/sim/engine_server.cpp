@@ -81,6 +81,18 @@ void EngineServer::handle(const std::string& payload)
         }
         break;
     }
+    case Type::WatchRegisters: {
+        const model::Id id = r.u64();
+        std::vector<std::pair<std::uint32_t, std::uint32_t>> ranges;
+        for (std::size_t n = r.size(8); n > 0; --n) {
+            const std::uint32_t address = r.u32();
+            ranges.emplace_back(address, r.u32());
+        }
+        if (r.ok()) {
+            session_.watch_registers(id, ranges);
+        }
+        break;
+    }
     case Type::Quit:
         session_.stop();
         quit_ = true;
@@ -246,7 +258,8 @@ void EngineServer::publish(bool force)
     std::vector<std::pair<model::Id, std::vector<std::uint8_t>>> memories;
     for (const auto& m : session_.mcu_requests()) {
         // The board's flash after esptool or a bootloader (SN-253), its chip's EEPROM (SN-261).
-        std::vector<model::Id> ids{m.component, SimulationSession::eeprom_memory(m.component)};
+        std::vector<model::Id> ids{m.component, SimulationSession::eeprom_memory(m.component),
+            SimulationSession::registers_memory(m.component)};
         for (const auto& d : m.options.devices) {
             ids.push_back(d.component);
         }

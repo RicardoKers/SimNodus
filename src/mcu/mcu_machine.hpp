@@ -102,6 +102,17 @@ public:
     virtual std::uint64_t eeprom_version() const { return 0; }
     virtual std::vector<std::uint8_t> eeprom() const { return {}; }
 
+    // One byte of the chip's memory for the register view (SN-290), read
+    // without the side effects of a read by the firmware: the address space of
+    // an STM32, the data space of an AVR. False for what the chip does not have
+    // there, and for chips without this view.
+    virtual bool peek(std::uint32_t address, std::uint8_t& value)
+    {
+        (void)address;
+        (void)value;
+        return false;
+    }
+
     // The chip for the GDB server (SN-180, SN-249); nullptr if it has none.
     virtual emu::GdbTarget* gdb_target() { return nullptr; }
 };

@@ -280,8 +280,10 @@ std::uint32_t Stm32F1Adc::read32(std::uint32_t offset)
     case JSQR: return jsqr_;
     case JDR1: case JDR1 + 4: case JDR1 + 8: case JDR1 + 12: return jdr_[(offset - JDR1) / 4];
     case DR:
-        sr_ &= ~SR_EOC; // reading DR clears EOC
-        update_irq();
+        if (!peeking()) {
+            sr_ &= ~SR_EOC; // reading DR clears EOC
+            update_irq();
+        }
         return dr_;
     default: return 0;
     }

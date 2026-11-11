@@ -4,6 +4,13 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-11-11, SN-290, Register Viewer)
+
+- **Register Viewer** (Window menu, Ctrl+Shift+R): the peripheral registers of a board's or chip's microcontroller while it runs, as a tree of peripherals, registers and named fields (the names of RM0008, PM0056 and the AVR datasheets), with the value in hexadecimal and bits, each field's own value, a mark on what changed and a filter by name. The values also show while the run is paused or the firmware is halted by a debugger, and stay when the run stops.
+- The registers are looked at without the side effects of a read by the firmware: `USART_DR` keeps its byte and RXNE, `ADC_DR` keeps EOC, the SPI and I2C status sequences are not advanced, SysTick's COUNTFLAG stays (a new `Bus::peek`; the AVRs already had `debug_read`).
+- Maps for the STM32F103 (GPIO, AFIO, EXTI, RCC, FLASH, PWR, TIM1-4, USART1-3, SPI1-2, I2C1-2, ADC1-2, DMA1, RTC, BKP, IWDG, WWDG, CRC, SysTick, NVIC, SCB), the ATmega8/8A, ATmega32/32A and ATmega328/328P (the Arduino UNO); a test reads every register of every map from its emulator. The ESP32-C3 has no map yet.
+- Engine protocol 14: the window asks for ranges of a board's memory (`WatchRegisters`); they come as one more of the board's memories, sent only when a byte changed.
+
 ## 0.18.0 — 2026-11-11
 
 ### Added (2026-11-11, SN-289, Memory Viewer)

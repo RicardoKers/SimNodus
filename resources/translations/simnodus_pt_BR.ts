@@ -1738,6 +1738,14 @@ Pinos: %2</translation>
             <translation>Rede &amp;Wi-Fi...</translation>
         </message>
         <message>
+            <source>&amp;Register Viewer</source>
+            <translation>Visualizador de &amp;registradores</translation>
+        </message>
+        <message>
+            <source>The peripheral registers of a microcontroller while it runs, with their fields by name</source>
+            <translation>Os registradores dos periféricos de um microcontrolador durante a execução, com os campos pelo nome</translation>
+        </message>
+        <message>
             <source>External control is on: AI agents and scripts on this computer can edit and run the circuit with simnodus-cli connect (%1).</source>
             <translation>O controle externo está ligado: agentes de IA e scripts neste computador podem editar e simular o circuito com simnodus-cli connect (%1).</translation>
         </message>
@@ -2748,6 +2756,72 @@ Permitir para este projeto neste computador? Sem isso, a rede das placas fica de
         <message>
             <source>The name %1 is already used.</source>
             <translation>O nome %1 já está em uso.</translation>
+        </message>
+    </context>
+    <context>
+        <name>simnodus::ui::RegisterModel</name>
+        <message>
+            <source>%1 at %2: %3</source>
+            <translation>%1 em %2: %3</translation>
+        </message>
+        <message>
+            <source>Register</source>
+            <translation>Registrador</translation>
+        </message>
+        <message>
+            <source>Value</source>
+            <translation>Valor</translation>
+        </message>
+        <message>
+            <source>Bits</source>
+            <translation>Bits</translation>
+        </message>
+        <message>
+            <source>Description</source>
+            <translation>Descrição</translation>
+        </message>
+    </context>
+    <context>
+        <name>simnodus::ui::RegisterWindow</name>
+        <message>
+            <source>Register Viewer - SimNodus</source>
+            <translation>Visualizador de registradores - SimNodus</translation>
+        </message>
+        <message>
+            <source>Filter (GPIOC, CR1, RXNE)</source>
+            <translation>Filtro (GPIOC, CR1, RXNE)</translation>
+        </message>
+        <message>
+            <source>Shows only the peripherals, registers and fields whose name has this text</source>
+            <translation>Mostra só os periféricos, registradores e campos cujo nome contém este texto</translation>
+        </message>
+        <message>
+            <source>Microcontroller:</source>
+            <translation>Microcontrolador:</translation>
+        </message>
+        <message>
+            <source>Filter:</source>
+            <translation>Filtro:</translation>
+        </message>
+        <message>
+            <source>The circuit has no microcontroller.</source>
+            <translation>O circuito não tem microcontrolador.</translation>
+        </message>
+        <message>
+            <source>%1 has no register view yet.</source>
+            <translation>%1 ainda não tem visualização de registradores.</translation>
+        </message>
+        <message>
+            <source>The registers show their values while a simulation runs.</source>
+            <translation>Os registradores mostram seus valores enquanto uma simulação roda.</translation>
+        </message>
+        <message>
+            <source>Values of the running simulation; a value that changed is marked for a moment. They are looked at without the effects of a read by the firmware.</source>
+            <translation>Valores da simulação em execução; um valor que mudou fica marcado por um momento. Eles são observados sem os efeitos de uma leitura feita pelo firmware.</translation>
+        </message>
+        <message>
+            <source>Values as the last simulation left them.</source>
+            <translation>Valores como a última simulação os deixou.</translation>
         </message>
     </context>
     <context>
