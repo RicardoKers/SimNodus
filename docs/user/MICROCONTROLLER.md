@@ -146,6 +146,34 @@ glow with their current averaged over 20 ms, as the eye sees them. With 64
 LEDs the circuit is heavy: example 26 runs at about 0.8x real time on a 2026
 laptop.
 
+### Register Viewer
+
+**Window > Register Viewer** (Ctrl+Shift+R) shows the peripheral registers of
+a board's or chip's microcontroller as a tree: the peripherals (GPIOA, RCC,
+TIM2, USART1...), their registers and the fields of each register, with the
+names of the reference manual or datasheet. A register shows its value in
+hexadecimal and in bits; a field shows its own value and where its bits are.
+The values follow the running simulation, also while it is paused or the
+firmware is halted at a breakpoint, and a value that changed is marked for a
+moment. When the run stops, the values stay as it left them.
+
+**Filter** leaves the peripherals, registers and fields whose name has the
+text typed (`GPIOC`, `CR1`, `RXNE`). The tooltip of a register gives its
+address.
+
+The registers are looked at from outside the firmware: showing `USART1_DR`
+does not take the received byte and showing `ADC1_DR` does not clear EOC, as
+a read by the firmware (or by a debugger's memory window) would. Write-only
+registers are not listed. The Blue Pill (STM32F103, with the Cortex-M3's
+SysTick, NVIC and SCB), the ATmega8/8A, ATmega328/328P, ATmega32/32A and the
+Arduino UNO have this view; the ESP32-C3 does not yet. Registers are shown,
+not edited.
+
+Typical uses: see whether the firmware turned a peripheral's clock on
+(`RCC.APB2ENR`), how a pin is configured (`GPIOx.CRL/CRH`, or `DDRx` on an
+AVR), a timer's prescaler, period and counter, the flags of a serial port,
+or which fault stopped a firmware (`SCB.CFSR`).
+
 ## Not yet simulated
 
 | Part | Planned |

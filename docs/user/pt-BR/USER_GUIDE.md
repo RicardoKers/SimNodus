@@ -1,4 +1,4 @@
-<!-- source: USER_GUIDE.md sha256 ce51e5c59fe876c6dc62d5fbcd7e6da1a85f5707b8cd3629479f8e07a595ee22 -->
+<!-- source: USER_GUIDE.md sha256 014a8d4cbf2365bd9aca23adf14dede0aac6e12a1dcf10b4c56ceb838446a4bb -->
 # Guia do usuário do SimNodus
 
 O SimNodus é um simulador para sala de aula: você desenha um circuito, aperta
@@ -610,6 +610,9 @@ reiniciar o firmware.
 **Janela > Visualizador de memória** (Ctrl+Shift+M) mostra, carrega e salva
 o conteúdo dos chips de memória (a EEPROM 24C02, ROM e RAM), ao vivo durante
 a execução ([detalhes](MICROCONTROLLER.md#visualizador-de-memória)).
+**Janela > Visualizador de registradores** (Ctrl+Shift+R) mostra os
+registradores dos periféricos do microcontrolador e seus campos pelo nome
+durante a execução ([detalhes](MICROCONTROLLER.md#visualizador-de-registradores)).
 
 Instruções passo a passo, a lista completa de periféricos e todas as
 diferenças em relação a uma placa real estão em

@@ -1,4 +1,4 @@
-<!-- source: MICROCONTROLLER.md sha256 b9caffb2e08c6306af70a29eb08ed91eb65532af72f3159d528a1e48a723e660 -->
+<!-- source: MICROCONTROLLER.md sha256 f6705a2e6c3f9363fd7c1d5f9ee0bbe87dd7484ac51b4520d5961838a0575008 -->
 # Microcontrolador: o que é simulado
 
 O SimNodus executa o firmware da **Blue Pill (STM32F103C8)** em seu próprio emulador
@@ -152,6 +152,35 @@ matriz de LEDs 8x8 (um display de 7 segmentos de 4 dígitos funciona do mesmo
 jeito). LEDs multiplexados brilham com a corrente média em 20 ms, como o olho os
 vê. Com 64 LEDs o circuito é pesado: o exemplo 26 roda a cerca de 0,8x do tempo
 real num notebook de 2026.
+
+### Visualizador de registradores
+
+**Janela > Visualizador de registradores** (Ctrl+Shift+R) mostra os
+registradores dos periféricos do microcontrolador de uma placa ou chip em
+forma de árvore: os periféricos (GPIOA, RCC, TIM2, USART1...), seus
+registradores e os campos de cada registrador, com os nomes do manual de
+referência ou do datasheet. Um registrador mostra seu valor em hexadecimal e
+em bits; um campo mostra seu próprio valor e onde ficam seus bits. Os valores
+acompanham a simulação em execução, também enquanto ela está pausada ou o
+firmware está parado num breakpoint, e um valor que mudou fica marcado por um
+momento. Quando a simulação para, os valores ficam como ela os deixou.
+
+**Filtro** deixa os periféricos, registradores e campos cujo nome contém o
+texto digitado (`GPIOC`, `CR1`, `RXNE`). A dica de um registrador informa seu
+endereço.
+
+Os registradores são observados de fora do firmware: mostrar `USART1_DR` não
+retira o byte recebido e mostrar `ADC1_DR` não limpa EOC, como faria uma
+leitura feita pelo firmware (ou pela janela de memória de um depurador).
+Registradores só de escrita não são listados. A Blue Pill (STM32F103, com o
+SysTick, o NVIC e o SCB do Cortex-M3), o ATmega8/8A, o ATmega328/328P, o
+ATmega32/32A e o Arduino UNO têm esta visualização; o ESP32-C3 ainda não. Os
+registradores são mostrados, não editados.
+
+Usos típicos: ver se o firmware ligou o clock de um periférico
+(`RCC.APB2ENR`), como um pino está configurado (`GPIOx.CRL/CRH`, ou `DDRx` num
+AVR), o prescaler, o período e o contador de um timer, os flags de uma porta
+serial, ou qual falha parou um firmware (`SCB.CFSR`).
 
 ## Ainda não simulado
 

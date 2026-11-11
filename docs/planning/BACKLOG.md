@@ -254,6 +254,7 @@ from the bench (AN-11).
 | SN-287 | Chart recorder painted while its record grows (2026-11-11): it stood still since SN-284 painted only parts whose live state changed (owner's test of the 2026-11-11 preview) | done 2026-11-11: painted at 2 Hz while running and when the run pauses or stops, with a GUI test on example 66 |
 | SN-288 | Protocol decoders kept and controlled (2026-11-11): saved with the window's settings; `analyzer.set` takes and lists them with what they read | done 2026-11-11: JSON form of a decoder shared by the settings and external control, with a GUI test; open: a 1-Wire decoder |
 | SN-289 | Memory Viewer: go to an address, find text or bytes, edit bytes of a running chip (2026-11-11) | done 2026-11-11: with model and GUI tests (example 27's 24C02); open: editing while nothing runs (the contents file), undo |
+| SN-290 | Register Viewer: peripheral registers and named fields of a running microcontroller (2026-11-11) | done 2026-11-11: STM32F103 and AVR maps checked against the emulators, side-effect-free reads, engine and GUI tests (examples 07 and 50); open: ESP32-C3 map, editing a register, the CPU's core registers, external control |
 
 ## Later (after freeze or after classroom)
 

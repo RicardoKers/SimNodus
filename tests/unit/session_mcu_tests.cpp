@@ -11,7 +11,10 @@
 #include "emu/host_socket.hpp"
 #include "engine_fixture.hpp"
 #include "io/project_file.hpp"
+#include "emu/gdb_server.hpp"
 #include "mcu/mcu_machine.hpp"
+#include "mcu/native_mcu_runner.hpp"
+#include "mcu/register_map.hpp"
 #include "sim/process_memory.hpp"
 #include "sim/simulation_session.hpp"
 
@@ -1875,4 +1878,193 @@ TEST_CASE("session: a receiver decodes frames from its RX pin through the circui
             CHECK(reported);
         }
     }
+}
+
+// ---- The register view (SN-290) ----
+
+TEST_CASE("register maps: every register of every map is in its chip")
+{
+    for (const std::string chip : {"stm32f103", "atmega8", "atmega8a", "atmega32", "atmega32a", "atmega328", "atmega328p"}) {
+        const mcu::RegisterMap* map = mcu::register_map(chip);
+        REQUIRE(map != nullptr);
+        REQUIRE(!map->peripherals.empty());
+        mcu::McuRunOptions options;
+        options.chip = chip;
+        std::string error;
+        auto machine = mcu::make_machine(options, error);
+        REQUIRE(machine);
+        std::set<std::string> peripherals;
+        std::map<std::uint32_t, std::string> bytes; // address -> register (the AVRs have one space for all)
+        for (const auto& p : map->peripherals) {
+            CHECK(peripherals.insert(p.name).second);
+            CHECK(!p.description.empty());
+            REQUIRE(!p.registers.empty());
+            std::set<std::string> names;
+            for (const auto& r : p.registers) {
+                CHECK(names.insert(r.name).second);
+                CHECK(!r.description.empty());
+                for (unsigned i = 0; i < r.size; ++i) {
+                    std::uint8_t value = 0;
+                    const bool in_chip = machine->peek(p.base + r.offset + i, value);
+                    const auto [at, fresh] = bytes.emplace(p.base + r.offset + i, p.name + "." + r.name);
+                    if (!in_chip || !fresh) {
+                        std::printf("  %s: %s.%s %s\n", chip.c_str(), p.name.c_str(), r.name.c_str(),
+                            in_chip ? ("is at the address of " + at->second).c_str() : "is not in the chip");
+                    }
+                    CHECK(in_chip);
+                    CHECK(fresh);
+                }
+                std::set<std::string> fields;
+                for (const auto& f : r.fields) {
+                    CHECK(fields.insert(f.name).second);
+                }
+            }
+        }
+    }
+    CHECK(mcu::register_map("esp32c3") == nullptr);
+    // The text form: what a mistake answers, and fields kept apart.
+    mcu::RegisterMap map;
+    std::string error;
+    CHECK(mcu::parse_register_map("chip x\nper P 0x10 | a part\nreg R 0 1 | one\nbits a b c d e f g h\n"
+                                  "reg W 4 4 | two\nfr F 2 3 2 8 4 | field #\nf LOW 0 3\n", map, error));
+    REQUIRE(map.peripherals.size() == 1);
+    REQUIRE(map.peripherals[0].registers.size() == 2);
+    CHECK(map.peripherals[0].registers[0].fields.front().name == "a");
+    CHECK(map.peripherals[0].registers[0].fields.front().lsb == 7);
+    const auto& w = map.peripherals[0].registers[1];
+    REQUIRE(w.fields.size() == 4);
+    CHECK(w.fields[0].name == "F4");
+    CHECK(w.fields[0].lsb == 16);
+    CHECK(w.fields[0].description == "field 4");
+    CHECK(mcu::field_value(0x00030000u, w.fields[0]) == 3);
+    CHECK(w.fields[3].name == "LOW");
+    mcu::RegisterMap bad;
+    CHECK(!mcu::parse_register_map("per P 0\nreg R 0 1\nf A 0 4\nf B 3 2\n", bad, error)); // B over A
+    CHECK(error.find("P.R") != std::string::npos);
+    CHECK(!mcu::parse_register_map("per P 0\nreg R 0 3\n", bad, error));
+    CHECK(error.find("line 2") != std::string::npos);
+    CHECK(!mcu::parse_register_map("per P 0\nreg R 0 1\nbits a b c\n", bad, error));
+    CHECK(!mcu::parse_register_map("per P 0\nuse NOTHING\n", bad, error));
+    // The bytes of the engine: ranges with their addresses; an empty range has no value.
+    const std::vector<std::uint8_t> blob{0x10, 0, 0, 0x40, 4, 0, 0, 0, 0x78, 0x56, 0x34, 0x12, 0x20, 0, 0, 0x40, 0, 0, 0, 0,
+        0x30, 0, 0, 0, 1, 0, 0, 0, 0xAB};
+    const auto parsed = mcu::RegisterBytes::parse(blob);
+    REQUIRE(parsed.ranges.size() == 3);
+    std::uint32_t value = 0;
+    CHECK(parsed.value(0x40000010u, 4, value));
+    CHECK(value == 0x12345678u);
+    CHECK(parsed.value(0x40000012u, 2, value));
+    CHECK(value == 0x1234u);
+    CHECK(!parsed.value(0x40000012u, 4, value));
+    CHECK(!parsed.value(0x40000020u, 1, value));
+    CHECK(parsed.value(0x30u, 1, value));
+    CHECK(value == 0xABu);
+    CHECK(mcu::RegisterBytes::parse({1, 2, 3}).ranges.empty());
+    CHECK(mcu::RegisterBytes::parse({0, 0, 0, 0, 9, 0, 0, 0, 1}).ranges.empty()); // says 9 bytes, has 1
+}
+
+TEST_CASE("the register view looks at a register without what a read by the firmware does")
+{
+    // USART1 receives a byte: RXNE is set and DR holds it. A look (peek) leaves
+    // both; the read of the debugger, like the firmware, takes the byte.
+    mcu::McuRunOptions options;
+    options.firmware = std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "firmware" / "blink" / "blink.elf";
+    std::string error;
+    auto machine = mcu::make_machine(options, error);
+    REQUIRE(machine);
+    REQUIRE(machine->load(options, error));
+    auto* gdb = machine->gdb_target();
+    REQUIRE(gdb != nullptr);
+    auto write = [&](std::uint32_t address, std::uint32_t value) {
+        bool loaded = false;
+        std::string bytes(4, '\0');
+        for (int i = 0; i < 4; ++i) {
+            bytes[static_cast<std::size_t>(i)] = static_cast<char>(value >> (8 * i));
+        }
+        REQUIRE(gdb->write_memory(address, bytes, loaded));
+    };
+    auto look = [&](std::uint32_t address) {
+        std::uint32_t value = 0;
+        for (int i = 0; i < 4; ++i) {
+            std::uint8_t byte = 0;
+            REQUIRE(machine->peek(address + static_cast<std::uint32_t>(i), byte));
+            value |= static_cast<std::uint32_t>(byte) << (8 * i);
+        }
+        return value;
+    };
+    machine->run_until_ns(1000000);
+    write(0x40021018u, look(0x40021018u) | 0x4004u); // RCC_APB2ENR: USART1EN, IOPAEN
+    write(0x40013808u, 0x45u);                        // BRR
+    write(0x4001380Cu, 0x2004u);                      // CR1: UE, RE
+    machine->uart_receive(machine->uart_id("usart1"), 0x5A);
+    machine->run_until_ns(5000000);
+    const std::uint32_t rxne = 0x20;
+    REQUIRE((look(0x40013800u) & rxne) != 0);
+    CHECK((look(0x40013804u) & 0xFFu) == 0x5Au);
+    CHECK((look(0x40013804u) & 0xFFu) == 0x5Au);
+    CHECK((look(0x40013800u) & rxne) != 0); // still there after two looks at DR
+    std::uint8_t byte = 0;
+    REQUIRE(gdb->read_byte(0x40013804u, byte)); // a read as the firmware makes it
+    CHECK(byte == 0x5A);
+    CHECK((look(0x40013800u) & rxne) == 0);
+    // Nothing at an address between peripherals, and nothing through a bit-band alias.
+    CHECK(!machine->peek(0x50000000u, byte));
+    CHECK(!machine->peek(0x42000000u, byte));
+}
+
+TEST_CASE("the own emulator's runner shows watched registers while the firmware runs")
+{
+    // Blink toggles PC13: the registers of GPIOC, watched, show the pin as an output and its level changing.
+    mcu::McuRunOptions options;
+    options.firmware = std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "firmware" / "blink" / "blink.elf";
+    mcu::NativeMcuRunner runner(options);
+    runner.start();
+    std::atomic<bool> cancel{false};
+    REQUIRE(runner.wait_ready(cancel));
+    const mcu::RegisterMap* map = mcu::register_map("stm32f103");
+    REQUIRE(map != nullptr);
+    const auto gpioc = std::find_if(map->peripherals.begin(), map->peripherals.end(),
+        [](const mcu::Peripheral& p) { return p.name == "GPIOC"; });
+    REQUIRE(gpioc != map->peripherals.end());
+    auto ranges = mcu::register_ranges(*gpioc);
+    ranges.emplace_back(0x50000000u, 4u); // nothing there
+    runner.watch_registers(ranges);
+    std::vector<std::uint8_t> blob;
+    bool high = false;
+    bool low = false;
+    bool output = false;
+    std::uint64_t serial = 0;
+    for (int step = 1; step <= 40 && !(high && low); ++step) {
+        runner.set_limit_ns(static_cast<std::uint64_t>(step) * 100000000ull);
+        REQUIRE(runner.wait_time_ns(static_cast<std::uint64_t>(step) * 100000000ull, cancel));
+        std::this_thread::sleep_for(120ms); // a look every 40 ms
+        REQUIRE(runner.device_memory(mcu::board_registers, blob));
+        const auto bytes = mcu::RegisterBytes::parse(blob);
+        REQUIRE(bytes.ranges.size() == ranges.size());
+        CHECK(bytes.ranges.back().address == 0x50000000u);
+        CHECK(bytes.ranges.back().bytes.empty());
+        std::uint32_t crh = 0;
+        std::uint32_t odr = 0;
+        REQUIRE(bytes.value(gpioc->base + 0x04, 4, crh));
+        REQUIRE(bytes.value(gpioc->base + 0x0C, 4, odr));
+        output = output || ((crh >> 20) & 3u) != 0; // MODE13
+        (odr & (1u << 13) ? high : low) = true;
+        const std::uint64_t now = runner.device_memory_serial(mcu::board_registers);
+        CHECK(now >= serial);
+        serial = now;
+    }
+    CHECK(output);
+    CHECK(high);
+    CHECK(low);
+    // Nothing changes while the firmware stands still: the same copy.
+    std::this_thread::sleep_for(150ms);
+    const std::uint64_t still = runner.device_memory_serial(mcu::board_registers);
+    std::this_thread::sleep_for(150ms);
+    CHECK(runner.device_memory_serial(mcu::board_registers) == still);
+    // More than the limit is cut, not refused.
+    runner.watch_registers({{0x20000000u, mcu::register_watch_limit}, {0x40011000u, 4u}});
+    std::this_thread::sleep_for(150ms);
+    REQUIRE(runner.device_memory(mcu::board_registers, blob));
+    CHECK(mcu::RegisterBytes::parse(blob).ranges.size() == 1);
+    runner.stop();
 }

@@ -3,7 +3,9 @@ add_library(simnodus_mcu STATIC
     device_bus.cpp
     mcu_machine.cpp
     mcu_runner.cpp
-    native_mcu_runner.cpp)
+    native_mcu_runner.cpp
+    register_map.cpp
+    register_map_data.cpp)
 add_library(simnodus::mcu ALIAS simnodus_mcu)
 target_include_directories(simnodus_mcu PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/..")
 find_package(Threads REQUIRED)

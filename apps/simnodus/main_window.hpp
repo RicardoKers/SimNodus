@@ -41,6 +41,7 @@ class ControlServer;
 class ControlWorkspace;
 class IoLink;
 class MemoryWindow;
+class RegisterWindow;
 class ComponentPanel;
 class Document;
 class MessagesPanel;
@@ -73,6 +74,7 @@ public:
     RunController* run_controller() const { return run_; }
     AnalyzerWindow* analyzer() const { return analyzer_.get(); }
     MemoryWindow* memory_viewer() const { return memory_.get(); }
+    RegisterWindow* register_viewer() const { return registers_.get(); }
     // External control by AI agents and scripts (SN-216); off until turned on.
     ControlServer* control() const { return control_; }
     // External I/O link of the bit and word parts (SN-218).
@@ -209,6 +211,7 @@ private:
     QSplitter* rows_ = nullptr;
     std::unique_ptr<AnalyzerWindow> analyzer_;
     std::unique_ptr<MemoryWindow> memory_;
+    std::unique_ptr<RegisterWindow> registers_;
     std::list<library::ComponentDefinition> subcircuit_parts_; // definitions being placed (SN-214)
     RunController* run_ = nullptr;
 

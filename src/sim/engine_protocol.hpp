@@ -24,7 +24,7 @@
 
 namespace simnodus::sim::protocol {
 
-inline constexpr std::uint32_t version = 13; // 2: devices (SN-203), 3: circuit nets (SN-205), 4: display texts (SN-206), 5: live parameters (SN-207), 6: memories (SN-208), 7: chips without a board (SN-212), 8: pause at a time (SN-215), 9: Cortex-M3 timing (SN-181), 10: the board's chip (SN-246), 11: USB connector links (SN-252), 12: board parameters (SN-247), 13: several controls per part (SN-272)
+inline constexpr std::uint32_t version = 14; // 2: devices (SN-203), 3: circuit nets (SN-205), 4: display texts (SN-206), 5: live parameters (SN-207), 6: memories (SN-208), 7: chips without a board (SN-212), 8: pause at a time (SN-215), 9: Cortex-M3 timing (SN-181), 10: the board's chip (SN-246), 11: USB connector links (SN-252), 12: board parameters (SN-247), 13: several controls per part (SN-272), 14: watched registers (SN-290)
 // Largest accepted frame; a transient result of many vectors fits.
 inline constexpr std::uint32_t max_frame = 1u << 30;
 
@@ -42,6 +42,7 @@ enum class Type : std::uint8_t {
     DeviceParameter, // a chip's live parameter (SN-207)
     LoadMemory,      // new contents for a memory chip (SN-208)
     PauseAt,         // pause when the run reaches a time (SN-215)
+    WatchRegisters,  // ranges of a board's registers to show (SN-290)
     // Engine -> editor.
     Started = 64, // reply to Start: ok, error text, status, vector names
     Update,       // new state of the run (see EngineServer::publish)

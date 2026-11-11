@@ -14,6 +14,7 @@
 #include "io_link.hpp"
 #include "main_window.hpp"
 #include "memory_window.hpp"
+#include "register_window.hpp"
 #include "messages_panel.hpp"
 #include "fuses_dialog.hpp"
 #include "properties_panel.hpp"
@@ -41,6 +42,7 @@
 #include <QDir>
 #include <QDoubleSpinBox>
 #include <QElapsedTimer>
+#include <QTreeView>
 #include <QFile>
 #include <QFileInfo>
 #include <QGraphicsItem>
@@ -1581,6 +1583,118 @@ private slots:
         QTest::qWait(1000);
         QVERIFY(clock.elapsed() < 1500);
         window_->stop();
+        viewer->close();
+#endif
+    }
+
+    void register_viewer_shows_the_registers_of_a_running_board()
+    {
+        // SN-290: Window > Register Viewer on example 07: PC13 is an output in
+        // GPIOC's CRH and its bit in ODR follows the blink; the values stay
+        // when the run stops.
+#if !defined(SIMNODUS_TEST_NGSPICE_LIBRARY)
+        QSKIP("No ngspice configured for this build.");
+#else
+        QStringList errors;
+        QStringList warnings;
+        QVERIFY(doc().open_copy(QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/07_Blue_Pill_blink.snx"), errors, warnings));
+        auto* action = window_->findChild<QAction*>(QStringLiteral("registerViewerAction"));
+        QVERIFY(action != nullptr);
+        action->trigger();
+        auto* viewer = window_->register_viewer();
+        QVERIFY(viewer->isVisible());
+        auto* boards = viewer->findChild<QComboBox*>(QStringLiteral("registerBoards"));
+        auto* tree = viewer->findChild<QTreeView*>(QStringLiteral("registerTree"));
+        auto* filter = viewer->findChild<QLineEdit*>(QStringLiteral("registerFilter"));
+        QCOMPARE(boards->count(), 1);
+        RegisterModel* model = viewer->model();
+        QVERIFY(model->map() != nullptr);
+        QVERIFY(model->index_of(QStringLiteral("GPIOC"), QStringLiteral("ODR"), QStringLiteral("ODR13")).isValid());
+        // Not run yet: the tree is there, without values.
+        std::uint32_t value = 0;
+        QVERIFY(!model->value(QStringLiteral("GPIOC"), QStringLiteral("ODR"), value));
+        const QModelIndex odr = model->index_of(QStringLiteral("GPIOC"), QStringLiteral("ODR"));
+        QCOMPARE(odr.siblingAtColumn(RegisterModel::Value).data().toString(), QStringLiteral("-"));
+        QCOMPARE(odr.siblingAtColumn(RegisterModel::Name).data().toString(), QStringLiteral("ODR"));
+
+        window_->run();
+        QTRY_VERIFY_WITH_TIMEOUT(window_->run_controller()->active(), 5000);
+        QTRY_VERIFY_WITH_TIMEOUT(model->value(QStringLiteral("GPIOC"), QStringLiteral("ODR"), value), 10000);
+        bool high = false;
+        bool low = false;
+        bool marked = false;
+        const QModelIndex bit = model->index_of(QStringLiteral("GPIOC"), QStringLiteral("ODR"), QStringLiteral("ODR13"));
+        QElapsedTimer clock;
+        clock.start();
+        while (!(high && low && marked) && clock.elapsed() < 20000) {
+            QTest::qWait(50);
+            QVERIFY(model->value(QStringLiteral("GPIOC"), QStringLiteral("ODR"), value));
+            ((value >> 13) & 1u ? high : low) = true;
+            marked = marked || bit.data(Qt::BackgroundRole).isValid();
+        }
+        QVERIFY(high);
+        QVERIFY(low);
+        QVERIFY(marked); // the bit that changed is marked, for a moment
+        QVERIFY(model->value(QStringLiteral("GPIOC"), QStringLiteral("CRH"), value));
+        QVERIFY(((value >> 20) & 3u) != 0); // MODE13: an output
+        const QModelIndex mode = model->index_of(QStringLiteral("GPIOC"), QStringLiteral("CRH"), QStringLiteral("MODE13"));
+        QCOMPARE(mode.siblingAtColumn(RegisterModel::Bits).data().toString(), QStringLiteral("[21:20]"));
+        QVERIFY(mode.siblingAtColumn(RegisterModel::Value).data().toString() != QStringLiteral("-"));
+        QVERIFY(model->value(QStringLiteral("RCC"), QStringLiteral("APB2ENR"), value));
+        QVERIFY((value & (1u << 4)) != 0); // IOPCEN: the firmware turned port C on
+        QCOMPARE(bit.siblingAtColumn(RegisterModel::Bits).data().toString(), QStringLiteral("[13]"));
+        // The filter leaves what matches and what holds it.
+        filter->setText(QStringLiteral("odr13"));
+        QCOMPARE(tree->model()->rowCount(), 4); // GPIOA to GPIOD
+        QCOMPARE(tree->model()->rowCount(tree->model()->index(0, 0)), 1); // ODR alone
+        filter->setText(QStringLiteral("usart1"));
+        QCOMPARE(tree->model()->rowCount(), 3); // USART1, RCC for USART1EN and USART1RST, AFIO for USART1_REMAP
+        filter->clear();
+        QCOMPARE(tree->model()->rowCount(), static_cast<int>(model->map()->peripherals.size()));
+        tree->expand(tree->model()->index(odr.parent().row(), 0));
+        const QString shot = qEnvironmentVariable("SIMNODUS_TEST_SHOT");
+        if (!shot.isEmpty()) {
+            tree->expand(tree->model()->index(odr.row(), 0, tree->model()->index(odr.parent().row(), 0)));
+            tree->scrollTo(tree->model()->index(odr.parent().row(), 0), QAbstractItemView::PositionAtTop);
+            QTest::qWait(300);
+            viewer->grab().save(shot);
+        }
+
+        // Paused: the values stay and stand still.
+        window_->run_controller()->pause_or_resume();
+        QTest::qWait(600);
+        QVERIFY(model->value(QStringLiteral("GPIOC"), QStringLiteral("ODR"), value));
+        const std::uint32_t paused = value;
+        QTest::qWait(600);
+        QVERIFY(model->value(QStringLiteral("GPIOC"), QStringLiteral("ODR"), value));
+        QCOMPARE(value, paused);
+        window_->stop();
+        QTRY_VERIFY_WITH_TIMEOUT(!window_->run_controller()->active(), 10000);
+        QTest::qWait(400);
+        QVERIFY(model->value(QStringLiteral("GPIOC"), QStringLiteral("CRH"), value)); // as the run left them
+        // A second run is watched again without reopening the window.
+        window_->run();
+        QTRY_VERIFY_WITH_TIMEOUT(window_->run_controller()->active(), 5000);
+        QTRY_VERIFY_WITH_TIMEOUT(model->value(QStringLiteral("GPIOC"), QStringLiteral("ODR"), value), 10000);
+        window_->stop();
+        QTRY_VERIFY_WITH_TIMEOUT(!window_->run_controller()->active(), 10000);
+        viewer->close();
+
+        // An AVR: its own map, in its data space (example 50's ATmega8 drives its LED on PB0... as an output).
+        QVERIFY(doc().open_copy(
+            QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/50_ATmega8_serial_and_EEPROM.snx"), errors, warnings));
+        action->trigger();
+        QVERIFY(model->map() != nullptr);
+        QCOMPARE(QString::fromStdString(model->map()->chip), QStringLiteral("atmega8"));
+        window_->run();
+        QTRY_VERIFY_WITH_TIMEOUT(window_->run_controller()->active(), 5000);
+        QTRY_VERIFY_WITH_TIMEOUT(model->value(QStringLiteral("USART"), QStringLiteral("UCSRB"), value), 10000);
+        QTRY_VERIFY_WITH_TIMEOUT(model->value(QStringLiteral("USART"), QStringLiteral("UCSRB"), value) && (value & 0x08u) != 0,
+            10000); // TXEN: the firmware prints
+        QVERIFY(model->value(QStringLiteral("CPU"), QStringLiteral("SP"), value));
+        QVERIFY(value > 0x60 && value <= 0x45F); // the stack is in the SRAM
+        window_->stop();
+        QTRY_VERIFY_WITH_TIMEOUT(!window_->run_controller()->active(), 10000);
         viewer->close();
 #endif
     }

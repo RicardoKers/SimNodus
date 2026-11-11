@@ -563,7 +563,9 @@ turns red when it reads 1). The PC13 LED lights when PC13 is low; click
 
 **Window > Memory Viewer** (Ctrl+Shift+M) shows, loads and saves the contents
 of memory chips (the 24C02 EEPROM, ROM and RAM), live while running
-([details](MICROCONTROLLER.md#memory-viewer)).
+([details](MICROCONTROLLER.md#memory-viewer)). **Window > Register Viewer**
+(Ctrl+Shift+R) shows the microcontroller's peripheral registers and their
+fields by name while it runs ([details](MICROCONTROLLER.md#register-viewer)).
 
 Step-by-step instructions, the full list of peripherals and every difference
 from a real board are in [MICROCONTROLLER.md](MICROCONTROLLER.md).

@@ -82,6 +82,13 @@ struct McuStatus {
 // The board's second memory in device_memory(): its chip's EEPROM.
 inline constexpr std::uint64_t board_eeprom = ~std::uint64_t{0};
 
+// The registers watched with watch_registers(), in device_memory(): for each
+// range its address and its number of bytes (32 bits each, little endian) and
+// then the bytes; a range the chip cannot show comes with 0 bytes.
+inline constexpr std::uint64_t board_registers = ~std::uint64_t{0} - 1;
+// At most this many bytes of registers are watched at a time.
+inline constexpr std::uint32_t register_watch_limit = 65536;
+
 class McuBackend {
 public:
     virtual ~McuBackend() = default;
@@ -181,6 +188,11 @@ public:
     }
     // What the board's display chips show (component -> UTF-8 text, SN-206).
     virtual std::map<std::uint64_t, std::string> device_texts() const { return {}; }
+    // The register view (SN-290): ranges (address, bytes) of the chip's memory
+    // to show as the memory board_registers, looked at a few times a second
+    // without the side effects of a read by the firmware, also while the run
+    // is paused or the firmware halted by a debugger. No ranges: none shown.
+    virtual void watch_registers(std::vector<std::pair<std::uint32_t, std::uint32_t>> ranges) { (void)ranges; }
 };
 
 } // namespace simnodus::mcu

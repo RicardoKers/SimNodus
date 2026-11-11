@@ -168,6 +168,15 @@ public:
     void timed_schedule_changed() override { machine_.timed_schedule_changed(); }
     std::uint64_t cycles_at(std::uint64_t ns) const override { return machine_.cycles_at(ns); }
     std::uint64_t ns_at(std::uint64_t cycle) const override { return machine_.ns_at(cycle); }
+    bool peek(std::uint32_t address, std::uint8_t& value) override
+    {
+        std::uint32_t word = 0;
+        if (!machine_.bus().peek(address, 1, word)) {
+            return false;
+        }
+        value = static_cast<std::uint8_t>(word);
+        return true;
+    }
     emu::GdbTarget* gdb_target() override
     {
         if (!gdb_target_) {
@@ -817,6 +826,10 @@ public:
         return machine_.eeprom_writes() > eeprom_writes_ ? machine_.eeprom_writes() : 0;
     }
     std::vector<std::uint8_t> eeprom() const override { return machine_.eeprom(); }
+    bool peek(std::uint32_t address, std::uint8_t& value) override
+    {
+        return address < 0x10000 && machine_.debug_read(static_cast<std::uint16_t>(address), value);
+    }
     emu::GdbTarget* gdb_target() override
     {
         if (!gdb_target_) {

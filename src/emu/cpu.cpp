@@ -2659,7 +2659,9 @@ bool Cpu::scs_read(std::uint32_t offset, std::uint32_t& value)
     case 0x010: {
         systick_update(cycles_);
         value = st_ctrl_ | (st_countflag_ ? (1u << 16) : 0);
-        st_countflag_ = false;
+        if (!scs_.peeking()) {
+            st_countflag_ = false; // cleared by the firmware's read
+        }
         return true;
     }
     case 0x014: value = st_reload_; return true;

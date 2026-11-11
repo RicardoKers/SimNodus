@@ -365,19 +365,23 @@ bool Stm32F1I2c::read(std::uint32_t offset, unsigned size, std::uint32_t& value)
     case 0x0C: reg = oar2_; break;
     case 0x10:
         reg = dr_;
-        read_dr(now);
+        if (!peeking()) {
+            read_dr(now);
+        }
         break;
     case 0x14:
         reg = (sb_ ? 1u : 0u) | (addr_ ? 2u : 0u) | (btf_ ? 4u : 0u) | (rxne_ ? 0x40u : 0u) | (txe_ ? 0x80u : 0u)
             | (af_ ? 0x400u : 0u) | (ovr_ ? 0x800u : 0u);
-        sr1_read_ = true;
+        sr1_read_ = sr1_read_ || !peeking();
         break;
     case 0x18:
         reg = (msl_ ? 1u : 0u) | (busy_ ? 2u : 0u) | (tra_ ? 4u : 0u);
-        if (sr1_read_ && addr_) {
-            clear_addr(now);
+        if (!peeking()) {
+            if (sr1_read_ && addr_) {
+                clear_addr(now);
+            }
+            sr1_read_ = false;
         }
-        sr1_read_ = false;
         break;
     case 0x1C: reg = ccr_; break;
     case 0x20: reg = trise_; break;

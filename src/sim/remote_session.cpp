@@ -246,6 +246,20 @@ void RemoteSession::load_device_memory(model::Id component, const std::vector<st
     }
 }
 
+void RemoteSession::watch_registers(model::Id board, const std::vector<std::pair<std::uint32_t, std::uint32_t>>& ranges)
+{
+    if (active()) {
+        Writer w(Type::WatchRegisters);
+        w.u64(board);
+        w.size(ranges.size());
+        for (const auto& [address, size] : ranges) {
+            w.u32(address);
+            w.u32(size);
+        }
+        link_.send(w.payload());
+    }
+}
+
 void RemoteSession::mcu_reset(model::Id component)
 {
     if (active()) {

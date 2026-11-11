@@ -791,8 +791,10 @@ protected:
         case 0x00: value = sr_; return true;
         case 0x04:
             value = dr_;
-            sr_ &= ~0x2Fu; // reading DR clears RXNE (and PE, FE, NE, ORE after an SR read)
-            update();
+            if (!peeking()) {
+                sr_ &= ~0x2Fu; // reading DR clears RXNE (and PE, FE, NE, ORE after an SR read)
+                update();
+            }
             return true;
         case 0x08: value = brr_; return true;
         case 0x0C: value = cr1_; return true;

@@ -25,6 +25,14 @@ public:
     virtual bool read(std::uint32_t offset, unsigned size, std::uint32_t& value) = 0;
     virtual bool write(std::uint32_t offset, unsigned size, std::uint32_t value) = 0;
     virtual void reset() {}
+    // True inside a read that Bus::peek makes (the register view, SN-290): the
+    // device gives the value and leaves out what a read by the firmware also
+    // does (USART_DR clearing RXNE, ADC_DR clearing EOC).
+    bool peeking() const { return peeking_; }
+
+private:
+    friend class Bus;
+    bool peeking_ = false;
 };
 
 class Bus {
@@ -63,6 +71,10 @@ public:
         }
         return write_slow(address, size, value);
     }
+
+    // A read from outside the firmware that changes nothing in the chip (see
+    // Device::peeking); false for gaps and the bit-band aliases.
+    bool peek(std::uint32_t address, unsigned size, std::uint32_t& value);
 
     // Loader access to memories (ignores `writable`); false if not inside one memory.
     bool load(std::uint32_t address, const std::uint8_t* data, std::uint32_t size);

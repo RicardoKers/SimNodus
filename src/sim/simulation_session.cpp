@@ -1454,7 +1454,10 @@ std::optional<std::vector<std::uint8_t>> SimulationSession::device_memory(model:
     for (const auto& [id, runner] : mcus_) {
         // A board's own flash once esptool or a bootloader wrote it (SN-253)
         // is its memory 0; its chip's EEPROM, mcu::board_eeprom (SN-261).
-        const std::uint64_t key = id == component ? 0 : eeprom_memory(id) == component ? mcu::board_eeprom : component;
+        const std::uint64_t key = id == component ? 0
+            : eeprom_memory(id) == component ? mcu::board_eeprom
+            : registers_memory(id) == component ? mcu::board_registers
+            : component;
         if (runner->device_memory(key, bytes)) {
             return bytes;
         }
@@ -1465,7 +1468,10 @@ std::optional<std::vector<std::uint8_t>> SimulationSession::device_memory(model:
 std::uint64_t SimulationSession::device_memory_serial(model::Id component) const
 {
     for (const auto& [id, runner] : mcus_) {
-        const std::uint64_t key = id == component ? 0 : eeprom_memory(id) == component ? mcu::board_eeprom : component;
+        const std::uint64_t key = id == component ? 0
+            : eeprom_memory(id) == component ? mcu::board_eeprom
+            : registers_memory(id) == component ? mcu::board_registers
+            : component;
         if (const std::uint64_t serial = runner->device_memory_serial(key)) {
             return serial;
         }
@@ -1483,6 +1489,13 @@ void SimulationSession::load_device_memory(model::Id component, const std::vecto
                 }
             }
         }
+    }
+}
+
+void SimulationSession::watch_registers(model::Id board, const std::vector<std::pair<std::uint32_t, std::uint32_t>>& ranges)
+{
+    if (const auto it = mcus_.find(board); it != mcus_.end() && active()) {
+        it->second->watch_registers(ranges);
     }
 }
 
