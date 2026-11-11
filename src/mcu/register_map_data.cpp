@@ -31,6 +31,32 @@ extern const char* const atmega328p_registers[];
 const char* const stm32f103_registers[] = {
 R"(chip stm32f103
 
+per CORE 0xFFFFF000 | Cortex-M3 core registers
+reg R0 0x00 4 | General-purpose register (first argument and return value of a function)
+reg R1 0x04 4 | General-purpose register (second argument)
+reg R2 0x08 4 | General-purpose register (third argument)
+reg R3 0x0C 4 | General-purpose register (fourth argument)
+reg R4 0x10 4 | General-purpose register
+reg R5 0x14 4 | General-purpose register
+reg R6 0x18 4 | General-purpose register
+reg R7 0x1C 4 | General-purpose register
+reg R8 0x20 4 | General-purpose register
+reg R9 0x24 4 | General-purpose register
+reg R10 0x28 4 | General-purpose register
+reg R11 0x2C 4 | General-purpose register
+reg R12 0x30 4 | General-purpose register
+reg SP 0x34 4 | Stack pointer
+reg LR 0x38 4 | Link register: where the function returns to
+reg PC 0x3C 4 | Program counter: the next instruction
+reg xPSR 0x40 4 | Program status
+f N 31 1 | Negative
+f Z 30 1 | Zero
+f C 29 1 | Carry
+f V 28 1 | Overflow
+f Q 27 1 | Saturation
+f T 24 1 | Thumb state
+f EXCEPTION 0 9 | Number of the exception running (0: thread mode)
+
 type GPIO
 reg CRL 0x00 4 | Configuration of pins 0 to 7
 fr MODE 0 8 2 0 4 | Pin #: 0 input, 1 output 10 MHz, 2 output 2 MHz, 3 output 50 MHz
@@ -760,6 +786,43 @@ bits SPMIE RWWSB - RWWSRE BLBSET PGWRT PGERS SPMEN
 reg WDTCR 0x41 1 | Watchdog control
 bits - - - WDCE WDE WDP2 WDP1 WDP0
 
+per CORE 0xFFFFF000 | Program counter
+reg PC 0x88 4 | Program counter, as a byte address in the flash
+
+per REGISTERS 0 | General-purpose registers R0 to R31
+reg R0 0x00 1 | General-purpose register
+reg R1 0x01 1 | General-purpose register
+reg R2 0x02 1 | General-purpose register
+reg R3 0x03 1 | General-purpose register
+reg R4 0x04 1 | General-purpose register
+reg R5 0x05 1 | General-purpose register
+reg R6 0x06 1 | General-purpose register
+reg R7 0x07 1 | General-purpose register
+reg R8 0x08 1 | General-purpose register
+reg R9 0x09 1 | General-purpose register
+reg R10 0x0A 1 | General-purpose register
+reg R11 0x0B 1 | General-purpose register
+reg R12 0x0C 1 | General-purpose register
+reg R13 0x0D 1 | General-purpose register
+reg R14 0x0E 1 | General-purpose register
+reg R15 0x0F 1 | General-purpose register
+reg R16 0x10 1 | General-purpose register
+reg R17 0x11 1 | General-purpose register
+reg R18 0x12 1 | General-purpose register
+reg R19 0x13 1 | General-purpose register
+reg R20 0x14 1 | General-purpose register
+reg R21 0x15 1 | General-purpose register
+reg R22 0x16 1 | General-purpose register
+reg R23 0x17 1 | General-purpose register
+reg R24 0x18 1 | General-purpose register
+reg R25 0x19 1 | General-purpose register
+reg R26 0x1A 1 | General-purpose register (X low)
+reg R27 0x1B 1 | General-purpose register (X high)
+reg R28 0x1C 1 | General-purpose register (Y low)
+reg R29 0x1D 1 | General-purpose register (Y high)
+reg R30 0x1E 1 | General-purpose register (Z low)
+reg R31 0x1F 1 | General-purpose register (Z high)
+
 per PORTB 0 | Port B
 reg PORTB 0x38 1 | Output (for an input: its pull-up)
 bits PB7 PB6 PB5 PB4 PB3 PB2 PB1 PB0
@@ -878,6 +941,43 @@ reg SPMCR 0x57 1 | Store program memory control
 bits SPMIE RWWSB - RWWSRE BLBSET PGWRT PGERS SPMEN
 reg WDTCR 0x41 1 | Watchdog control
 bits - - - WDTOE WDE WDP2 WDP1 WDP0
+
+per CORE 0xFFFFF000 | Program counter
+reg PC 0x88 4 | Program counter, as a byte address in the flash
+
+per REGISTERS 0 | General-purpose registers R0 to R31
+reg R0 0x00 1 | General-purpose register
+reg R1 0x01 1 | General-purpose register
+reg R2 0x02 1 | General-purpose register
+reg R3 0x03 1 | General-purpose register
+reg R4 0x04 1 | General-purpose register
+reg R5 0x05 1 | General-purpose register
+reg R6 0x06 1 | General-purpose register
+reg R7 0x07 1 | General-purpose register
+reg R8 0x08 1 | General-purpose register
+reg R9 0x09 1 | General-purpose register
+reg R10 0x0A 1 | General-purpose register
+reg R11 0x0B 1 | General-purpose register
+reg R12 0x0C 1 | General-purpose register
+reg R13 0x0D 1 | General-purpose register
+reg R14 0x0E 1 | General-purpose register
+reg R15 0x0F 1 | General-purpose register
+reg R16 0x10 1 | General-purpose register
+reg R17 0x11 1 | General-purpose register
+reg R18 0x12 1 | General-purpose register
+reg R19 0x13 1 | General-purpose register
+reg R20 0x14 1 | General-purpose register
+reg R21 0x15 1 | General-purpose register
+reg R22 0x16 1 | General-purpose register
+reg R23 0x17 1 | General-purpose register
+reg R24 0x18 1 | General-purpose register
+reg R25 0x19 1 | General-purpose register
+reg R26 0x1A 1 | General-purpose register (X low)
+reg R27 0x1B 1 | General-purpose register (X high)
+reg R28 0x1C 1 | General-purpose register (Y low)
+reg R29 0x1D 1 | General-purpose register (Y high)
+reg R30 0x1E 1 | General-purpose register (Z low)
+reg R31 0x1F 1 | General-purpose register (Z high)
 
 per PORTA 0 | Port A
 reg PORTA 0x3B 1 | Output (for an input: its pull-up)
@@ -1009,6 +1109,43 @@ bits WDIF WDIE WDP3 WDCE WDE WDP2 WDP1 WDP0
 reg GPIOR0 0x3E 1 | General-purpose register 0
 reg GPIOR1 0x4A 1 | General-purpose register 1
 reg GPIOR2 0x4B 1 | General-purpose register 2
+
+per CORE 0xFFFFF000 | Program counter
+reg PC 0x88 4 | Program counter, as a byte address in the flash
+
+per REGISTERS 0 | General-purpose registers R0 to R31
+reg R0 0x00 1 | General-purpose register
+reg R1 0x01 1 | General-purpose register
+reg R2 0x02 1 | General-purpose register
+reg R3 0x03 1 | General-purpose register
+reg R4 0x04 1 | General-purpose register
+reg R5 0x05 1 | General-purpose register
+reg R6 0x06 1 | General-purpose register
+reg R7 0x07 1 | General-purpose register
+reg R8 0x08 1 | General-purpose register
+reg R9 0x09 1 | General-purpose register
+reg R10 0x0A 1 | General-purpose register
+reg R11 0x0B 1 | General-purpose register
+reg R12 0x0C 1 | General-purpose register
+reg R13 0x0D 1 | General-purpose register
+reg R14 0x0E 1 | General-purpose register
+reg R15 0x0F 1 | General-purpose register
+reg R16 0x10 1 | General-purpose register
+reg R17 0x11 1 | General-purpose register
+reg R18 0x12 1 | General-purpose register
+reg R19 0x13 1 | General-purpose register
+reg R20 0x14 1 | General-purpose register
+reg R21 0x15 1 | General-purpose register
+reg R22 0x16 1 | General-purpose register
+reg R23 0x17 1 | General-purpose register
+reg R24 0x18 1 | General-purpose register
+reg R25 0x19 1 | General-purpose register
+reg R26 0x1A 1 | General-purpose register (X low)
+reg R27 0x1B 1 | General-purpose register (X high)
+reg R28 0x1C 1 | General-purpose register (Y low)
+reg R29 0x1D 1 | General-purpose register (Y high)
+reg R30 0x1E 1 | General-purpose register (Z low)
+reg R31 0x1F 1 | General-purpose register (Z high)
 
 per PORTB 0 | Port B
 reg PORTB 0x25 1 | Output (for an input: its pull-up)

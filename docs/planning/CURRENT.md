@@ -1,6 +1,6 @@
 # Current state
 
-Updated: 2026-11-11 (the Register Viewer SN-290 on main after 0.18.0; release 0.18.0 published: the chart recorder SN-281, the review and speed passes SN-282 to SN-284, the owner's requests SN-285, the protocol decoders SN-286 and SN-288, the chart fix SN-287 and the Memory Viewer's editing SN-289, tested by the owner on the 2026-11-11 previews; DE9 waits for the owner). Keep this file short: present state, last results, next
+Updated: 2026-11-11 (the Register Viewer SN-290 and SN-291 on main after 0.18.0; release 0.18.0 published: the chart recorder SN-281, the review and speed passes SN-282 to SN-284, the owner's requests SN-285, the protocol decoders SN-286 and SN-288, the chart fix SN-287 and the Memory Viewer's editing SN-289, tested by the owner on the 2026-11-11 previews; DE9 waits for the owner). Keep this file short: present state, last results, next
 steps. Replace it, do not append. History of the first development line
 (2026-08-31 → 2026-10-06) is in
 [archive/2026-10-legacy/CURRENT.md](../archive/2026-10-legacy/CURRENT.md);
@@ -278,10 +278,9 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
    time); the window's thread is half as busy or less while running
    (CHANGELOG). Found and still open, most valuable first:
    - a 1-Wire decoder is missing (SN-286, SN-288 have I2C, SPI, UART);
-   - the Register Viewer (SN-290, after 0.18.0: `register_window.cpp`,
-     maps in `src/mcu/register_map_data.cpp`) has no ESP32-C3 map, does not
-     edit registers, does not show the CPU's core registers and is out of
-     reach of external control;
+   - the Register Viewer (SN-290, SN-291, after 0.18.0:
+     `register_window.cpp`, maps in `src/mcu/register_map_data.cpp`) has no
+     ESP32-C3 map and is out of reach of external control;
    - the chart recorder and the logic lanes draw every point
      (`chart_painter.cpp`, `logic_widget.cpp`); a character or graphic
      display is decoded at every paint;

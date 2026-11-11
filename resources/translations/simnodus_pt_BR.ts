@@ -2761,6 +2761,17 @@ Permitir para este projeto neste computador? Sem isso, a rede das placas fica de
     <context>
         <name>simnodus::ui::RegisterModel</name>
         <message>
+            <source>A value is a number: 26, 0x1A or 0b11010.</source>
+            <translation>Um valor é um número: 26, 0x1A ou 0b11010.</translation>
+        </message>
+        <message numerus="yes">
+            <source>%1 does not fit in %n bit(s).</source>
+            <translation>
+                <numerusform>%1 não cabe em %n bit.</numerusform>
+                <numerusform>%1 não cabe em %n bits.</numerusform>
+            </translation>
+        </message>
+        <message>
             <source>%1 at %2: %3</source>
             <translation>%1 em %2: %3</translation>
         </message>
@@ -2804,6 +2815,14 @@ Permitir para este projeto neste computador? Sem isso, a rede das placas fica de
             <translation>Filtro:</translation>
         </message>
         <message>
+            <source>Registers are written in the chip of a running simulation (paused or not).</source>
+            <translation>Os registradores são gravados no chip de uma simulação em execução (pausada ou não).</translation>
+        </message>
+        <message>
+            <source>%1 written at %2. What the chip made of it shows above.</source>
+            <translation>%1 gravado em %2. O que o chip fez com ele aparece acima.</translation>
+        </message>
+        <message>
             <source>The circuit has no microcontroller.</source>
             <translation>O circuito não tem microcontrolador.</translation>
         </message>
@@ -2816,8 +2835,8 @@ Permitir para este projeto neste computador? Sem isso, a rede das placas fica de
             <translation>Os registradores mostram seus valores enquanto uma simulação roda.</translation>
         </message>
         <message>
-            <source>Values of the running simulation; a value that changed is marked for a moment. They are looked at without the effects of a read by the firmware.</source>
-            <translation>Valores da simulação em execução; um valor que mudou fica marcado por um momento. Eles são observados sem os efeitos de uma leitura feita pelo firmware.</translation>
+            <source>Values of the running simulation; a value that changed is marked for a moment. They are looked at without the effects of a read by the firmware. Double-click a value to change it.</source>
+            <translation>Valores da simulação em execução; um valor que mudou fica marcado por um momento. Eles são observados sem os efeitos de uma leitura feita pelo firmware. Dê um duplo clique em um valor para alterá-lo.</translation>
         </message>
         <message>
             <source>Values as the last simulation left them.</source>

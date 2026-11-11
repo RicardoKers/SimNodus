@@ -162,6 +162,8 @@ public:
     // look at while it runs; their bytes are the memory registers_memory(board),
     // in the form of mcu::board_registers.
     virtual void watch_registers(model::Id board, const std::vector<std::pair<std::uint32_t, std::uint32_t>>& ranges) = 0;
+    // A register written from the register view (SN-291): see McuBackend::write_register.
+    virtual void write_register(model::Id board, std::uint32_t address, unsigned size, std::uint32_t value) = 0;
     static constexpr model::Id registers_memory(model::Id board) { return board | registers_flag; }
     static constexpr model::Id registers_flag = model::Id{1} << 61;
 };
@@ -218,6 +220,7 @@ public:
     std::uint64_t device_memory_serial(model::Id component) const;
     void load_device_memory(model::Id component, const std::vector<std::uint8_t>& bytes) override;
     void watch_registers(model::Id board, const std::vector<std::pair<std::uint32_t, std::uint32_t>>& ranges) override;
+    void write_register(model::Id board, std::uint32_t address, unsigned size, std::uint32_t value) override;
 
 private:
     bool start_mcus();

@@ -51,6 +51,19 @@ public:
     // A register's value by its names (tests); false while it is unknown.
     bool value(const QString& peripheral, const QString& reg, std::uint32_t& out) const;
     QModelIndex index_of(const QString& peripheral, const QString& reg = {}, const QString& field = {}) const;
+    // Editing (SN-291): while set, the Value of a register or field whose
+    // value is known takes a number (decimal, 0x hexadecimal, 0b binary); the
+    // model says which register gets which value and leaves its own values to
+    // the chip. A field's edit is its register's value with that field changed.
+    void set_editable(bool editable);
+    bool editable() const { return editable_; }
+    // What a typed value means; false for what is not a number of 32 bits.
+    static bool parse_value(const QString& text, std::uint32_t& out);
+    // Why the last setData() refused its value; empty after one it took.
+    const QString& refusal() const { return refusal_; }
+
+    Qt::ItemFlags flags(const QModelIndex& index) const override;
+    bool setData(const QModelIndex& index, const QVariant& value, int role = Qt::EditRole) override;
 
     QModelIndex index(int row, int column, const QModelIndex& parent = {}) const override;
     QModelIndex parent(const QModelIndex& child) const override;
@@ -79,6 +92,12 @@ private:
 
     const mcu::RegisterMap* map_ = nullptr;
     std::vector<std::vector<State>> states_; // per peripheral, per register
+    bool editable_ = false;
+    QString refusal_;
+
+signals:
+    // `size` bytes of `value` for the register at `address` (in the chip's memory as the map has it).
+    void register_edited(quint32 address, int size, quint32 value);
 };
 
 class RegisterWindow : public QWidget {
@@ -101,6 +120,7 @@ private:
     // Tells the engine which registers to show: all of the chosen chip's while
     // the window is on screen, none otherwise.
     void watch(bool on);
+    void edit(quint32 address, int size, quint32 value);
 
     Document& document_;
     RunController& run_;
@@ -110,6 +130,7 @@ private:
     RegisterModel* model_ = nullptr;
     QSortFilterProxyModel* proxy_ = nullptr;
     QLabel* status_ = nullptr;
+    QLabel* note_ = nullptr; // what an edit answered
     QTimer timer_;
     model::Id shown_ = model::no_id;
     model::Id watched_ = model::no_id; // the board whose registers the engine was asked for

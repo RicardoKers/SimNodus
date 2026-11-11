@@ -193,6 +193,15 @@ public:
     // without the side effects of a read by the firmware, also while the run
     // is paused or the firmware halted by a debugger. No ranges: none shown.
     virtual void watch_registers(std::vector<std::pair<std::uint32_t, std::uint32_t>> ranges) { (void)ranges; }
+    // A register written from the register view (SN-291): `size` bytes (1, 2
+    // or 4) of `value` at `address`, with the effects of a write by the
+    // firmware, also while the run is paused or the firmware halted.
+    virtual void write_register(std::uint32_t address, unsigned size, std::uint32_t value)
+    {
+        (void)address;
+        (void)size;
+        (void)value;
+    }
 };
 
 } // namespace simnodus::mcu

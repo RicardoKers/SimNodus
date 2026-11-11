@@ -2068,3 +2068,125 @@ TEST_CASE("the own emulator's runner shows watched registers while the firmware 
     CHECK(mcu::RegisterBytes::parse(blob).ranges.size() == 1);
     runner.stop();
 }
+
+TEST_CASE("the register view writes registers as the firmware would, and shows the CPU's own (SN-291)")
+{
+    // The machines: a write takes effect, the core registers are there, and what cannot be written is refused.
+    {
+        mcu::McuRunOptions options;
+        options.firmware = std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "firmware" / "blink" / "blink.elf";
+        std::string error;
+        auto machine = mcu::make_machine(options, error);
+        REQUIRE(machine);
+        REQUIRE(machine->load(options, error));
+        machine->run_until_ns(1000000);
+        auto look = [&](std::uint32_t address, unsigned size) {
+            std::uint32_t value = 0;
+            for (unsigned i = 0; i < size; ++i) {
+                std::uint8_t byte = 0;
+                REQUIRE(machine->peek(address + i, byte));
+                value |= static_cast<std::uint32_t>(byte) << (8 * i);
+            }
+            return value;
+        };
+        const std::uint32_t core = mcu::core_register_base;
+        const std::uint32_t pc = look(core + 15 * 4, 4);
+        CHECK(pc >= 0x08000000u);
+        CHECK(pc < 0x08010000u);
+        const std::uint32_t sp = look(core + 13 * 4, 4);
+        CHECK(sp > 0x20000000u);
+        CHECK(sp <= 0x20005000u);
+        CHECK((look(core + 16 * 4, 4) & (1u << 24)) != 0); // xPSR: Thumb
+        REQUIRE(machine->poke(core + 7 * 4, 4, 0x12345678u));
+        CHECK(look(core + 7 * 4, 4) == 0x12345678u);
+        std::uint8_t byte = 0;
+        CHECK(!machine->peek(core + 40 * 4, byte)); // no such register
+        CHECK(!machine->poke(core + 17 * 4, 4, 0));  // MSP and the rest: shown by a debugger, not written here
+        CHECK(!machine->poke(core + 7 * 4, 2, 0));
+        // TIM2's reload register, a 16-bit one, and a GPIO word.
+        REQUIRE(machine->poke(0x4002101Cu, 4, look(0x4002101Cu, 4) | 1u)); // RCC_APB1ENR: TIM2EN
+        REQUIRE(machine->poke(0x4000002Cu, 2, 0x1234u));
+        CHECK(look(0x4000002Cu, 2) == 0x1234u);
+        REQUIRE(machine->poke(0x4001080Cu, 4, 0x00A5u)); // GPIOA_ODR
+        CHECK(look(0x4001080Cu, 4) == 0x00A5u);
+        CHECK(!machine->poke(0x08000000u, 4, 0));  // the flash is not written this way
+        CHECK(!machine->poke(0x50000000u, 4, 0));  // nothing there
+        CHECK(!machine->poke(0x4001080Cu, 3, 0));
+    }
+    {
+        mcu::McuRunOptions options;
+        options.chip = "atmega328p";
+        std::string error;
+        auto machine = mcu::make_machine(options, error);
+        REQUIRE(machine);
+        std::uint8_t low = 0;
+        std::uint8_t high = 0;
+        REQUIRE(machine->poke(0x88, 2, 0x1234u)); // OCR1A: the high byte goes first, as firmware writes it
+        REQUIRE(machine->peek(0x88, low));
+        REQUIRE(machine->peek(0x89, high));
+        CHECK(low == 0x34);
+        CHECK(high == 0x12);
+        REQUIRE(machine->poke(0x24, 1, 0x20u)); // DDRB: PB5 an output
+        REQUIRE(machine->peek(0x24, low));
+        CHECK(low == 0x20);
+        REQUIRE(machine->poke(0x10, 1, 0x5Au)); // R16
+        REQUIRE(machine->peek(0x10, low));
+        CHECK(low == 0x5A);
+        REQUIRE(machine->poke(mcu::core_register_base + 34 * 4, 4, 0x100u)); // the PC, a byte address
+        std::uint32_t pc = 0;
+        for (unsigned i = 0; i < 4; ++i) {
+            REQUIRE(machine->peek(mcu::core_register_base + 34 * 4 + i, low));
+            pc |= static_cast<std::uint32_t>(low) << (8 * i);
+        }
+        CHECK(pc == 0x100u);
+        CHECK(!machine->poke(0x88, 4, 0));
+        CHECK(!machine->poke(0xFFFF, 2, 0));
+    }
+    // The runner: a write while the firmware stands still is applied and shown at once.
+    mcu::McuRunOptions options;
+    options.firmware = std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "firmware" / "blink" / "blink.elf";
+    options.pins = {"PA0"};
+    mcu::NativeMcuRunner runner(options);
+    runner.start();
+    std::atomic<bool> cancel{false};
+    REQUIRE(runner.wait_ready(cancel));
+    runner.set_limit_ns(10000000);
+    REQUIRE(runner.wait_time_ns(10000000, cancel));
+    const std::uint32_t crl = 0x40010800u;
+    const std::uint32_t odr = 0x4001080Cu;
+    runner.watch_registers({{crl, 4u}, {odr, 4u}, {mcu::core_register_base + 15 * 4, 4u}});
+    runner.write_register(0x40021018u, 4, 0x1Du); // RCC_APB2ENR: the ports and AFIO on
+    runner.write_register(crl, 4, 0x44444442u);   // PA0: an output
+    runner.write_register(odr, 4, 1u);
+    std::vector<std::uint8_t> blob;
+    std::uint32_t value = 0;
+    const auto begin = std::chrono::steady_clock::now();
+    bool seen = false;
+    while (!seen && std::chrono::steady_clock::now() - begin < 5s) {
+        std::this_thread::sleep_for(20ms);
+        seen = runner.device_memory(mcu::board_registers, blob) && mcu::RegisterBytes::parse(blob).value(odr, 4, value)
+            && value == 1u;
+    }
+    REQUIRE(seen);
+    const auto bytes = mcu::RegisterBytes::parse(blob);
+    CHECK(bytes.value(crl, 4, value));
+    CHECK(value == 0x44444442u);
+    CHECK(bytes.value(mcu::core_register_base + 15 * 4, 4, value));
+    CHECK(value >= 0x08000000u);
+    // The pin itself follows once the firmware's time goes on.
+    runner.set_limit_ns(20000000);
+    REQUIRE(runner.wait_time_ns(20000000, cancel));
+    const auto pins = runner.pins();
+    REQUIRE(pins.count("PA0") == 1);
+    CHECK(pins.at("PA0").mode == mcu::PinMode::Output);
+    CHECK(pins.at("PA0").level);
+    // A write nothing takes is told.
+    runner.write_register(0x50000000u, 4, 0);
+    std::this_thread::sleep_for(200ms);
+    bool told = false;
+    for (const auto& text : runner.take_diagnostics()) {
+        told = told || text.find("could not be written") != std::string::npos;
+    }
+    CHECK(told);
+    runner.stop();
+}

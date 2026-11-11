@@ -166,8 +166,23 @@ does not take the received byte and showing `ADC1_DR` does not clear EOC, as
 a read by the firmware (or by a debugger's memory window) would. Write-only
 registers are not listed. The Blue Pill (STM32F103, with the Cortex-M3's
 SysTick, NVIC and SCB), the ATmega8/8A, ATmega328/328P, ATmega32/32A and the
-Arduino UNO have this view; the ESP32-C3 does not yet. Registers are shown,
-not edited.
+Arduino UNO have this view; the ESP32-C3 does not yet.
+
+**CORE** has the CPU's own registers: R0 to R12, SP, LR, PC and xPSR with
+its flags on the Blue Pill; the PC on an AVR, whose R0 to R31 are under
+**REGISTERS** and whose SREG and SP are under **CPU**. They change at every
+instruction, so they are of use while the run is paused or the firmware is
+halted.
+
+While a simulation runs, paused or not, a double-click on a **Value** (or
+F2) changes it in the chip: a number in decimal, hexadecimal (`0x1A`) or
+binary (`0b11010`). The write does what a write by the firmware does, so a
+bit set in `GPIOC.ODR` drives the pin and a new `TIM2.ARR` changes the PWM's
+period at once. Changing a field writes its whole register with the other
+fields as they are shown; in a status register whose flags are cleared by
+writing them, that also clears the flags that are set. The chip may keep
+only part of what is written (reserved and read-only bits): the tree shows
+what it made of it.
 
 Typical uses: see whether the firmware turned a peripheral's clock on
 (`RCC.APB2ENR`), how a pin is configured (`GPIOx.CRL/CRH`, or `DDRx` on an

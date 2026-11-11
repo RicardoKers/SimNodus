@@ -419,6 +419,18 @@ void NativeMcuRunner::watch_registers(std::vector<std::pair<std::uint32_t, std::
     changed_.notify_all();
 }
 
+void NativeMcuRunner::write_register(std::uint32_t address, unsigned size, std::uint32_t value)
+{
+    {
+        std::lock_guard lock(mutex_);
+        if (register_writes_.size() < 1024) {
+            register_writes_.push_back({address, size, value});
+        }
+    }
+    register_written_ = true;
+    changed_.notify_all();
+}
+
 std::map<std::uint64_t, std::string> NativeMcuRunner::device_texts() const
 {
     std::lock_guard lock(mutex_);
@@ -599,6 +611,23 @@ void NativeMcuRunner::work()
     std::vector<std::pair<std::uint32_t, std::uint32_t>> register_watch;
     auto last_registers = std::chrono::steady_clock::time_point{};
     auto show_registers = [&](bool now) {
+        // Registers written from the view (SN-291) first, and then shown at once.
+        if (register_written_.exchange(false)) {
+            std::vector<RegisterWrite> writes;
+            {
+                std::lock_guard lock(mutex_);
+                writes.swap(register_writes_);
+            }
+            for (const auto& w : writes) {
+                if (!machine->poke(w.address, w.size, w.value)) {
+                    std::lock_guard lock(mutex_);
+                    if (diagnostics_.size() < 100) {
+                        diagnostics_.push_back("a register could not be written at this address.");
+                    }
+                }
+            }
+            now = true;
+        }
         if (register_watch_changed_.exchange(false)) {
             std::lock_guard lock(mutex_);
             register_watch = register_watch_;
@@ -804,7 +833,7 @@ void NativeMcuRunner::work()
                     sending = sending || !log.pending.empty();
                 }
                 return stop_ || reset_ || boundary_below(limit_ns_) > now || !input_queue_.empty() || sending
-                    || !parameter_changes_.empty() || !memory_loads_.empty();
+                    || !parameter_changes_.empty() || !memory_loads_.empty() || register_written_;
             });
             for (auto& [component, bytes] : std::exchange(memory_loads_, {})) {
                 for (std::size_t d = 0; d < options_.devices.size(); ++d) {

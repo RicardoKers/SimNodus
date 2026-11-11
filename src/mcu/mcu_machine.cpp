@@ -171,11 +171,27 @@ public:
     bool peek(std::uint32_t address, std::uint8_t& value) override
     {
         std::uint32_t word = 0;
+        if (address >= core_register_base) {
+            if (!gdb_target()->read_register(static_cast<int>((address - core_register_base) / 4), word)) {
+                return false;
+            }
+            value = static_cast<std::uint8_t>(word >> (8 * (address & 3u)));
+            return true;
+        }
         if (!machine_.bus().peek(address, 1, word)) {
             return false;
         }
         value = static_cast<std::uint8_t>(word);
         return true;
+    }
+    bool poke(std::uint32_t address, unsigned size, std::uint32_t value) override
+    {
+        if (address >= core_register_base) {
+            const int n = static_cast<int>((address - core_register_base) / 4);
+            return size == 4 && (address & 3u) == 0 && n <= 16 && gdb_target()->write_register(n, value);
+        }
+        // A device or the SRAM, as the firmware writes them; not the flash.
+        return (size == 1 || size == 2 || size == 4) && machine_.bus().write(address, size, value);
     }
     emu::GdbTarget* gdb_target() override
     {
@@ -828,7 +844,32 @@ public:
     std::vector<std::uint8_t> eeprom() const override { return machine_.eeprom(); }
     bool peek(std::uint32_t address, std::uint8_t& value) override
     {
+        if (address >= core_register_base) {
+            std::uint32_t word = 0;
+            if (!gdb_target()->read_register(static_cast<int>((address - core_register_base) / 4), word)) {
+                return false;
+            }
+            value = static_cast<std::uint8_t>(word >> (8 * (address & 3u)));
+            return true;
+        }
         return address < 0x10000 && machine_.debug_read(static_cast<std::uint16_t>(address), value);
+    }
+    bool poke(std::uint32_t address, unsigned size, std::uint32_t value) override
+    {
+        if (address >= core_register_base) {
+            return size == 4 && (address & 3u) == 0
+                && gdb_target()->write_register(static_cast<int>((address - core_register_base) / 4), value);
+        }
+        if (size < 1 || size > 2 || address > 0x10000u - size) {
+            return false;
+        }
+        // The high byte first, as firmware writes a 16-bit register (it waits in TEMP for the low one).
+        for (unsigned i = size; i-- > 0;) {
+            if (!machine_.debug_write(static_cast<std::uint16_t>(address + i), static_cast<std::uint8_t>(value >> (8 * i)))) {
+                return false;
+            }
+        }
+        return true;
     }
     emu::GdbTarget* gdb_target() override
     {

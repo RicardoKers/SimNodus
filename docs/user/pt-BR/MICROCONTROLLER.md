@@ -1,4 +1,4 @@
-<!-- source: MICROCONTROLLER.md sha256 f6705a2e6c3f9363fd7c1d5f9ee0bbe87dd7484ac51b4520d5961838a0575008 -->
+<!-- source: MICROCONTROLLER.md sha256 1dc427bcec19b30462130f310d90f70832d1a9f83222763fc6cf118971f45d49 -->
 # Microcontrolador: o que é simulado
 
 O SimNodus executa o firmware da **Blue Pill (STM32F103C8)** em seu próprio emulador
@@ -174,8 +174,22 @@ retira o byte recebido e mostrar `ADC1_DR` não limpa EOC, como faria uma
 leitura feita pelo firmware (ou pela janela de memória de um depurador).
 Registradores só de escrita não são listados. A Blue Pill (STM32F103, com o
 SysTick, o NVIC e o SCB do Cortex-M3), o ATmega8/8A, o ATmega328/328P, o
-ATmega32/32A e o Arduino UNO têm esta visualização; o ESP32-C3 ainda não. Os
-registradores são mostrados, não editados.
+ATmega32/32A e o Arduino UNO têm esta visualização; o ESP32-C3 ainda não.
+
+**CORE** tem os registradores da própria CPU: R0 a R12, SP, LR, PC e xPSR com
+seus flags na Blue Pill; o PC num AVR, cujos R0 a R31 ficam em **REGISTERS**
+e cujos SREG e SP ficam em **CPU**. Eles mudam a cada instrução, então são
+úteis enquanto a simulação está pausada ou o firmware está parado.
+
+Enquanto uma simulação roda, pausada ou não, um duplo clique em um **Valor**
+(ou F2) altera-o no chip: um número em decimal, hexadecimal (`0x1A`) ou
+binário (`0b11010`). A escrita faz o que faz uma escrita do firmware, então
+um bit ligado em `GPIOC.ODR` aciona o pino e um novo `TIM2.ARR` muda o
+período do PWM na hora. Alterar um campo grava o registrador inteiro com os
+outros campos como estão mostrados; num registrador de status cujos flags são
+limpos ao serem escritos, isso também limpa os flags que estão ligados. O
+chip pode guardar só parte do que é escrito (bits reservados e só de
+leitura): a árvore mostra o que ele fez com o valor.
 
 Usos típicos: ver se o firmware ligou o clock de um periférico
 (`RCC.APB2ENR`), como um pino está configurado (`GPIOx.CRL/CRH`, ou `DDRx` num
