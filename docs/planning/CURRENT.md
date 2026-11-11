@@ -1,6 +1,6 @@
 # Current state
 
-Updated: 2026-11-11 (review and speed passes SN-282 to SN-284, the owner's requests SN-285, the protocol decoders SN-286 and SN-288, the chart fix SN-287 and the Memory Viewer's editing SN-289 on main; preview zip of 2026-11-11 with the owner; release 0.17.0 published: energy and motor control parts, BLDC/PMSM experimental (E-11), the owner's fixes of SN-279 and SN-280; DE9 waits for the owner). Keep this file short: present state, last results, next
+Updated: 2026-11-11 (release 0.18.0 being published: the chart recorder SN-281, the review and speed passes SN-282 to SN-284, the owner's requests SN-285, the protocol decoders SN-286 and SN-288, the chart fix SN-287 and the Memory Viewer's editing SN-289, tested by the owner on the 2026-11-11 previews; DE9 waits for the owner). Keep this file short: present state, last results, next
 steps. Replace it, do not append. History of the first development line
 (2026-08-31 → 2026-10-06) is in
 [archive/2026-10-legacy/CURRENT.md](../archive/2026-10-legacy/CURRENT.md);
@@ -8,6 +8,19 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 
 ## Where we are
 
+- **Release 0.18.0 (2026-11-11)** (tag `v0.18.0`, GitHub release with
+  `SimNodus-0.18.0-windows-x64.zip` and `-setup.exe`), after the owner's
+  tests of the 2026-11-10 and 2026-11-11 previews:
+  - SN-281: the chart recorder on the schematic.
+  - SN-282..SN-284: the code review's fixes, faster runs (drivers only for
+    wired pins: a blink from 5.7x to 15.6x real time) and a lighter window
+    while running (the GUI thread from 28-49% to 11-20% busy).
+  - SN-285: the Memory Viewer for large memories, the 1 us step, Expand all
+    / Collapse all in the component tree, the terminal's Up arrow.
+  - SN-286, SN-288: I2C, SPI and UART decoders in the Logic tab, kept with
+    the settings and reached by `analyzer.set`. SN-287: the chart recorder
+    painted while its record grows.
+  - SN-289: Go to, Find and bytes edited in a running chip.
 - **Release 0.17.0 published on 2026-11-09** (tag `v0.17.0`, GitHub release with
   `SimNodus-0.17.0-windows-x64.zip` and `-setup.exe`), after the owner's
   tests of the 2026-11-08 energy preview and the 2026-11-09 preview:

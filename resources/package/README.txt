@@ -1,7 +1,7 @@
 SimNodus - interactive circuit and STM32 simulator for teaching
 ================================================================
 
-Release 0.17 (analog and digital circuits, the Blue Pill / STM32F103
+Release 0.18 (analog and digital circuits, the Blue Pill / STM32F103
 microcontroller, AVR chips and the Arduino UNO, and an experimental
 ESP32-C3 board with Wi-Fi).
 Run simnodus.exe; no installation, account or network access is needed.
@@ -19,6 +19,17 @@ from STM32CubeIDE) in SimNodus's own STM32 emulator: GPIO, EXTI, USART
 watchdogs and CRC. Simulate >
 Debug Firmware with GDB lets STM32CubeIDE debug the firmware while it drives
 the circuit.
+
+New in 0.18: speed and instruments. Runs with a microcontroller are up to
+about three times faster (drivers only for the pins that are wired) and
+the window takes much less of the processor while running. The Signal
+Analyzer's Logic tab decodes I2C, SPI and UART (Add decoder...), and keeps
+its decoders for the next session. A chart recorder on the schematic draws
+slow quantities over minutes or hours. The Memory Viewer opens large
+memories at once (a 4 MB flash), goes to an address, finds text or bytes
+and edits bytes of a running chip. A 1 us step for the most precise runs;
+Expand all / Collapse all in the component tree; the Up arrow brings back
+what was sent in the serial terminal.
 
 New in 0.17: energy and motor control. Solar panels (single-diode model
 from datasheet values, irradiance and temperature set with the mouse) with

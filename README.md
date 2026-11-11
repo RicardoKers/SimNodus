@@ -8,10 +8,10 @@ continuously running, interactive simulation. Its first target is the
 STM32F103C8/Blue Pill, using SimNodus's own STM32 emulator for the
 microcontroller, ngspice for the circuit and a Qt 6 interface.
 
-**Status (2026-11-09): release 0.17.0.** Draw analog and digital circuits
-(170 component types, buses, your own blocks), run them continuously
+**Status (2026-11-11): release 0.18.0.** Draw analog and digital circuits
+(171 component types, buses, your own blocks), run them continuously
 while clicking switches, holding push buttons and turning potentiometers, and
-watch the signals in the Signal Analyzer. A Blue Pill (STM32F103C8) runs your
+watch the signals in the Signal Analyzer, which also decodes I2C, SPI and UART. A Blue Pill (STM32F103C8) runs your
 firmware in SimNodus's own emulator, drives SPI, I2C and 1-Wire chips (LED
 drivers, memories, sensors, an OLED, character LCDs, a WS2812B strip) and can be
 debugged from STM32CubeIDE. Sensors, 74HC logic chips, motors and drivers, 24 V
