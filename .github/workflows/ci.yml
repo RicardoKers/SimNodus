@@ -24,7 +24,18 @@ jobs:
         with:
           persist-credentials: false
       - name: Install build dependencies
+        # Minutes, not the whole job: on 2026-11-11 the runners did not resolve
+        # the names under ubuntu.com (azure.archive, archive, security), every
+        # package waited 40 s for each, and the job ran out of its 30 minutes
+        # before building anything.
+        timeout-minutes: 10
         run: |
+          # When those names do not resolve, a mirror under another name takes
+          # the place of the runner's list.
+          if [ -f /etc/apt/apt-mirrors.txt ] && ! timeout 15 getent hosts azure.archive.ubuntu.com > /dev/null; then
+            echo "azure.archive.ubuntu.com does not resolve here: packages from mirrors.edge.kernel.org"
+            printf 'http://mirrors.edge.kernel.org/ubuntu/\tpriority:1\n' | sudo tee /etc/apt/apt-mirrors.txt
+          fi
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends ninja-build qt6-base-dev qt6-qpa-plugins \
             libgl1-mesa-dev libxkbcommon-dev libngspice0-dev ngspice

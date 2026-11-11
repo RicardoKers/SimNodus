@@ -4,6 +4,11 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-11-11, SN-286, protocol decoders)
+
+- **Protocol decoders in the Signal Analyzer's Logic tab**: *Add decoder...* reads I2C, SPI or UART from the lanes and shows what it finds as a lane of its own, as a logic analyzer does. I2C: start, repeated start, stop, the address with its direction and acknowledge, each byte; bytes nobody acknowledged in red. SPI: one box per word with MOSI and MISO, modes 0 to 3, 8 to 32 bits, either bit order, an optional select line. UART: one box per frame with its character, framing and parity errors in red, 5 to 9 data bits, parity, an inverted line; the baud rate is found from the shortest pulse seen more than once, or typed. Each decoder reads one window before the one on display, so a frame begun before it is read whole. Checked on example 27 (the bytes of "SimNodus" written to the 24C02 at 0x50, then the address not acknowledged while the chip writes) and example 09 (the text on USART1's TX at a rate found by itself).
+- Not yet: decoders are not saved with the project or the window's settings, and external control (`analyzer.set`) does not reach them.
+
 ### Fixed (2026-11-11, SN-285)
 
 - The Memory Viewer froze the window for several seconds when a large memory was opened (example 39's W25Q32, 4 MB) and kept it busy afterwards: it made a table item for every byte (4.4 million) and went through all of them four times a second. The table is now a model over the bytes, of which only the rows on screen are formatted: it opens in 23 ms (offscreen test). The highlight of bytes that just changed remembers runs of bytes, so a chip erase is one entry; the contents file of a chip is read again only when it changed.

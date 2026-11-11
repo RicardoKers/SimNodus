@@ -18,6 +18,8 @@
 #include <QAction>
 #include <QComboBox>
 #include <QCoreApplication>
+#include <QDialog>
+#include <QDialogButtonBox>
 #include <QDoubleSpinBox>
 #include <QFile>
 #include <QFileDialog>
@@ -35,6 +37,7 @@
 #include <QVBoxLayout>
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <map>
 #include <optional>
@@ -425,6 +428,17 @@ QWidget* AnalyzerWindow::build_logic_page()
     export_vcd_button->setToolTip(tr("Write the checked lanes, over the whole retained history, to a VCD file for PulseView or GTKWave"));
     connect(export_vcd_button, &QPushButton::clicked, this, &AnalyzerWindow::export_vcd_dialog);
     side->addWidget(export_vcd_button);
+    // Protocol decoders (SN-286).
+    auto* add_decoder_button = new QPushButton(tr("Add decoder..."));
+    add_decoder_button->setObjectName(QStringLiteral("logicAddDecoder"));
+    add_decoder_button->setToolTip(tr("Read I2C, SPI or UART from the signals and show the bytes as a lane of their own"));
+    connect(add_decoder_button, &QPushButton::clicked, this, &AnalyzerWindow::add_decoder_dialog);
+    side->addWidget(add_decoder_button);
+    remove_decoders_ = new QPushButton(tr("Remove decoders"));
+    remove_decoders_->setObjectName(QStringLiteral("logicRemoveDecoders"));
+    remove_decoders_->setEnabled(false);
+    connect(remove_decoders_, &QPushButton::clicked, this, &AnalyzerWindow::clear_decoders);
+    side->addWidget(remove_decoders_);
     row->addLayout(side);
     auto* main = new QVBoxLayout;
     logic_ = new LogicWidget;
@@ -448,6 +462,184 @@ QWidget* AnalyzerWindow::build_logic_page()
     // The wheel and dragging on the lanes zoom and pan the shared time window.
     connect(logic_, &LogicWidget::window_requested, this, &AnalyzerWindow::set_time_window);
     return page;
+}
+
+QString AnalyzerWindow::Decoder::title() const
+{
+    switch (protocol) {
+    case Protocol::I2c:
+        return QStringLiteral("I2C");
+    case Protocol::Spi:
+        return QStringLiteral("SPI");
+    default:
+        return QStringLiteral("UART");
+    }
+}
+
+void AnalyzerWindow::add_decoder(const Decoder& decoder)
+{
+    decoders_.push_back(decoder);
+    decoded_.emplace_back();
+    remove_decoders_->setEnabled(true);
+    if (controller_ && isVisible()) {
+        refresh_logic();
+    }
+}
+
+void AnalyzerWindow::clear_decoders()
+{
+    decoders_.clear();
+    decoded_.clear();
+    remove_decoders_->setEnabled(false);
+    if (controller_ && isVisible()) {
+        refresh_logic();
+    }
+}
+
+std::vector<sim::DecodedItem> AnalyzerWindow::decoded(int index) const
+{
+    return index >= 0 && static_cast<std::size_t>(index) < decoded_.size() ? decoded_[static_cast<std::size_t>(index)]
+                                                                         : std::vector<sim::DecodedItem>{};
+}
+
+void AnalyzerWindow::add_decoder_dialog()
+{
+    QDialog dialog(this);
+    dialog.setObjectName(QStringLiteral("decoderDialog"));
+    dialog.setWindowTitle(tr("Add a protocol decoder"));
+    auto* form = new QFormLayout(&dialog);
+    auto* protocol = new QComboBox;
+    protocol->setObjectName(QStringLiteral("decoderProtocol"));
+    protocol->addItems({QStringLiteral("I2C"), QStringLiteral("SPI"), QStringLiteral("UART")});
+    form->addRow(tr("Protocol"), protocol);
+    // Four signal rows; each protocol names and uses its own.
+    const QStringList lanes = available_lanes();
+    std::array<QLabel*, 4> labels{};
+    std::array<QComboBox*, 4> signal_boxes{};
+    for (std::size_t i = 0; i < 4; ++i) {
+        labels[i] = new QLabel;
+        signal_boxes[i] = new QComboBox;
+        signal_boxes[i]->setObjectName(QStringLiteral("decoderSignal%1").arg(i));
+        form->addRow(labels[i], signal_boxes[i]);
+    }
+    auto* mode = new QComboBox;
+    mode->addItem(tr("Mode 0 (clock idles low, read on the rising edge)"), 0);
+    mode->addItem(tr("Mode 1 (clock idles low, read on the falling edge)"), 1);
+    mode->addItem(tr("Mode 2 (clock idles high, read on the falling edge)"), 2);
+    mode->addItem(tr("Mode 3 (clock idles high, read on the rising edge)"), 3);
+    auto* mode_label = new QLabel(tr("Clock"));
+    form->addRow(mode_label, mode);
+    auto* bits = new QComboBox;
+    auto* bits_label = new QLabel(tr("Bits"));
+    form->addRow(bits_label, bits);
+    auto* order = new QComboBox;
+    order->addItem(tr("Most significant bit first"), true);
+    order->addItem(tr("Least significant bit first"), false);
+    auto* order_label = new QLabel(tr("Order"));
+    form->addRow(order_label, order);
+    auto* baud = new QComboBox;
+    baud->setObjectName(QStringLiteral("decoderBaud"));
+    baud->setEditable(true);
+    baud->addItem(tr("Automatic (from the shortest pulse)"), 0.0);
+    for (const int rate : {1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200, 230400, 460800, 921600}) {
+        baud->addItem(QString::number(rate), static_cast<double>(rate));
+    }
+    auto* baud_label = new QLabel(tr("Baud rate"));
+    form->addRow(baud_label, baud);
+    auto* parity = new QComboBox;
+    parity->addItem(tr("No parity"), QChar('N'));
+    parity->addItem(tr("Even parity"), QChar('E'));
+    parity->addItem(tr("Odd parity"), QChar('O'));
+    auto* parity_label = new QLabel(tr("Parity"));
+    form->addRow(parity_label, parity);
+    auto* inverted = new QComboBox;
+    inverted->addItem(tr("Idle high (a microcontroller pin)"), false);
+    inverted->addItem(tr("Idle low (inverted)"), true);
+    auto* inverted_label = new QLabel(tr("Line"));
+    form->addRow(inverted_label, inverted);
+    auto* buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+    form->addRow(buttons);
+    connect(buttons, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
+    connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
+
+    auto arrange = [&] {
+        const int p = protocol->currentIndex();
+        const std::array<QStringList, 3> names{QStringList{tr("SCL (clock)"), tr("SDA (data)")},
+            QStringList{tr("SCK (clock)"), tr("MOSI"), tr("MISO"), tr("CS (select, active low)")},
+            QStringList{tr("Line (TX or RX)")}};
+        const auto& mine = names[static_cast<std::size_t>(p)];
+        for (int i = 0; i < 4; ++i) {
+            const auto at = static_cast<std::size_t>(i);
+            const bool used = i < mine.size();
+            labels[at]->setVisible(used);
+            signal_boxes[at]->setVisible(used);
+            if (!used) {
+                continue;
+            }
+            labels[at]->setText(mine[i]);
+            const QString keep = signal_boxes[at]->currentText();
+            signal_boxes[at]->clear();
+            if (p == 1 && i >= 2) {
+                signal_boxes[at]->addItem(tr("(none)"), QString()); // MISO and the select line are optional
+            }
+            for (const auto& lane : lanes) {
+                signal_boxes[at]->addItem(lane, lane);
+            }
+            // The choice made the last time, else the lane kept, else one lane a row.
+            const QString last = last_decoder_lanes_.value(QStringLiteral("%1/%2").arg(p).arg(i));
+            int index = signal_boxes[at]->findData(last.isEmpty() ? keep : last);
+            if (index < 0) {
+                index = p == 1 && i >= 2 ? 0 : std::min(i, static_cast<int>(signal_boxes[at]->count()) - 1);
+            }
+            signal_boxes[at]->setCurrentIndex(std::max(index, 0));
+        }
+        for (QWidget* w : {static_cast<QWidget*>(mode), static_cast<QWidget*>(mode_label), static_cast<QWidget*>(order),
+                 static_cast<QWidget*>(order_label)}) {
+            w->setVisible(p == 1);
+        }
+        for (QWidget* w : {static_cast<QWidget*>(baud), static_cast<QWidget*>(baud_label), static_cast<QWidget*>(parity),
+                 static_cast<QWidget*>(parity_label), static_cast<QWidget*>(inverted), static_cast<QWidget*>(inverted_label)}) {
+            w->setVisible(p == 2);
+        }
+        bits->setVisible(p != 0);
+        bits_label->setVisible(p != 0);
+        bits->clear();
+        for (const int n : p == 1 ? std::vector<int>{8, 16, 24, 32} : std::vector<int>{8, 7, 9, 6, 5}) {
+            bits->addItem(QString::number(n), n);
+        }
+        dialog.adjustSize();
+    };
+    connect(protocol, &QComboBox::currentIndexChanged, &dialog, arrange);
+    protocol->setCurrentIndex(last_decoder_protocol_);
+    arrange();
+    if (lanes.isEmpty()) {
+        QMessageBox::information(this, tr("Add a protocol decoder"),
+            tr("There are no signals yet. Run a circuit with a microcontroller or voltage probes first."));
+        return;
+    }
+    if (dialog.exec() != QDialog::Accepted) {
+        return;
+    }
+    Decoder decoder;
+    const int p = protocol->currentIndex();
+    decoder.protocol = p == 0 ? Decoder::Protocol::I2c : p == 1 ? Decoder::Protocol::Spi : Decoder::Protocol::Uart;
+    const int count = p == 0 ? 2 : p == 1 ? 4 : 1;
+    for (int i = 0; i < count; ++i) {
+        const QString lane = signal_boxes[static_cast<std::size_t>(i)]->currentData().toString();
+        decoder.signal_lanes << lane;
+        last_decoder_lanes_[QStringLiteral("%1/%2").arg(p).arg(i)] = lane;
+    }
+    last_decoder_protocol_ = p;
+    decoder.spi.mode = mode->currentData().toInt();
+    decoder.spi.bits = bits->currentData().toInt();
+    decoder.spi.msb_first = order->currentData().toBool();
+    decoder.uart.data_bits = bits->currentData().toInt();
+    bool number = false;
+    const double typed = baud->currentText().toDouble(&number);
+    decoder.uart.baud = number && typed > 0 ? typed : 0.0;
+    decoder.uart.parity = static_cast<char>(parity->currentData().toChar().unicode());
+    decoder.uart.inverted = inverted->currentData().toBool();
+    add_decoder(decoder);
 }
 
 void AnalyzerWindow::refresh()
@@ -505,7 +697,55 @@ void AnalyzerWindow::refresh_logic()
             const QSignalBlocker blocker(lane_list_);
             item->setCheckState(Qt::Checked);
         }
-        views.push_back({lane.title, lane.color, lane_data.initial, std::move(lane_data.changes)});
+        views.push_back({lane.title, lane.color, lane_data.initial, std::move(lane_data.changes), false, {}});
+    }
+    // Decoders: each reads its signals from one window before the one on
+    // display, so that a frame begun before it is still read whole.
+    const double to = scope_->window_end();
+    const double decode_from = std::max(0.0, from - (to - from));
+    auto signal_of = [&](const QString& title) {
+        sim::LogicSignal signal;
+        const auto lane = std::find_if(logic_lanes_.begin(), logic_lanes_.end(),
+            [&title](const auto& l) { return l.title == title; });
+        if (!title.isEmpty() && lane != logic_lanes_.end()) {
+            auto data = controller_->lane_data(*lane, decode_from, threshold_->value());
+            signal.initial = data.initial;
+            signal.changes = std::move(data.changes);
+        }
+        return signal;
+    };
+    for (std::size_t d = 0; d < decoders_.size(); ++d) {
+        const auto& decoder = decoders_[d];
+        auto lane_title = [&decoder](int i) { return i < decoder.signal_lanes.size() ? decoder.signal_lanes[i] : QString(); };
+        std::vector<sim::DecodedItem> items;
+        switch (decoder.protocol) {
+        case Decoder::Protocol::I2c:
+            items = sim::decode_i2c(signal_of(lane_title(0)), signal_of(lane_title(1)));
+            break;
+        case Decoder::Protocol::Spi: {
+            auto options = decoder.spi;
+            options.has_miso = !lane_title(2).isEmpty();
+            options.use_select = !lane_title(3).isEmpty();
+            items = sim::decode_spi(signal_of(lane_title(0)), signal_of(lane_title(1)), signal_of(lane_title(2)),
+                signal_of(lane_title(3)), options);
+            break;
+        }
+        case Decoder::Protocol::Uart:
+            items = sim::decode_uart(signal_of(lane_title(0)), decoder.uart);
+            break;
+        }
+        std::erase_if(items, [from, to](const sim::DecodedItem& item) { return item.end < from || item.start > to; });
+        LogicLaneView view;
+        view.title = decoder.title();
+        view.color = QColor(86, 156, 214);
+        view.decoded = true;
+        for (const auto& item : items) {
+            const bool mark = item.kind == sim::DecodedItem::Kind::Start || item.kind == sim::DecodedItem::Kind::Stop;
+            const bool error = item.kind == sim::DecodedItem::Kind::Error || !item.acknowledged;
+            view.items.push_back({item.start, item.end, QString::fromStdString(item.text), mark, error});
+        }
+        decoded_[d] = std::move(items);
+        views.push_back(std::move(view));
     }
     logic_->set_lanes(std::move(views));
     logic_->set_window(scope_->window_start(), scope_->window_end());

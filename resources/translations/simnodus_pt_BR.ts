@@ -282,6 +282,134 @@
             <translation>Gravar as faixas marcadas, com todo o histórico guardado, num arquivo VCD para o PulseView ou o GTKWave</translation>
         </message>
         <message>
+            <source>Add decoder...</source>
+            <translation>Adicionar decodificador...</translation>
+        </message>
+        <message>
+            <source>Read I2C, SPI or UART from the signals and show the bytes as a lane of their own</source>
+            <translation>Lê I2C, SPI ou UART a partir dos sinais e mostra os bytes em uma faixa própria</translation>
+        </message>
+        <message>
+            <source>Remove decoders</source>
+            <translation>Remover decodificadores</translation>
+        </message>
+        <message>
+            <source>Add a protocol decoder</source>
+            <translation>Adicionar um decodificador de protocolo</translation>
+        </message>
+        <message>
+            <source>Protocol</source>
+            <translation>Protocolo</translation>
+        </message>
+        <message>
+            <source>Mode 0 (clock idles low, read on the rising edge)</source>
+            <translation>Modo 0 (clock em repouso baixo, leitura na borda de subida)</translation>
+        </message>
+        <message>
+            <source>Mode 1 (clock idles low, read on the falling edge)</source>
+            <translation>Modo 1 (clock em repouso baixo, leitura na borda de descida)</translation>
+        </message>
+        <message>
+            <source>Mode 2 (clock idles high, read on the falling edge)</source>
+            <translation>Modo 2 (clock em repouso alto, leitura na borda de descida)</translation>
+        </message>
+        <message>
+            <source>Mode 3 (clock idles high, read on the rising edge)</source>
+            <translation>Modo 3 (clock em repouso alto, leitura na borda de subida)</translation>
+        </message>
+        <message>
+            <source>Clock</source>
+            <translation>Clock</translation>
+        </message>
+        <message>
+            <source>Bits</source>
+            <translation>Bits</translation>
+        </message>
+        <message>
+            <source>Most significant bit first</source>
+            <translation>Bit mais significativo primeiro</translation>
+        </message>
+        <message>
+            <source>Least significant bit first</source>
+            <translation>Bit menos significativo primeiro</translation>
+        </message>
+        <message>
+            <source>Order</source>
+            <translation>Ordem</translation>
+        </message>
+        <message>
+            <source>Automatic (from the shortest pulse)</source>
+            <translation>Automática (pelo pulso mais curto)</translation>
+        </message>
+        <message>
+            <source>Baud rate</source>
+            <translation>Taxa (baud)</translation>
+        </message>
+        <message>
+            <source>No parity</source>
+            <translation>Sem paridade</translation>
+        </message>
+        <message>
+            <source>Even parity</source>
+            <translation>Paridade par</translation>
+        </message>
+        <message>
+            <source>Odd parity</source>
+            <translation>Paridade ímpar</translation>
+        </message>
+        <message>
+            <source>Parity</source>
+            <translation>Paridade</translation>
+        </message>
+        <message>
+            <source>Idle high (a microcontroller pin)</source>
+            <translation>Repouso em nível alto (pino de microcontrolador)</translation>
+        </message>
+        <message>
+            <source>Idle low (inverted)</source>
+            <translation>Repouso em nível baixo (invertida)</translation>
+        </message>
+        <message>
+            <source>Line</source>
+            <translation>Linha</translation>
+        </message>
+        <message>
+            <source>SCL (clock)</source>
+            <translation>SCL (clock)</translation>
+        </message>
+        <message>
+            <source>SDA (data)</source>
+            <translation>SDA (dados)</translation>
+        </message>
+        <message>
+            <source>SCK (clock)</source>
+            <translation>SCK (clock)</translation>
+        </message>
+        <message>
+            <source>MOSI</source>
+            <translation>MOSI</translation>
+        </message>
+        <message>
+            <source>MISO</source>
+            <translation>MISO</translation>
+        </message>
+        <message>
+            <source>CS (select, active low)</source>
+            <translation>CS (seleção, ativa em nível baixo)</translation>
+        </message>
+        <message>
+            <source>Line (TX or RX)</source>
+            <translation>Linha (TX ou RX)</translation>
+        </message>
+        <message>
+            <source>(none)</source>
+            <translation>(nenhum)</translation>
+        </message>
+        <message>
+            <source>There are no signals yet. Run a circuit with a microcontroller or voltage probes first.</source>
+            <translation>Ainda não há sinais. Execute primeiro um circuito com microcontrolador ou pontas de prova de tensão.</translation>
+        </message>
+        <message>
             <source>Turn on Cursors in the toolbar and drag A and B to measure times.</source>
             <translation>Ligue os Cursores na barra de ferramentas e arraste A e B para medir tempos.</translation>
         </message>
@@ -1019,6 +1147,10 @@ Pinos: %2</translation>
         <message>
             <source>Run a circuit with a microcontroller or voltage probes; choose the signals on the left.</source>
             <translation>Execute um circuito com microcontrolador ou pontas de tensão; escolha os sinais à esquerda.</translation>
+        </message>
+        <message>
+            <source>%1: %2 at %3</source>
+            <translation>%1: %2 em %3</translation>
         </message>
         <message>
             <source>%1 %2 at %3</source>

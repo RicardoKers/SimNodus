@@ -6,6 +6,7 @@
 #include "sim/measurements.hpp"
 #include "sim/ngspice_runtime.hpp"
 #include "sim/process_memory.hpp"
+#include "sim/protocol_decode.hpp"
 #include "sim/sample_ring.hpp"
 #include "sim/vcd.hpp"
 
@@ -290,4 +291,279 @@ TEST_CASE("chart CSV has one row per time and empty cells outside a record")
     records[1].add(1.5, 10.0);
     const auto csv = chart_csv(records, {"CH1 (V)", "CH2 (V)"});
     CHECK(csv == "time (s),CH1 (V),CH2 (V)\n0.5,1,\n1.5,2,10\n2.5,3,\n");
+}
+
+namespace {
+
+// Builds the lines of a bus from a list of levels, one step of `period` each.
+struct Lines {
+    std::vector<LogicSignal> signals;
+    std::vector<bool> levels;
+    double time = 0.0;
+    double period = 1e-5;
+
+    explicit Lines(std::vector<bool> initial) : signals(initial.size()), levels(initial)
+    {
+        for (std::size_t i = 0; i < initial.size(); ++i) {
+            signals[i].initial = initial[i];
+        }
+    }
+    void set(std::size_t line, bool level)
+    {
+        if (levels[line] != level) {
+            levels[line] = level;
+            signals[line].changes.emplace_back(time, level);
+        }
+    }
+    void wait(double steps = 1.0) { time += steps * period; }
+};
+
+// I2C on lines 0 (SCL) and 1 (SDA).
+void i2c_start(Lines& l)
+{
+    l.set(1, true);
+    l.wait();
+    l.set(0, true);
+    l.wait();
+    l.set(1, false);
+    l.wait();
+    l.set(0, false);
+    l.wait();
+}
+
+void i2c_byte(Lines& l, unsigned value, bool ack)
+{
+    for (int i = 8; i >= 0; --i) {
+        l.set(1, i > 0 ? ((value >> (i - 1)) & 1u) != 0 : !ack);
+        l.wait();
+        l.set(0, true);
+        l.wait();
+        l.set(0, false);
+        l.wait();
+    }
+}
+
+void i2c_stop(Lines& l)
+{
+    l.set(1, false);
+    l.wait();
+    l.set(0, true);
+    l.wait();
+    l.set(1, true);
+    l.wait();
+}
+
+std::vector<std::string> texts(const std::vector<DecodedItem>& items)
+{
+    std::vector<std::string> out;
+    for (const auto& item : items) {
+        out.push_back(item.text);
+    }
+    return out;
+}
+
+void uart_frame(Lines& l, unsigned value, int data_bits = 8, char parity = 'N', bool good_stop = true)
+{
+    l.set(0, false); // start
+    l.wait();
+    int ones = 0;
+    for (int i = 0; i < data_bits; ++i) {
+        const bool bit = ((value >> i) & 1u) != 0;
+        ones += bit ? 1 : 0;
+        l.set(0, bit);
+        l.wait();
+    }
+    if (parity != 'N') {
+        l.set(0, (ones % 2 == 1) == (parity == 'E'));
+        l.wait();
+    }
+    l.set(0, good_stop);
+    l.wait();
+    l.set(0, true);
+    l.wait(3);
+}
+
+} // namespace
+
+TEST_CASE("the I2C decoder reads starts, addresses, data, acknowledges and stops (SN-286)")
+{
+    Lines l({true, true});
+    l.wait(5);
+    // Write the word address 0x10 to the chip at 0x50, then read two bytes from it.
+    i2c_start(l);
+    i2c_byte(l, 0xA0, true);
+    i2c_byte(l, 0x10, true);
+    l.set(1, true);
+    l.wait();
+    l.set(0, true);
+    l.wait();
+    l.set(1, false); // repeated start
+    l.wait();
+    l.set(0, false);
+    l.wait();
+    i2c_byte(l, 0xA1, true);
+    i2c_byte(l, 0x53, true);
+    i2c_byte(l, 0x69, false);
+    i2c_stop(l);
+    // A chip that is not there.
+    l.wait(5);
+    i2c_start(l);
+    i2c_byte(l, 0x78, false);
+    i2c_stop(l);
+    const auto items = decode_i2c(l.signals[0], l.signals[1]);
+    CHECK((texts(items)
+        == std::vector<std::string>{"S", "50 W A", "10 A", "Sr", "50 R A", "53 A", "69 N", "P", "S", "3C W N", "P"}));
+    REQUIRE(items.size() == 11);
+    CHECK(items[1].kind == DecodedItem::Kind::Address);
+    CHECK(items[1].value == 0x50);
+    CHECK(items[1].acknowledged);
+    CHECK(items[6].value == 0x69);
+    CHECK(!items[6].acknowledged);
+    CHECK(items[1].start < items[1].end);
+    CHECK(items[1].end <= items[2].start);
+    // From the middle of a frame: nothing until the next start.
+    LogicSignal scl = l.signals[0];
+    LogicSignal sda = l.signals[1];
+    const double from = items[2].start;
+    auto cut = [from](LogicSignal& s) {
+        s.initial = level_at(s, from);
+        std::erase_if(s.changes, [from](const auto& c) { return c.first <= from; });
+    };
+    cut(scl);
+    cut(sda);
+    const auto later = texts(decode_i2c(scl, sda));
+    REQUIRE(later.size() >= 2);
+    CHECK(later[0] == "S");
+    CHECK(later[1] == "50 R A");
+}
+
+TEST_CASE("the SPI decoder reads words in the four modes, with and without a select line (SN-286)")
+{
+    for (int mode = 0; mode < 4; ++mode) {
+        const bool idle = (mode & 2) != 0;
+        const bool phase = (mode & 1) != 0;
+        // Lines: 0 clock, 1 MOSI, 2 MISO, 3 select (active low).
+        Lines l({idle, false, false, true});
+        l.wait(3);
+        auto word = [&](unsigned out, unsigned in, int bits) {
+            for (int i = bits - 1; i >= 0; --i) {
+                if (phase) { // data changes on the leading edge, is read on the trailing one
+                    l.set(0, !idle);
+                    l.set(1, ((out >> i) & 1u) != 0);
+                    l.set(2, ((in >> i) & 1u) != 0);
+                    l.wait();
+                    l.set(0, idle);
+                    l.wait();
+                } else {
+                    l.set(1, ((out >> i) & 1u) != 0);
+                    l.set(2, ((in >> i) & 1u) != 0);
+                    l.wait();
+                    l.set(0, !idle);
+                    l.wait();
+                    l.set(0, idle);
+                }
+            }
+        };
+        l.set(3, false);
+        l.wait();
+        word(0x9F, 0x00, 8);
+        word(0x00, 0xEF, 8);
+        l.wait();
+        l.set(3, true);
+        l.wait(4);
+        // Three stray clocks while not selected, then a word cut short by the select line.
+        word(0x5, 0x5, 3);
+        l.wait();
+        l.set(3, false);
+        l.wait();
+        word(0x1F, 0x1F, 5);
+        l.wait();
+        l.set(3, true);
+        l.wait();
+        l.set(3, false);
+        l.wait();
+        word(0xA5, 0x3C, 8);
+        l.wait();
+        l.set(3, true);
+        SpiOptions options;
+        options.mode = mode;
+        options.use_select = true;
+        const auto items = decode_spi(l.signals[0], l.signals[1], l.signals[2], l.signals[3], options);
+        CHECK((texts(items) == std::vector<std::string>{"9F/00", "00/EF", "A5/3C"}));
+        REQUIRE(items.size() == 3);
+        CHECK(items[0].value == 0x9F);
+        CHECK(items[1].second == 0xEF);
+        CHECK(items[0].end <= items[1].start);
+    }
+    // 16-bit words, least significant bit first, MOSI alone, no select line.
+    Lines l({false, false});
+    l.wait();
+    for (int i = 0; i < 16; ++i) {
+        l.set(1, ((0x1234u >> i) & 1u) != 0);
+        l.wait();
+        l.set(0, true);
+        l.wait();
+        l.set(0, false);
+    }
+    SpiOptions options;
+    options.bits = 16;
+    options.msb_first = false;
+    options.has_miso = false;
+    CHECK((texts(decode_spi(l.signals[0], l.signals[1], {}, {}, options)) == std::vector<std::string>{"1234"}));
+}
+
+TEST_CASE("the UART decoder reads frames, finds the rate and reports errors (SN-286)")
+{
+    Lines l({true});
+    l.period = 1.0 / 9600;
+    l.wait(4);
+    for (const char c : std::string("Hi\n")) {
+        uart_frame(l, static_cast<unsigned char>(c));
+    }
+    uart_frame(l, 0x55, 8, 'N', false); // a stop bit held low
+    l.set(0, true);
+    l.wait(12);
+    uart_frame(l, 0xFF); // only the start bit is low
+    CHECK(uart_baud(l.signals[0]) == 9600);
+    {
+        // One short glitch before the frames (a pin becoming the transmitter's output) is not a bit.
+        LogicSignal glitch = l.signals[0];
+        glitch.changes.insert(glitch.changes.begin(), {{1e-6, false}, {2e-6, true}});
+        CHECK(uart_baud(glitch) == 9600);
+    }
+    const auto items = decode_uart(l.signals[0], {});
+    CHECK((texts(items) == std::vector<std::string>{"48 'H'", "69 'i'", "0A", "frame error", "FF"}));
+    REQUIRE(items.size() == 5);
+    CHECK(items[3].kind == DecodedItem::Kind::Error);
+    CHECK(std::abs((items[0].end - items[0].start) - 10.0 / 9600) < 1e-9);
+
+    // Seven data bits with even parity at a given rate; one frame with a wrong parity bit.
+    Lines p({true});
+    p.period = 1.0 / 115200;
+    p.wait(3);
+    uart_frame(p, 'A', 7, 'E');
+    uart_frame(p, 'C', 7, 'O'); // odd parity sent to an even receiver
+    UartOptions options;
+    options.baud = 115200;
+    options.data_bits = 7;
+    options.parity = 'E';
+    CHECK((texts(decode_uart(p.signals[0], options)) == std::vector<std::string>{"41 'A'", "43 parity error"}));
+
+    // An inverted line idles low.
+    Lines n({false});
+    n.period = 1.0 / 9600;
+    n.wait(3);
+    n.set(0, true); // start
+    n.wait();
+    for (int i = 0; i < 8; ++i) {
+        n.set(0, ((0x41u >> i) & 1u) == 0);
+        n.wait();
+    }
+    n.set(0, false);
+    n.wait(3);
+    UartOptions inverted;
+    inverted.baud = 9600;
+    inverted.inverted = true;
+    CHECK((texts(decode_uart(n.signals[0], inverted)) == std::vector<std::string>{"41 'A'"}));
+    CHECK(decode_uart({}, {}).empty());
 }

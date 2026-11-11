@@ -1,6 +1,6 @@
 # Current state
 
-Updated: 2026-11-11 (review and speed passes SN-282 to SN-284 and the owner's requests SN-285 on main; release 0.17.0 published: energy and motor control parts, BLDC/PMSM experimental (E-11), the owner's fixes of SN-279 and SN-280; DE9 waits for the owner). Keep this file short: present state, last results, next
+Updated: 2026-11-11 (review and speed passes SN-282 to SN-284, the owner's requests SN-285 and the protocol decoders SN-286 on main; release 0.17.0 published: energy and motor control parts, BLDC/PMSM experimental (E-11), the owner's fixes of SN-279 and SN-280; DE9 waits for the owner). Keep this file short: present state, last results, next
 steps. Replace it, do not append. History of the first development line
 (2026-08-31 → 2026-10-06) is in
 [archive/2026-10-legacy/CURRENT.md](../archive/2026-10-legacy/CURRENT.md);
@@ -264,6 +264,8 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
    to nothing are left out of the circuit (a blink from 5x to 15x real
    time); the window's thread is half as busy or less while running
    (CHANGELOG). Found and still open, most valuable first:
+   - protocol decoders (SN-286) are not saved with the project and are
+     out of reach of `analyzer.set`; a 1-Wire decoder is missing;
    - the chart recorder and the logic lanes draw every point
      (`chart_painter.cpp`, `logic_widget.cpp`); a character or graphic
      display is decoded at every paint;

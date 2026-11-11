@@ -10,6 +10,7 @@
 
 #include <QHelpEvent>
 #include <QMouseEvent>
+#include <QFontMetricsF>
 #include <QPainter>
 #include <QToolTip>
 #include <QWheelEvent>
@@ -130,6 +131,10 @@ void LogicWidget::paintEvent(QPaintEvent*)
         painter.drawText(QRectF(4, top, label_width - 8, lane_height), Qt::AlignVCenter | Qt::AlignLeft, lane.title);
         painter.setPen(QPen(theme::plot_grid, 1));
         painter.drawLine(QPointF(plot.left(), top + lane_height), QPointF(plot.right(), top + lane_height));
+        if (lane.decoded) {
+            paint_items(painter, lane, plot, top);
+            continue;
+        }
         const double high = top + 5;
         const double low = top + lane_height - 5;
         QPolygonF wave;
@@ -172,6 +177,60 @@ void LogicWidget::paintEvent(QPaintEvent*)
             ++index;
         }
     }
+}
+
+void LogicWidget::paint_items(QPainter& painter, const LogicLaneView& lane, const QRectF& plot, double top) const
+{
+    const QFontMetricsF metrics(font());
+    const double per_second = plot.width() / (end_ - start_);
+    auto x_of = [&](double time) { return plot.left() + (time - start_) * per_second; };
+    const QColor error(214, 69, 65);
+    painter.save();
+    painter.setClipRect(plot.adjusted(0, -1, 1, 1));
+    double taken = plot.left(); // nothing is written left of this: texts do not run over one another
+    for (std::size_t i = 0; i < lane.items.size(); ++i) {
+        const auto& item = lane.items[i];
+        if (item.end < start_ || item.start > end_) {
+            continue;
+        }
+        const QColor color = item.error ? error : lane.color;
+        const double left = x_of(item.start);
+        const double right = x_of(item.end);
+        if (item.mark) {
+            // A condition: a line down the lane, and its letter where the lane is
+            // free: before the line, or after it up to the next item.
+            painter.setPen(QPen(color, 1.6));
+            painter.drawLine(QPointF(left, top + 3), QPointF(left, top + lane_height - 3));
+            const double width = metrics.horizontalAdvance(item.text);
+            const double next = i + 1 < lane.items.size() ? x_of(lane.items[i + 1].start) : plot.right() + width + 8;
+            const double baseline = top + lane_height / 2 + metrics.ascent() / 2 - 1;
+            if (left - 3 - width >= taken) {
+                painter.drawText(QPointF(left - 3 - width, baseline), item.text);
+            } else if (left + 3 + width <= next - 2) {
+                painter.drawText(QPointF(left + 3, baseline), item.text);
+                taken = left + 3 + width;
+            }
+            taken = std::max(taken, left + 1);
+            continue;
+        }
+        const QRectF box(left, top + 4, std::max(1.0, right - left), lane_height - 8);
+        painter.setPen(QPen(color, 1));
+        QColor fill = color;
+        fill.setAlpha(60);
+        painter.fillRect(box, fill);
+        painter.drawRect(box);
+        // The whole text when it fits, else its first word (the byte), else nothing.
+        QString text = item.text;
+        if (metrics.horizontalAdvance(text) + 4 > box.width()) {
+            text = text.section(QLatin1Char(' '), 0, 0);
+        }
+        if (metrics.horizontalAdvance(text) + 4 <= box.width()) {
+            painter.setPen(theme::ink);
+            painter.drawText(box, Qt::AlignCenter, text);
+        }
+        taken = std::max(taken, box.right() + 1);
+    }
+    painter.restore();
 }
 
 int LogicWidget::cursor_near(double x) const
@@ -259,6 +318,22 @@ bool LogicWidget::event(QEvent* event)
     // Nearest transition within 6 pixels.
     const auto& view = lanes_[static_cast<std::size_t>(lane)];
     const double mouse = help->pos().x();
+    if (view.decoded) {
+        // What the decoder read under the pointer, with its time.
+        const LogicLaneItem* under = nullptr;
+        for (const auto& item : view.items) {
+            const double left = x_at(item.start);
+            const double right = std::max(x_at(item.end), left);
+            if (mouse >= left - 4 && mouse <= right + 4) {
+                under = &item;
+            }
+        }
+        QToolTip::showText(help->globalPos(),
+            under ? tr("%1: %2 at %3").arg(view.title, under->text, seconds_text(under->start))
+                  : tr("%1 at %2").arg(view.title, seconds_text(time_at(mouse))),
+            this);
+        return true;
+    }
     std::optional<std::pair<double, bool>> best;
     for (const auto& change : view.changes) {
         if (change.first < start_ || change.first > end_) {
