@@ -208,6 +208,8 @@ public:
     std::map<model::Id, std::string> device_texts() const override;
     void set_device_parameter(model::Id component, const std::string& name, const std::string& value) override;
     std::optional<std::vector<std::uint8_t>> device_memory(model::Id component) const override;
+    // Changes whenever device_memory() would give other bytes; 0 without the memory (SN-285).
+    std::uint64_t device_memory_serial(model::Id component) const;
     void load_device_memory(model::Id component, const std::vector<std::uint8_t>& bytes) override;
 
 private:

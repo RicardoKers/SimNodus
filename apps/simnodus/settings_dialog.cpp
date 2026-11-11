@@ -35,6 +35,7 @@ SimulationSettingsDialog::SimulationSettingsDialog(const model::SimulationSettin
     interactive_step_ = new QComboBox;
     interactive_step_->addItem(tr("100 µs (default, real time on classroom PCs)"), 1e-4);
     interactive_step_->addItem(tr("10 µs (faster circuits, more CPU)"), 1e-5);
+    interactive_step_->addItem(tr("1 µs (finest detail, far slower than real time)"), 1e-6);
     interactive_step_->addItem(tr("1 ms (slow circuits)"), 1e-3);
     const int step_index = interactive_step_->findData(settings.max_step);
     if (step_index >= 0) {
@@ -44,6 +45,10 @@ SimulationSettingsDialog::SimulationSettingsDialog(const model::SimulationSettin
             settings.max_step);
         interactive_step_->setCurrentIndex(interactive_step_->count() - 1);
     }
+    interactive_step_->setToolTip(tr("The longest step the circuit takes. A shorter one shows faster signals (PWM "
+                                     "edges, switching converters, serial bits) and costs time in proportion: 1 µs "
+                                     "runs about ten times slower than 10 µs, and the Signal Analyzer's history "
+                                     "of 200 000 samples then covers 0.2 s."));
     interactive_form->addRow(tr("Maximum time step"), interactive_step_);
     segment_ = new QLineEdit(QString::fromStdString(model::format_engineering(settings.segment)));
     segment_->setToolTip(tr("The engine restarts every segment to keep memory bounded (0.5 s to 2 s)."));

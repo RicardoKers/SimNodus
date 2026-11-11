@@ -166,6 +166,14 @@ public:
         (void)bytes;
         return false;
     }
+    // A number that changes whenever device_memory() would give other bytes;
+    // 0 while the memory has none. Who shows a memory asks for this first
+    // instead of copying a 4 MB flash to compare it (SN-285).
+    virtual std::uint64_t device_memory_serial(std::uint64_t component) const
+    {
+        (void)component;
+        return 0;
+    }
     virtual void load_device_memory(std::uint64_t component, const std::vector<std::uint8_t>& bytes)
     {
         (void)component;

@@ -494,6 +494,14 @@
             <translation>Buscar componentes</translation>
         </message>
         <message>
+            <source>Expand all categories</source>
+            <translation>Expandir todas as categorias</translation>
+        </message>
+        <message>
+            <source>Collapse all categories</source>
+            <translation>Recolher todas as categorias</translation>
+        </message>
+        <message>
             <source>Preview</source>
             <translation>Prévia</translation>
         </message>
@@ -2092,6 +2100,13 @@ Permitir para este projeto neste computador? Sem isso, a rede das placas fica de
         </message>
     </context>
     <context>
+        <name>simnodus::ui::MemoryModel</name>
+        <message>
+            <source>Text</source>
+            <translation>Texto</translation>
+        </message>
+    </context>
+    <context>
         <name>simnodus::ui::MemoryWindow</name>
         <message>
             <source>Memory Viewer - SimNodus</source>
@@ -2116,10 +2131,6 @@ Permitir para este projeto neste computador? Sem isso, a rede das placas fica de
         <message>
             <source>Memory:</source>
             <translation>Memória:</translation>
-        </message>
-        <message>
-            <source>Text</source>
-            <translation>Texto</translation>
         </message>
         <message>
             <source>Live contents of the running chip.</source>
@@ -2751,8 +2762,16 @@ Permitir para este projeto neste computador? Sem isso, a rede das placas fica de
             <translation>10 µs (circuitos mais rápidos, mais CPU)</translation>
         </message>
         <message>
+            <source>1 µs (finest detail, far slower than real time)</source>
+            <translation>1 µs (máximo detalhe, bem mais lento que o tempo real)</translation>
+        </message>
+        <message>
             <source>1 ms (slow circuits)</source>
             <translation>1 ms (circuitos lentos)</translation>
+        </message>
+        <message>
+            <source>The longest step the circuit takes. A shorter one shows faster signals (PWM edges, switching converters, serial bits) and costs time in proportion: 1 µs runs about ten times slower than 10 µs, and the Signal Analyzer's history of 200 000 samples then covers 0.2 s.</source>
+            <translation>O maior passo que o circuito dá. Um passo menor mostra sinais mais rápidos (bordas de PWM, conversores chaveados, bits seriais) e custa tempo na mesma proporção: 1 µs roda cerca de dez vezes mais devagar que 10 µs, e o histórico de 200 000 amostras do Analisador de Sinais passa a cobrir 0,2 s.</translation>
         </message>
         <message>
             <source>Maximum time step</source>
@@ -2864,6 +2883,10 @@ Permitir para este projeto neste computador? Sem isso, a rede das placas fica de
         <message>
             <source>Send</source>
             <translation>Enviar</translation>
+        </message>
+        <message>
+            <source>Enter sends the line; the Up and Down arrows bring back lines sent before</source>
+            <translation>Enter envia a linha; as setas para cima e para baixo trazem de volta as linhas já enviadas</translation>
         </message>
     </context>
     <context>

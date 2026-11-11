@@ -4,6 +4,8 @@
 // Memory Viewer (SN-208): the contents of the memory chips of the circuit
 // (a 24C02 now; parallel RAM and ROM later) as a hex and ASCII table, live
 // while the simulation runs, with the bytes that just changed highlighted.
+// The table is a model over the bytes (SN-285): a 4 MB flash has 262 144 rows,
+// of which only the ones on screen are ever formatted.
 // Load... puts a .bin or Intel .hex file into the running chip (or makes it the
 // chip's contents file when nothing runs); Save as... writes what the chip holds.
 #pragma once
@@ -13,6 +15,7 @@
 #include "model/schematic.hpp"
 #endif
 
+#include <QAbstractTableModel>
 #include <QDateTime>
 #include <QTimer>
 #include <QWidget>
@@ -23,12 +26,48 @@
 
 class QComboBox;
 class QLabel;
-class QTableWidget;
+class QTableView;
 
 namespace simnodus::ui {
 
 class Document;
 class RunController;
+
+// The bytes of one memory as rows of 16 with a text column.
+class MemoryModel : public QAbstractTableModel {
+    Q_OBJECT
+public:
+    static constexpr int columns = 16;
+
+    using QAbstractTableModel::QAbstractTableModel;
+
+    // New contents: a memory of another size starts over; the same size marks
+    // the bytes that differ as just changed. `fresh` starts over in any case
+    // (another chip of the same size).
+    void set_bytes(std::vector<std::uint8_t> bytes, bool fresh);
+    const std::vector<std::uint8_t>& bytes() const { return bytes_; }
+    // Drops the marks older than the highlight time; true while some remain.
+    bool expire();
+    // True while the byte counts as just changed.
+    bool recent(std::size_t index) const;
+
+    int rowCount(const QModelIndex& parent = {}) const override;
+    int columnCount(const QModelIndex& parent = {}) const override;
+    QVariant data(const QModelIndex& index, int role) const override;
+    QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
+
+private:
+    // Bytes first..last changed at `at` (ms since the epoch): a chip erase is one entry.
+    struct Change {
+        std::size_t first = 0;
+        std::size_t last = 0;
+        qint64 at = 0;
+    };
+    void rows_changed(std::size_t first, std::size_t last);
+
+    std::vector<std::uint8_t> bytes_;
+    std::vector<Change> changes_;
+};
 
 class MemoryWindow : public QWidget {
     Q_OBJECT
@@ -38,7 +77,7 @@ public:
     // Shows the window with `component` chosen (no_id: keeps the choice).
     void show_chip(model::Id component);
     // The bytes on display (tests).
-    const std::vector<std::uint8_t>& bytes() const { return bytes_; }
+    const std::vector<std::uint8_t>& bytes() const { return model_->bytes(); }
 
 private:
     void rebuild_list();
@@ -65,12 +104,23 @@ private:
     Document& document_;
     RunController& run_;
     QComboBox* chips_ = nullptr;
-    QTableWidget* table_ = nullptr;
+    QTableView* table_ = nullptr;
+    MemoryModel* model_ = nullptr;
     QLabel* status_ = nullptr;
     QTimer timer_;
     model::Id shown_ = model::no_id;
-    std::vector<std::uint8_t> bytes_;
-    std::vector<QDateTime> changed_at_; // per byte: when it last changed
+    // The contents file read last, by path, time and size: it is not read
+    // again four times a second while nothing runs.
+    struct FileCache {
+        QString path;
+        QDateTime modified;
+        qint64 size = -1;
+        std::size_t bytes = 0;
+        std::uint8_t fill = 0;
+        std::vector<std::uint8_t> contents;
+        QString error;
+    };
+    mutable FileCache file_;
 };
 
 } // namespace simnodus::ui

@@ -20,17 +20,144 @@
 #include <QHeaderView>
 #include <QLabel>
 #include <QPushButton>
-#include <QTableWidget>
+#include <QTableView>
 #include <QVBoxLayout>
+
+#include <algorithm>
 
 namespace simnodus::ui {
 
 namespace {
 
-constexpr int columns = 16;
+constexpr int columns = MemoryModel::columns;
 constexpr qint64 highlight_ms = 1500;
+constexpr std::size_t max_changes = 4096; // runs of changed bytes remembered for the highlight
 
 } // namespace
+
+void MemoryModel::set_bytes(std::vector<std::uint8_t> bytes, bool fresh)
+{
+    if (fresh || bytes.size() != bytes_.size()) {
+        beginResetModel();
+        bytes_ = std::move(bytes);
+        changes_.clear();
+        endResetModel();
+        return;
+    }
+    if (bytes == bytes_) {
+        expire();
+        return;
+    }
+    // Runs of bytes that differ, each one entry; the rows between the first
+    // and the last of them are painted again.
+    const qint64 now = QDateTime::currentMSecsSinceEpoch();
+    std::size_t first = bytes.size();
+    std::size_t last = 0;
+    for (std::size_t i = 0; i < bytes.size(); ++i) {
+        if (bytes[i] == bytes_[i]) {
+            continue;
+        }
+        std::size_t end = i;
+        while (end + 1 < bytes.size() && bytes[end + 1] != bytes_[end + 1]) {
+            ++end;
+        }
+        if (changes_.size() < max_changes) {
+            changes_.push_back({i, end, now});
+        }
+        first = std::min(first, i);
+        last = end;
+        i = end;
+    }
+    bytes_ = std::move(bytes);
+    rows_changed(first, last);
+    expire();
+}
+
+bool MemoryModel::expire()
+{
+    const qint64 now = QDateTime::currentMSecsSinceEpoch();
+    std::size_t first = bytes_.size();
+    std::size_t last = 0;
+    std::erase_if(changes_, [&](const Change& c) {
+        if (now - c.at < highlight_ms) {
+            return false;
+        }
+        first = std::min(first, c.first);
+        last = std::max(last, c.last);
+        return true;
+    });
+    if (first <= last && first < bytes_.size()) {
+        rows_changed(first, last);
+    }
+    return !changes_.empty();
+}
+
+bool MemoryModel::recent(std::size_t index) const
+{
+    return std::any_of(changes_.begin(), changes_.end(),
+        [index](const Change& c) { return index >= c.first && index <= c.last; });
+}
+
+void MemoryModel::rows_changed(std::size_t first, std::size_t last)
+{
+    emit dataChanged(index(static_cast<int>(first / columns), 0), index(static_cast<int>(last / columns), columns));
+}
+
+int MemoryModel::rowCount(const QModelIndex& parent) const
+{
+    return parent.isValid() ? 0 : static_cast<int>((bytes_.size() + columns - 1) / columns);
+}
+
+int MemoryModel::columnCount(const QModelIndex& parent) const
+{
+    return parent.isValid() ? 0 : columns + 1;
+}
+
+QVariant MemoryModel::data(const QModelIndex& index, int role) const
+{
+    if (!index.isValid()) {
+        return {};
+    }
+    const std::size_t row = static_cast<std::size_t>(index.row()) * columns;
+    if (index.column() == columns) { // the text column: printable characters, others as dots
+        if (role == Qt::DisplayRole) {
+            QString text;
+            for (std::size_t i = row; i < row + columns; ++i) {
+                const auto b = i < bytes_.size() ? bytes_[i] : 0;
+                text += b >= 0x20 && b < 0x7F ? QChar(b) : QChar('.');
+            }
+            return text;
+        }
+        return role == Qt::TextAlignmentRole ? QVariant(static_cast<int>(Qt::AlignLeft | Qt::AlignVCenter)) : QVariant();
+    }
+    const std::size_t i = row + static_cast<std::size_t>(index.column());
+    if (i >= bytes_.size()) {
+        return {};
+    }
+    switch (role) {
+    case Qt::DisplayRole:
+        return QStringLiteral("%1").arg(bytes_[i], 2, 16, QLatin1Char('0')).toUpper();
+    case Qt::TextAlignmentRole:
+        return static_cast<int>(Qt::AlignCenter);
+    case Qt::BackgroundRole:
+        return recent(i) ? QVariant(QBrush(QColor(255, 196, 0, 150))) : QVariant();
+    default:
+        return {};
+    }
+}
+
+QVariant MemoryModel::headerData(int section, Qt::Orientation orientation, int role) const
+{
+    if (role != Qt::DisplayRole) {
+        return {};
+    }
+    if (orientation == Qt::Horizontal) {
+        return section < columns ? QStringLiteral("%1").arg(section, 1, 16).toUpper() : tr("Text");
+    }
+    // The row's address, wide enough for the last one.
+    const int digits = bytes_.size() > 0x10000 ? 6 : 4;
+    return QStringLiteral("%1").arg(section * columns, digits, 16, QLatin1Char('0')).toUpper();
+}
 
 MemoryWindow::MemoryWindow(Document& document, RunController& run, QWidget* parent)
     : QWidget(parent, Qt::Window), document_(document), run_(run)
@@ -55,18 +182,19 @@ MemoryWindow::MemoryWindow(Document& document, RunController& run, QWidget* pare
     top->addWidget(load);
     top->addWidget(save);
 
-    table_ = new QTableWidget(0, columns + 1);
+    model_ = new MemoryModel(this);
+    table_ = new QTableView;
     table_->setObjectName(QStringLiteral("memoryTable"));
+    table_->setModel(model_);
     table_->setEditTriggers(QAbstractItemView::NoEditTriggers);
     table_->setSelectionMode(QAbstractItemView::NoSelection);
     table_->setFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));
-    QStringList headers;
+    // Fixed widths: sizing columns to their contents would look at every row.
+    table_->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
+    const int byte_width = QFontMetrics(table_->font()).horizontalAdvance(QStringLiteral("00")) + 14;
     for (int c = 0; c < columns; ++c) {
-        headers << QStringLiteral("%1").arg(c, 1, 16).toUpper();
+        table_->setColumnWidth(c, byte_width);
     }
-    headers << tr("Text");
-    table_->setHorizontalHeaderLabels(headers);
-    table_->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
     table_->horizontalHeader()->setStretchLastSection(true);
     table_->verticalHeader()->setFont(table_->font());
     table_->verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
@@ -191,11 +319,21 @@ std::vector<std::uint8_t> MemoryWindow::contents(model::Id component, QString& s
             const QString name = QString::fromStdString(it->second);
             const QString path = QDir(document_.base_dir()).absoluteFilePath(name);
             std::string error;
-            if (auto bytes = io::read_memory_file(path.toStdWString(), size, fill, error)) {
-                source = tr("The contents file %1, which the chip starts each run with.").arg(name);
-                return *bytes;
+            const QFileInfo info(path);
+            if (file_.path != path || file_.modified != info.lastModified() || file_.size != info.size()
+                || file_.bytes != size || file_.fill != fill) {
+                file_ = {path, info.lastModified(), info.size(), size, fill, {}, {}};
+                if (auto bytes = io::read_memory_file(path.toStdWString(), size, fill, error)) {
+                    file_.contents = std::move(*bytes);
+                } else {
+                    file_.error = QString::fromStdString(error);
+                }
             }
-            source = tr("The contents file %1 cannot be read: %2").arg(name, QString::fromStdString(error));
+            if (file_.contents.size() == size) {
+                source = tr("The contents file %1, which the chip starts each run with.").arg(name);
+                return file_.contents;
+            }
+            source = tr("The contents file %1 cannot be read: %2").arg(name, file_.error);
             return std::vector<std::uint8_t>(size, fill);
         }
     }
@@ -208,55 +346,16 @@ void MemoryWindow::refresh()
 {
     const model::Id id = current();
     if (id == model::no_id) {
-        table_->setRowCount(0);
-        bytes_.clear();
+        model_->set_bytes({}, true);
+        shown_ = model::no_id;
         status_->setText(tr("The circuit has no memory chip (a 24C02 EEPROM, or a microcontroller's EEPROM, for example)."));
         return;
     }
     QString source;
-    const auto now_bytes = contents(id, source);
+    auto now_bytes = contents(id, source);
     status_->setText(source);
-    const QDateTime now = QDateTime::currentDateTime();
-    const bool same_chip = id == shown_ && now_bytes.size() == bytes_.size();
-    if (!same_chip) {
-        shown_ = id;
-        bytes_.assign(now_bytes.size(), 0);
-        changed_at_.assign(now_bytes.size(), QDateTime());
-        const int rows = static_cast<int>((now_bytes.size() + columns - 1) / columns);
-        table_->setRowCount(rows);
-        for (int r = 0; r < rows; ++r) {
-            table_->setVerticalHeaderItem(r, new QTableWidgetItem(QStringLiteral("%1").arg(r * columns, 4, 16, QLatin1Char('0')).toUpper()));
-            for (int c = 0; c <= columns; ++c) {
-                auto* item = new QTableWidgetItem;
-                item->setTextAlignment(c < columns ? Qt::AlignCenter : Qt::AlignLeft | Qt::AlignVCenter);
-                table_->setItem(r, c, item);
-            }
-        }
-    }
-    const QColor marker(255, 196, 0, 150);
-    for (std::size_t i = 0; i < now_bytes.size(); ++i) {
-        const bool changed = !same_chip || now_bytes[i] != bytes_[i];
-        if (changed && same_chip) {
-            changed_at_[i] = now;
-        }
-        auto* item = table_->item(static_cast<int>(i / columns), static_cast<int>(i % columns));
-        if (changed) {
-            item->setText(QStringLiteral("%1").arg(now_bytes[i], 2, 16, QLatin1Char('0')).toUpper());
-        }
-        const bool recent = changed_at_[i].isValid() && changed_at_[i].msecsTo(now) < highlight_ms;
-        item->setBackground(recent ? QBrush(marker) : QBrush());
-    }
-    // The text column: printable characters, others as dots.
-    for (int r = 0; r < table_->rowCount(); ++r) {
-        QString text;
-        for (int c = 0; c < columns; ++c) {
-            const std::size_t i = static_cast<std::size_t>(r * columns + c);
-            const auto b = i < now_bytes.size() ? now_bytes[i] : 0;
-            text += b >= 0x20 && b < 0x7F ? QChar(b) : QChar('.');
-        }
-        table_->item(r, columns)->setText(text);
-    }
-    bytes_ = now_bytes;
+    model_->set_bytes(std::move(now_bytes), id != shown_);
+    shown_ = id;
 }
 
 void MemoryWindow::load()

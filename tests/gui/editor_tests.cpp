@@ -54,6 +54,7 @@
 #include <QMouseEvent>
 #include <QPlainTextEdit>
 #include <QPushButton>
+#include <QTableView>
 #include <QTableWidget>
 #include <QPointer>
 #include <QScrollArea>
@@ -1388,6 +1389,42 @@ private slots:
 #endif
     }
 
+    void memory_viewer_opens_a_4_mb_flash_at_once()
+    {
+        // SN-285: example 39's W25Q32 (4 MB) froze the window for seconds when
+        // its contents were opened, and kept it busy afterwards.
+#if !defined(SIMNODUS_TEST_NGSPICE_LIBRARY)
+        QSKIP("No ngspice configured for this build.");
+#else
+        QStringList errors;
+        QStringList warnings;
+        QVERIFY(doc().open_copy(
+            QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/39_SPI_ADC_digital_pot_flash_HX711.snx"), errors, warnings));
+        model::Id flash = model::no_id;
+        for (const auto& c : doc().schematic().components()) {
+            flash = c.type == "w25q32" ? c.id : flash;
+        }
+        QVERIFY(flash != model::no_id);
+        window_->run();
+        QTRY_VERIFY_WITH_TIMEOUT(window_->run_controller()->active(), 5000);
+        auto* viewer = window_->memory_viewer();
+        QElapsedTimer clock;
+        clock.start();
+        viewer->show_chip(flash);
+        QApplication::processEvents(); // the first paint
+        const qint64 opened = clock.elapsed();
+        qInfo("memory viewer opened in %lld ms", static_cast<long long>(opened));
+        QVERIFY(opened < 1500);
+        QCOMPARE(viewer->bytes().size(), std::size_t{4u * 1024 * 1024});
+        // Its refreshes (four a second) leave the window free.
+        clock.restart();
+        QTest::qWait(1000);
+        QVERIFY(clock.elapsed() < 1500);
+        window_->stop();
+        viewer->close();
+#endif
+    }
+
     void memory_viewer_shows_the_eeprom_while_running()
     {
         // SN-208: View... on the 24C02 opens the Memory Viewer; the firmware's write appears live.
@@ -1422,9 +1459,9 @@ private slots:
             return b.size() == 256 && std::string(b.begin() + 0x10, b.begin() + 0x18) == "SimNodus";
         };
         QTRY_VERIFY_WITH_TIMEOUT(written(), 20000);
-        auto* table = viewer->findChild<QTableWidget*>(QStringLiteral("memoryTable"));
-        QCOMPARE(table->item(1, 0)->text(), QStringLiteral("53")); // 'S'
-        QCOMPARE(table->item(1, 16)->text().left(8), QStringLiteral("SimNodus"));
+        auto* table = viewer->findChild<QTableView*>(QStringLiteral("memoryTable"));
+        QCOMPARE(table->model()->index(1, 0).data().toString(), QStringLiteral("53")); // 'S'
+        QCOMPARE(table->model()->index(1, 16).data().toString().left(8), QStringLiteral("SimNodus"));
         // What Load... does while running, through the engine process.
         std::vector<std::uint8_t> zeros(256, 0x00);
         std::copy_n("SimNodus", 8, zeros.begin() + 0x10);
@@ -1577,6 +1614,21 @@ private slots:
         terminal->input()->setText(QStringLiteral("0"));
         QTest::keyClick(terminal->input(), Qt::Key_Return);
         QTRY_VERIFY_WITH_TIMEOUT(led_current() < 1e-4, 5000);
+        // SN-285: Up and Down walk through the lines sent ("1", then "0") and
+        // come back to the line being typed.
+        terminal->input()->setText(QStringLiteral("dra"));
+        QTest::keyClick(terminal->input(), Qt::Key_Up);
+        QCOMPARE(terminal->input()->text(), QStringLiteral("0"));
+        QTest::keyClick(terminal->input(), Qt::Key_Up);
+        QCOMPARE(terminal->input()->text(), QStringLiteral("1"));
+        QTest::keyClick(terminal->input(), Qt::Key_Up); // the oldest stays
+        QCOMPARE(terminal->input()->text(), QStringLiteral("1"));
+        QTest::keyClick(terminal->input(), Qt::Key_Return); // sent again: the LED turns on
+        QTRY_VERIFY_WITH_TIMEOUT(led_current() > 2e-3, 5000);
+        QTest::keyClick(terminal->input(), Qt::Key_Up);
+        QCOMPARE(terminal->input()->text(), QStringLiteral("1"));
+        QTest::keyClick(terminal->input(), Qt::Key_Down);
+        QCOMPARE(terminal->input()->text(), QString());
         window_->stop();
 #endif
     }

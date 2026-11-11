@@ -38,7 +38,7 @@ them.
 
 | Area | What it does |
 |---|---|
-| **Components** (left, Ctrl+1) | The parts tree by category with a search box. The preview below shows the selected part's symbol, pins and a short description |
+| **Components** (left, Ctrl+1) | The parts tree by category with a search box; the **+** and **−** buttons beside it (and the tree's context menu) open or close every category at once. The preview below shows the selected part's symbol, pins and a short description |
 | **Schematic** (center) | The drawing. Mouse wheel zooms at the cursor, the middle button or Space+drag pans, F fits the circuit |
 | **Properties** (right, Ctrl+2) | Values of the selected part; while running, its live voltages, currents and power, the voltage of a selected wire or label and the reading of a selected probe |
 | **Messages** (bottom, Ctrl+3) | Circuit checks, engine and firmware messages. Double-click a message to show its part; Ctrl+C or the context menu copies the selected messages (Copy All, every one) |
@@ -398,7 +398,7 @@ discharged capacitors and inductors without current.
 
 | Mode | Use | Settings |
 |---|---|---|
-| **Interactive** (default) | Continuous run you can interact with | Maximum time step: 100 µs (default), 10 µs (fast signals, more CPU) or 1 ms (slow circuits). Segment length 0.5-2 s (the engine restarts each segment to keep memory bounded). *Exact microcontroller edges* (see below) |
+| **Interactive** (default) | Continuous run you can interact with | Maximum time step: 100 µs (default), 10 µs (fast signals, more CPU), 1 µs (finest detail: about ten times slower than 10 µs, and the analyzer's history then covers 0.2 s) or 1 ms (slow circuits). Segment length 0.5-2 s (the engine restarts each segment to keep memory bounded). *Exact microcontroller edges* (see below) |
 | **Transient** | A fixed time span, computed completely, then opened in the analyzer | Stop time and maximum time step |
 
 Edges of switches and generators are resolved to the time step. With a
@@ -513,7 +513,8 @@ GTKWave.
 
 Choose the port (USART1 on PA9/PA10, USART2 on PA2/PA3, USART3 on
 PB10/PB11) to read what the firmware prints. Type a line and press Enter or
-Send, with the line ending of your choice. **Time stamps** starts every line
+Send, with the line ending of your choice; the Up and Down arrows bring back
+the lines sent before. **Time stamps** starts every line
 with its simulated time.
 
 ## Microcontroller

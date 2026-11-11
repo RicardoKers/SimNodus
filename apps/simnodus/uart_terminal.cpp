@@ -9,6 +9,7 @@
 #include <QFontDatabase>
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QKeyEvent>
 #include <QLineEdit>
 #include <QPlainTextEdit>
 #include <QPushButton>
@@ -104,6 +105,8 @@ UartTerminal::UartTerminal(QWidget* parent) : QWidget(parent)
 
     connect(send_, &QPushButton::clicked, this, &UartTerminal::send);
     connect(input_, &QLineEdit::returnPressed, this, &UartTerminal::send);
+    input_->installEventFilter(this);
+    input_->setToolTip(tr("Enter sends the line; the Up and Down arrows bring back lines sent before"));
     connect(ports_, &QComboBox::currentIndexChanged, this, [this](int) { show_current(); });
     connect(clear, &QPushButton::clicked, this, [this] {
         transcripts_[ports_->currentIndex()].text.clear();
@@ -197,7 +200,39 @@ void UartTerminal::send()
     }
     const QByteArray bytes = text.toLatin1();
     controller_->uart_send(ports[static_cast<std::size_t>(ports_->currentIndex())], bytes.toStdString());
+    if (!input_->text().isEmpty() && (sent_.isEmpty() || sent_.last() != input_->text())) {
+        sent_ << input_->text();
+        if (sent_.size() > 100) {
+            sent_.removeFirst();
+        }
+    }
+    sent_at_ = -1;
+    draft_.clear();
     input_->clear();
+}
+
+bool UartTerminal::eventFilter(QObject* watched, QEvent* event)
+{
+    if (watched == input_ && event->type() == QEvent::KeyPress) {
+        const int key = static_cast<QKeyEvent*>(event)->key();
+        if ((key == Qt::Key_Up || key == Qt::Key_Down) && !sent_.isEmpty()) {
+            if (key == Qt::Key_Up) {
+                if (sent_at_ < 0) {
+                    draft_ = input_->text();
+                    sent_at_ = static_cast<int>(sent_.size()) - 1;
+                } else if (sent_at_ > 0) {
+                    --sent_at_;
+                }
+            } else if (sent_at_ >= 0) {
+                sent_at_ = sent_at_ + 1 < sent_.size() ? sent_at_ + 1 : -1; // past the newest: the unsent line again
+            } else {
+                return true;
+            }
+            input_->setText(sent_at_ < 0 ? draft_ : sent_.at(sent_at_));
+            return true;
+        }
+    }
+    return QWidget::eventFilter(watched, event);
 }
 
 } // namespace simnodus::ui
