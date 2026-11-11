@@ -238,6 +238,7 @@ void AnalyzerWindow::set_controller(RunController* controller)
 
 void AnalyzerWindow::rebuild_channel_list()
 {
+    last_frame_.clear();
     // A channel of the same name keeps its settings from the run before.
     std::map<QString, ChannelView> before;
     for (const auto& view : channel_views()) {
@@ -311,6 +312,7 @@ void AnalyzerWindow::rebuild_channel_list()
 
 void AnalyzerWindow::reload()
 {
+    last_frame_.clear();
     terminal_->reload();
     rebuild_channel_list();
     record_mode_ = false;
@@ -551,15 +553,26 @@ void AnalyzerWindow::refresh_scope()
             scope_->set_traces(collect(window.first, window.second, pixel_time(window.second - window.first) / 2));
             measurements_due_ = true;
         } else {
-            // Scales, offsets and visibility may have changed: keep the samples.
-            auto traces = scope_->traces();
-            for (std::size_t i = 0; i < traces.size(); ++i) {
-                traces[i].per_division = i < scales_.size() ? scales_[i] : traces[i].per_division;
-                traces[i].offset = i < offsets_.size() ? offsets_[i] : traces[i].offset;
-                traces[i].visible = i < visible_.size() ? visible_[i] : traces[i].visible;
+            // Scales, offsets and visibility may have changed: keep the samples,
+            // and paint again only when one of them did (SN-284).
+            const auto& shown = scope_->traces();
+            bool changed = false;
+            for (std::size_t i = 0; i < shown.size(); ++i) {
+                changed = changed || (i < scales_.size() && shown[i].per_division != scales_[i])
+                    || (i < offsets_.size() && shown[i].offset != offsets_[i])
+                    || (i < visible_.size() && shown[i].visible != visible_[i]);
             }
-            scope_->set_traces(std::move(traces));
+            if (changed) {
+                auto traces = shown;
+                for (std::size_t i = 0; i < traces.size(); ++i) {
+                    traces[i].per_division = i < scales_.size() ? scales_[i] : traces[i].per_division;
+                    traces[i].offset = i < offsets_.size() ? offsets_[i] : traces[i].offset;
+                    traces[i].visible = i < visible_.size() ? visible_[i] : traces[i].visible;
+                }
+                scope_->set_traces(std::move(traces));
+            }
         }
+        last_frame_.clear();
         update_measurements();
         return;
     }
@@ -567,6 +580,24 @@ void AnalyzerWindow::refresh_scope()
     const auto status = controller_->status();
     const double now = status.sim_time;
     const double div = timebase_->currentData().toDouble();
+    // A run that ended stands still: the same time and the same settings give
+    // the same picture, which is not collected and painted again (SN-284).
+    {
+        std::vector<double> frame{now, div, static_cast<double>(mode_->currentIndex()),
+            static_cast<double>(trigger_source_->currentIndex()), trigger_level_->value(),
+            static_cast<double>(trigger_slope_->currentIndex()), static_cast<double>(trigger_sweep_->currentIndex()),
+            single_done_ ? 1.0 : 0.0, static_cast<double>(scope_->plot_rect().width()),
+            static_cast<double>(scope_->plot_rect().height()), static_cast<double>(channel_count_)};
+        frame.insert(frame.end(), scales_.begin(), scales_.end());
+        frame.insert(frame.end(), offsets_.begin(), offsets_.end());
+        frame.insert(frame.end(), visible_.begin(), visible_.end());
+        frame.insert(frame.end(), automatic_.begin(), automatic_.end());
+        if (status.state != sim::RunState::Running && !autoscale_pending_ && frame == last_frame_) {
+            update_measurements();
+            return;
+        }
+        last_frame_ = std::move(frame);
+    }
     const double span = div * ScopeWidget::horizontal_divisions;
     // Roll mode needs one window; the trigger search looks further back.
     const bool triggered = mode_->currentIndex() == 1;

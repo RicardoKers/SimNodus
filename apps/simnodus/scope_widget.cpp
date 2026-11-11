@@ -250,6 +250,10 @@ void ScopeWidget::paint_trace(QPainter& painter, const ScopeTrace& trace, const 
         const double y = plot.center().y() - (v - trace.offset) / units_per_pixel;
         return std::clamp(y, plot.top() - 2.0, plot.bottom() + 2.0); // clipped at the edges like a scope
     };
+    // Not x_at(): it asks for the plot's rectangle, which measures a text with
+    // the font, once a sample (7 to 14 ms a frame with three channels, SN-284).
+    const double per_second = plot.width() / (end_ - start_);
+    auto x_of = [&](double time) { return plot.left() + (time - start_) * per_second; };
     const auto& s = trace.samples;
     auto first =
         std::lower_bound(s.begin(), s.end(), start_, [](const sim::Sample& a, double t) { return a.time < t; });
@@ -276,7 +280,7 @@ void ScopeWidget::paint_trace(QPainter& painter, const ScopeTrace& trace, const 
             previous = QPointF(x, y_at(last));
         };
         for (auto it = first; it != s.end() && it->time <= end_; ++it) {
-            const int c = static_cast<int>(x_at(it->time) - plot.left());
+            const int c = static_cast<int>(x_of(it->time) - plot.left());
             if (c != column) {
                 if (column >= 0) {
                     flush();
@@ -303,7 +307,7 @@ void ScopeWidget::paint_trace(QPainter& painter, const ScopeTrace& trace, const 
     segments.reserve(static_cast<int>(count));
     std::optional<QPointF> previous;
     for (auto it = first; it != s.end(); ++it) {
-        const QPointF p(x_at(it->time), y_at(it->value));
+        const QPointF p(x_of(it->time), y_at(it->value));
         if (previous) {
             segments << QLineF(*previous, p);
         }

@@ -184,6 +184,9 @@ private:
     bool fitting_ = false; // inside fit_scales(): its refresh does not fit again
     bool autoscale_pending_ = true; // fit scales once the first data arrives
     std::optional<std::pair<double, double>> last_window_;
+    // Time and settings of the picture last collected while the display follows
+    // the run; a run that stands still is not collected again (SN-284).
+    std::vector<double> last_frame_;
     std::optional<double> last_trigger_; // newest trigger crossing found
     double trigger_seen_at_ = 0.0;       // simulated time when it was found
     sim::TransientResult record_;  // the complete transient record, read once per reload
