@@ -523,6 +523,8 @@ in with the time base, or pause and use the wheel, until the text fits in
 the boxes; a narrow box shows only its byte. Hover a box for its text and
 time. **Remove decoders** takes them all away. Decoders read the pins'
 levels as the simulation has them, so they also show what a chip answers.
+They are kept with the window's settings and come back the next time; one
+whose signals the circuit on the screen does not have shows no lane.
 
 ### UART
 

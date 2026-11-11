@@ -215,6 +215,7 @@ Commands of the window only:
 | `channels` | `{"V(OUT)": {"visible": true, "scale": 2, "offset": 0}}`: per channel; `scale` in V/div or A/div, or `"auto"`; `offset` is the value at the center line |
 | `lanes` | `["U1.PA5", "V(OUT)"]`: exactly these lanes in the Logic tab, voltage probes too; board pins no longer appear by themselves; `"auto"` goes back to that |
 | `threshold` | The Logic tab's probe threshold in volts |
+| `decoders` | The Logic tab's protocol decoders, all at once (`[]` removes them): `{"protocol": "i2c", "signals": ["U1.PB6", "U1.PB7"]}` (SCL, SDA); `{"protocol": "spi", "signals": [clock, MOSI, MISO, select], "mode": 0, "bits": 8, "order": "msb"}` (MISO and select may be `""` or left out); `{"protocol": "uart", "signals": ["U1.PA9"], "baud": 0, "bits": 8, "parity": "none", "inverted": false}` (`baud` 0: found from the line). The reply lists each decoder with its `items` (`time`, `text`): what it reads in the time window on display while the Logic tab is shown, at most the last 500 |
 | `panel` | `false` hides the side panel (channels, timebase, trigger) so that the plot fills the window |
 | `display` | `stop` freezes the display (Stop display), `run` lets it follow again |
 | `window` | `[from, to]` in seconds: the time window, while the run is paused, the display is stopped or a transient record is shown (`blocked` otherwise) |

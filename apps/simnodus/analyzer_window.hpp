@@ -18,6 +18,7 @@
 #endif
 
 #include <QElapsedTimer>
+#include <QJsonObject>
 #include <QMainWindow>
 #include <QMap>
 #include <QStringList>
@@ -115,7 +116,17 @@ public:
         sim::SpiOptions spi;
         sim::UartOptions uart;
         QString title() const;
+        // As text, for the window's settings and external control (SN-288):
+        // {"protocol": "i2c", "signals": ["U1.PB6", "U1.PB7"]}; SPI adds "mode",
+        // "bits" and "order" ("msb" or "lsb"); UART adds "baud" (0: found from
+        // the line), "bits", "parity" ("none", "even", "odd") and "inverted".
+        QJsonObject to_json() const;
+        // Reads that text; nullopt with the reason in `error` when it does not fit.
+        static std::optional<Decoder> from_json(const QJsonObject& object, QString* error = nullptr);
     };
+    // All decoders at once (external control); the decoders are kept with the
+    // window's settings and come back with the next session.
+    void set_decoders(std::vector<Decoder> decoders);
     void add_decoder(const Decoder& decoder);
     void clear_decoders();
     const std::vector<Decoder>& decoders() const { return decoders_; }

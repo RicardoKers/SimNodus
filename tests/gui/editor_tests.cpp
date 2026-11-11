@@ -1428,6 +1428,54 @@ private slots:
 #endif
     }
 
+    void decoders_are_kept_with_the_settings_and_reach_external_control()
+    {
+        // SN-288: analyzer.set gives and takes the decoders; the window's
+        // settings keep them for the next session.
+        using automation::json;
+        control_rc();
+        auto* analyzer = window_->analyzer();
+        const json uart = {{"protocol", "uart"}, {"signals", json::array({"U1.PA9"})}, {"baud", 9600}, {"bits", 7},
+            {"parity", "even"}, {"inverted", true}};
+        const json spi = {{"protocol", "spi"}, {"signals", json::array({"U1.PA5", "U1.PA7", "", "U1.PA4"})}, {"mode", 3},
+            {"bits", 16}, {"order", "lsb"}};
+        const json i2c = {{"protocol", "i2c"}, {"signals", json::array({"U1.PB6", "U1.PB7"})}};
+        auto state = control("analyzer.set", {{"decoders", json::array({uart, spi, i2c})}});
+        QVERIFY2(state.is_object(), last_reply_.dump().c_str());
+        QCOMPARE(state["decoders"].size(), std::size_t{3});
+        QCOMPARE(state["decoders"][0]["protocol"].get<std::string>(), std::string("uart"));
+        QCOMPARE(state["decoders"][0]["parity"].get<std::string>(), std::string("even"));
+        QCOMPARE(state["decoders"][0]["baud"].get<double>(), 9600.0);
+        QVERIFY(state["decoders"][0]["inverted"].get<bool>());
+        QCOMPARE(state["decoders"][1]["order"].get<std::string>(), std::string("lsb"));
+        QCOMPARE(state["decoders"][1]["signals"][3].get<std::string>(), std::string("U1.PA4"));
+        QVERIFY(state["decoders"][2]["items"].is_array());
+        QCOMPARE(analyzer->decoders().size(), std::size_t{3});
+        QCOMPARE(analyzer->decoders()[1].spi.mode, 3);
+        QCOMPARE(analyzer->decoders()[1].spi.bits, 16);
+        QVERIFY(!analyzer->decoders()[1].spi.msb_first);
+        // What does not fit is refused with its reason, and changes nothing.
+        QVERIFY(control("analyzer.set", {{"decoders", json::array({{{"protocol", "can"}, {"signals", json::array({"A"})}}})}})
+                    .is_null());
+        QVERIFY(last_reply_.dump().find("i2c, spi or uart") != std::string::npos);
+        QVERIFY(control("analyzer.set", {{"decoders", json::array({{{"protocol", "i2c"}, {"signals", json::array({"A"})}}})}})
+                    .is_null());
+        QVERIFY(control("analyzer.set", {{"decoders", "i2c"}}).is_null());
+        QCOMPARE(analyzer->decoders().size(), std::size_t{3});
+        // Kept by the window's settings.
+        window_->save_settings();
+        analyzer->clear_decoders();
+        QVERIFY(analyzer->decoders().empty());
+        analyzer->restore_settings(*settings_);
+        QCOMPARE(analyzer->decoders().size(), std::size_t{3});
+        QCOMPARE(analyzer->decoders()[0].uart.parity, 'E');
+        QCOMPARE(analyzer->decoders()[0].uart.data_bits, 7);
+        QCOMPARE(analyzer->decoders()[2].signal_lanes, QStringList({QStringLiteral("U1.PB6"), QStringLiteral("U1.PB7")}));
+        state = control("analyzer.set", {{"decoders", json::array()}});
+        QCOMPARE(state["decoders"].size(), std::size_t{0});
+        QVERIFY(analyzer->decoders().empty());
+    }
+
     void protocol_decoders_read_the_buses_of_the_examples()
     {
         // SN-286: decoders over the logic lanes, with the signals of real runs.
