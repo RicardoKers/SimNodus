@@ -33,8 +33,8 @@ jobs:
           # When those names do not resolve, a mirror under another name takes
           # the place of the runner's list.
           if [ -f /etc/apt/apt-mirrors.txt ] && ! timeout 15 getent hosts azure.archive.ubuntu.com > /dev/null; then
-            echo "azure.archive.ubuntu.com does not resolve here: packages from mirrors.kernel.org"
-            printf 'http://mirrors.kernel.org/ubuntu/\tpriority:1\n' | sudo tee /etc/apt/apt-mirrors.txt
+            echo "azure.archive.ubuntu.com does not resolve here: packages from mirrors.edge.kernel.org"
+            printf 'http://mirrors.edge.kernel.org/ubuntu/\tpriority:1\n' | sudo tee /etc/apt/apt-mirrors.txt
           fi
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends ninja-build qt6-base-dev qt6-qpa-plugins \
