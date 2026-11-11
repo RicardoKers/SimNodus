@@ -241,14 +241,14 @@ Splitter splitter_from(const json& j)
             throw std::runtime_error(std::string("a splitter needs a list of ") + key);
         }
         for (const auto& w : list) {
-            if (!w.is_number_integer() || w.get<int>() < 1) {
+            if (!w.is_number_integer() || w.get<std::int64_t>() < 1) {
                 throw std::runtime_error("splitter widths must be positive integers");
             }
+            // Each width against the limit, so that the sum cannot wrap.
+            if (w.get<std::int64_t>() > 64 || (total += w.get<int>()) > 64) {
+                throw std::runtime_error("a splitter has at most 64 bits");
+            }
             result.push_back(w.get<int>());
-            total += result.back();
-        }
-        if (total > 64) {
-            throw std::runtime_error("a splitter has at most 64 bits");
         }
         return result;
     };
@@ -608,11 +608,14 @@ LoadResult from_json_text(const std::string& text)
         result.errors.push_back(std::string("The file is not valid JSON: ") + error.what());
         return result;
     }
-    if (!root.is_object() || root.value("format", std::string()) != format_name) {
+    // value() throws for a member of another type ("format": 1).
+    const auto format = root.is_object() ? root.find("format") : root.end();
+    if (!root.is_object() || format == root.end() || !format->is_string() || format->get<std::string>() != format_name) {
         result.errors.push_back("This is not a SimNodus project file.");
         return result;
     }
-    const auto version = root.value("version", 0);
+    const auto number = root.find("version");
+    const auto version = number != root.end() && number->is_number_integer() ? number->get<int>() : 0;
     if (version < 1) {
         result.errors.push_back("The project file has no valid format version.");
         return result;

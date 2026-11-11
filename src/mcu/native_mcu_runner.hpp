@@ -14,6 +14,7 @@
 // inputs are late by less than L (labeled approximate).
 #pragma once
 
+#include "brief_wait.hpp"
 #include "mcu_backend.hpp"
 #include "mcu_runner.hpp" // McuRunOptions
 
@@ -81,6 +82,13 @@ private:
     std::condition_variable changed_;
     std::uint64_t limit_ns_ = 0;
     McuStatus status_;
+    // The handoff of time between the circuit and the firmware (brief_wait.hpp):
+    // limit_ns_ and status_.time_ns as each side reads them before it blocks.
+    std::atomic<std::uint64_t> limit_seen_{0};
+    std::atomic<std::uint64_t> time_seen_{0};
+    BriefWait circuit_wait_; // the circuit, for the firmware's time
+    BriefWait worker_wait_;  // the firmware, for its next window
+    bool brief_waits_ = false; // enough processors for both threads to look instead of sleeping
     std::vector<int> pin_ids_;                     // per watched pin: the machine's pin number (-1: a device pin)
     std::vector<PinModel> pin_models_;             // per watched pin: the board's, or its device's
     std::vector<std::vector<std::size_t>> device_pins_; // device -> signal pin -> watched pin

@@ -4,6 +4,24 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Security (2026-11-11, SN-282, code review)
+
+- A vendor subcircuit kept in a project could carry commands for ngspice outside its `.subckt` block (a `.control` section, `.include`, `.lib`) or as `*#` lines; the text went into the netlist whole and ngspice ran them when the simulation started. Kept text may now hold only its blocks, `.MODEL` statements and comments; anything else makes the part an unknown model. Subcircuits of model folders with a `*#` line are skipped.
+- A firmware ELF whose segment is larger than the chip's memory could write past it (STM32F103): the block is now refused.
+- The flash and EEPROM files kept beside a project take only letters, digits, `_` and `-` from the designator, which could name another folder.
+- A project file with a `format` or `version` of the wrong type, splitter widths whose sum wraps, or a block that contains itself is reported as an error instead of ending the program; a GDB `M`/`X` packet with a length its data does not have is refused.
+
+### Changed (2026-11-11, SN-282, speed)
+
+- Circuits with a board run about 1.4 to 2 times faster at maximum speed with the same results (owner's laptop, `simnodus-cli`, 3 s: example 07 from 3.6x to 5.1x real time, 09 from 3.6x to 5.3x, 25 from 2.6x to 3.5x, 50 from 2.6x to 6.9x, 58 from 2.5x to 4.7x): the pin driver sources ngspice asks for at every iteration (about 400 calls per time point) are found without a lookup by name and their times converted once per step, sampled values go to their rings without a lookup, and the circuit and the firmware look for each other's time for up to 50 µs before they sleep (`src/mcu/brief_wait.hpp`, only with a spare processor).
+- STM32 GPIO ports recompute their pins only when a register or input changed (a firmware polling a USART's status did so at every read): the emulator benchmark went from 72 to 99 MIPS.
+- Not faster: circuits limited by ngspice itself (examples 23, 26, 64, 65). ngspice's KLU solver was tried and gave no gain on them.
+
+### Fixed (2026-11-11, SN-282)
+
+- The Signal Analyzer's automatic scales could call themselves without end (a freeze, then a crash) with two automatic channels of one unit when one was a small signal around 0 V and the other positive only.
+- A UART that had printed more than 1 MiB slowed the run down (the log was trimmed one byte at a time); the level log of a board input driven by the circuit grew without limit; boards kept running after a start that failed for lack of the analog engine; a Resume right after a Pause could be lost.
+
 ### Added (2026-11-10, SN-281, chart recorder)
 
 - **Chart Recorder** (Instruments): a two-channel plot placed on the schematic for slow experiments of seconds to hours. Each channel shows the voltage of its + pin relative to its - pin over the whole run from its start; an unconnected + pin turns the channel off, an unconnected - pin measures against ground (1 GΩ to ground per pin). Resized by dragging its corner (or **Width** and **Height**); a **Time window** with a *fixed* (0 to the window) or *rolling* axis in seconds, minutes or hours; an *auto* or *manual* vertical scale.

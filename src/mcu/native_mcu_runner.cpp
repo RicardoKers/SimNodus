@@ -41,10 +41,15 @@ void trim_history(History& history, Time keep)
     history.erase(history.begin(), first_kept);
 }
 
+// Boards running now: each has a worker thread that may look for its next
+// window instead of sleeping (brief_wait.hpp).
+std::atomic<int> live_runners{0};
+
 } // namespace
 
 NativeMcuRunner::NativeMcuRunner(McuRunOptions options) : options_(std::move(options))
 {
+    ++live_runners;
     // Device pins (SN-203) follow the GPIO pins, named "U2.Q0".
     pin_models_.assign(options_.pins.size(), options_.pin_model);
     for (const auto& device : options_.devices) {
@@ -71,6 +76,7 @@ NativeMcuRunner::NativeMcuRunner(McuRunOptions options) : options_(std::move(opt
 NativeMcuRunner::~NativeMcuRunner()
 {
     stop();
+    --live_runners;
 }
 
 void NativeMcuRunner::start()
@@ -79,8 +85,11 @@ void NativeMcuRunner::start()
         std::lock_guard lock(mutex_);
         status_ = McuStatus{};
         status_.state = McuState::Starting;
+        time_seen_ = 0;
     }
     stop_ = false;
+    // One processor per worker, one for the circuit and one left for the window.
+    brief_waits_ = std::thread::hardware_concurrency() >= static_cast<unsigned>(live_runners.load()) + 2;
     worker_ = std::thread([this] { work(); });
 }
 
@@ -98,12 +107,23 @@ void NativeMcuRunner::set_limit_ns(std::uint64_t limit)
     {
         std::lock_guard lock(mutex_);
         limit_ns_ = std::max(limit_ns_, limit);
+        limit_seen_.store(limit_ns_, std::memory_order_release);
     }
     changed_.notify_all();
 }
 
 bool NativeMcuRunner::wait_time_ns(std::uint64_t time_ns, const std::atomic<bool>& cancel)
 {
+    // The firmware is usually there already, or within microseconds: look
+    // before sleeping. What it collected up to that time is read under the
+    // lock afterwards, which the worker holds while it publishes its time.
+    const auto reached = [&] { return time_seen_.load(std::memory_order_acquire) >= time_ns; };
+    if (reached()) {
+        return true;
+    }
+    if (brief_waits_) {
+        circuit_wait_.wait([&] { return reached() || cancel.load(std::memory_order_relaxed); });
+    }
     std::unique_lock lock(mutex_);
     while (status_.time_ns < time_ns && status_.state == McuState::Running && !cancel) {
         changed_.wait_for(lock, std::chrono::milliseconds(5));
@@ -581,7 +601,9 @@ void NativeMcuRunner::work()
                     log.bytes += static_cast<char>(b.value);
                     log.times.push_back(b.time_ns);
                     ++log.total;
-                    if (log.bytes.size() > uart_keep) {
+                    // A tenth at a time: one byte at a time would move the whole
+                    // megabyte (and its times) for every byte printed after the first megabyte.
+                    if (log.bytes.size() > uart_keep + uart_keep / 10) {
                         const std::size_t drop = log.bytes.size() - uart_keep;
                         log.bytes.erase(0, drop);
                         log.times.erase(log.times.begin(), log.times.begin() + static_cast<std::ptrdiff_t>(drop));
@@ -696,8 +718,13 @@ void NativeMcuRunner::work()
         std::uint64_t limit = 0;
         std::vector<std::pair<int, std::string>> to_send;
         {
-            std::unique_lock lock(mutex_);
             const std::uint64_t now = machine->time_ns();
+            if (brief_waits_) { // the circuit usually grants the next window within microseconds
+                worker_wait_.wait([&] {
+                    return stop_ || reset_ || boundary_below(limit_seen_.load(std::memory_order_acquire)) > now;
+                });
+            }
+            std::unique_lock lock(mutex_);
             changed_.wait_for(lock, std::chrono::milliseconds(20), [&] {
                 bool sending = false;
                 for (const auto& [name, log] : uarts_) {
@@ -775,6 +802,9 @@ void NativeMcuRunner::work()
                         const bool level = machine->pin_level(pin);
                         if (log.back().second != level) {
                             log.emplace_back(std::max(now, log.back().first), level);
+                            if (log.size() > log_keep) { // as for the firmware's own changes
+                                log.erase(log.begin(), log.begin() + static_cast<std::ptrdiff_t>(log_keep / 10));
+                            }
                         }
                     }
                 }
@@ -802,6 +832,7 @@ void NativeMcuRunner::work()
             std::lock_guard lock(mutex_);
             collect();
             status_.time_ns = machine->time_ns();
+            time_seen_.store(status_.time_ns, std::memory_order_release);
         }
         changed_.notify_all();
     }

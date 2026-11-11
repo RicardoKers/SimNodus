@@ -92,6 +92,12 @@ TEST_CASE("invalid project files are rejected with a message")
 {
     CHECK(!io::from_json_text("{").schematic);
     CHECK(!io::from_json_text("{\"format\": \"other\"}").schematic);
+    // Members of the wrong type are errors, not exceptions.
+    CHECK(!io::from_json_text("{\"format\": 1}").schematic);
+    CHECK(!io::from_json_text("{\"format\": \"simnodus-project\", \"version\": \"1\"}").schematic);
+    // Splitter widths whose sum would wrap past the 64-bit limit.
+    CHECK(!io::from_json_text(R"({"format": "simnodus-project", "version": 1, "splitters":
+        [{"id": 9, "at": [0, 0], "bus": "", "inputs": [2147483647, 2147483647, 2], "outputs": [1]}]})").schematic);
     const auto newer = io::from_json_text("{\"format\": \"simnodus-project\", \"version\": 99}");
     REQUIRE(!newer.errors.empty());
     CHECK(newer.errors[0].find("newer") != std::string::npos);

@@ -2126,3 +2126,18 @@ TEST_CASE("the Cortex-M3 timing counts TRM cycles and the flash wait states")
     CHECK(cycles(divide, code_base + 4, Cpu::Timing::CortexM3, 0, 0xFFFFFFFFu, 3) == 12);
     CHECK(cycles(divide, code_base + 4, Cpu::Timing::CortexM3, 0, 1, 3) == 2);
 }
+
+TEST_CASE("a block larger than its memory is not loaded")
+{
+    // The size comes from a firmware file's program header.
+    Bus bus;
+    bus.add_memory("flash", 0x08000000, 0x10000, false);
+    bus.add_memory("SRAM", 0x20000000, 0x5000, true);
+    const std::vector<std::uint8_t> small(16, 0xAA);
+    CHECK(bus.load(0x08000000, small.data(), 16));
+    CHECK(bus.memory_at(0x08000000, 0x10000) != nullptr);
+    CHECK(bus.memory_at(0x08000000, 0x10001) == nullptr);
+    CHECK(bus.memory_at(0x08000000, 0x200000) == nullptr);
+    CHECK(!bus.fill(0x20000004, 0, 0x1000000));
+    CHECK(bus.memory_at(0x0800FFFF, 2) == nullptr);
+}
