@@ -1,6 +1,6 @@
 # Current state
 
-Updated: 2026-11-11 (release 0.18.0 being published: the chart recorder SN-281, the review and speed passes SN-282 to SN-284, the owner's requests SN-285, the protocol decoders SN-286 and SN-288, the chart fix SN-287 and the Memory Viewer's editing SN-289, tested by the owner on the 2026-11-11 previews; DE9 waits for the owner). Keep this file short: present state, last results, next
+Updated: 2026-11-11 (release 0.18.0 published: the chart recorder SN-281, the review and speed passes SN-282 to SN-284, the owner's requests SN-285, the protocol decoders SN-286 and SN-288, the chart fix SN-287 and the Memory Viewer's editing SN-289, tested by the owner on the 2026-11-11 previews; DE9 waits for the owner). Keep this file short: present state, last results, next
 steps. Replace it, do not append. History of the first development line
 (2026-08-31 → 2026-10-06) is in
 [archive/2026-10-legacy/CURRENT.md](../archive/2026-10-legacy/CURRENT.md);
@@ -8,7 +8,7 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 
 ## Where we are
 
-- **Release 0.18.0 (2026-11-11)** (tag `v0.18.0`, GitHub release with
+- **Release 0.18.0 published on 2026-11-11** (tag `v0.18.0`, GitHub release with
   `SimNodus-0.18.0-windows-x64.zip` and `-setup.exe`), after the owner's
   tests of the 2026-11-10 and 2026-11-11 previews:
   - SN-281: the chart recorder on the schematic.
