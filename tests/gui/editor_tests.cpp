@@ -825,6 +825,45 @@ private slots:
         window_->stop();
     }
 
+    void chart_recorder_draws_its_record_while_running()
+    {
+        // SN-287: the chart on the schematic follows its record about twice a
+        // second. (It stood still for tens of seconds once only parts whose
+        // live state changed were painted again, SN-284.)
+#if !defined(SIMNODUS_TEST_NGSPICE_LIBRARY)
+        QSKIP("No ngspice configured for this build.");
+#else
+        QStringList errors;
+        QStringList warnings;
+        QVERIFY(doc().open_copy(
+            QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/66_Capacitor_charge_on_a_chart_recorder.snx"), errors, warnings));
+        model::Id chart = model::no_id;
+        for (const auto& c : doc().schematic().components()) {
+            chart = c.type == "chart_recorder" ? c.id : chart;
+        }
+        QVERIFY(chart != model::no_id);
+        auto* scene = window_->scene();
+        window_->run();
+        QTRY_VERIFY_WITH_TIMEOUT(window_->run_controller()->status().sim_time > 0.2, 20000);
+        const QRectF where = scene->item_of(chart)->sceneBoundingRect();
+        int painted = 0;
+        const auto connection = connect(scene, &QGraphicsScene::changed, this, [&](const QList<QRectF>& regions) {
+            for (const auto& region : regions) {
+                if (region.intersects(where)) {
+                    ++painted;
+                    break;
+                }
+            }
+        });
+        QTest::qWait(3000);
+        disconnect(connection);
+        qInfo("chart painted %d times in 3 s", painted);
+        QVERIFY(painted >= 4); // about six at 2 Hz
+        QVERIFY(painted <= 10);
+        window_->stop();
+#endif
+    }
+
     void chart_recorder_is_resized_by_its_corner()
     {
         const model::Id chart = place("chart_recorder", {0, 0});

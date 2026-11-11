@@ -19,6 +19,7 @@
 #include <QColor>
 #include <QObject>
 #include <QString>
+#include <QElapsedTimer>
 #include <QTimer>
 
 #include <memory>
@@ -171,7 +172,7 @@ private:
     void refresh();
     void build_channels();
     void build_charts(const netlist::Connectivity& connectivity);
-    void pull_charts(); // new samples of the running engine into charts_
+    bool pull_charts(); // new samples of the running engine into charts_; true when there were some
     std::optional<double> net_voltage(const std::string& net) const;
     // A light's current as the eye sees it: averaged over the last 20 ms (SN-204).
     double glow_current(const std::string& vector, double latest, double now) const;
@@ -202,6 +203,10 @@ private:
     };
     std::vector<ChartFeed> chart_feeds_;
     ChartRecords charts_;
+    // The charts on the schematic are painted again twice a second while their
+    // records grow (SN-287), not at every refresh: a chart draws its whole record.
+    bool charts_grew_ = false;
+    QElapsedTimer charts_painted_;
     sim::RunState last_state_ = sim::RunState::Idle;
     int gdb_port_ = -1;
     bool network_allowed_ = false;

@@ -251,6 +251,7 @@ from the bench (AN-11).
 | SN-284 | A lighter window while running (2026-11-11): measure the window's thread with the profiler; the oscilloscope's trace painter without a font measurement a sample; the schematic paints only parts and wires whose live state changed; no new picture of a run that stands still | done 2026-11-11: window thread busy 28 to 49 % before, 11 to 20 % after (examples 38, 41, 07, 64 with the analyzer open) |
 | SN-285 | Owner's requests of 2026-11-11: the Memory Viewer with a 4 MB flash (example 39) without freezing; a 1 µs maximum time step; expand and collapse all in the components tree; sent lines brought back with the arrows in the UART terminal | done 2026-11-11: table model over the bytes (opens in 23 ms), memory copies numbered in the engine, the four items with tests |
 | SN-286 | Protocol decoders over the logic lanes (2026-11-11): I2C, SPI and UART read from the signals and shown as a lane of boxes with their bytes, as a logic analyzer does; Qt-free decoders in `src/sim/protocol_decode` | done 2026-11-11: three decoders with unit tests, the dialog, the lane, a GUI test on examples 27 and 09; open: saving the decoders, `analyzer.set`, 1-Wire |
+| SN-287 | Chart recorder painted while its record grows (2026-11-11): it stood still since SN-284 painted only parts whose live state changed (owner's test of the 2026-11-11 preview) | done 2026-11-11: painted at 2 Hz while running and when the run pauses or stops, with a GUI test on example 66 |
 
 ## Later (after freeze or after classroom)
 

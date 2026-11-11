@@ -332,8 +332,9 @@ bool RunController::chart_channel_on(model::Id chart, int channel) const
         [&](const ChartFeed& f) { return f.chart == chart && f.channel == channel; });
 }
 
-void RunController::pull_charts()
+bool RunController::pull_charts()
 {
+    bool grew = false;
     for (const auto& feed : chart_feeds_) {
         auto& record = charts_[feed.chart][static_cast<std::size_t>(feed.channel)];
         const double from = record.end_time();
@@ -346,9 +347,11 @@ void RunController::pull_charts()
         for (const auto& sample : values) {
             if (record.empty() || sample.time > from) {
                 record.add(sample.time, sample.value);
+                grew = true;
             }
         }
     }
+    return grew;
 }
 
 void RunController::build_channels()
@@ -496,6 +499,8 @@ void RunController::stop()
     const bool was_active = session_->active();
     if (was_active) {
         pull_charts(); // the samples since the last refresh
+        scene_.refresh_charts();
+        charts_grew_ = false;
     }
     session_->stop();
     if (was_active) {
@@ -793,7 +798,15 @@ void RunController::refresh()
         || (status.state == sim::RunState::Finished && mode_ == model::SimulationMode::Transient);
     const auto latest = session_->latest_all();
     live.nets = latest;
-    pull_charts();
+    // The charts are painted when their records grew, twice a second while the
+    // run goes on and at once when it pauses or ends.
+    charts_grew_ = pull_charts() || charts_grew_;
+    if (charts_grew_ && (status.state != sim::RunState::Running || !charts_painted_.isValid()
+                            || charts_painted_.elapsed() >= 500)) {
+        scene_.refresh_charts();
+        charts_painted_.restart();
+        charts_grew_ = false;
+    }
     for (const auto& [id, text] : session_->device_texts()) {
         live.texts[id] = QString::fromUtf8(text.data(), static_cast<qsizetype>(text.size()));
     }

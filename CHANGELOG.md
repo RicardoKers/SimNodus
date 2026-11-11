@@ -4,6 +4,10 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Fixed (2026-11-11, SN-287)
+
+- The chart recorder on the schematic stood still for tens of seconds and then drew a stretch at once: since SN-284 only parts whose live state changed are painted again, and a chart's record is not part of that state (unreleased, found by the owner in the 2026-11-11 preview). A chart is now painted twice a second while its record grows, and at once when the run pauses or stops.
+
 ### Added (2026-11-11, SN-286, protocol decoders)
 
 - **Protocol decoders in the Signal Analyzer's Logic tab**: *Add decoder...* reads I2C, SPI or UART from the lanes and shows what it finds as a lane of its own, as a logic analyzer does. I2C: start, repeated start, stop, the address with its direction and acknowledge, each byte; bytes nobody acknowledged in red. SPI: one box per word with MOSI and MISO, modes 0 to 3, 8 to 32 bits, either bit order, an optional select line. UART: one box per frame with its character, framing and parity errors in red, 5 to 9 data bits, parity, an inverted line; the baud rate is found from the shortest pulse seen more than once, or typed. Each decoder reads one window before the one on display, so a frame begun before it is read whole. Checked on example 27 (the bytes of "SimNodus" written to the 24C02 at 0x50, then the address not acknowledged while the chip writes) and example 09 (the text on USART1's TX at a rate found by itself).
