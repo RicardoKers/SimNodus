@@ -6,6 +6,7 @@
 #include "run_controller.hpp"
 #include "sim/simulation_session.hpp"
 
+#include <QAbstractItemDelegate>
 #include <QBrush>
 #include <QComboBox>
 #include <QDateTime>
@@ -17,6 +18,7 @@
 #include <QLineEdit>
 #include <QSignalBlocker>
 #include <QSortFilterProxyModel>
+#include <QStyledItemDelegate>
 #include <QTreeView>
 #include <QVBoxLayout>
 
@@ -49,6 +51,20 @@ std::uint32_t field_mask(const mcu::RegisterField& f)
 {
     return (f.width >= 32 ? 0xFFFFFFFFu : ((1u << f.width) - 1u)) << f.lsb;
 }
+
+// The editor of a value gets the value once: a counter that goes on counting
+// behind it (every change sets the editor's data again) would type over the user.
+class ValueDelegate : public QStyledItemDelegate {
+public:
+    using QStyledItemDelegate::QStyledItemDelegate;
+    void setEditorData(QWidget* editor, const QModelIndex& index) const override
+    {
+        if (!editor->property("simnodusFilled").toBool()) {
+            QStyledItemDelegate::setEditorData(editor, index);
+            editor->setProperty("simnodusFilled", true);
+        }
+    }
+};
 
 } // namespace
 
@@ -197,6 +213,73 @@ QModelIndex RegisterModel::index_of(const QString& peripheral, const QString& re
     return {};
 }
 
+void RegisterModel::set_editable(bool editable)
+{
+    editable_ = editable;
+}
+
+bool RegisterModel::parse_value(const QString& text, std::uint32_t& out)
+{
+    QString t = text.trimmed();
+    t.remove(QLatin1Char(' '));
+    t.remove(QLatin1Char('_'));
+    int base = 10;
+    if (t.startsWith(QStringLiteral("0x"), Qt::CaseInsensitive)) {
+        base = 16;
+        t = t.mid(2);
+    } else if (t.startsWith(QStringLiteral("0b"), Qt::CaseInsensitive)) {
+        base = 2;
+        t = t.mid(2);
+    }
+    bool ok = false;
+    const qulonglong value = t.toULongLong(&ok, base);
+    if (!ok || value > 0xFFFFFFFFull) {
+        return false;
+    }
+    out = static_cast<std::uint32_t>(value);
+    return true;
+}
+
+Qt::ItemFlags RegisterModel::flags(const QModelIndex& index) const
+{
+    Qt::ItemFlags flags = QAbstractItemModel::flags(index);
+    const Place where = place(index);
+    if (editable_ && map_ && index.column() == Value && where.reg >= 0
+        && states_[static_cast<std::size_t>(where.peripheral)][static_cast<std::size_t>(where.reg)].known) {
+        flags |= Qt::ItemIsEditable;
+    }
+    return flags;
+}
+
+bool RegisterModel::setData(const QModelIndex& index, const QVariant& value, int role)
+{
+    if (role != Qt::EditRole || !(flags(index) & Qt::ItemIsEditable)) {
+        return false;
+    }
+    const Place where = place(index);
+    const auto& peripheral = map_->peripherals[static_cast<std::size_t>(where.peripheral)];
+    const auto& reg = peripheral.registers[static_cast<std::size_t>(where.reg)];
+    const State& state = states_[static_cast<std::size_t>(where.peripheral)][static_cast<std::size_t>(where.reg)];
+    std::uint32_t typed = 0;
+    if (!parse_value(value.toString(), typed)) {
+        refusal_ = tr("A value is a number: 26, 0x1A or 0b11010.");
+        return false;
+    }
+    const unsigned bits = where.field < 0 ? reg.size * 8 : reg.fields[static_cast<std::size_t>(where.field)].width;
+    if (bits < 32 && typed >= (1u << bits)) {
+        refusal_ = tr("%1 does not fit in %n bit(s).", nullptr, static_cast<int>(bits)).arg(value.toString().trimmed());
+        return false;
+    }
+    std::uint32_t whole = typed;
+    if (where.field >= 0) {
+        const auto& field = reg.fields[static_cast<std::size_t>(where.field)];
+        whole = (state.value & ~field_mask(field)) | (typed << field.lsb);
+    }
+    refusal_.clear();
+    emit register_edited(peripheral.base + reg.offset, static_cast<int>(reg.size), whole);
+    return true;
+}
+
 QModelIndex RegisterModel::index(int row, int column, const QModelIndex& parent) const
 {
     if (!map_ || row < 0 || column < 0 || column >= ColumnCount || row >= rowCount(parent)) {
@@ -267,6 +350,8 @@ QVariant RegisterModel::data(const QModelIndex& index, int role) const
     const State& state = states_[static_cast<std::size_t>(where.peripheral)][static_cast<std::size_t>(where.reg)];
     if (where.field < 0) { // a register
         switch (role) {
+        case Qt::EditRole: // the editor opens with the value
+            return index.column() == Value && state.known ? QVariant(hex(state.value, reg.size * 8)) : QVariant();
         case Qt::DisplayRole:
             switch (index.column()) {
             case Name: return QString::fromStdString(reg.name);
@@ -291,6 +376,9 @@ QVariant RegisterModel::data(const QModelIndex& index, int role) const
     }
     const auto& field = reg.fields[static_cast<std::size_t>(where.field)];
     switch (role) {
+    case Qt::EditRole:
+        return index.column() == Value && state.known ? QVariant(QString::number(mcu::field_value(state.value, field)))
+                                                      : QVariant();
     case Qt::DisplayRole:
         switch (index.column()) {
         case Name: return QString::fromStdString(field.name);
@@ -369,7 +457,9 @@ RegisterWindow::RegisterWindow(Document& document, RunController& run, QWidget* 
     tree_->setModel(proxy_);
     tree_->setUniformRowHeights(true);
     tree_->setAlternatingRowColors(true);
-    tree_->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    // A double-click (or F2) on a value edits it while a run is on.
+    tree_->setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::EditKeyPressed);
+    tree_->setItemDelegate(new ValueDelegate(tree_));
     tree_->header()->setStretchLastSection(true);
     const QFontMetrics metrics(QFontDatabase::systemFont(QFontDatabase::FixedFont));
     tree_->setColumnWidth(RegisterModel::Name, 190);
@@ -380,11 +470,23 @@ RegisterWindow::RegisterWindow(Document& document, RunController& run, QWidget* 
     status_ = new QLabel;
     status_->setObjectName(QStringLiteral("registerStatus"));
     status_->setWordWrap(true);
+    note_ = new QLabel;
+    note_->setObjectName(QStringLiteral("registerNote"));
+    note_->setWordWrap(true);
 
     auto* layout = new QVBoxLayout(this);
     layout->addLayout(top);
     layout->addWidget(tree_, 1);
+    layout->addWidget(note_);
     layout->addWidget(status_);
+
+    connect(model_, &RegisterModel::register_edited, this, &RegisterWindow::edit);
+    // A value that was refused says why (the delegate itself only closes the editor).
+    connect(tree_->itemDelegate(), &QAbstractItemDelegate::closeEditor, this, [this] {
+        if (!model_->refusal().isEmpty()) {
+            note_->setText(model_->refusal());
+        }
+    });
 
     connect(boards_, &QComboBox::currentIndexChanged, this, [this] { refresh(); });
     connect(filter_, &QLineEdit::textChanged, this, [this](const QString& text) {
@@ -481,6 +583,17 @@ void RegisterWindow::watch(bool on)
     watch_sent_ = now;
 }
 
+void RegisterWindow::edit(quint32 address, int size, quint32 value)
+{
+    if (shown_ == model::no_id || !run_.active()) {
+        note_->setText(tr("Registers are written in the chip of a running simulation (paused or not)."));
+        return;
+    }
+    run_.write_register(shown_, address, static_cast<unsigned>(size), value);
+    note_->setText(tr("%1 written at %2. What the chip made of it shows above.")
+            .arg(hex(value, static_cast<unsigned>(size) * 8), hex(address, 32)));
+}
+
 void RegisterWindow::refresh()
 {
     const model::Id id = current();
@@ -500,6 +613,7 @@ void RegisterWindow::refresh()
         return;
     }
     watch(true);
+    model_->set_editable(run_.active());
     const auto blob = run_.device_memory(sim::Session::registers_memory(id));
     if (blob) {
         model_->set_values(mcu::RegisterBytes::parse(*blob));
@@ -509,7 +623,8 @@ void RegisterWindow::refresh()
     model_->expire();
     status_->setText(!blob ? tr("The registers show their values while a simulation runs.")
             : run_.active() ? tr("Values of the running simulation; a value that changed is marked for a moment. "
-                                 "They are looked at without the effects of a read by the firmware.")
+                                 "They are looked at without the effects of a read by the firmware. "
+                                 "Double-click a value to change it.")
                             : tr("Values as the last simulation left them."));
 }
 

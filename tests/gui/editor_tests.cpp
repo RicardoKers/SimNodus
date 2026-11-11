@@ -1668,10 +1668,45 @@ private slots:
         QTest::qWait(600);
         QVERIFY(model->value(QStringLiteral("GPIOC"), QStringLiteral("ODR"), value));
         QCOMPARE(value, paused);
+        // SN-291: a value typed over goes to the chip. What a typed value means first.
+        std::uint32_t typed = 0;
+        QVERIFY(RegisterModel::parse_value(QStringLiteral(" 0x1A "), typed) && typed == 26);
+        QVERIFY(RegisterModel::parse_value(QStringLiteral("0b1 1010"), typed) && typed == 26);
+        QVERIFY(RegisterModel::parse_value(QStringLiteral("26"), typed) && typed == 26);
+        QVERIFY(RegisterModel::parse_value(QStringLiteral("0xFFFF_FFFF"), typed) && typed == 0xFFFFFFFFu);
+        QVERIFY(!RegisterModel::parse_value(QStringLiteral("0x100000000"), typed));
+        QVERIFY(!RegisterModel::parse_value(QStringLiteral("1A"), typed));
+        QVERIFY(!RegisterModel::parse_value(QString(), typed));
+        auto* note = viewer->findChild<QLabel*>(QStringLiteral("registerNote"));
+        const QModelIndex bit_value = bit.siblingAtColumn(RegisterModel::Value);
+        QVERIFY(model->flags(bit_value) & Qt::ItemIsEditable);
+        QVERIFY(!(model->flags(bit) & Qt::ItemIsEditable)); // the name is not edited
+        QVERIFY(!(model->flags(odr.parent().siblingAtColumn(RegisterModel::Value)) & Qt::ItemIsEditable)); // a peripheral
+        QVERIFY(!model->setData(bit_value, QStringLiteral("2"))); // one bit
+        QVERIFY(!model->refusal().isEmpty());
+        QVERIFY(!model->setData(bit_value, QStringLiteral("x")));
+        const std::uint32_t flipped = paused ^ (1u << 13);
+        QVERIFY(model->setData(bit_value, QString::number((flipped >> 13) & 1u)));
+        QVERIFY(model->refusal().isEmpty());
+        QVERIFY(!note->text().isEmpty());
+        QTRY_VERIFY_WITH_TIMEOUT(model->value(QStringLiteral("GPIOC"), QStringLiteral("ODR"), value) && value == flipped, 5000);
+        QCOMPARE(bit_value.data(Qt::EditRole).toString(), QString::number((flipped >> 13) & 1u));
+        // A whole register, and the CPU's own registers while it stands still.
+        const QModelIndex arr = model->index_of(QStringLiteral("TIM2"), QStringLiteral("ARR")).siblingAtColumn(RegisterModel::Value);
+        QVERIFY(!model->setData(arr, QStringLiteral("0x10000"))); // 16 bits
+        QVERIFY(model->setData(arr, QStringLiteral("0x1234")));
+        QTRY_VERIFY_WITH_TIMEOUT(model->value(QStringLiteral("TIM2"), QStringLiteral("ARR"), value) && value == 0x1234u, 5000);
+        QCOMPARE(arr.data(Qt::EditRole).toString(), QStringLiteral("0x1234"));
+        QVERIFY(model->value(QStringLiteral("CORE"), QStringLiteral("PC"), value));
+        QVERIFY(value >= 0x08000000u && value < 0x08010000u);
+        const QModelIndex r7 = model->index_of(QStringLiteral("CORE"), QStringLiteral("R7")).siblingAtColumn(RegisterModel::Value);
+        QVERIFY(model->setData(r7, QStringLiteral("0xCAFE0001")));
+        QTRY_VERIFY_WITH_TIMEOUT(model->value(QStringLiteral("CORE"), QStringLiteral("R7"), value) && value == 0xCAFE0001u, 5000);
         window_->stop();
         QTRY_VERIFY_WITH_TIMEOUT(!window_->run_controller()->active(), 10000);
         QTest::qWait(400);
         QVERIFY(model->value(QStringLiteral("GPIOC"), QStringLiteral("CRH"), value)); // as the run left them
+        QVERIFY(!(model->flags(bit.siblingAtColumn(RegisterModel::Value)) & Qt::ItemIsEditable)); // nothing runs: no edit
         // A second run is watched again without reopening the window.
         window_->run();
         QTRY_VERIFY_WITH_TIMEOUT(window_->run_controller()->active(), 5000);

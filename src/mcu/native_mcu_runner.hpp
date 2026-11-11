@@ -65,6 +65,7 @@ public:
     std::uint64_t device_memory_serial(std::uint64_t component) const override;
     void load_device_memory(std::uint64_t component, const std::vector<std::uint8_t>& bytes) override;
     void watch_registers(std::vector<std::pair<std::uint32_t, std::uint32_t>> ranges) override;
+    void write_register(std::uint32_t address, unsigned size, std::uint32_t value) override;
 
 private:
     using History = std::vector<std::pair<std::uint64_t, PinState>>; // sorted by time
@@ -133,6 +134,13 @@ private:
     std::map<std::uint64_t, Memory> memories_; // memory chips: component -> latest contents
     std::vector<std::pair<std::uint32_t, std::uint32_t>> register_watch_; // for the worker
     std::atomic<bool> register_watch_changed_{false};
+    struct RegisterWrite {
+        std::uint32_t address = 0;
+        unsigned size = 0;
+        std::uint32_t value = 0;
+    };
+    std::vector<RegisterWrite> register_writes_; // for the worker
+    std::atomic<bool> register_written_{false};
     bool upload_told_ = false;                 // the message that new firmware is being written
     std::vector<std::pair<std::uint64_t, std::vector<std::uint8_t>>> memory_loads_; // for the worker
 };

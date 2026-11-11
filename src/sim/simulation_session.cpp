@@ -1499,6 +1499,13 @@ void SimulationSession::watch_registers(model::Id board, const std::vector<std::
     }
 }
 
+void SimulationSession::write_register(model::Id board, std::uint32_t address, unsigned size, std::uint32_t value)
+{
+    if (const auto it = mcus_.find(board); it != mcus_.end() && active()) {
+        it->second->write_register(address, size, value);
+    }
+}
+
 std::map<model::Id, std::string> SimulationSession::device_texts() const
 {
     std::map<model::Id, std::string> texts;

@@ -83,6 +83,7 @@ public:
     std::optional<std::vector<std::uint8_t>> device_memory(model::Id component) const override;
     void load_device_memory(model::Id component, const std::vector<std::uint8_t>& bytes) override;
     void watch_registers(model::Id board, const std::vector<std::pair<std::uint32_t, std::uint32_t>>& ranges) override;
+    void write_register(model::Id board, std::uint32_t address, unsigned size, std::uint32_t value) override;
 
     // How long start() and stop() wait for the engine's answer.
     void set_timeouts(int start_ms, int stop_ms)

@@ -4,6 +4,12 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-11-11, SN-291, Register Viewer: editing and the CPU's registers)
+
+- **Registers edited in the running chip**: a double-click on a Value in the Register Viewer (or F2) takes a number in decimal, `0x` hexadecimal or `0b` binary and writes it to the chip, with the effects of a write by the firmware, also while the run is paused or the firmware is halted by a debugger. A field's edit writes its register with the other fields as shown. A value that does not fit its bits is refused with the reason. The editor keeps what is typed while the value behind it changes.
+- **The CPU's own registers** in the tree: R0-R12, SP, LR, PC and xPSR (with its flags) on the STM32F103; the PC and R0-R31 on the AVRs.
+- Engine protocol 15 (`WriteRegister`); `McuMachine::poke` writes a 16-bit AVR register high byte first, as firmware does.
+
 ### Added (2026-11-11, SN-290, Register Viewer)
 
 - **Register Viewer** (Window menu, Ctrl+Shift+R): the peripheral registers of a board's or chip's microcontroller while it runs, as a tree of peripherals, registers and named fields (the names of RM0008, PM0056 and the AVR datasheets), with the value in hexadecimal and bits, each field's own value, a mark on what changed and a filter by name. The values also show while the run is paused or the firmware is halted by a debugger, and stay when the run stops.

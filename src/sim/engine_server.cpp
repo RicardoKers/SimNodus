@@ -93,6 +93,16 @@ void EngineServer::handle(const std::string& payload)
         }
         break;
     }
+    case Type::WriteRegister: {
+        const model::Id id = r.u64();
+        const std::uint32_t address = r.u32();
+        const std::uint32_t size = r.u32();
+        const std::uint32_t value = r.u32();
+        if (r.ok()) {
+            session_.write_register(id, address, size, value);
+        }
+        break;
+    }
     case Type::Quit:
         session_.stop();
         quit_ = true;

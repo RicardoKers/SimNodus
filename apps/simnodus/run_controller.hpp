@@ -89,6 +89,10 @@ public:
     {
         session_->watch_registers(board, ranges);
     }
+    void write_register(model::Id board, std::uint32_t address, unsigned size, std::uint32_t value)
+    {
+        session_->write_register(board, address, size, value);
+    }
     // While running: sends the document's changed live parameters (an LM75's
     // temperature) to their chips (SN-207), and new values of circuit parts
     // (a resistor) to an interactive run that keeps its topology (SN-232);

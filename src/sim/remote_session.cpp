@@ -260,6 +260,18 @@ void RemoteSession::watch_registers(model::Id board, const std::vector<std::pair
     }
 }
 
+void RemoteSession::write_register(model::Id board, std::uint32_t address, unsigned size, std::uint32_t value)
+{
+    if (active()) {
+        Writer w(Type::WriteRegister);
+        w.u64(board);
+        w.u32(address);
+        w.u32(size);
+        w.u32(value);
+        link_.send(w.payload());
+    }
+}
+
 void RemoteSession::mcu_reset(model::Id component)
 {
     if (active()) {

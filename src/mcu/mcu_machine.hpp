@@ -26,6 +26,12 @@ class Stm32F103;
 
 namespace simnodus::mcu {
 
+// The CPU's core registers in peek() and poke(), past everything a chip has
+// in its memory: register n of the chip's GDB numbering (R0..R15 and xPSR on
+// the Cortex-M3; R0..R31, SREG, SP and the PC as a byte address on an AVR) is
+// the four bytes at core_register_base + 4 * n.
+inline constexpr std::uint32_t core_register_base = 0xFFFFF000u;
+
 class McuMachine {
 public:
     struct PinEvent {
@@ -109,6 +115,16 @@ public:
     virtual bool peek(std::uint32_t address, std::uint8_t& value)
     {
         (void)address;
+        (void)value;
+        return false;
+    }
+    // A register written from outside the firmware (SN-291), with the effects
+    // of a write by the firmware: `size` bytes (1, 2 or 4) of `value` at an
+    // address peek() shows. False for what cannot be written there.
+    virtual bool poke(std::uint32_t address, unsigned size, std::uint32_t value)
+    {
+        (void)address;
+        (void)size;
         (void)value;
         return false;
     }
