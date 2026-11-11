@@ -3047,3 +3047,23 @@ TEST_CASE("Arduino UNO: avrdude's sync to a running sketch restarts it into Opti
     }
     CHECK(told);
 }
+
+TEST_CASE("a board pin connected to nothing reads the chip's own pull-up (SN-283)")
+{
+    // The firmware turns on PA1's pull-up. A pin in the circuit starts at the
+    // circuit's low until the circuit says otherwise; an open pin has no circuit.
+    for (const bool open : {false, true}) {
+        mcu::McuRunOptions options;
+        options.firmware = std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "firmware/button_irq/button_irq.elf";
+        options.pins = {"PA0", "PA1"};
+        if (open) {
+            options.open_pins = {"PA1"};
+        }
+        std::string error;
+        auto machine = mcu::make_machine(options, error);
+        REQUIRE(machine);
+        REQUIRE(machine->load(options, error));
+        machine->run_until_ns(100'000'000);
+        CHECK(machine->pin_level(machine->pin_id("PA1")) == open);
+    }
+}

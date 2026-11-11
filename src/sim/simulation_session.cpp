@@ -203,6 +203,11 @@ bool SimulationSession::start(RunRequest request, std::string& error)
             auto options = m.options;
             options.cortex_m3_timing = settings_.cortex_m3_timing;
             options.board_index = chip_boards[options.chip]++;
+            for (const auto& [component, pin] : netlist_.open_drivers) {
+                if (component == m.component) {
+                    options.open_pins.insert(pin);
+                }
+            }
             if (options.chip == "esp32c3") {
                 options.wifi = wifi_;
             }
@@ -234,7 +239,8 @@ bool SimulationSession::start(RunRequest request, std::string& error)
         const auto& names = runner->pin_names();
         for (std::size_t i = 0; i < names.size(); ++i) {
             const auto node = netlist_.pin_node.find({m.component, names[i]});
-            if (node != netlist_.pin_node.end()) {
+            // A pin connected to nothing has no driver and nothing to read (SN-283).
+            if (node != netlist_.pin_node.end() && !netlist_.open_drivers.count({m.component, names[i]})) {
                 input_watches_.push_back({runner.get(), i, lower(node->second),
                     ground == netlist_.pin_node.end() ? std::string("0") : lower(ground->second), m.options.pin_model});
             }

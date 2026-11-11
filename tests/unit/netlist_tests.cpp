@@ -509,6 +509,37 @@ TEST_CASE("a Blue Pill gives its regulator and high-impedance pins, without unco
     CHECK(high_impedance == 32);
 }
 
+TEST_CASE("only the wired or probed pins of a board get drivers (SN-283)")
+{
+    const auto lib = load();
+    test::CircuitBuilder b(lib);
+    const auto board = b.add("bluepill", {{"G1", "0"}, {"PA5", "LED"}}, {{"firmware", "firmware/blink.elf"}});
+    b.add("resistor", {{"1", "LED"}, {"2", "0"}});
+    auto n = netlist::generate_netlist(b.schematic, lib);
+    CHECK(n.ok());
+    // Two sources a driven pin: its conductance and its current.
+    REQUIRE(n.externals.size() == 2);
+    CHECK(n.externals[0].component == board);
+    CHECK(n.externals[0].name.rfind("pa5_", 0) == 0);
+    CHECK(n.open_drivers.size() == 31);
+    CHECK(!n.open_drivers.count({board, "PA5"}));
+    CHECK(n.open_drivers.count({board, "PC13"}));
+    const auto drivers = [](const netlist::Netlist& net) {
+        return std::count_if(net.lines.begin(), net.lines.end(),
+            [](const std::string& l) { return l.rfind("B_U1_", 0) == 0; });
+    };
+    CHECK(drivers(n) == 1);
+    // A probe on a pin connected to nothing keeps the pin in the circuit.
+    model::Probe probe;
+    probe.id = b.schematic.allocate_id();
+    probe.target = {board, "PC13", {}};
+    b.schematic.put(probe);
+    n = netlist::generate_netlist(b.schematic, lib);
+    CHECK(n.externals.size() == 4);
+    CHECK(!n.open_drivers.count({board, "PC13"}));
+    CHECK(drivers(n) == 2);
+}
+
 TEST_CASE("optional pins may stay unconnected without a warning")
 {
     library::ComponentLibrary library;

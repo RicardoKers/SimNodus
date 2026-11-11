@@ -101,7 +101,7 @@ public:
         // a net the circuit holds low (an open-collector Hall sensor that is
         // on from the start, E-11) must read the circuit's low, not the pull.
         for (const auto& pin : options.pins) {
-            if (const int id = stm32_pin(pin); id >= 0) {
+            if (const int id = stm32_pin(pin); id >= 0 && !options.open_pins.count(pin)) {
                 machine_.set_pin_input(id / 16, id % 16, false);
             }
         }
@@ -328,7 +328,7 @@ public:
         // assumes, and only its changes come later: a pull-up enabled against
         // a resistor to ground must read the circuit's low, not the pull.
         for (const auto& pin : options.pins) {
-            if (const int id = c3_pin(pin); id >= 0) {
+            if (const int id = c3_pin(pin); id >= 0 && !options.open_pins.count(pin)) {
                 machine_.set_pin_input(id, false);
             }
         }
@@ -703,7 +703,7 @@ public:
         machine_.reset();
         // The circuit's level on each watched pin starts low, as the runner assumes.
         for (const auto& pin : options.pins) {
-            if (const int id = avr_pin(pin, chip_); id >= 0) {
+            if (const int id = avr_pin(pin, chip_); id >= 0 && !options.open_pins.count(pin)) {
                 machine_.set_pin_input(id, false);
             }
         }

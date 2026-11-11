@@ -75,6 +75,11 @@ struct Netlist {
     std::vector<Element> elements;
     std::vector<ControlSource> controls;
     std::vector<ExternalSource> externals;
+    // Pins of boards and chips connected to nothing, whose driver lines were
+    // left out (SN-283): no circuit can tell what such a pin does, and its two
+    // external sources cost the simulator time at every step. The pin's level
+    // then comes from the emulator alone.
+    std::set<PinRef> open_drivers;
     Connectivity connectivity;
     std::map<PinRef, std::string> pin_node;
     // Current probes: pin -> ngspice vector of the current into the pin.

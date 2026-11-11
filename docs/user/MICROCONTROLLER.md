@@ -25,6 +25,7 @@ the same circuit give the same firmware timing.
 | GPIO ports A, B, C | yes | Modes from CRL/CRH, ODR/BSRR/BRR/IDR; push-pull, open-drain, inputs with pull-up/pull-down |
 | GPIO outputs into the circuit | yes | 3.3 V or 0 V behind 40 Ω; open drain only pulls low |
 | GPIO inputs from the circuit | yes | Schmitt trigger: 1 above 1.83 V, 0 below 1.16 V; floating inputs read 0 |
+| Pins connected to nothing | yes | Not part of the circuit, which makes the run faster: an input reads the chip's own pull-up or pull-down (0 without one, 0 V on the ADC). To see such a pin's voltage, put a probe or a net label on it; this holds for every board and chip |
 | EXTI 0–15 and NVIC | yes | Lines reach IRQ 6–10, 23 (5–9) and 40 (10–15) as on the chip |
 | USART1–3 | yes | Text in the Signal Analyzer's UART tab. Each byte goes out on the TX pin bit by bit at the baud rate (start, 8 or 9 data bits with parity, 0.5–2 stop bits); TXE, TC and the byte's time follow the frame, so serial output takes as long as on the board. A board's TX wired to another board's RX passes the bytes on |
 | DMA1 | yes | Seven channels: peripheral and memory addresses, increments, 8/16/32-bit sizes, circular mode, memory-to-memory, half-transfer, transfer-complete and transfer-error flags and interrupts. Requests from ADC1 (channel 1) and USART1–3 TX/RX, so `HAL_ADC_Start_DMA`, `HAL_UART_Transmit_DMA` and `HAL_UART_Receive_DMA` work. A transfer takes no time. Example 15 |

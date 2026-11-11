@@ -1028,8 +1028,8 @@ QString RunController::live_text(const std::set<model::Id>& selection) const
         std::vector<double> volts;
         for (const auto& pin : d->pins) {
             const auto node = n.pin_node.find({c->id, pin.name});
-            if (node == n.pin_node.end()) {
-                continue;
+            if (node == n.pin_node.end() || n.open_drivers.count({c->id, pin.name})) {
+                continue; // a pin connected to nothing is not in the circuit: no voltage to show
             }
             if (const auto v = net_voltage(lower(node->second))) {
                 volts.push_back(*v);

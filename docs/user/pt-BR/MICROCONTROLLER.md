@@ -1,4 +1,4 @@
-<!-- source: MICROCONTROLLER.md sha256 80838957d9a27fd68fa27fe35b18700c7d353512d2a1ec727d4fb56b03f7c751 -->
+<!-- source: MICROCONTROLLER.md sha256 7e374792431925480b36f9ec9ce7fdacda7a4798e5d5161409dd62c4742badc7 -->
 # Microcontrolador: o que é simulado
 
 O SimNodus executa o firmware da **Blue Pill (STM32F103C8)** em seu próprio emulador
@@ -26,6 +26,7 @@ duas execuções com o mesmo circuito dão a mesma temporização do firmware.
 | GPIO portas A, B, C | sim | Modos por CRL/CRH, ODR/BSRR/BRR/IDR; push-pull, dreno aberto, entradas com pull-up/pull-down |
 | Saídas GPIO para o circuito | sim | 3,3 V ou 0 V atrás de 40 Ω; o dreno aberto só puxa para nível baixo |
 | Entradas GPIO a partir do circuito | sim | Schmitt trigger: 1 acima de 1,83 V, 0 abaixo de 1,16 V; entradas flutuantes leem 0 |
+| Pinos ligados a nada | sim | Não fazem parte do circuito, o que deixa a simulação mais rápida: uma entrada lê o pull-up ou pull-down do próprio chip (0 sem nenhum, 0 V no ADC). Para ver a tensão de um pino assim, coloque nele uma ponta de prova ou um rótulo de rede; vale para todas as placas e chips |
 | EXTI 0–15 e NVIC | sim | As linhas chegam às IRQs 6–10, 23 (5–9) e 40 (10–15), como no chip |
 | USART1–3 | sim | Texto na aba UART do Analisador de sinais. Cada byte sai no pino TX bit a bit na taxa configurada (start, 8 ou 9 bits de dados com paridade, 0,5–2 stop bits); TXE, TC e o tempo do byte seguem o quadro, então a saída serial demora tanto quanto na placa. O TX de uma placa ligado ao RX de outra repassa os bytes |
 | DMA1 | sim | Sete canais: endereços de periférico e de memória, incrementos, tamanhos de 8/16/32 bits, modo circular, memória para memória, flags e interrupções de meia transferência, transferência completa e erro de transferência. Requisições do ADC1 (canal 1) e de TX/RX das USART1–3, de modo que `HAL_ADC_Start_DMA`, `HAL_UART_Transmit_DMA` e `HAL_UART_Receive_DMA` funcionam. Uma transferência não leva tempo. Exemplo 15 |

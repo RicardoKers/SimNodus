@@ -733,6 +733,18 @@ void resolve(Context& cx, const netlist::Netlist& n, Signal& s)
         s.problem = "no current probe on " + s.a;
         return;
     }
+    // A board or chip pin connected to nothing has no driver in the circuit (SN-283).
+    for (const auto& ref : {s.a, s.b}) {
+        const auto dot = ref.find('.');
+        const auto* c = dot == std::string::npos ? nullptr : cx.schematic().component_by_designator(ref.substr(0, dot));
+        for (const auto& pin : n.open_drivers) {
+            if (c && pin.first == c->id && iequals(pin.second, ref.substr(dot + 1))) {
+                s.problem = ref + " is connected to nothing, so the circuit has no voltage for it: put a probe or a "
+                                  "net label on the pin";
+                return;
+            }
+        }
+    }
     const auto a = net_vector(cx, n, s.a);
     const auto b = s.b.empty() ? std::optional<std::string>("0") : net_vector(cx, n, s.b);
     if (!a || !b) {
