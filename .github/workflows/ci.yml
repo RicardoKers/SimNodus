@@ -24,16 +24,20 @@ jobs:
         with:
           persist-credentials: false
       - name: Install build dependencies
+        # Minutes, not the whole job: on 2026-11-11 the runners did not resolve
+        # the names under ubuntu.com (azure.archive, archive, security), every
+        # package waited 40 s for each, and the job ran out of its 30 minutes
+        # before building anything.
+        timeout-minutes: 10
         run: |
-          # The runner's first mirror (azure.archive.ubuntu.com) went silent on
-          # 2026-11-11: every package waited 40 s for it and the job ran out of
-          # time before building. Ubuntu's own archive is the list's next entry.
-          if [ -f /etc/apt/apt-mirrors.txt ]; then
-            sudo sed -i '/azure\.archive\.ubuntu\.com/d' /etc/apt/apt-mirrors.txt
+          # When those names do not resolve, a mirror under another name takes
+          # the place of the runner's list.
+          if [ -f /etc/apt/apt-mirrors.txt ] && ! timeout 15 getent hosts azure.archive.ubuntu.com > /dev/null; then
+            echo "azure.archive.ubuntu.com does not resolve here: packages from mirrors.kernel.org"
+            printf 'http://mirrors.kernel.org/ubuntu/\tpriority:1\n' | sudo tee /etc/apt/apt-mirrors.txt
           fi
-          sudo apt-get -o Acquire::http::Timeout=15 -o Acquire::Retries=3 update
-          sudo apt-get -o Acquire::http::Timeout=15 -o Acquire::Retries=3 \
-            install -y --no-install-recommends ninja-build qt6-base-dev qt6-qpa-plugins \
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends ninja-build qt6-base-dev qt6-qpa-plugins \
             libgl1-mesa-dev libxkbcommon-dev libngspice0-dev ngspice
       - name: Check repository files
         run: python3 tools/check_repository.py
