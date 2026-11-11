@@ -1,4 +1,4 @@
-<!-- source: USER_GUIDE.md sha256 4df521154d432ddf2e3ba611a09ce7631518c6411d01c084e84f6b63bcdafde7 -->
+<!-- source: USER_GUIDE.md sha256 67874cb048fc835db32020bba7f9fac0a5d600e6adcc8af423aced66247c4c34 -->
 # Guia do usuário do SimNodus
 
 O SimNodus é um simulador para sala de aula: você desenha um circuito, aperta
@@ -546,6 +546,23 @@ osciloscópio) mostram as suas posições, a distância e a frequência. Passe o
 mouse sobre uma borda para ver o instante exato; clique numa faixa para
 listar as suas transições. **Exportar VCD...** grava as faixas marcadas para
 o PulseView ou o GTKWave.
+
+**Adicionar decodificador...** lê um protocolo a partir dos sinais e mostra o
+que encontra em uma faixa própria, abaixo das outras, como faz um analisador
+lógico:
+
+| Protocolo | Sinais | A faixa mostra |
+|---|---|---|
+| **I2C** | SCL e SDA | `S` (start), `Sr` (start repetido), `P` (stop); o endereço com a direção e a confirmação (`50 W A`), depois cada byte (`3C A`); um byte que ninguém confirmou fica vermelho (`N`) |
+| **SPI** | SCK e MOSI; MISO e a linha de seleção (ativa em nível baixo), se você as escolher | Uma caixa por palavra, `9F/EF` (MOSI/MISO). Modos 0 a 3, 8 a 32 bits, qualquer ordem de bits. Com linha de seleção, as palavras recomeçam quando ela fica ativa |
+| **UART** | A linha TX ou RX | Uma caixa por quadro, `41 'A'`; `frame error` e `parity error` em vermelho. A taxa é encontrada pelo pulso mais curto, ou digitada; 5 a 9 bits de dados, paridade, linha com repouso em nível baixo |
+
+Escolha os sinais entre as faixas (os pinos não precisam estar visíveis como
+faixas). Aproxime com a base de tempo, ou pause e use a roda do mouse, até o
+texto caber nas caixas; uma caixa estreita mostra só o byte. Passe o mouse
+sobre uma caixa para ver o texto e o instante. **Remover decodificadores**
+tira todos. Os decodificadores leem os níveis dos pinos como a simulação os
+tem, então também mostram o que um chip responde.
 
 ### UART
 

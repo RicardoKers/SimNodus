@@ -13,8 +13,14 @@
 #include "run_controller.hpp"
 #include "scope_widget.hpp"
 
+#ifndef Q_MOC_RUN // Qt 6.4's moc cannot parse the C++20 standard headers these pull in
+#include "sim/protocol_decode.hpp"
+#endif
+
 #include <QElapsedTimer>
 #include <QMainWindow>
+#include <QMap>
+#include <QStringList>
 #include <QTimer>
 
 #include <map>
@@ -24,6 +30,7 @@
 class QAction;
 class QComboBox;
 class QListWidget;
+class QPushButton;
 class QDoubleSpinBox;
 class QLabel;
 class QSettings;
@@ -97,6 +104,23 @@ public:
     QStringList available_lanes() const;
     void set_threshold(double volts);
     double threshold() const;
+    // Protocol decoders (SN-286): each reads the lanes named in `signals` and
+    // shows what it finds as a lane of its own under the others.
+    struct Decoder {
+        enum class Protocol { I2c, Spi, Uart };
+        Protocol protocol = Protocol::I2c;
+        // Lane titles. I2C: SCL, SDA. SPI: clock, MOSI, MISO (may be empty),
+        // select (may be empty). UART: the line.
+        QStringList signal_lanes;
+        sim::SpiOptions spi;
+        sim::UartOptions uart;
+        QString title() const;
+    };
+    void add_decoder(const Decoder& decoder);
+    void clear_decoders();
+    const std::vector<Decoder>& decoders() const { return decoders_; }
+    // What decoder `index` read in the time window on display.
+    std::vector<sim::DecodedItem> decoded(int index) const;
     void set_controls_visible(bool visible); // the side panel with channels, timebase and trigger
     bool controls_visible() const;
     void set_display_stopped(bool stopped);
@@ -128,6 +152,7 @@ protected:
 private:
     QWidget* build_controls();
     QWidget* build_logic_page();
+    void add_decoder_dialog();
     void refresh_scope();
     void refresh_logic();
     void update_transitions();
@@ -159,6 +184,11 @@ private:
     std::map<QString, bool> lane_choice_; // lanes the user checked or unchecked
     std::set<QString> auto_shown_;        // pin lanes shown because they changed
     bool lanes_fixed_ = false;            // set_lanes(): no lane appears by itself
+    std::vector<Decoder> decoders_;
+    std::vector<std::vector<sim::DecodedItem>> decoded_; // per decoder: the items in the window
+    QPushButton* remove_decoders_ = nullptr;
+    int last_decoder_protocol_ = 0;             // the dialog opens with the last choices
+    QMap<QString, QString> last_decoder_lanes_; // "protocol/row" -> lane
     QComboBox* timebase_ = nullptr;
     QComboBox* mode_ = nullptr;
     QComboBox* trigger_source_ = nullptr;

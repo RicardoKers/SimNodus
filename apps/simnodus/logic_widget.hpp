@@ -9,6 +9,7 @@
 #pragma once
 
 #include <QColor>
+#include <QRectF>
 #include <QString>
 #include <QWidget>
 
@@ -16,13 +17,28 @@
 #include <utility>
 #include <vector>
 
+class QPainter;
+
 namespace simnodus::ui {
+
+// What a protocol decoder read (SN-286): a box over its time with its text;
+// a start or stop condition has no length and is drawn as a mark.
+struct LogicLaneItem {
+    double start = 0.0; // seconds
+    double end = 0.0;
+    QString text;
+    bool mark = false;  // a condition (I2C start, stop), not a byte
+    bool error = false; // not acknowledged, framing or parity error
+};
 
 struct LogicLaneView {
     QString title;
     QColor color;
     bool initial = false;                          // level at the window start
     std::vector<std::pair<double, bool>> changes; // seconds, new level
+    // A decoder's lane: these instead of a waveform.
+    bool decoded = false;
+    std::vector<LogicLaneItem> items;
 };
 
 class LogicWidget : public QWidget {
@@ -60,6 +76,7 @@ private:
     double time_at(double x) const;
     int lane_at(double y) const;
     int cursor_near(double x) const; // -1, 0 (A) or 1 (B)
+    void paint_items(QPainter& painter, const LogicLaneView& lane, const QRectF& plot, double top) const;
 
     std::vector<LogicLaneView> lanes_;
     double start_ = 0.0;

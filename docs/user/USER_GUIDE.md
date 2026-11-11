@@ -509,6 +509,21 @@ and frequency. Hover an edge for its exact time; click a lane to list its
 transitions. **Export VCD...** writes the checked lanes for PulseView or
 GTKWave.
 
+**Add decoder...** reads a protocol from the signals and shows what it finds
+as a lane of its own under the others, as a logic analyzer does:
+
+| Protocol | Signals | The lane shows |
+|---|---|---|
+| **I2C** | SCL and SDA | `S` (start), `Sr` (repeated start), `P` (stop); the address with its direction and acknowledge (`50 W A`), then each byte (`3C A`); a byte nobody acknowledged is red (`N`) |
+| **SPI** | SCK and MOSI; MISO and the select line (active low) if you choose them | One box per word, `9F/EF` (MOSI/MISO). Mode 0 to 3, 8 to 32 bits, either bit order. With a select line, words start anew when it becomes active |
+| **UART** | The TX or RX line | One box per frame, `41 'A'`; `frame error` and `parity error` in red. The baud rate is found from the shortest pulse, or typed; 5 to 9 data bits, parity, a line that idles low |
+
+Choose the signals among the lanes (pins need not be shown as lanes). Zoom
+in with the time base, or pause and use the wheel, until the text fits in
+the boxes; a narrow box shows only its byte. Hover a box for its text and
+time. **Remove decoders** takes them all away. Decoders read the pins'
+levels as the simulation has them, so they also show what a chip answers.
+
 ### UART
 
 Choose the port (USART1 on PA9/PA10, USART2 on PA2/PA3, USART3 on

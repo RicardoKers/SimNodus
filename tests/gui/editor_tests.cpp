@@ -1389,6 +1389,79 @@ private slots:
 #endif
     }
 
+    void protocol_decoders_read_the_buses_of_the_examples()
+    {
+        // SN-286: decoders over the logic lanes, with the signals of real runs.
+#if !defined(SIMNODUS_TEST_NGSPICE_LIBRARY)
+        QSKIP("No ngspice configured for this build.");
+#else
+        using Decoder = AnalyzerWindow::Decoder;
+        auto* analyzer = window_->analyzer();
+        auto texts = [analyzer](int index) {
+            QStringList out;
+            for (const auto& item : analyzer->decoded(index)) {
+                out << QString::fromStdString(item.text);
+            }
+            return out;
+        };
+        QStringList errors;
+        QStringList warnings;
+
+        // I2C: example 27 writes "SimNodus" to the 24C02 at 0x50 on PB6 (SCL) and PB7 (SDA).
+        QVERIFY(doc().open_copy(
+            QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/27_I2C_EEPROM_sensor_expander.snx"), errors, warnings));
+        window_->show_analyzer();
+        analyzer->set_tab(1);
+        analyzer->set_timebase(1.0); // ten seconds on screen: the first frames stay in view
+        Decoder i2c;
+        i2c.protocol = Decoder::Protocol::I2c;
+        i2c.signal_lanes = {QStringLiteral("U1.PB6"), QStringLiteral("U1.PB7")};
+        analyzer->add_decoder(i2c);
+        QCOMPARE(analyzer->decoders().size(), std::size_t{1});
+        window_->run();
+        QTRY_VERIFY_WITH_TIMEOUT(window_->run_controller()->active(), 5000);
+        QTRY_VERIFY_WITH_TIMEOUT(texts(0).contains(QStringLiteral("50 W A")), 30000);
+        QTRY_VERIFY_WITH_TIMEOUT(texts(0).contains(QStringLiteral("P")), 30000);
+        const QStringList frames = texts(0);
+        QCOMPARE(frames.first(), QStringLiteral("S"));
+        // The bytes of "SimNodus" follow one another on the bus, each acknowledged.
+        const int s_at = frames.indexOf(QStringLiteral("53 A"));
+        QVERIFY(s_at > 0);
+        QCOMPARE(frames.mid(s_at, 8).join(QLatin1Char(',')),
+            QStringLiteral("53 A,69 A,6D A,4E A,6F A,64 A,75 A,73 A"));
+        // The decoder is a lane of its own, under the signals.
+        QCOMPARE(analyzer->shown_lanes().last(), QStringLiteral("I2C"));
+        QVERIFY(analyzer->logic()->lanes().back().decoded);
+        QVERIFY(!analyzer->logic()->lanes().back().items.empty());
+        window_->stop();
+        QTRY_VERIFY_WITH_TIMEOUT(!window_->run_controller()->active(), 5000);
+        analyzer->clear_decoders();
+        QVERIFY(analyzer->decoders().empty());
+
+        // UART: example 09 prints on USART1's TX (PA9); the rate is found from the bits.
+        QVERIFY(doc().open_copy(
+            QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/09_Blue_Pill_serial_terminal.snx"), errors, warnings));
+        Decoder uart;
+        uart.protocol = Decoder::Protocol::Uart;
+        uart.signal_lanes = {QStringLiteral("U1.PA9")};
+        analyzer->add_decoder(uart);
+        window_->run();
+        QTRY_VERIFY_WITH_TIMEOUT(window_->run_controller()->active(), 5000);
+        auto printed = [&texts] {
+            QString text;
+            for (const auto& item : texts(0)) {
+                const int quote = item.indexOf(QLatin1Char('\''));
+                text += quote > 0 ? item.mid(quote + 1, 1) : QString();
+            }
+            return text;
+        };
+        QTRY_VERIFY_WITH_TIMEOUT(printed().contains(QStringLiteral("Blue Pill ready")), 30000);
+        window_->stop();
+        analyzer->clear_decoders();
+        analyzer->set_tab(0);
+#endif
+    }
+
     void memory_viewer_opens_a_4_mb_flash_at_once()
     {
         // SN-285: example 39's W25Q32 (4 MB) froze the window for seconds when

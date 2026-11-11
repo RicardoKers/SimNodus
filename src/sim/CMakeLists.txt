@@ -3,6 +3,7 @@ add_library(simnodus_sim STATIC
     engine_host.cpp
     chart_record.cpp
     measurements.cpp
+    protocol_decode.cpp
     vcd.cpp
     ngspice_runtime.cpp
     process_memory.cpp)
