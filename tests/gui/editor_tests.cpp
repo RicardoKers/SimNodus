@@ -560,7 +560,7 @@ private slots:
     {
         LogicWidget logic;
         logic.resize(600, 120);
-        logic.set_lanes({{QStringLiteral("CLK"), Qt::blue, false, {{0.2, true}, {0.4, false}, {0.6, true}}}});
+        logic.set_lanes({{QStringLiteral("CLK"), Qt::blue, false, {{0.2, true}, {0.4, false}, {0.6, true}}, false, {}}});
         logic.set_window(0.0, 1.0);
         logic.set_cursors(true, 0.3, 0.7);
         logic.show();
