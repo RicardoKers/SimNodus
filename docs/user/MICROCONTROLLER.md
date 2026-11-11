@@ -127,6 +127,14 @@ or Intel `.hex` file into the running chip, or, when nothing runs, makes it the
 chip's contents file. **Save as...** writes what the chip holds to a `.bin` or
 `.hex` file, for example to start the next run with what the firmware stored.
 
+**Go to** takes an address in hexadecimal and shows it. **Find** looks for a
+text, or for bytes written as pairs of hex digits (`53 69 6D`), from the
+current cell on and round to the start; Enter again finds the next place.
+While a simulation runs, paused or not, a double-click on a byte (or typing
+over the current one) changes it in the chip, which is a quick way to see
+how a firmware reacts to other data. An AVR's EEPROM is read by the chip
+when it starts and is not edited this way; use **Load...** before the run.
+
 Example 32 uses a ROM without a board as the lookup table of a 7-segment
 display; in example 33 a Blue Pill writes and reads a parallel RAM.
 

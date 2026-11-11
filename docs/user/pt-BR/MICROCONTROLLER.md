@@ -1,4 +1,4 @@
-<!-- source: MICROCONTROLLER.md sha256 7e374792431925480b36f9ec9ce7fdacda7a4798e5d5161409dd62c4742badc7 -->
+<!-- source: MICROCONTROLLER.md sha256 b9caffb2e08c6306af70a29eb08ed91eb65532af72f3159d528a1e48a723e660 -->
 # Microcontrolador: o que é simulado
 
 O SimNodus executa o firmware da **Blue Pill (STM32F103C8)** em seu próprio emulador
@@ -133,6 +133,14 @@ destaca os bytes que acabaram de mudar; depois de uma simulação ela mantém o
 em execução ou, quando nada está rodando, torna-o o arquivo de conteúdo do chip.
 **Salvar como...** grava o que o chip contém num arquivo `.bin` ou `.hex`, por
 exemplo para iniciar a próxima simulação com o que o firmware gravou.
+
+**Ir para** recebe um endereço em hexadecimal e o mostra. **Localizar** procura
+um texto, ou bytes escritos como pares de dígitos hex (`53 69 6D`), a partir da
+célula atual e voltando ao início; Enter de novo acha a próxima ocorrência.
+Enquanto uma simulação roda, pausada ou não, um duplo clique em um byte (ou
+digitar sobre o byte atual) altera-o no chip, um jeito rápido de ver como um
+firmware reage a outros dados. A EEPROM de um AVR é lida pelo chip quando ele
+inicia e não é editada assim; use **Carregar...** antes da simulação.
 
 O exemplo 32 usa uma ROM sem placa como tabela de consulta de um display de 7
 segmentos; no exemplo 33 uma Blue Pill escreve e lê uma RAM paralela.
