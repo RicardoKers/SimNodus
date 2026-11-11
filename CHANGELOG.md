@@ -4,6 +4,13 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Changed (2026-11-11, SN-283, speed)
+
+- Board and chip pins connected to nothing are no longer part of the circuit: their drivers (two external sources and a behavioral source a pin) are left out of the netlist and their levels come from the emulator alone. Circuits with a board run about 2 to 3 times faster again at maximum speed (owner's laptop, `simnodus-cli`, 3 s: example 07 from 5.7x to 15.6x real time, 09 from 5.9x to 17.1x, 13 from 5.5x to 12.9x, 25 from 4.0x to 7.2x, 50 from 7.7x to 17.8x, 58 from 4.8x to 8.2x, 61 from 4.9x to 10.0x). Signals of the examples agree to the third or fourth digit (other time points). Circuits limited by ngspice gain little (23: 1.2x, 26: 0.44x to 0.66x, 64: 0.35x to 0.54x).
+- An input connected to nothing reads the chip's own pull-up or pull-down (as before through the circuit), 0 without one, and 0 V on the ADC. A probe or a net label on such a pin keeps it in the circuit; the values shown for a selected board list only the pins in the circuit, and automation explains a `V(U1.PA5)` asked of a pin connected to nothing.
+- An AVR board or chip whose RESET pin is connected to nothing starts from power-on alone: the extra external reset at 0 s is gone, so the Arduino UNO's Optiboot starts the sketch at once instead of waiting a second for an upload first (example 58; DTR and avrdude still reset it into Optiboot).
+- Tests that watched a run by the clock now step it by its own time (`pause_at`) or run it at a set speed.
+
 ### Security (2026-11-11, SN-282, code review)
 
 - A vendor subcircuit kept in a project could carry commands for ngspice outside its `.subckt` block (a `.control` section, `.include`, `.lib`) or as `*#` lines; the text went into the netlist whole and ngspice ran them when the simulation started. Kept text may now hold only its blocks, `.MODEL` statements and comments; anything else makes the part an unknown model. Subcircuits of model folders with a `*#` line are skipped.

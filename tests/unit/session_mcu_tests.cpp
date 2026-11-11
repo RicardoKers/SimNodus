@@ -146,7 +146,9 @@ TEST_CASE("session: a Blue Pill runs its firmware alongside the circuit")
     b.add("resistor", {{"1", "N1"}, {"2", "0"}}, {{"R", "1k"}});
     b.add("vdc", {{"+", "N1"}, {"-", "0"}}, {{"V", "1"}});
     auto settings = b.schematic.settings();
-    settings.speed = 0.0; // as fast as the slower engine allows
+    // Ten times real time: at full speed a board with no pin in the circuit
+    // (SN-283) passes the 1.6 s below between two looks at its pins.
+    settings.speed = 10.0;
     settings.segment = 0.5;
     b.schematic.set_settings(settings);
 
@@ -196,7 +198,7 @@ TEST_CASE("session: a Blue Pill runs its firmware alongside the circuit")
             levels.insert(pins.at("PC13").level);
             CHECK(pins.at("PC13").mode == mcu::PinMode::Output);
         }
-        std::this_thread::sleep_for(20ms);
+        std::this_thread::sleep_for(2ms); // the run passes a half period in a few milliseconds
     }
     std::printf("  firmware ahead of the circuit by at most %llu us, behind by at most %llu us\n",
         static_cast<unsigned long long>(worst_lead), static_cast<unsigned long long>(worst_lag));
@@ -942,7 +944,7 @@ TEST_CASE("session: lesson 3 reports the potentiometer code and the filtered PWM
     auto check = [&](double position) {
         std::string text;
         session.mcu_uart_received(board, "usart1", 0, text);
-        const auto at = text.rfind("POT ");
+        const auto at = text.rfind("POT ", text.rfind('\n')); // the last whole line: the run goes on
         REQUIRE(at != std::string::npos);
         const int code = std::atoi(text.c_str() + at + 4);
         const auto rc_at = text.find("RC ", at);
@@ -1300,18 +1302,25 @@ TEST_CASE("session: example 48 runs a light along a WS2812B strip from the ESP32
     REQUIRE(session.start(request, error));
     const auto begin = std::chrono::steady_clock::now();
     // Third step: LED 3 red, the others dark (each step 200 ms after the first).
+    // The run is looked at every 50 ms of its own time: at full speed a step
+    // passes between two looks taken by the clock.
+    const std::string third = "8x1 rgb\n000000000000FF0000000000000000000000000000000000";
     std::string text;
-    while (text.find("LED 3 red") == std::string::npos) {
-        REQUIRE(session.active());
-        REQUIRE(std::chrono::steady_clock::now() - begin < 300s);
-        std::this_thread::sleep_for(10ms);
+    auto texts = session.device_texts();
+    for (double at = 0.05; texts[strip] != third && text.find("LED 6 red") == std::string::npos; at += 0.05) {
+        session.pause_at(at);
+        session.resume();
+        while (session.status().state != sim::RunState::Paused || session.status().sim_time < at) {
+            REQUIRE(session.active());
+            REQUIRE(std::chrono::steady_clock::now() - begin < 300s);
+            std::this_thread::sleep_for(1ms);
+        }
         text.clear();
         session.mcu_uart_received(board, "uart0", 0, text);
+        texts = session.device_texts();
     }
-    const auto texts = session.device_texts();
-    REQUIRE(texts.count(strip));
-    std::printf("  strip: %s\n", texts.at(strip).c_str());
-    CHECK(texts.at(strip) == "8x1 rgb\n000000000000FF0000000000000000000000000000000000");
+    std::printf("  strip: %s\n", texts[strip].c_str());
+    CHECK(texts[strip] == third);
     session.stop();
 }
 

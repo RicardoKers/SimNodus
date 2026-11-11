@@ -415,6 +415,14 @@ Netlist generate_circuit(const model::Schematic& schematic, const library::Compo
     bool has_elements = false;
     std::set<std::string> model_lines;
     std::vector<std::string> probe_lines;
+    // Pins connected to nothing and not watched by a probe (SN-283).
+    std::set<PinRef> open_pins(out.connectivity.unconnected_pins.begin(), out.connectivity.unconnected_pins.end());
+    for (const auto& p : schematic.probes()) {
+        open_pins.erase({p.target.item, p.target.pin});
+        if (p.reference) {
+            open_pins.erase({p.reference->item, p.reference->pin});
+        }
+    }
     for (const auto& c : schematic.components()) {
         const ComponentDefinition* d = library.find(c.type);
         if (!d) {
@@ -677,6 +685,29 @@ Netlist generate_circuit(const model::Schematic& schematic, const library::Compo
         for (const auto& line_template : subcircuit_name.empty() ? d->spice : no_template) {
             std::string error;
             const auto tokens = library::tokenize_template(line_template, error);
+            // The driver of a board or chip pin connected to nothing is left out:
+            // "{ext:pa0_g}" belongs to pin PA0.
+            if (d->mcu || d->device) {
+                bool open = false;
+                for (const auto& t : *tokens) {
+                    const auto split = t.text.rfind('_');
+                    if (t.kind != library::TemplateToken::Kind::External || split == std::string::npos) {
+                        continue;
+                    }
+                    std::string pin = t.text.substr(0, split);
+                    for (auto& ch : pin) {
+                        ch = static_cast<char>(std::toupper(static_cast<unsigned char>(ch)));
+                    }
+                    const PinRef pin_ref{c.id, pin};
+                    if (open_pins.count(pin_ref)) {
+                        out.open_drivers.insert(pin_ref);
+                        open = true;
+                    }
+                }
+                if (open) {
+                    continue;
+                }
+            }
             std::string line;
             for (const auto& t : *tokens) {
                 switch (t.kind) {

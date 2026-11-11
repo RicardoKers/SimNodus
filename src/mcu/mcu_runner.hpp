@@ -64,6 +64,10 @@ struct McuRunOptions {
     std::filesystem::path firmware; // STM32: ELF, empty: loaded by the debugger; ESP32-C3: a flash image at 0
     std::filesystem::path rom;      // ESP32-C3: the ROM ELF (find_esp32c3_rom); an AVR board: its bootloader (.hex)
     std::vector<std::string> pins; // GPIO pin names to watch, e.g. "PC13"
+    // Watched pins connected to nothing (SN-283), set by the session: the
+    // circuit has no driver for them and sends no level, so the chip reads its
+    // own pull resistor there instead of the circuit's low.
+    std::set<std::string> open_pins;
     std::vector<std::string> uarts; // UART peripherals for the terminal, e.g. "usart1"
     PinModel pin_model;
     // Coupling window: the firmware runs to window boundaries and sees circuit
