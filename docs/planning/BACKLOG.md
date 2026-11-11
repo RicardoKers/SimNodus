@@ -253,6 +253,7 @@ from the bench (AN-11).
 | SN-286 | Protocol decoders over the logic lanes (2026-11-11): I2C, SPI and UART read from the signals and shown as a lane of boxes with their bytes, as a logic analyzer does; Qt-free decoders in `src/sim/protocol_decode` | done 2026-11-11: three decoders with unit tests, the dialog, the lane, a GUI test on examples 27 and 09; open: 1-Wire (saving and `analyzer.set`: SN-288) |
 | SN-287 | Chart recorder painted while its record grows (2026-11-11): it stood still since SN-284 painted only parts whose live state changed (owner's test of the 2026-11-11 preview) | done 2026-11-11: painted at 2 Hz while running and when the run pauses or stops, with a GUI test on example 66 |
 | SN-288 | Protocol decoders kept and controlled (2026-11-11): saved with the window's settings; `analyzer.set` takes and lists them with what they read | done 2026-11-11: JSON form of a decoder shared by the settings and external control, with a GUI test; open: a 1-Wire decoder |
+| SN-289 | Memory Viewer: go to an address, find text or bytes, edit bytes of a running chip (2026-11-11) | done 2026-11-11: with model and GUI tests (example 27's 24C02); open: editing while nothing runs (the contents file), undo |
 
 ## Later (after freeze or after classroom)
 

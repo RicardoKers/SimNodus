@@ -267,6 +267,41 @@ private slots:
         QTest::qWait(1600); // the marks fade
         QVERIFY(!model.expire());
         QVERIFY(!model.recent(0x123456));
+
+        // SN-289: what the search field means, and where it is found.
+        using Bytes = std::vector<std::uint8_t>;
+        QVERIFY(MemoryModel::search_pattern(QStringLiteral("53 69 6d")) == (Bytes{0x53, 0x69, 0x6D}));
+        QVERIFY(MemoryModel::search_pattern(QStringLiteral("5369")) == (Bytes{0x53, 0x69}));
+        QVERIFY(MemoryModel::search_pattern(QStringLiteral("Sim")) == (Bytes{'S', 'i', 'm'}));
+        QVERIFY(MemoryModel::search_pattern(QStringLiteral("536")) == (Bytes{'5', '3', '6'})); // not pairs: text
+        QVERIFY(MemoryModel::search_pattern(QString()).empty());
+        QCOMPARE(model.find(Bytes{0x42}, 0), qint64{0x123456});
+        QCOMPARE(model.find(Bytes{0x42}, 0x123457), qint64{0x123456}); // round to the start
+        QCOMPARE(model.find(Bytes{0x00, 0x00, 0xFF}, 0), qint64{0x200FFE});
+        QCOMPARE(model.find(Bytes{0x12, 0x34}, 0), qint64{-1});
+        QCOMPARE(model.find(Bytes{}, 0), qint64{-1});
+        QCOMPARE(model.index_of(0x123456).row(), 0x12345);
+        QCOMPARE(model.index_of(0x123456).column(), 6);
+
+        // Editing: only when allowed, only byte cells, one or two hex digits; the
+        // model reports the edit and leaves its bytes to the chip.
+        QSignalSpy edits(&model, &MemoryModel::byte_edited);
+        const QModelIndex cell = model.index(1, 0);
+        QVERIFY(!(model.flags(cell) & Qt::ItemIsEditable));
+        QVERIFY(!model.setData(cell, QStringLiteral("41")));
+        model.set_editable(true);
+        QVERIFY(model.flags(cell) & Qt::ItemIsEditable);
+        QVERIFY(!(model.flags(model.index(1, 16)) & Qt::ItemIsEditable)); // the text column
+        QCOMPARE(cell.data(Qt::EditRole).toString(), QStringLiteral("53"));
+        QVERIFY(!model.setData(cell, QStringLiteral("1G")));
+        QVERIFY(!model.setData(cell, QStringLiteral("123")));
+        QVERIFY(!model.setData(cell, QString()));
+        QCOMPARE(edits.count(), 0);
+        QVERIFY(model.setData(cell, QStringLiteral(" a ")));
+        QCOMPARE(edits.count(), 1);
+        QCOMPARE(edits.first().at(0).toULongLong(), 0x10ULL);
+        QCOMPARE(edits.first().at(1).toUInt(), 0x0Au);
+        QCOMPARE(model.bytes()[0x10], std::uint8_t{'S'});
     }
 
     void analyzer_close_only_hides()

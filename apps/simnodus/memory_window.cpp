@@ -19,6 +19,8 @@
 #include <QHBoxLayout>
 #include <QHeaderView>
 #include <QLabel>
+#include <QLineEdit>
+#include <QRegularExpression>
 #include <QPushButton>
 #include <QTableView>
 #include <QVBoxLayout>
@@ -136,6 +138,7 @@ QVariant MemoryModel::data(const QModelIndex& index, int role) const
     }
     switch (role) {
     case Qt::DisplayRole:
+    case Qt::EditRole: // the editor opens with the byte
         return QStringLiteral("%1").arg(bytes_[i], 2, 16, QLatin1Char('0')).toUpper();
     case Qt::TextAlignmentRole:
         return static_cast<int>(Qt::AlignCenter);
@@ -157,6 +160,77 @@ QVariant MemoryModel::headerData(int section, Qt::Orientation orientation, int r
     // The row's address, wide enough for the last one.
     const int digits = bytes_.size() > 0x10000 ? 6 : 4;
     return QStringLiteral("%1").arg(section * columns, digits, 16, QLatin1Char('0')).toUpper();
+}
+
+void MemoryModel::set_editable(bool editable)
+{
+    editable_ = editable;
+}
+
+Qt::ItemFlags MemoryModel::flags(const QModelIndex& index) const
+{
+    Qt::ItemFlags flags = QAbstractTableModel::flags(index);
+    const std::size_t byte = static_cast<std::size_t>(index.row()) * columns + static_cast<std::size_t>(index.column());
+    if (editable_ && index.isValid() && index.column() < columns && byte < bytes_.size()) {
+        flags |= Qt::ItemIsEditable;
+    }
+    return flags;
+}
+
+bool MemoryModel::setData(const QModelIndex& index, const QVariant& value, int role)
+{
+    if (role != Qt::EditRole || !(flags(index) & Qt::ItemIsEditable)) {
+        return false;
+    }
+    bool ok = false;
+    const QString text = value.toString().trimmed();
+    const uint byte = text.toUInt(&ok, 16);
+    if (!ok || text.size() > 2 || byte > 0xFF) {
+        return false;
+    }
+    emit byte_edited(static_cast<std::size_t>(index.row()) * columns + static_cast<std::size_t>(index.column()),
+        static_cast<std::uint8_t>(byte));
+    return true;
+}
+
+std::vector<std::uint8_t> MemoryModel::search_pattern(const QString& text)
+{
+    std::vector<std::uint8_t> pattern;
+    QString hex = text;
+    hex.remove(QLatin1Char(' '));
+    static const QRegularExpression pairs(QStringLiteral("^([0-9A-Fa-f]{2})+$"));
+    if (pairs.match(hex).hasMatch()) {
+        for (qsizetype i = 0; i + 1 < hex.size(); i += 2) {
+            pattern.push_back(static_cast<std::uint8_t>(hex.mid(i, 2).toUInt(nullptr, 16)));
+        }
+        return pattern;
+    }
+    const QByteArray latin = text.toLatin1();
+    pattern.assign(latin.begin(), latin.end());
+    return pattern;
+}
+
+qint64 MemoryModel::find(const std::vector<std::uint8_t>& pattern, std::size_t from) const
+{
+    if (pattern.empty() || pattern.size() > bytes_.size()) {
+        return -1;
+    }
+    from = std::min(from, bytes_.size());
+    auto at = std::search(bytes_.begin() + static_cast<std::ptrdiff_t>(from), bytes_.end(), pattern.begin(), pattern.end());
+    if (at == bytes_.end()) {
+        // Round to the start, up to a match that begins before `from`.
+        const auto limit = bytes_.begin() + static_cast<std::ptrdiff_t>(std::min(bytes_.size(), from + pattern.size() - 1));
+        at = std::search(bytes_.begin(), limit, pattern.begin(), pattern.end());
+        if (at == limit) {
+            return -1;
+        }
+    }
+    return at - bytes_.begin();
+}
+
+QModelIndex MemoryModel::index_of(std::size_t byte) const
+{
+    return index(static_cast<int>(byte / columns), static_cast<int>(byte % columns));
 }
 
 MemoryWindow::MemoryWindow(Document& document, RunController& run, QWidget* parent)
@@ -186,8 +260,12 @@ MemoryWindow::MemoryWindow(Document& document, RunController& run, QWidget* pare
     table_ = new QTableView;
     table_->setObjectName(QStringLiteral("memoryTable"));
     table_->setModel(model_);
-    table_->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    table_->setSelectionMode(QAbstractItemView::NoSelection);
+    // One cell is the current one: Go to and Find put it there, and a
+    // double-click or typing a hex digit edits its byte while a run is on.
+    table_->setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::EditKeyPressed
+        | QAbstractItemView::AnyKeyPressed);
+    table_->setSelectionMode(QAbstractItemView::SingleSelection);
+    table_->setSelectionBehavior(QAbstractItemView::SelectItems);
     table_->setFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));
     // Fixed widths: sizing columns to their contents would look at every row.
     table_->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
@@ -204,10 +282,37 @@ MemoryWindow::MemoryWindow(Document& document, RunController& run, QWidget* pare
     status_->setObjectName(QStringLiteral("memoryStatus"));
     status_->setWordWrap(true);
 
+    go_to_ = new QLineEdit;
+    go_to_->setObjectName(QStringLiteral("memoryGoTo"));
+    go_to_->setPlaceholderText(tr("Address (hex)"));
+    go_to_->setMaximumWidth(120);
+    go_to_->setToolTip(tr("Type an address in hexadecimal and press Enter to show it"));
+    find_ = new QLineEdit;
+    find_->setObjectName(QStringLiteral("memoryFind"));
+    find_->setPlaceholderText(tr("Text, or bytes in hex (53 69 6D)"));
+    find_->setToolTip(tr("Press Enter to find the next place; pairs of hex digits are bytes, anything else is text"));
+    auto* next = new QPushButton(tr("Find next"));
+    next->setObjectName(QStringLiteral("memoryFindNext"));
+    note_ = new QLabel;
+    note_->setObjectName(QStringLiteral("memoryNote"));
+    auto* tools = new QHBoxLayout;
+    tools->addWidget(new QLabel(tr("Go to:")));
+    tools->addWidget(go_to_);
+    tools->addWidget(new QLabel(tr("Find:")));
+    tools->addWidget(find_, 1);
+    tools->addWidget(next);
+    tools->addWidget(note_, 1);
+
     auto* layout = new QVBoxLayout(this);
     layout->addLayout(top);
+    layout->addLayout(tools);
     layout->addWidget(table_, 1);
     layout->addWidget(status_);
+
+    connect(go_to_, &QLineEdit::returnPressed, this, &MemoryWindow::go_to);
+    connect(find_, &QLineEdit::returnPressed, this, &MemoryWindow::find_next);
+    connect(next, &QPushButton::clicked, this, &MemoryWindow::find_next);
+    connect(model_, &MemoryModel::byte_edited, this, &MemoryWindow::edit_byte);
 
     connect(chips_, &QComboBox::currentIndexChanged, this, [this] { refresh(); });
     connect(load, &QPushButton::clicked, this, &MemoryWindow::load);
@@ -353,9 +458,87 @@ void MemoryWindow::refresh()
     }
     QString source;
     auto now_bytes = contents(id, source);
-    status_->setText(source);
+    // Bytes of a running chip can be edited; an AVR's EEPROM is read by the chip when it starts.
+    const auto* shown = document_.schematic().component(id);
+    const auto* kind = shown ? document_.library().find(shown->type) : nullptr;
+    const bool editable = run_.active() && !(kind && kind->mcu && avr(*kind));
+    model_->set_editable(editable);
+    // A byte just edited stays as typed until the chip's copy shows it (a
+    // large memory is copied a few times a second), for a second at most.
+    const qint64 now = QDateTime::currentMSecsSinceEpoch();
+    for (auto it = pending_.begin(); it != pending_.end();) {
+        const auto& [index, edit] = *it;
+        if (id != shown_ || index >= now_bytes.size() || now_bytes[index] == edit.first || now > edit.second) {
+            it = pending_.erase(it);
+        } else {
+            now_bytes[index] = edit.first;
+            ++it;
+        }
+    }
+    status_->setText(editable ? source + QLatin1Char(' ') + tr("Double-click a byte, or type over it, to change it.") : source);
     model_->set_bytes(std::move(now_bytes), id != shown_);
     shown_ = id;
+}
+
+void MemoryWindow::go_to()
+{
+    QString text = go_to_->text().trimmed();
+    if (text.startsWith(QStringLiteral("0x"), Qt::CaseInsensitive)) {
+        text = text.mid(2);
+    }
+    bool ok = false;
+    const qulonglong address = text.toULongLong(&ok, 16);
+    if (!ok || address >= model_->bytes().size()) {
+        note_->setText(model_->bytes().empty()
+                ? tr("There is no memory to go to.")
+                : tr("An address is hexadecimal, from 0 to %1.").arg(model_->bytes().size() - 1, 0, 16).toUpper());
+        return;
+    }
+    const QModelIndex index = model_->index_of(static_cast<std::size_t>(address));
+    table_->setCurrentIndex(index);
+    table_->scrollTo(index, QAbstractItemView::PositionAtCenter);
+    note_->clear();
+}
+
+void MemoryWindow::find_next()
+{
+    const auto pattern = MemoryModel::search_pattern(find_->text());
+    if (pattern.empty()) {
+        note_->clear();
+        return;
+    }
+    // From the byte after the current cell, so that Enter again finds the next place.
+    const QModelIndex current = table_->currentIndex();
+    const std::size_t from = current.isValid() && current.column() < columns
+        ? static_cast<std::size_t>(current.row()) * columns + static_cast<std::size_t>(current.column()) + 1
+        : 0;
+    const qint64 at = model_->find(pattern, from);
+    if (at < 0) {
+        note_->setText(tr("Not found."));
+        return;
+    }
+    const QModelIndex index = model_->index_of(static_cast<std::size_t>(at));
+    table_->setCurrentIndex(index);
+    table_->scrollTo(index, QAbstractItemView::PositionAtCenter);
+    note_->setText(tr("Found at %1.").arg(QStringLiteral("%1").arg(at, 4, 16, QLatin1Char('0')).toUpper()));
+}
+
+void MemoryWindow::edit_byte(std::size_t index, std::uint8_t value)
+{
+    const model::Id id = current();
+    if (id == model::no_id || index >= model_->bytes().size() || !run_.active()) {
+        note_->setText(tr("Bytes are edited in the chip of a running simulation (paused or not)."));
+        return;
+    }
+    // The whole image with the new byte, as Load... sends it.
+    auto bytes = model_->bytes();
+    bytes[index] = value;
+    run_.load_device_memory(id, bytes);
+    pending_[index] = {value, QDateTime::currentMSecsSinceEpoch() + 1000};
+    model_->set_bytes(std::move(bytes), false); // on screen at once; the chip's own bytes follow
+    note_->setText(tr("%1 written at %2.")
+            .arg(QStringLiteral("%1").arg(value, 2, 16, QLatin1Char('0')).toUpper(),
+                QStringLiteral("%1").arg(index, 4, 16, QLatin1Char('0')).toUpper()));
 }
 
 void MemoryWindow::load()

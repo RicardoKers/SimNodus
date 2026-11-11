@@ -1628,6 +1628,32 @@ private slots:
         window_->run_controller()->load_device_memory(eeprom, zeros);
         QTRY_VERIFY_WITH_TIMEOUT(viewer->bytes()[0] == 0x00, 5000);
         QVERIFY(written());
+        // SN-289: Go to, Find and a byte typed over, in the running chip.
+        auto* go_to = viewer->findChild<QLineEdit*>(QStringLiteral("memoryGoTo"));
+        auto* find = viewer->findChild<QLineEdit*>(QStringLiteral("memoryFind"));
+        auto* note = viewer->findChild<QLabel*>(QStringLiteral("memoryNote"));
+        go_to->setText(QStringLiteral("0x9C"));
+        QTest::keyClick(go_to, Qt::Key_Return);
+        QCOMPARE(table->currentIndex().row(), 9);
+        QCOMPARE(table->currentIndex().column(), 12);
+        go_to->setText(QStringLiteral("100")); // past the end of 256 bytes
+        QTest::keyClick(go_to, Qt::Key_Return);
+        QCOMPARE(table->currentIndex().row(), 9);
+        QVERIFY(!note->text().isEmpty());
+        find->setText(QStringLiteral("Nodus"));
+        QTest::keyClick(find, Qt::Key_Return);
+        QCOMPARE(table->currentIndex().row(), 1);
+        QCOMPARE(table->currentIndex().column(), 3);
+        QVERIFY(note->text().contains(QStringLiteral("0013")));
+        find->setText(QStringLiteral("DE AD"));
+        QTest::keyClick(find, Qt::Key_Return);
+        QCOMPARE(table->currentIndex().column(), 3); // not found: the cell stays
+        QVERIFY(table->model()->flags(table->currentIndex()) & Qt::ItemIsEditable);
+        QVERIFY(table->model()->setData(table->model()->index(2, 5), QStringLiteral("a5")));
+        QCOMPARE(viewer->bytes()[0x25], std::uint8_t{0xA5}); // on screen at once
+        QTest::qWait(1500);
+        QCOMPARE(viewer->bytes()[0x25], std::uint8_t{0xA5}); // and it is the chip's byte, not only the screen's
+        QVERIFY(written());
         window_->stop();
         QTRY_VERIFY_WITH_TIMEOUT(!window_->run_controller()->active(), 5000);
         QTest::qWait(300);

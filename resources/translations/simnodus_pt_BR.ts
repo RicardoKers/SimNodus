@@ -2265,6 +2265,34 @@ Permitir para este projeto neste computador? Sem isso, a rede das placas fica de
             <translation>Memória:</translation>
         </message>
         <message>
+            <source>Address (hex)</source>
+            <translation>Endereço (hex)</translation>
+        </message>
+        <message>
+            <source>Type an address in hexadecimal and press Enter to show it</source>
+            <translation>Digite um endereço em hexadecimal e pressione Enter para mostrá-lo</translation>
+        </message>
+        <message>
+            <source>Text, or bytes in hex (53 69 6D)</source>
+            <translation>Texto, ou bytes em hex (53 69 6D)</translation>
+        </message>
+        <message>
+            <source>Press Enter to find the next place; pairs of hex digits are bytes, anything else is text</source>
+            <translation>Pressione Enter para achar a próxima ocorrência; pares de dígitos hex são bytes, qualquer outra coisa é texto</translation>
+        </message>
+        <message>
+            <source>Find next</source>
+            <translation>Localizar próximo</translation>
+        </message>
+        <message>
+            <source>Go to:</source>
+            <translation>Ir para:</translation>
+        </message>
+        <message>
+            <source>Find:</source>
+            <translation>Localizar:</translation>
+        </message>
+        <message>
             <source>Live contents of the running chip.</source>
             <translation>Conteúdo ao vivo do chip em execução.</translation>
         </message>
@@ -2283,6 +2311,34 @@ Permitir para este projeto neste computador? Sem isso, a rede das placas fica de
         <message>
             <source>Every byte 0x%1: the chip starts each run like this; Load... chooses a contents file.</source>
             <translation>Todos os bytes 0x%1: o chip inicia cada simulação assim; Carregar... escolhe um arquivo de conteúdo.</translation>
+        </message>
+        <message>
+            <source>Double-click a byte, or type over it, to change it.</source>
+            <translation>Dê um duplo clique em um byte, ou digite sobre ele, para alterá-lo.</translation>
+        </message>
+        <message>
+            <source>There is no memory to go to.</source>
+            <translation>Não há memória para onde ir.</translation>
+        </message>
+        <message>
+            <source>An address is hexadecimal, from 0 to %1.</source>
+            <translation>Um endereço é hexadecimal, de 0 a %1.</translation>
+        </message>
+        <message>
+            <source>Not found.</source>
+            <translation>Não encontrado.</translation>
+        </message>
+        <message>
+            <source>Found at %1.</source>
+            <translation>Encontrado em %1.</translation>
+        </message>
+        <message>
+            <source>Bytes are edited in the chip of a running simulation (paused or not).</source>
+            <translation>Os bytes são editados no chip de uma simulação em execução (pausada ou não).</translation>
+        </message>
+        <message>
+            <source>%1 written at %2.</source>
+            <translation>%1 gravado em %2.</translation>
         </message>
         <message>
             <source>Load memory contents</source>

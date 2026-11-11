@@ -4,6 +4,11 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-11-11, SN-289, Memory Viewer)
+
+- **Go to** an address and **Find** a text or bytes in hex (`53 69 6D`) in the Memory Viewer, from the current cell on and round to the start.
+- **Bytes edited in the running chip**: a double-click on a byte, or typing over the current one, changes it in the chip while a simulation runs (paused or not). The byte stays as typed until the chip's copy shows it. An AVR's EEPROM, which the chip reads when it starts, is not edited this way.
+
 ### Added (2026-11-11, SN-288)
 
 - The protocol decoders of the Logic tab are kept with the window's settings and come back with the next session; a decoder whose signals the circuit on the screen does not have shows no lane.

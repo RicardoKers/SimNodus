@@ -21,11 +21,13 @@
 #include <QWidget>
 
 #include <cstdint>
+#include <map>
 #include <string>
 #include <vector>
 
 class QComboBox;
 class QLabel;
+class QLineEdit;
 class QTableView;
 
 namespace simnodus::ui {
@@ -50,6 +52,20 @@ public:
     bool expire();
     // True while the byte counts as just changed.
     bool recent(std::size_t index) const;
+    // Editing (SN-289): while set, a byte cell takes one or two hex digits and
+    // the model says which byte got which value; it does not change its bytes
+    // itself (they are the chip's).
+    void set_editable(bool editable);
+    bool editable() const { return editable_; }
+    // What a search field means: pairs of hex digits ("53 69 6D", "5369") are
+    // those bytes, anything else is its text; empty when there is nothing to find.
+    static std::vector<std::uint8_t> search_pattern(const QString& text);
+    // First place of `pattern` at or after `from`, going round to the start; -1 when it is not there.
+    qint64 find(const std::vector<std::uint8_t>& pattern, std::size_t from) const;
+    QModelIndex index_of(std::size_t byte) const;
+
+    Qt::ItemFlags flags(const QModelIndex& index) const override;
+    bool setData(const QModelIndex& index, const QVariant& value, int role = Qt::EditRole) override;
 
     int rowCount(const QModelIndex& parent = {}) const override;
     int columnCount(const QModelIndex& parent = {}) const override;
@@ -67,6 +83,10 @@ private:
 
     std::vector<std::uint8_t> bytes_;
     std::vector<Change> changes_;
+    bool editable_ = false;
+
+signals:
+    void byte_edited(std::size_t index, std::uint8_t value);
 };
 
 class MemoryWindow : public QWidget {
@@ -100,6 +120,9 @@ private:
     std::vector<std::uint8_t> contents(model::Id component, QString& source) const;
     void load();
     void save();
+    void go_to();
+    void find_next();
+    void edit_byte(std::size_t index, std::uint8_t value);
 
     Document& document_;
     RunController& run_;
@@ -107,6 +130,9 @@ private:
     QTableView* table_ = nullptr;
     MemoryModel* model_ = nullptr;
     QLabel* status_ = nullptr;
+    QLineEdit* go_to_ = nullptr;
+    QLineEdit* find_ = nullptr;
+    QLabel* note_ = nullptr; // what Go to, Find or an edit answered
     QTimer timer_;
     model::Id shown_ = model::no_id;
     // The contents file read last, by path, time and size: it is not read
@@ -121,6 +147,8 @@ private:
         QString error;
     };
     mutable FileCache file_;
+    // Bytes edited and not yet seen in the chip's copy: value and when to give up (ms since the epoch).
+    std::map<std::size_t, std::pair<std::uint8_t, qint64>> pending_;
 };
 
 } // namespace simnodus::ui
