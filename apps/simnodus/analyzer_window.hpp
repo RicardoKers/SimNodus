@@ -181,6 +181,7 @@ private:
     std::size_t channel_count_ = 0;
     bool record_mode_ = false;    // complete transient record shown
     bool single_done_ = false;
+    bool fitting_ = false; // inside fit_scales(): its refresh does not fit again
     bool autoscale_pending_ = true; // fit scales once the first data arrives
     std::optional<std::pair<double, double>> last_window_;
     std::optional<double> last_trigger_; // newest trigger crossing found

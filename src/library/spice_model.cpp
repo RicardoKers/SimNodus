@@ -176,7 +176,8 @@ std::optional<SpiceModel> parse_spice_model(std::string_view statement, std::str
     bool check_names = true;
     for (const auto& [name, value] : pairs) {
         if (upper(name) == "LEVEL" && number(value)) {
-            check_names = !(model.type == "NMOS" || model.type == "PMOS") || std::stod(value) <= 3;
+            // strtod: stod throws for a number out of range ("1e99999").
+            check_names = !(model.type == "NMOS" || model.type == "PMOS") || std::strtod(value.c_str(), nullptr) <= 3;
         }
     }
     std::string accepted;
@@ -310,6 +311,40 @@ bool allowed_command(const std::string& word)
     return word == ".MODEL" || word == ".PARAM" || word == ".FUNC" || word == ".ENDS" || word == ".SUBCKT";
 }
 
+// ngspice runs a line that starts with "*#" as a command, wherever it stands.
+bool command_comment(const std::string& line)
+{
+    return trim(line).rfind("*#", 0) == 0;
+}
+
+// Kept subcircuit text goes into the deck as it is, so besides its blocks it
+// may hold only .MODEL statements and comments: ngspice runs a .control
+// section and reads the file of an .include or .lib wherever they stand, also
+// outside a block. Returns what else the text holds, empty if nothing.
+std::string stray_statement(std::string_view text)
+{
+    int depth = 0;
+    for (const auto& s : statements_of(text)) {
+        for (const auto& line : s.lines) {
+            if (command_comment(line)) {
+                return "a *# command line";
+            }
+        }
+        if (s.joined.front() == '*') {
+            continue;
+        }
+        const std::string word = first_word_upper(s.joined);
+        if (word == ".SUBCKT") {
+            ++depth;
+        } else if (word == ".ENDS") {
+            depth = std::max(0, depth - 1);
+        } else if (depth == 0 && word != ".MODEL") {
+            return word + " outside a .subckt block";
+        }
+    }
+    return {};
+}
+
 } // namespace
 
 SpiceLibrary parse_spice_library(std::string_view text, std::vector<ModelIssue>* issues)
@@ -330,7 +365,11 @@ SpiceLibrary parse_spice_library(std::string_view text, std::vector<ModelIssue>*
     for (const auto& s : statements) {
         if (s.joined.front() == '*') {
             if (depth > 0) {
-                blocks.back().lines.insert(blocks.back().lines.end(), s.lines.begin(), s.lines.end());
+                Block& b = blocks.back();
+                if (b.refusal.empty() && std::any_of(s.lines.begin(), s.lines.end(), command_comment)) {
+                    b.refusal = "has a *# line, which ngspice would run as a command";
+                }
+                b.lines.insert(b.lines.end(), s.lines.begin(), s.lines.end());
             }
             continue;
         }
@@ -485,6 +524,12 @@ std::vector<SpiceModel> parse_spice_models(std::string_view text, std::vector<Mo
 
 std::optional<SpiceSubcircuit> parse_subcircuit_text(std::string_view text, std::string* why)
 {
+    if (const std::string stray = stray_statement(text); !stray.empty()) {
+        if (why) {
+            *why = "the text holds " + stray;
+        }
+        return std::nullopt;
+    }
     std::vector<ModelIssue> issues;
     auto library = parse_spice_library(text, &issues);
     for (const auto& issue : issues) {

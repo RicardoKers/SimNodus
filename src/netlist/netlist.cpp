@@ -157,7 +157,12 @@ struct Flat {
     model::Schematic schematic;
     std::map<Id, Id> origin;
     std::set<Id> blocks; // block components that were expanded
+    bool loop = false;   // a block contains itself: not expanded any further
 };
+
+// Blocks inside blocks, far deeper than a drawn circuit goes: a block that
+// contains itself (a project file can say so) would never end.
+constexpr int max_block_depth = 16;
 
 void include_point(std::optional<std::pair<int, int>>& range, const Point& p)
 {
@@ -185,9 +190,13 @@ std::optional<std::pair<int, int>> x_range(const model::Schematic& s)
     return range;
 }
 
-Flat flatten(const model::Schematic& schematic, const library::ComponentLibrary& library)
+Flat flatten(const model::Schematic& schematic, const library::ComponentLibrary& library, int depth = 0)
 {
     Flat flat{schematic, {}, {}};
+    if (depth > max_block_depth) {
+        flat.loop = true;
+        return flat;
+    }
     auto& out = flat.schematic;
     for (const auto& c : schematic.components()) {
         const auto* d = library.find(c.type);
@@ -197,7 +206,11 @@ Flat flatten(const model::Schematic& schematic, const library::ComponentLibrary&
         flat.blocks.insert(c.id);
         // The block's circuit, its own blocks already in place.
         const auto inner_library = library::with_blocks(library, *d->block);
-        const Flat inner = flatten(*d->block, inner_library);
+        const Flat inner = flatten(*d->block, inner_library, depth + 1);
+        if (inner.loop) {
+            flat.loop = true;
+            return flat;
+        }
         const auto inner_nets = build_connectivity(inner.schematic, inner_library);
         const std::string prefix = c.designator;
 
@@ -329,6 +342,12 @@ Netlist generate_netlist(const model::Schematic& schematic, const library::Compo
         return generate_circuit(schematic, library, options);
     }
     const Flat flat = flatten(schematic, library);
+    if (flat.loop) {
+        Netlist failed;
+        failed.diagnostics.push_back({Severity::Error, "block-loop",
+            "A block contains itself, directly or through another block; the circuit cannot be built.", {}, std::nullopt});
+        return failed;
+    }
     Netlist out = generate_circuit(flat.schematic, library, options);
     // Findings inside a block point at the block; its parts are named "U1.R1".
     for (auto& diagnostic : out.diagnostics) {

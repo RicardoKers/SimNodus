@@ -299,7 +299,7 @@ void MemoryWindow::load()
             status_->setText(tr("Save the project first: the EEPROM is kept as a file beside it."));
             return;
         }
-        const QString name = QString::fromStdString(c->designator) + QStringLiteral("-eeprom.bin");
+        const QString name = file_name_part(QString::fromStdString(c->designator)) + QStringLiteral("-eeprom.bin");
         if (!io::write_memory_file(QDir(document_.base_dir()).absoluteFilePath(name).toStdWString(), *bytes, error)) {
             status_->setText(tr("%1 cannot be written: %2").arg(name, QString::fromStdString(error)));
             return;

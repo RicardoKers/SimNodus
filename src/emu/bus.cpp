@@ -181,7 +181,9 @@ bool Bus::fill(std::uint32_t address, std::uint8_t value, std::uint32_t size)
 std::uint8_t* Bus::memory_at(std::uint32_t address, std::uint32_t size)
 {
     const Region* region = find(address);
-    if (!region || !region->storage || address - region->base > region->size - size) {
+    // `size` comes from a firmware file: larger than the region, the
+    // subtraction below would wrap and let the block through.
+    if (!region || !region->storage || size > region->size || address - region->base > region->size - size) {
         return nullptr;
     }
     return region->storage->bytes.data() + (address - region->base);

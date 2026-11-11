@@ -491,6 +491,20 @@ TEST_CASE("vendor subcircuits are read with the models and blocks they use")
     std::string why;
     CHECK(!library::parse_subcircuit_text(".SUBCKT S 1 2\n.control\nshell rm x\n.endc\n.ENDS\n", &why).has_value());
     CHECK(why.find(".CONTROL") != std::string::npos);
+    // Kept text goes into the deck whole: nothing ngspice would run or read
+    // may stand outside the block either, and no "*#" command line anywhere.
+    const std::string block = ".SUBCKT S 1 2\nR1 1 2 1k\n.ENDS\n";
+    CHECK(library::parse_subcircuit_text(".MODEL DX D(IS=1e-14)\n" + block).has_value());
+    CHECK(!library::parse_subcircuit_text(".control\nshell calc.exe\n.endc\n" + block, &why).has_value());
+    CHECK(why.find(".CONTROL") != std::string::npos);
+    CHECK(!library::parse_subcircuit_text(block + ".include C:/secret.txt\n").has_value());
+    CHECK(!library::parse_subcircuit_text(".SUBCKT S 1 2\n*#shell calc.exe\nR1 1 2 1k\n.ENDS\n").has_value());
+    CHECK(!library::parse_subcircuit_text("  *# shell calc.exe\n" + block).has_value());
+    std::vector<library::ModelIssue> command_issues;
+    CHECK(library::parse_spice_library(".SUBCKT S 1 2\n*#shell calc.exe\nR1 1 2 1k\n.ENDS\n", &command_issues)
+              .subcircuits.empty());
+    // A number out of range in a model is no exception.
+    CHECK(library::parse_spice_library(".model M NMOS(LEVEL=1e99999)\n", nullptr).subcircuits.empty());
 }
 
 TEST_CASE("a block port's side turns it; a relay's contact follows its coil current")

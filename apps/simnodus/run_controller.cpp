@@ -460,8 +460,8 @@ bool RunController::keep_written_flash()
             }
             // The project's name first: projects sharing a folder (the
             // examples) keep their own files.
-            const QString name = QFileInfo(document_.file_path()).completeBaseName() + QLatin1Char('-') + designator
-                + (avr ? QStringLiteral("-eeprom.bin") : QStringLiteral("-flash.bin"));
+            const QString name = QFileInfo(document_.file_path()).completeBaseName() + QLatin1Char('-')
+                + file_name_part(designator) + (avr ? QStringLiteral("-eeprom.bin") : QStringLiteral("-flash.bin"));
             QFile file(QDir(document_.base_dir()).absoluteFilePath(name));
             if (!file.open(QIODevice::WriteOnly)
                 || file.write(reinterpret_cast<const char*>(bytes->data()), static_cast<qint64>(bytes->size()))

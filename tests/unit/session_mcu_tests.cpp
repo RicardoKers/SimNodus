@@ -263,7 +263,9 @@ TEST_CASE("session: a GPIO output drives the circuit through its pin model")
     for (std::size_t i = 1; i < samples.size(); ++i) {
         const bool before = samples[i - 1].value > 1.65;
         const bool after = samples[i].value > 1.65;
-        if (before != after) {
+        // Up to the 1.1 s waited for: the run goes on until stop() takes
+        // effect, past the next edge when it is fast.
+        if (before != after && samples[i].time <= 1.1) {
             edges.emplace_back(samples[i].time, after);
         }
         if (after) {

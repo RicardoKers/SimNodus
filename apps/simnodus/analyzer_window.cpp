@@ -630,7 +630,9 @@ void AnalyzerWindow::refresh_scope()
             fit_scales();
             return;
         }
-        if (!autoscale_pending_ && automatic_off_screen()) {
+        // Not from inside fit_scales(), whose refresh comes back here: a fit
+        // that leaves a signal off screen would call itself without end.
+        if (!autoscale_pending_ && !fitting_ && automatic_off_screen()) {
             fit_scales(); // a signal grew beyond the screen: its automatic scale follows
             return;
         }
@@ -724,9 +726,18 @@ void AnalyzerWindow::fit_scales()
         }
         scales_[i] = widest <= nothing ? (amperes ? 1e-3 : 1.0)
                                        : nice_division(std::max(extent, nothing) / (half + std::abs(zero) - 0.5));
+        // 0 V one division from the edge: a small signal of the other sign (within
+        // the unit's tolerance, but large for this channel) must fit in that division.
+        if (widest > nothing && zero > 0.0 && low < 0.0) {
+            scales_[i] = std::max(scales_[i], nice_division(-low / 0.9));
+        } else if (widest > nothing && zero < 0.0 && high > 0.0) {
+            scales_[i] = std::max(scales_[i], nice_division(high / 0.9));
+        }
         offsets_[i] = zero * scales_[i];
     }
+    fitting_ = true;
     refresh();
+    fitting_ = false;
 }
 
 void AnalyzerWindow::show_scale(std::size_t index)

@@ -23,6 +23,18 @@ class QUndoStack;
 
 namespace simnodus::ui {
 
+// A designator as part of the name of a file kept beside the project. A
+// project file may hold any text there ("../x", "C:/x"), and that text must
+// not choose the folder the file is written to.
+inline QString file_name_part(const QString& text)
+{
+    QString result;
+    for (const QChar c : text) {
+        result += c.isLetterOrNumber() || c == QLatin1Char('_') || c == QLatin1Char('-') ? c : QChar(QLatin1Char('_'));
+    }
+    return result.isEmpty() ? QStringLiteral("_") : result;
+}
+
 class Document : public QObject {
     Q_OBJECT
 public:

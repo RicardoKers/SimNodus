@@ -117,6 +117,7 @@ bool SimulationSession::start(RunRequest request, std::string& error)
     mcus_.clear();
     external_refs_.clear();
     mcu_caches_.clear();
+    drive_time_ = drive_from_ = -1.0;
     serial_links_.clear();
     debug_resumes_ = 0;
     analog_points_.clear();
@@ -307,11 +308,10 @@ bool SimulationSession::start(RunRequest request, std::string& error)
         if (index == names.end()) {
             continue;
         }
-        if (!mcu_caches_.count(board)) {
-            mcu_caches_[board] = {};
-        }
+        McuCache& cache = mcu_caches_[board];
+        cache.runner = runner->second.get();
         external_refs_[lower(e.source)] = {board, static_cast<std::size_t>(index - names.begin()),
-            e.name.substr(split + 1) == "g"};
+            e.name.substr(split + 1) == "g", &cache};
     }
     for (const auto& m : request_.mcus) {
         auto* runner = mcus_.at(m.component).get();
@@ -419,7 +419,12 @@ void SimulationSession::pause_at(double time)
 
 void SimulationSession::resume()
 {
-    pause_requested_ = false;
+    {
+        // Under the lock the paused thread waits with: between its check and
+        // its sleep the notification would otherwise find nobody waiting.
+        std::lock_guard lock(mutex_);
+        pause_requested_ = false;
+    }
     pause_changed_.notify_all();
 }
 
@@ -678,8 +683,7 @@ std::vector<std::string> SimulationSession::segment_deck(double t0, double lengt
         // Gear integration: switches, buttons (with bounce) and GPIO edges change
         // abruptly; the trapezoidal default rings there (a bouncing button over
         // 1 uF swung its node to -2.4 V). Transient mode keeps the default.
-        extra.push_back(".options method=gear");
-    }
+        extra.push_back(".options method=gear");    }
     const double step = interactive ? settings_.max_step : settings_.transient_max_step;
     // Output step = maximum step keeps ngspice's preallocation small (S1).
     extra.push_back(".tran " + model::spice_number(step) + " " + model::spice_number(length) + " 0 "
@@ -693,6 +697,8 @@ bool SimulationSession::run_segment(NgspiceSession& engine, const std::vector<st
     segment_t0_ = t0;
     last_time_ = 0.0;
     source_cache_.clear(); // a new deck: new instance names
+    source_order_.clear();
+    source_next_ = 0;
     for (auto& feed : edge_feeds_) {
         feed.done_ns = static_cast<std::uint64_t>(std::llround(t0 * 1e9)); // a new transient has no breakpoints
     }
@@ -1225,20 +1231,29 @@ double SimulationSession::external_value(const ExternalRef& ref, double time)
     // drive is averaged over the step from the last accepted point (SN-176): an
     // edge inside the step contributes its exact share instead of acting at the
     // step's end, which made a 1 kHz PWM average 20-30 % instead of 25 %.
-    auto& cache = mcu_caches_[ref.component];
-    const auto time_ns = static_cast<std::uint64_t>(std::llround(std::max(0.0, time) * 1e9));
-    auto from_ns = static_cast<std::uint64_t>(std::llround((segment_t0_ + last_time_) * 1e9));
-    // Without exact edges the average covers at least one maximum step (SN-278):
-    // a step ngspice shortened (after a breakpoint, in a stiff stretch) would
-    // otherwise see a fast PWM as real switching, whose edges keep the steps
-    // short; a board driving a three-phase bridge and a motor fell to 0.05x
-    // real time that way. A full-length step is averaged as before.
-    if (!settings_.exact_edges) {
-        const auto window_ns = static_cast<std::uint64_t>(std::llround(settings_.max_step * 1e9));
-        from_ns = std::min(from_ns, time_ns > window_ns ? time_ns - window_ns : 0);
+    // Every source of a step asks for the same two times (about 400 calls per
+    // time point with a board): they are converted once.
+    const double from = segment_t0_ + last_time_;
+    if (time != drive_time_ || from != drive_from_) {
+        drive_time_ = time;
+        drive_from_ = from;
+        drive_time_ns_ = static_cast<std::uint64_t>(std::llround(std::max(0.0, time) * 1e9));
+        drive_from_ns_ = static_cast<std::uint64_t>(std::llround(from * 1e9));
+        // Without exact edges the average covers at least one maximum step (SN-278):
+        // a step ngspice shortened (after a breakpoint, in a stiff stretch) would
+        // otherwise see a fast PWM as real switching, whose edges keep the steps
+        // short; a board driving a three-phase bridge and a motor fell to 0.05x
+        // real time that way. A full-length step is averaged as before.
+        if (!settings_.exact_edges) {
+            const auto window_ns = static_cast<std::uint64_t>(std::llround(settings_.max_step * 1e9));
+            drive_from_ns_ = std::min(drive_from_ns_, drive_time_ns_ > window_ns ? drive_time_ns_ - window_ns : 0);
+        }
     }
+    const std::uint64_t time_ns = drive_time_ns_;
+    const std::uint64_t from_ns = drive_from_ns_;
+    auto& cache = *ref.cache;
     if (cache.time_ns != time_ns || cache.from_ns != from_ns || cache.drives.empty()) {
-        auto& runner = *mcus_.at(ref.component);
+        auto& runner = *cache.runner;
         // Never wait for a firmware that may not run. When the firmware reaches this
         // limit it collects held events and reports the complete time.
         if (!stop_requested_) { // after Stop the firmware stays where it is
@@ -1502,6 +1517,7 @@ void SimulationSession::run_interactive()
     std::string error;
     NgspiceSession* engine = host.acquire(error);
     if (!engine) {
+        stop_mcus(); // their threads, debugger ports and serial links
         fail("The analog engine is not available: " + error, nullptr);
         return;
     }
@@ -1539,19 +1555,27 @@ void SimulationSession::run_interactive()
         // ngspice asks for every external source at every Newton iteration (about
         // 400 calls per time point with a board): each name is resolved once per
         // loaded circuit, by its pointer (SN-278).
-        auto [resolved, added] = source_cache_.try_emplace(source);
-        if (added) {
-            const std::string key = lower(source);
-            if (const auto e = external_refs_.find(key); e != external_refs_.end()) {
-                resolved->second.external = &e->second;
-            } else {
-                resolved->second.control = key;
+        ResolvedSource* resolved = source_next_ < source_order_.size() ? source_order_[source_next_] : nullptr;
+        if (!resolved || resolved->name != source) {
+            auto [entry, added] = source_cache_.try_emplace(source);
+            resolved = &entry->second;
+            if (added) {
+                const std::string key = lower(source);
+                if (const auto e = external_refs_.find(key); e != external_refs_.end()) {
+                    resolved->external = &e->second;
+                } else {
+                    resolved->control = key;
+                }
+                resolved->name = source;
+                resolved->order = source_order_.size();
+                source_order_.push_back(resolved);
             }
         }
-        if (const auto* external = resolved->second.external) {
+        source_next_ = resolved->order + 1 == source_order_.size() ? 0 : resolved->order + 1;
+        if (const auto* external = resolved->external) {
             return external_value(*external, segment_t0_ + time);
         }
-        const std::string& key = resolved->second.control;
+        const std::string& key = resolved->control;
         std::lock_guard lock(mutex_);
         const auto it = controls_.find(key);
         if (it == controls_.end()) {
@@ -1573,7 +1597,8 @@ void SimulationSession::run_interactive()
         if (mcu_stale_) {
             return;
         }
-        if (!index_valid_) {
+        const bool new_index = !index_valid_;
+        if (new_index) {
             const auto names = engine->vector_names();
             index_.assign(names.size(), -1);
             for (std::size_t i = 0; i < names.size(); ++i) {
@@ -1589,14 +1614,35 @@ void SimulationSession::run_interactive()
         const double global = segment_t0_ + point.time;
         {
             std::lock_guard lock(mutex_);
-            for (std::size_t i = 0; i < index_.size() && i < point.values.size(); ++i) {
-                if (index_[i] < 0) {
+            if (new_index) {
+                // The entries of the maps stay where they are for the whole run.
+                slots_.assign(index_.size(), {});
+                for (std::size_t i = 0; i < index_.size(); ++i) {
+                    if (index_[i] < 0) {
+                        continue;
+                    }
+                    const auto& name = save_vectors_[static_cast<std::size_t>(index_[i])];
+                    slots_[i].latest = &latest_[name];
+                    if (const auto ring = rings_.find(name); ring != rings_.end()) {
+                        slots_[i].ring = ring->second.get();
+                    }
+                }
+                for (auto& w : input_watches_) {
+                    const auto v = latest_.find(w.node);
+                    const auto g = w.ground == "0" ? latest_.end() : latest_.find(w.ground);
+                    w.node_value = v == latest_.end() ? nullptr : &v->second;
+                    w.ground_value = g == latest_.end() ? nullptr : &g->second;
+                    w.points = &analog_points_[w.runner];
+                }
+            }
+            for (std::size_t i = 0; i < slots_.size() && i < point.values.size(); ++i) {
+                const VectorSlot& slot = slots_[i];
+                if (!slot.latest) {
                     continue;
                 }
-                const auto& name = save_vectors_[static_cast<std::size_t>(index_[i])];
-                latest_[name] = point.values[i];
-                if (const auto ring = rings_.find(name); ring != rings_.end()) {
-                    ring->second->push(global, point.values[i]);
+                *slot.latest = point.values[i];
+                if (slot.ring) {
+                    slot.ring->push(global, point.values[i]);
                 }
             }
             status_.sim_time = global;
@@ -1607,13 +1653,11 @@ void SimulationSession::run_interactive()
                 std::fill(volts.begin(), volts.end(), std::nan(""));
             }
             for (auto& w : input_watches_) {
-                const auto v = latest_.find(w.node);
-                const auto g = w.ground == "0" ? latest_.end() : latest_.find(w.ground);
-                if (v == latest_.end()) {
+                if (!w.node_value) {
                     continue;
                 }
-                const double volts = v->second - (g == latest_.end() ? 0.0 : g->second);
-                auto& pins = analog_points_[w.runner];
+                const double volts = *w.node_value - (w.ground_value ? *w.ground_value : 0.0);
+                auto& pins = *w.points;
                 if (w.pin < pins.size()) {
                     pins[w.pin] = volts;
                 }

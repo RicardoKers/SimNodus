@@ -274,24 +274,36 @@ private:
     std::shared_ptr<emu::WifiAir> wifi_;                      // the boards' Wi-Fi network (SN-269)
     std::vector<std::pair<model::Id, std::string>> wifi_notes_; // its messages, with the first board
     // Pin driver sources (SN-132): source name (lower case) -> board pin.
-    struct ExternalRef {
-        model::Id component = model::no_id;
-        std::size_t pin = 0;
-        bool conductance = false; // false: current
-    };
     struct McuCache {
         std::uint64_t time_ns = ~std::uint64_t{0};
         std::uint64_t from_ns = 0; // the step's start (last accepted point)
         std::vector<mcu::PinDrive> drives;
+        mcu::McuBackend* runner = nullptr;
+    };
+    struct ExternalRef {
+        model::Id component = model::no_id;
+        std::size_t pin = 0;
+        bool conductance = false; // false: current
+        McuCache* cache = nullptr; // the board's entry of mcu_caches_
     };
     std::map<std::string, ExternalRef> external_refs_;
     // The source handler's names resolved once per loaded circuit (engine thread).
+    // ngspice asks for the sources in the same order at every iteration, so the
+    // next one is usually the one after the last (source_next_); the map is
+    // for the first round and for an order that changed.
     struct ResolvedSource {
         const ExternalRef* external = nullptr;
         std::string control; // lower case, when not a pin driver
+        const char* name = nullptr; // the pointer ngspice passes
+        std::size_t order = 0;      // position in source_order_
     };
     std::unordered_map<const char*, ResolvedSource> source_cache_;
+    std::vector<ResolvedSource*> source_order_;
+    std::size_t source_next_ = 0;
     std::map<model::Id, McuCache> mcu_caches_; // engine thread only
+    // The times of the last drive query in ns (the same for every source of a step).
+    double drive_time_ = -1.0, drive_from_ = -1.0;
+    std::uint64_t drive_time_ns_ = 0, drive_from_ns_ = 0;
     int debug_resumes_ = 0; // engine thread: debugger resumes seen (re-anchors the pacing)
     // Exact edges (ADR 0093, settings.exact_edges): for a board whose engine
     // reports its edges ahead, ngspice gets a breakpoint just before every drive
@@ -318,6 +330,10 @@ private:
         bool sent = false;
         double volts = 0.0; // at the last accepted point
         double time = 0.0;
+        // Where the data handler reads and writes, resolved with the vector index.
+        const double* node_value = nullptr;   // latest_'s entry of `node`, if saved
+        const double* ground_value = nullptr; // ... of `ground`; null: 0 V
+        std::vector<double>* points = nullptr; // analog_points_'s entry of `runner`
     };
     std::vector<InputWatch> input_watches_; // updated in the engine thread under mutex_
     std::map<mcu::McuBackend*, std::vector<double>> analog_points_; // engine thread: pin voltages per board
@@ -341,6 +357,13 @@ private:
     std::vector<std::pair<double, double>> history_; // (wall, sim)
     std::vector<int> index_;                          // per callback vector: index in save_vectors_ or -1
     bool index_valid_ = false;
+    // Interactive runs: per callback vector, where its value goes (the maps'
+    // entries, found once per loaded circuit instead of at every time point).
+    struct VectorSlot {
+        double* latest = nullptr; // latest_'s entry; null: not saved
+        SampleRing* ring = nullptr;
+    };
+    std::vector<VectorSlot> slots_;
     double segment_t0_ = 0.0;
     double segment_ran_ = 0.0; // simulated length of the last segment
     double last_time_ = 0.0;

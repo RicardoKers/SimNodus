@@ -723,6 +723,10 @@ void GdbServer::handle(const std::string& packet)
             return;
         }
         std::string bytes = kind == 'M' ? from_hex(packet.substr(colon + 1)) : unescape(packet.substr(colon + 1));
+        if (bytes.size() < length) { // a length the packet's data does not have
+            reply("E01");
+            return;
+        }
         bytes.resize(length);
         reply(length == 0 || target_.write_memory(address, bytes, flash_written_) ? "OK" : "E01");
         return;

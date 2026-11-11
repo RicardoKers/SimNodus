@@ -408,9 +408,17 @@ public:
         update();
     }
 
-    // Recomputes every pin level and reports changes.
+    // Recomputes every pin level and reports changes. The levels follow from
+    // the registers and the inputs alone, so nothing happens while those stay
+    // as they were (a USART sets its TX level again on every status read).
     void update()
     {
+        const std::array<std::uint32_t, 6> state{crl_, crh_, odr_, input_, input_set_, af_level_};
+        if (updated_ && state == state_) {
+            return;
+        }
+        state_ = state;
+        updated_ = true;
         std::uint32_t levels = 0;
         std::uint32_t outputs = 0;
         for (int pin = 0; pin < 16; ++pin) {
@@ -491,6 +499,8 @@ private:
     std::uint32_t input_ = 0, input_set_ = 0, af_level_ = 0;
     std::uint32_t levels_ = 0, outputs_ = 0;
     std::array<std::uint8_t, 16> configs_{};
+    std::array<std::uint32_t, 6> state_{}; // what the last update() saw
+    bool updated_ = false;
 };
 
 // ---------------------------------------------------------------------------

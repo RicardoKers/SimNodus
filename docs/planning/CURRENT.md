@@ -1,6 +1,6 @@
 # Current state
 
-Updated: 2026-11-09 (release 0.17.0 published: energy and motor control parts, BLDC/PMSM experimental (E-11), the owner's fixes of SN-279 and SN-280; DE9 waits for the owner). Keep this file short: present state, last results, next
+Updated: 2026-11-11 (review and speed pass SN-282 on main; release 0.17.0 published: energy and motor control parts, BLDC/PMSM experimental (E-11), the owner's fixes of SN-279 and SN-280; DE9 waits for the owner). Keep this file short: present state, last results, next
 steps. Replace it, do not append. History of the first development line
 (2026-08-31 → 2026-10-06) is in
 [archive/2026-10-legacy/CURRENT.md](../archive/2026-10-legacy/CURRENT.md);
@@ -258,6 +258,28 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
    overlay kept in the project, CSV/PNG export, example 66, 10x and 100x in
    the speed box). The owner tested the 2026-11-10 preview: everything
    worked.
+
+8. **Review of 2026-11-11** (SN-282, on `main` after 0.17.0): security and
+   robustness fixes and faster board circuits (CHANGELOG). Found and still
+   open, most valuable first:
+   - drivers only for wired board pins: a Blue Pill adds 64 external sources
+     and their nodes whatever is wired (a blink runs at 5x, an LED alone at
+     50x); unwired pins need no driver, but their pulls must then come from
+     the emulator alone (check the three machines and the input watches);
+   - the schematic repaints every part at every live update (20 Hz), with
+     the dot grid behind them; the analyzer thins its whole window again at
+     every refresh and keeps refreshing after Stop; the chart recorder and
+     the logic lanes draw every point (`schematic_scene.cpp` `set_live`,
+     `analyzer_window.cpp` `refresh_scope`, `chart_painter.cpp`,
+     `logic_widget.cpp`);
+   - `halt_background` ignores its timeout: a value changed while a debugger
+     holds the firmware cuts the segment under a live engine thread
+     (`simulation_session.cpp` `run_segment`); the window waits up to 30 s
+     on a stuck engine (`engine_process.cpp`); the engine server copies
+     every memory at every publish (`engine_server.cpp`);
+   - logic parts as behavioral sources make ngspice-bound circuits slow
+     (examples 23, 26); KLU gave nothing. A GPU would not help: the
+     matrices are tiny and the time goes to device evaluation and iterations.
 
 ## Known constraints
 
