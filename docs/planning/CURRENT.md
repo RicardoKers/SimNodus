@@ -1,6 +1,6 @@
 # Current state
 
-Updated: 2026-11-11 (review and speed passes SN-282 and SN-283 on main; release 0.17.0 published: energy and motor control parts, BLDC/PMSM experimental (E-11), the owner's fixes of SN-279 and SN-280; DE9 waits for the owner). Keep this file short: present state, last results, next
+Updated: 2026-11-11 (review and speed passes SN-282 to SN-284 on main; release 0.17.0 published: energy and motor control parts, BLDC/PMSM experimental (E-11), the owner's fixes of SN-279 and SN-280; DE9 waits for the owner). Keep this file short: present state, last results, next
 steps. Replace it, do not append. History of the first development line
 (2026-08-31 → 2026-10-06) is in
 [archive/2026-10-legacy/CURRENT.md](../archive/2026-10-legacy/CURRENT.md);
@@ -259,16 +259,14 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
    the speed box). The owner tested the 2026-11-10 preview: everything
    worked.
 
-8. **Review of 2026-11-11** (SN-282, SN-283, on `main` after 0.17.0):
+8. **Review of 2026-11-11** (SN-282..SN-284, on `main` after 0.17.0):
    security and robustness fixes and faster board circuits; pins connected
    to nothing are left out of the circuit (a blink from 5x to 15x real
-   time; CHANGELOG). Found and still open, most valuable first:
-   - the schematic repaints every part at every live update (20 Hz), with
-     the dot grid behind them; the analyzer thins its whole window again at
-     every refresh and keeps refreshing after Stop; the chart recorder and
-     the logic lanes draw every point (`schematic_scene.cpp` `set_live`,
-     `analyzer_window.cpp` `refresh_scope`, `chart_painter.cpp`,
-     `logic_widget.cpp`);
+   time); the window's thread is half as busy or less while running
+   (CHANGELOG). Found and still open, most valuable first:
+   - the chart recorder and the logic lanes draw every point
+     (`chart_painter.cpp`, `logic_widget.cpp`); a character or graphic
+     display is decoded at every paint;
    - `halt_background` ignores its timeout: a value changed while a debugger
      holds the firmware cuts the segment under a live engine thread
      (`simulation_session.cpp` `run_segment`); the window waits up to 30 s

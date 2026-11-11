@@ -4,6 +4,12 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Changed (2026-11-11, SN-284, a lighter window while running)
+
+- The Signal Analyzer's oscilloscope paints a frame in a fraction of the time: the trace painter asked for the plot's rectangle once a sample, which measures a text with the font each time (7 ms a frame with example 38's channels, 13 ms with example 64's, 30 times a second). With the analyzer open, the window's thread was busy 28 % of the time with example 38, 45 % with 41, 29 % with 07 and 49 % with 64; now 11 %, 14 %, 12 % and 20 % (owner's laptop, sampling profiler, 10 s runs). The picture is the same.
+- The schematic paints again only the parts whose live state changed (brightness, readout, contact, display, pin levels) and, with voltage colors on, only the wires whose voltage changed.
+- The oscilloscope does not collect and paint the same picture again while a run that ended stands still, nor a paused or stopped display whose scales did not change.
+
 ### Changed (2026-11-11, SN-283, speed)
 
 - Board and chip pins connected to nothing are no longer part of the circuit: their drivers (two external sources and a behavioral source a pin) are left out of the netlist and their levels come from the emulator alone. Circuits with a board run about 2 to 3 times faster again at maximum speed (owner's laptop, `simnodus-cli`, 3 s: example 07 from 5.7x to 15.6x real time, 09 from 5.9x to 17.1x, 13 from 5.5x to 12.9x, 25 from 4.0x to 7.2x, 50 from 7.7x to 17.8x, 58 from 4.8x to 8.2x, 61 from 4.9x to 10.0x). Signals of the examples agree to the third or fourth digit (other time points). Circuits limited by ngspice gain little (23: 1.2x, 26: 0.44x to 0.66x, 64: 0.35x to 0.54x).

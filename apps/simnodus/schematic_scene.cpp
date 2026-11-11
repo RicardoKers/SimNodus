@@ -1504,12 +1504,64 @@ std::optional<std::string> SchematicScene::net_name_at(const model::Point& point
 
 void SchematicScene::set_live(LiveState live)
 {
-    live_ = std::move(live);
+    // Only what changed is painted again: most parts of a running circuit
+    // show the same thing from one refresh to the next (SN-284).
+    const LiveState before = std::exchange(live_, std::move(live));
+    const LiveState& now = live_;
+    const auto same = [](const auto& a, const auto& b, const auto& key, const auto& equal) {
+        const auto x = a.find(key);
+        const auto y = b.find(key);
+        return (x == a.end()) == (y == b.end()) && (x == a.end() || equal(x->second, y->second));
+    };
+    const auto equal = [](const auto& x, const auto& y) { return x == y; };
+    const auto equal_glow = [](const LiveState::Glow& x, const LiveState::Glow& y) {
+        return x.level == y.level && x.color == y.color;
+    };
+    const auto equal_lights = [](const LiveState::Lights& x, const LiveState::Lights& y) {
+        return x.color == y.color && x.levels == y.levels;
+    };
+    const auto equal_pins = [](const auto& x, const auto& y) {
+        return x.size() == y.size()
+            && std::equal(x.begin(), x.end(), y.begin(), [](const auto& p, const auto& q) {
+                   return p.first == q.first && p.second.level == q.second.level && p.second.same_config(q.second)
+                       && p.second.strength == q.second.strength;
+               });
+    };
+    const auto more_of = [](const LiveState& state, model::Id id) {
+        std::vector<std::pair<int, double>> values;
+        for (auto it = state.more_controls.lower_bound({id, 0}); it != state.more_controls.end() && it->first.first == id; ++it) {
+            values.emplace_back(it->first.second, it->second);
+        }
+        return values;
+    };
     for (auto& [id, item] : components_) {
+        if (before.running == now.running && same(before.controls, now.controls, id, equal)
+            && same(before.glow, now.glow, id, equal_glow) && same(before.readouts, now.readouts, id, equal)
+            && same(before.states, now.states, id, equal) && same(before.lights, now.lights, id, equal_lights)
+            && same(before.texts, now.texts, id, equal) && same(before.mcu_pins, now.mcu_pins, id, equal_pins)
+            && more_of(before, id) == more_of(now, id)) {
+            continue;
+        }
         item->refresh_live();
     }
     if (show_voltages_) {
+        // A wire's color is its net's voltage against the largest one.
+        const auto largest = [](const LiveState& state) {
+            double scale = 0;
+            for (const auto& [name, volts] : state.nets) {
+                scale = std::max(scale, std::abs(volts));
+            }
+            return scale;
+        };
+        const bool all = before.running != now.running || largest(before) != largest(now);
         for (auto& [id, item] : wires_) {
+            const auto net = connectivity_.wire_net.find(id);
+            if (!all && net != connectivity_.wire_net.end()) {
+                const std::string name = lower(connectivity_.nets[static_cast<std::size_t>(net->second)].name);
+                if (same(before.nets, now.nets, name, equal)) {
+                    continue;
+                }
+            }
             item->update();
         }
     }

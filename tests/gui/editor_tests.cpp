@@ -58,6 +58,7 @@
 #include <QPointer>
 #include <QScrollArea>
 #include <QSettings>
+#include <QSignalSpy>
 #include <QSpinBox>
 #include <QStatusBar>
 #include <QTemporaryDir>
@@ -2692,6 +2693,40 @@ private slots:
         QVERIFY(p.reference.has_value());
         QCOMPARE(p.reference->item, r);
         QCOMPARE(p.reference->pin, std::string("2"));
+    }
+
+    void live_refresh_paints_only_parts_that_changed()
+    {
+        // SN-284: a refresh with the same state paints nothing; one with a new
+        // brightness paints that LED and not the other.
+        const model::Id a = place("led", {0, 0});
+        const model::Id b = place("led", {30, 0});
+        auto* scene = window_->scene();
+        LiveState live;
+        live.running = true;
+        live.glow[a] = {0.5, "red"};
+        live.glow[b] = {0.5, "red"};
+        scene->set_live(live);
+        QTest::qWait(50);
+        QSignalSpy spy(scene, &QGraphicsScene::changed);
+        scene->set_live(live);
+        QTest::qWait(50);
+        QCOMPARE(spy.count(), 0);
+        live.glow[b].level = 0.9;
+        scene->set_live(live);
+        QTest::qWait(50);
+        QVERIFY(spy.count() >= 1);
+        bool painted_a = false;
+        bool painted_b = false;
+        for (const auto& call : spy) {
+            for (const auto& region : call.at(0).value<QList<QRectF>>()) {
+                painted_a = painted_a || region.intersects(scene->item_of(a)->sceneBoundingRect());
+                painted_b = painted_b || region.intersects(scene->item_of(b)->sceneBoundingRect());
+            }
+        }
+        QVERIFY(painted_b);
+        QVERIFY(!painted_a);
+        scene->clear_live();
     }
 };
 
