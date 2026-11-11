@@ -4,6 +4,8 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+## 0.18.0 — 2026-11-11
+
 ### Added (2026-11-11, SN-289, Memory Viewer)
 
 - **Go to** an address and **Find** a text or bytes in hex (`53 69 6D`) in the Memory Viewer, from the current cell on and round to the start.
