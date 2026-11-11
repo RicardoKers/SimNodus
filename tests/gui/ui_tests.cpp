@@ -6,6 +6,7 @@
 #include "app_settings.hpp"
 #include "component_panel.hpp"
 #include "main_window.hpp"
+#include "memory_window.hpp"
 #include "messages_panel.hpp"
 #include "properties_panel.hpp"
 #include "schematic_view.hpp"
@@ -34,6 +35,7 @@
 #include <QElapsedTimer>
 #include <QSet>
 #include <QTest>
+#include <QToolButton>
 #include <QTreeWidget>
 
 #include <algorithm>
@@ -214,6 +216,57 @@ private slots:
         QCOMPARE(spy.first().at(0).toString(), QStringLiteral("led"));
         panel.search_field()->clear();
         QCOMPARE(panel.visible_component_count(), all);
+        // SN-285: every category closed or open at once.
+        auto* tree = panel.findChild<QTreeWidget*>(QStringLiteral("componentTree"));
+        auto open_categories = [tree] {
+            int open = 0;
+            for (int i = 0; i < tree->topLevelItemCount(); ++i) {
+                open += tree->topLevelItem(i)->isExpanded() ? 1 : 0;
+            }
+            return open;
+        };
+        panel.findChild<QToolButton*>(QStringLiteral("componentCollapseAll"))->click();
+        QCOMPARE(open_categories(), 0);
+        panel.findChild<QToolButton*>(QStringLiteral("componentExpandAll"))->click();
+        QCOMPARE(open_categories(), tree->topLevelItemCount());
+        QCOMPARE(tree->actions().size(), 2); // the same two in the context menu
+    }
+
+    void memory_model_shows_a_large_memory_at_once()
+    {
+        // SN-285: a 4 MB flash (W25Q32) is a model over its bytes; the window
+        // froze for seconds while it made a table item for each of them.
+        MemoryModel model;
+        std::vector<std::uint8_t> bytes(4u * 1024 * 1024, 0xFF);
+        bytes[0x10] = 'S';
+        QElapsedTimer clock;
+        clock.start();
+        model.set_bytes(bytes, true);
+        QCOMPARE(model.rowCount(), 262144);
+        QCOMPARE(model.columnCount(), 17);
+        QCOMPARE(model.index(1, 0).data().toString(), QStringLiteral("53"));
+        QCOMPARE(model.index(1, 16).data().toString(), QStringLiteral("S..............."));
+        QCOMPARE(model.headerData(262143, Qt::Vertical, Qt::DisplayRole).toString(), QStringLiteral("3FFFF0"));
+        // A page program and a sector erase: the bytes that differ are marked,
+        // and only their rows are painted again.
+        QSignalSpy spy(&model, &QAbstractItemModel::dataChanged);
+        bytes[0x123456] = 0x42;
+        std::fill(bytes.begin() + 0x200000, bytes.begin() + 0x201000, std::uint8_t{0x00});
+        model.set_bytes(bytes, false);
+        QCOMPARE(spy.count(), 1);
+        QCOMPARE(spy.first().at(0).toModelIndex().row(), 0x123456 / 16);
+        QCOMPARE(spy.first().at(1).toModelIndex().row(), 0x200FFF / 16);
+        QVERIFY(model.recent(0x123456));
+        QVERIFY(model.recent(0x200800));
+        QVERIFY(!model.recent(0x123457));
+        QVERIFY(model.index(0x123456 / 16, 6).data(Qt::BackgroundRole).isValid());
+        QVERIFY(!model.index(0, 0).data(Qt::BackgroundRole).isValid());
+        model.set_bytes(bytes, false); // the same bytes again: nothing to paint
+        QCOMPARE(spy.count(), 1);
+        QVERIFY(clock.elapsed() < 1000);
+        QTest::qWait(1600); // the marks fade
+        QVERIFY(!model.expire());
+        QVERIFY(!model.recent(0x123456));
     }
 
     void analyzer_close_only_hides()

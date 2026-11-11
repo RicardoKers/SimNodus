@@ -12,7 +12,9 @@
 #include <QHBoxLayout>
 #include <QKeyEvent>
 #include <QLabel>
+#include <QAction>
 #include <QLineEdit>
+#include <QToolButton>
 #include <QRegularExpression>
 #include <QMimeData>
 #include <QPainter>
@@ -100,7 +102,23 @@ ComponentPanel::ComponentPanel(const library::ComponentLibrary& library, QWidget
     search_->setPlaceholderText(tr("Search components"));
     search_->setClearButtonEnabled(true);
     search_->setObjectName(QStringLiteral("componentSearch"));
-    layout->addWidget(search_);
+    // Beside the search field: every category open or closed at once (SN-285).
+    auto* expand = new QToolButton;
+    expand->setObjectName(QStringLiteral("componentExpandAll"));
+    expand->setText(QStringLiteral("+"));
+    expand->setToolTip(tr("Expand all categories"));
+    expand->setAutoRaise(true);
+    auto* collapse = new QToolButton;
+    collapse->setObjectName(QStringLiteral("componentCollapseAll"));
+    collapse->setText(QString(QChar(0x2212))); // a minus sign
+    collapse->setToolTip(tr("Collapse all categories"));
+    collapse->setAutoRaise(true);
+    auto* top = new QHBoxLayout;
+    top->setSpacing(2);
+    top->addWidget(search_, 1);
+    top->addWidget(expand);
+    top->addWidget(collapse);
+    layout->addLayout(top);
 
     tree_ = new ComponentTree;
     tree_->setHeaderHidden(true);
@@ -111,6 +129,15 @@ ComponentPanel::ComponentPanel(const library::ComponentLibrary& library, QWidget
     tree_->setDragDropMode(QAbstractItemView::DragOnly);
     tree_->setObjectName(QStringLiteral("componentTree"));
     layout->addWidget(tree_, 1);
+    connect(expand, &QToolButton::clicked, tree_, &QTreeWidget::expandAll);
+    connect(collapse, &QToolButton::clicked, tree_, &QTreeWidget::collapseAll);
+    // The same from the tree's context menu.
+    tree_->setContextMenuPolicy(Qt::ActionsContextMenu);
+    auto* expand_action = new QAction(tr("Expand all categories"), tree_);
+    auto* collapse_action = new QAction(tr("Collapse all categories"), tree_);
+    connect(expand_action, &QAction::triggered, tree_, &QTreeWidget::expandAll);
+    connect(collapse_action, &QAction::triggered, tree_, &QTreeWidget::collapseAll);
+    tree_->addActions({expand_action, collapse_action});
 
     layout->addWidget(theme::make_caption(tr("Preview")));
     auto* preview = new QFrame;

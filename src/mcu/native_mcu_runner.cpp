@@ -383,6 +383,13 @@ bool NativeMcuRunner::device_memory(std::uint64_t component, std::vector<std::ui
     return true;
 }
 
+std::uint64_t NativeMcuRunner::device_memory_serial(std::uint64_t component) const
+{
+    std::lock_guard lock(mutex_);
+    const auto it = memories_.find(component);
+    return it == memories_.end() ? 0 : it->second.serial;
+}
+
 void NativeMcuRunner::load_device_memory(std::uint64_t component, const std::vector<std::uint8_t>& bytes)
 {
     {
@@ -629,14 +636,14 @@ void NativeMcuRunner::work()
             }
             if (known == memories_.end()
                 || (known->second.version != version && machine->time_ns() >= known->second.copied_ns + 200000000ull)) {
-                memories_[0] = {version, machine->flash(), machine->time_ns()};
+                memories_[0] = {version, machine->flash(), machine->time_ns(), ++memory_serial_};
             }
         }
         if (const std::uint64_t version = machine->eeprom_version(); version != 0) {
             const auto known = memories_.find(board_eeprom);
             if (known == memories_.end()
                 || (known->second.version != version && machine->time_ns() >= known->second.copied_ns + 200000000ull)) {
-                memories_[board_eeprom] = {version, machine->eeprom(), machine->time_ns()};
+                memories_[board_eeprom] = {version, machine->eeprom(), machine->time_ns(), ++memory_serial_};
             }
         }
         for (auto& text : machine->take_diagnostics()) {
@@ -683,7 +690,7 @@ void NativeMcuRunner::work()
             if (known == memories_.end() || (known->second.version != version && due)) {
                 auto bytes = bus.memory(d);
                 if (!bytes.empty()) {
-                    memories_[options_.devices[d].component] = {version, std::move(bytes), machine->time_ns()};
+                    memories_[options_.devices[d].component] = {version, std::move(bytes), machine->time_ns(), ++memory_serial_};
                 }
             }
         }
@@ -839,10 +846,10 @@ void NativeMcuRunner::work()
     machine->set_pin_hook(nullptr); // the bus goes first
     std::lock_guard lock(mutex_);
     if (const std::uint64_t version = machine->flash_version(); version != 0) {
-        memories_[0] = {version, machine->flash(), machine->time_ns()}; // the last writes too
+        memories_[0] = {version, machine->flash(), machine->time_ns(), ++memory_serial_}; // the last writes too
     }
     if (const std::uint64_t version = machine->eeprom_version(); version != 0) {
-        memories_[board_eeprom] = {version, machine->eeprom(), machine->time_ns()};
+        memories_[board_eeprom] = {version, machine->eeprom(), machine->time_ns(), ++memory_serial_};
     }
     status_.state = McuState::Stopped;
 }

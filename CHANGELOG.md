@@ -4,6 +4,17 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Fixed (2026-11-11, SN-285)
+
+- The Memory Viewer froze the window for several seconds when a large memory was opened (example 39's W25Q32, 4 MB) and kept it busy afterwards: it made a table item for every byte (4.4 million) and went through all of them four times a second. The table is now a model over the bytes, of which only the rows on screen are formatted: it opens in 23 ms (offscreen test). The highlight of bytes that just changed remembers runs of bytes, so a chip erase is one entry; the contents file of a chip is read again only when it changed.
+- The engine no longer copies every memory chip at each update of the window to see whether it changed: the microcontroller runner numbers its copies, and a memory is copied and sent only when its number changed.
+
+### Added (2026-11-11, SN-285)
+
+- **Maximum time step of 1 µs** in Simulate > Settings, for the finest detail (PWM edges, switching converters, serial bits). Measured against 10 µs (`simnodus-cli`, owner's laptop): example 01 from 6.2x to 0.6x real time, 07 from 1.6x to 0.14x, 13 from 1.35x to 0.15x, 34 from 0.16x to 0.01x; example 13's PWM RMS reads 1.458 V at 100 µs, 1.630 V at 10 µs and 1.643 V at 1 µs. The analyzer's history of 200 000 samples covers 0.2 s at this step.
+- **Components panel**: buttons beside the search field (and the tree's context menu) expand or collapse every category.
+- **UART terminal**: the Up and Down arrows in the input line bring back the lines sent before (the last 100).
+
 ### Changed (2026-11-11, SN-284, a lighter window while running)
 
 - The Signal Analyzer's oscilloscope paints a frame in a fraction of the time: the trace painter asked for the plot's rectangle once a sample, which measures a text with the font each time (7 ms a frame with example 38's channels, 13 ms with example 64's, 30 times a second). With the analyzer open, the window's thread was busy 28 % of the time with example 38, 45 % with 41, 29 % with 07 and 49 % with 64; now 11 %, 14 %, 12 % and 20 % (owner's laptop, sampling profiler, 10 s runs). The picture is the same.

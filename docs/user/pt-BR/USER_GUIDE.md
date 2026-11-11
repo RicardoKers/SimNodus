@@ -1,4 +1,4 @@
-<!-- source: USER_GUIDE.md sha256 2b7b36f6878fe7923dd6f84e896ec4d327449ead12246abb5813985779cb0588 -->
+<!-- source: USER_GUIDE.md sha256 4df521154d432ddf2e3ba611a09ce7631518c6411d01c084e84f6b63bcdafde7 -->
 # Guia do usuário do SimNodus
 
 O SimNodus é um simulador para sala de aula: você desenha um circuito, aperta
@@ -42,7 +42,7 @@ arquivos comuns, onde quer que você os salve.
 
 | Área | O que faz |
 |---|---|
-| **Componentes** (esquerda, Ctrl+1) | A árvore de componentes por categoria, com uma caixa de busca. A prévia abaixo mostra o símbolo, os pinos e uma breve descrição do componente selecionado |
+| **Componentes** (esquerda, Ctrl+1) | A árvore de componentes por categoria, com uma caixa de busca; os botões **+** e **−** ao lado dela (e o menu de contexto da árvore) abrem ou fecham todas as categorias de uma vez. A prévia abaixo mostra o símbolo, os pinos e uma breve descrição do componente selecionado |
 | **Esquemático** (centro) | O desenho. A roda do mouse aplica zoom na posição do cursor, o botão do meio ou Espaço+arrastar move a vista, F enquadra o circuito |
 | **Propriedades** (direita, Ctrl+2) | Valores do componente selecionado; durante a execução, suas tensões, correntes e potência ao vivo, a tensão de um fio ou rótulo selecionado e a leitura de uma ponta de prova selecionada |
 | **Mensagens** (embaixo, Ctrl+3) | Verificações do circuito, mensagens do motor e do firmware. Clique duas vezes numa mensagem para mostrar o seu componente; Ctrl+C ou o menu de contexto copia as mensagens selecionadas (Copiar tudo copia todas) |
@@ -429,7 +429,7 @@ começam com capacitores descarregados e indutores sem corrente.
 
 | Modo | Uso | Configurações |
 |---|---|---|
-| **Interativo** (padrão) | Execução contínua com a qual você pode interagir | Passo de tempo máximo: 100 µs (padrão), 10 µs (sinais rápidos, mais CPU) ou 1 ms (circuitos lentos). Duração do segmento de 0,5 a 2 s (o motor recomeça a cada segmento para limitar a memória). *Bordas exatas do microcontrolador* (veja abaixo) |
+| **Interativo** (padrão) | Execução contínua com a qual você pode interagir | Passo de tempo máximo: 100 µs (padrão), 10 µs (sinais rápidos, mais CPU), 1 µs (máximo detalhe: cerca de dez vezes mais lento que 10 µs, e o histórico do analisador passa a cobrir 0,2 s) ou 1 ms (circuitos lentos). Duração do segmento de 0,5 a 2 s (o motor recomeça a cada segmento para limitar a memória). *Bordas exatas do microcontrolador* (veja abaixo) |
 | **Transitório** | Um intervalo de tempo fixo, calculado por completo e depois aberto no analisador | Tempo final e passo de tempo máximo |
 
 As bordas de chaves e geradores são resolvidas no passo de tempo. Com um
@@ -551,7 +551,8 @@ o PulseView ou o GTKWave.
 
 Escolha a porta (USART1 em PA9/PA10, USART2 em PA2/PA3, USART3 em
 PB10/PB11) para ler o que o firmware imprime. Digite uma linha e pressione
-Enter ou Enviar, com o fim de linha que preferir. **Marcas de tempo** começa
+Enter ou Enviar, com o fim de linha que preferir; as setas para cima e para
+baixo trazem de volta as linhas já enviadas. **Marcas de tempo** começa
 cada linha com o seu tempo simulado.
 
 ## Microcontrolador

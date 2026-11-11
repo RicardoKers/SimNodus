@@ -62,6 +62,7 @@ public:
     std::map<std::uint64_t, std::string> device_texts() const override;
     void set_device_parameter(std::uint64_t component, const std::string& name, const std::string& value) override;
     bool device_memory(std::uint64_t component, std::vector<std::uint8_t>& bytes) const override;
+    std::uint64_t device_memory_serial(std::uint64_t component) const override;
     void load_device_memory(std::uint64_t component, const std::vector<std::uint8_t>& bytes) override;
 
 private:
@@ -125,7 +126,9 @@ private:
         std::uint64_t version = 0;
         std::vector<std::uint8_t> bytes;
         std::uint64_t copied_ns = 0; // machine time of the copy
+        std::uint64_t serial = 0;    // number of this copy among all of the run
     };
+    std::uint64_t memory_serial_ = 0;
     std::map<std::uint64_t, Memory> memories_; // memory chips: component -> latest contents
     bool upload_told_ = false;                 // the message that new firmware is being written
     std::vector<std::pair<std::uint64_t, std::vector<std::uint8_t>>> memory_loads_; // for the worker

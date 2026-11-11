@@ -7,6 +7,7 @@
 #pragma once
 
 #include <QString>
+#include <QStringList>
 #include <QWidget>
 
 #include <cstdint>
@@ -42,6 +43,10 @@ public:
     // Sends the input line plus the chosen line ending.
     void send();
 
+protected:
+    // Up and Down in the input line walk through the lines sent before (SN-285).
+    bool eventFilter(QObject* watched, QEvent* event) override;
+
 private:
     void show_current();
 
@@ -52,6 +57,9 @@ private:
     QComboBox* ending_ = nullptr;
     QCheckBox* stamps_ = nullptr;
     QPushButton* send_ = nullptr;
+    QStringList sent_;      // lines sent, oldest first (without consecutive repeats)
+    int sent_at_ = -1;      // line of sent_ in the input, -1: what the user is typing
+    QString draft_;         // the unsent line left with the first Up
     struct Transcript {
         std::uint64_t next = 0; // first byte not yet read
         QString text;

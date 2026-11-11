@@ -251,9 +251,14 @@ void EngineServer::publish(bool force)
             ids.push_back(d.component);
         }
         for (const model::Id id : ids) {
-            auto bytes = session_.device_memory(id);
-            if (bytes && sent_memories_[id] != *bytes) {
-                sent_memories_[id] = *bytes;
+            // The serial first: copying a 4 MB flash at every update to see
+            // that it did not change kept a core busy (SN-285).
+            const std::uint64_t serial = session_.device_memory_serial(id);
+            if (serial == 0 || sent_memories_[id] == serial) {
+                continue;
+            }
+            if (auto bytes = session_.device_memory(id)) {
+                sent_memories_[id] = serial;
                 memories.emplace_back(id, std::move(*bytes));
             }
         }

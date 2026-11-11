@@ -1462,6 +1462,17 @@ std::optional<std::vector<std::uint8_t>> SimulationSession::device_memory(model:
     return std::nullopt;
 }
 
+std::uint64_t SimulationSession::device_memory_serial(model::Id component) const
+{
+    for (const auto& [id, runner] : mcus_) {
+        const std::uint64_t key = id == component ? 0 : eeprom_memory(id) == component ? mcu::board_eeprom : component;
+        if (const std::uint64_t serial = runner->device_memory_serial(key)) {
+            return serial;
+        }
+    }
+    return 0;
+}
+
 void SimulationSession::load_device_memory(model::Id component, const std::vector<std::uint8_t>& bytes)
 {
     for (const auto& m : request_.mcus) {
