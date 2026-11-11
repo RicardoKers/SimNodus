@@ -1,4 +1,4 @@
-<!-- source: USER_GUIDE.md sha256 67874cb048fc835db32020bba7f9fac0a5d600e6adcc8af423aced66247c4c34 -->
+<!-- source: USER_GUIDE.md sha256 1e66c253ccf892712de0bfaca999092e6bafaf76e1017bb5e2022cbcfe6de8bb -->
 # Guia do usuário do SimNodus
 
 O SimNodus é um simulador para sala de aula: você desenha um circuito, aperta
@@ -563,6 +563,9 @@ texto caber nas caixas; uma caixa estreita mostra só o byte. Passe o mouse
 sobre uma caixa para ver o texto e o instante. **Remover decodificadores**
 tira todos. Os decodificadores leem os níveis dos pinos como a simulação os
 tem, então também mostram o que um chip responde.
+Eles ficam guardados com as configurações da janela e voltam na próxima
+vez; um decodificador cujos sinais o circuito na tela não tem não mostra
+faixa.
 
 ### UART
 

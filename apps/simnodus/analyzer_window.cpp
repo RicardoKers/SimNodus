@@ -24,6 +24,8 @@
 #include <QFile>
 #include <QFileDialog>
 #include <QFormLayout>
+#include <QJsonArray>
+#include <QJsonDocument>
 #include <QLabel>
 #include <QMessageBox>
 #include <QPixmap>
@@ -476,6 +478,104 @@ QString AnalyzerWindow::Decoder::title() const
     }
 }
 
+QJsonObject AnalyzerWindow::Decoder::to_json() const
+{
+    QJsonObject object;
+    QJsonArray lanes;
+    for (const auto& lane : signal_lanes) {
+        lanes.append(lane);
+    }
+    object[QStringLiteral("signals")] = lanes;
+    switch (protocol) {
+    case Protocol::I2c:
+        object[QStringLiteral("protocol")] = QStringLiteral("i2c");
+        break;
+    case Protocol::Spi:
+        object[QStringLiteral("protocol")] = QStringLiteral("spi");
+        object[QStringLiteral("mode")] = spi.mode;
+        object[QStringLiteral("bits")] = spi.bits;
+        object[QStringLiteral("order")] = spi.msb_first ? QStringLiteral("msb") : QStringLiteral("lsb");
+        break;
+    case Protocol::Uart:
+        object[QStringLiteral("protocol")] = QStringLiteral("uart");
+        object[QStringLiteral("baud")] = uart.baud;
+        object[QStringLiteral("bits")] = uart.data_bits;
+        object[QStringLiteral("parity")] = uart.parity == 'E'   ? QStringLiteral("even")
+                                           : uart.parity == 'O' ? QStringLiteral("odd")
+                                                                : QStringLiteral("none");
+        object[QStringLiteral("inverted")] = uart.inverted;
+        break;
+    }
+    return object;
+}
+
+std::optional<AnalyzerWindow::Decoder> AnalyzerWindow::Decoder::from_json(const QJsonObject& object, QString* error)
+{
+    auto fail = [error](const QString& reason) -> std::optional<Decoder> {
+        if (error) {
+            *error = reason;
+        }
+        return std::nullopt;
+    };
+    Decoder decoder;
+    const QString protocol = object.value(QStringLiteral("protocol")).toString().toLower();
+    if (protocol == QStringLiteral("i2c")) {
+        decoder.protocol = Protocol::I2c;
+    } else if (protocol == QStringLiteral("spi")) {
+        decoder.protocol = Protocol::Spi;
+    } else if (protocol == QStringLiteral("uart")) {
+        decoder.protocol = Protocol::Uart;
+    } else {
+        return fail(QStringLiteral("A decoder's \"protocol\" is i2c, spi or uart."));
+    }
+    const QJsonValue lanes = object.value(QStringLiteral("signals"));
+    if (!lanes.isArray()) {
+        return fail(QStringLiteral("A decoder's \"signals\" is a list of lane names."));
+    }
+    for (const auto& lane : lanes.toArray()) {
+        decoder.signal_lanes << lane.toString();
+    }
+    // I2C: SCL and SDA. SPI: clock and MOSI, then MISO and the select line if any. UART: the line.
+    const int least = decoder.protocol == Protocol::Uart ? 1 : 2;
+    const int most = decoder.protocol == Protocol::Spi ? 4 : least;
+    if (decoder.signal_lanes.size() < least || decoder.signal_lanes.size() > most
+        || std::any_of(decoder.signal_lanes.begin(), decoder.signal_lanes.begin() + least,
+            [](const QString& lane) { return lane.isEmpty(); })) {
+        return fail(QStringLiteral("An i2c decoder takes two signals (SCL, SDA), spi two to four (clock, MOSI, MISO, "
+                                   "select) and uart one."));
+    }
+    const int bits = object.value(QStringLiteral("bits")).toInt(8);
+    if (decoder.protocol == Protocol::Spi) {
+        decoder.spi.mode = object.value(QStringLiteral("mode")).toInt(0);
+        decoder.spi.bits = bits;
+        decoder.spi.msb_first = object.value(QStringLiteral("order")).toString(QStringLiteral("msb")).toLower()
+            != QStringLiteral("lsb");
+        if (decoder.spi.mode < 0 || decoder.spi.mode > 3 || bits < 1 || bits > 32) {
+            return fail(QStringLiteral("An spi decoder's \"mode\" is 0 to 3 and its \"bits\" 1 to 32."));
+        }
+    } else if (decoder.protocol == Protocol::Uart) {
+        decoder.uart.baud = std::max(0.0, object.value(QStringLiteral("baud")).toDouble(0.0));
+        decoder.uart.data_bits = bits;
+        const QString parity = object.value(QStringLiteral("parity")).toString(QStringLiteral("none")).toLower();
+        decoder.uart.parity = parity == QStringLiteral("even") ? 'E' : parity == QStringLiteral("odd") ? 'O' : 'N';
+        decoder.uart.inverted = object.value(QStringLiteral("inverted")).toBool(false);
+        if (bits < 5 || bits > 9 || (decoder.uart.parity == 'N' && parity != QStringLiteral("none"))) {
+            return fail(QStringLiteral("A uart decoder's \"bits\" is 5 to 9 and its \"parity\" none, even or odd."));
+        }
+    }
+    return decoder;
+}
+
+void AnalyzerWindow::set_decoders(std::vector<Decoder> decoders)
+{
+    decoders_ = std::move(decoders);
+    decoded_.assign(decoders_.size(), {});
+    remove_decoders_->setEnabled(!decoders_.empty());
+    if (controller_ && isVisible()) {
+        refresh_logic();
+    }
+}
+
 void AnalyzerWindow::add_decoder(const Decoder& decoder)
 {
     decoders_.push_back(decoder);
@@ -735,6 +835,14 @@ void AnalyzerWindow::refresh_logic()
             break;
         }
         std::erase_if(items, [from, to](const sim::DecodedItem& item) { return item.end < from || item.start > to; });
+        // A decoder kept from another project, none of whose signals this run has, shows no lane.
+        const bool known = std::any_of(decoder.signal_lanes.begin(), decoder.signal_lanes.end(), [this](const QString& title) {
+            return std::any_of(logic_lanes_.begin(), logic_lanes_.end(), [&title](const auto& l) { return l.title == title; });
+        });
+        if (!known) {
+            decoded_[d].clear();
+            continue;
+        }
         LogicLaneView view;
         view.title = decoder.title();
         view.color = QColor(86, 156, 214);
@@ -1454,6 +1562,12 @@ void AnalyzerWindow::save_settings(QSettings& settings) const
     settings.setValue(QStringLiteral("analyzer/timebase"), timebase_->currentData());
     settings.setValue(QStringLiteral("analyzer/tab"), tabs_->currentIndex());
     settings.setValue(QStringLiteral("analyzer/mode"), mode_->currentIndex());
+    // The decoders (SN-288), each as its JSON text.
+    QStringList decoders;
+    for (const auto& decoder : decoders_) {
+        decoders << QString::fromUtf8(QJsonDocument(decoder.to_json()).toJson(QJsonDocument::Compact));
+    }
+    settings.setValue(QStringLiteral("analyzer/decoders"), decoders);
 }
 
 void AnalyzerWindow::restore_settings(const QSettings& settings)
@@ -1467,6 +1581,13 @@ void AnalyzerWindow::restore_settings(const QSettings& settings)
     }
     tabs_->setCurrentIndex(std::clamp(settings.value(QStringLiteral("analyzer/tab"), 0).toInt(), 0, tabs_->count() - 1));
     mode_->setCurrentIndex(std::clamp(settings.value(QStringLiteral("analyzer/mode"), 0).toInt(), 0, 1));
+    std::vector<Decoder> decoders;
+    for (const auto& text : settings.value(QStringLiteral("analyzer/decoders")).toStringList()) {
+        if (const auto decoder = Decoder::from_json(QJsonDocument::fromJson(text.toUtf8()).object())) {
+            decoders.push_back(*decoder);
+        }
+    }
+    set_decoders(std::move(decoders));
 }
 
 void AnalyzerWindow::showEvent(QShowEvent* event)

@@ -16,6 +16,8 @@
 #include <QDir>
 #include <QEvent>
 #include <QEventLoop>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QFile>
 #include <QGraphicsItem>
 #include <QAbstractSpinBox>
@@ -997,6 +999,10 @@ std::unique_ptr<automation::Automation> ControlServer::make_automation()
             {"cursors", "false, true or [a, b] in seconds"}, {"select", "\"V(OUT)\""},
             {"channels", "{\"V(OUT)\": {\"visible\": true, \"scale\": \"2 or auto\", \"offset\": 0}}"},
             {"lanes", "[\"U1.PA5\", \"V(OUT)\"] or \"auto\""}, {"threshold", "1.65"}, {"panel", "true"},
+            {"decoders", "[{\"protocol\": \"i2c\", \"signals\": [\"U1.PB6\", \"U1.PB7\"]}, {\"protocol\": \"spi\", "
+                         "\"signals\": [clock, MOSI, MISO, select], \"mode\": 0, \"bits\": 8, \"order\": \"msb\"}, "
+                         "{\"protocol\": \"uart\", \"signals\": [\"U1.PA9\"], \"baud\": 0, \"bits\": 8, \"parity\": "
+                         "\"none\", \"inverted\": false}]; [] removes them"},
             {"display", "run | stop"}, {"window", "[from, to] seconds, when paused or stopped"}},
         [this](const json& args) { return analyzer_set(args); }});
     a->extend({"analyzer.autoscale", "Fits every channel's scale to its signal (the Autoscale button); the scales then "
@@ -1029,6 +1035,20 @@ json ControlServer::analyzer_state() const
         }
         return out;
     };
+    // The protocol decoders with what each reads in the window on display
+    // (the Logic tab must be the one shown), at most the last 500 items.
+    json decoders = json::array();
+    for (std::size_t d = 0; d < analyzer->decoders().size(); ++d) {
+        json decoder = json::parse(
+            QJsonDocument(analyzer->decoders()[d].to_json()).toJson(QJsonDocument::Compact).toStdString());
+        json items = json::array();
+        const auto decoded = analyzer->decoded(static_cast<int>(d));
+        for (std::size_t i = decoded.size() > 500 ? decoded.size() - 500 : 0; i < decoded.size(); ++i) {
+            items.push_back({{"time", decoded[i].start}, {"text", decoded[i].text}});
+        }
+        decoder["items"] = std::move(items);
+        decoders.push_back(std::move(decoder));
+    }
     const auto* scope = analyzer->scope();
     return json{{"shown", analyzer->isVisible()}, {"tab", tabs[std::clamp(analyzer->tabs()->currentIndex(), 0, 2)]},
         {"timebase", analyzer->timebase_value()}, {"mode", analyzer->triggered() ? "triggered" : "roll"},
@@ -1042,7 +1062,7 @@ json ControlServer::analyzer_state() const
         {"select", selected >= 0 && static_cast<std::size_t>(selected) < views.size()
                 ? json(views[static_cast<std::size_t>(selected)].name.toStdString())
                 : json()},
-        {"channels", channels}, {"lanes", names(analyzer->shown_lanes())},
+        {"decoders", decoders}, {"channels", channels}, {"lanes", names(analyzer->shown_lanes())},
         {"available_lanes", names(analyzer->available_lanes())}, {"threshold", analyzer->threshold()},
         {"panel", analyzer->controls_visible()}, {"display", analyzer->display_stopped() ? "stop" : "run"},
         {"window", {scope->window_start(), scope->window_end()}}, {"navigable", analyzer->navigable()}};
@@ -1196,6 +1216,22 @@ json ControlServer::analyzer_set(const json& args)
             throw Error{"invalid-argument", "Argument \"lanes\" must be a list of lane names or \"auto\"."};
         }
     }
+    std::optional<std::vector<AnalyzerWindow::Decoder>> decoders;
+    if (const auto it = args.find("decoders"); it != args.end() && !it->is_null()) {
+        if (!it->is_array()) {
+            throw Error{"invalid-argument", "Argument \"decoders\" must be a list of decoders."};
+        }
+        decoders.emplace();
+        for (const auto& entry : *it) {
+            QString reason;
+            const auto decoder = AnalyzerWindow::Decoder::from_json(
+                QJsonDocument::fromJson(QByteArray::fromStdString(entry.dump())).object(), &reason);
+            if (!decoder) {
+                throw Error{"invalid-argument", reason.toStdString()};
+            }
+            decoders->push_back(*decoder);
+        }
+    }
     std::optional<double> threshold;
     if (const auto it = args.find("threshold"); it != args.end() && !it->is_null()) {
         threshold = quantity(*it, "threshold", "V");
@@ -1248,6 +1284,9 @@ json ControlServer::analyzer_set(const json& args)
         analyzer->set_automatic_lanes();
     } else if (lanes) {
         analyzer->set_lanes(*lanes);
+    }
+    if (decoders) {
+        analyzer->set_decoders(std::move(*decoders));
     }
     if (panel) {
         analyzer->set_controls_visible(*panel);
