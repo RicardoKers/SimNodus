@@ -257,6 +257,25 @@ from the bench (AN-11).
 | SN-290 | Register Viewer: peripheral registers and named fields of a running microcontroller (2026-11-11) | done 2026-11-11: STM32F103 and AVR maps checked against the emulators, side-effect-free reads, engine and GUI tests (examples 07 and 50); open: ESP32-C3 map, external control (editing and core registers: SN-291) |
 | SN-291 | Register Viewer: registers edited in the running chip, the CPU's core registers (2026-11-11) | done 2026-11-11: engine and GUI tests; open: ESP32-C3 map, external control, MSP/PSP/PRIMASK/CONTROL |
 
+## STM32F4 track — own emulator (from 2026-11-11)
+
+Owner's request of 2026-11-11: the STM32F407VET6 as a bare chip (LQFP-100,
+its clock from the Crystal on the diagram), compared with the owner's test
+board (3.3 V regulator, 25 MHz crystal, SWD). Plan, gates G12a-G12c and
+decision DE12: [E-12-plan.md](../experiments/E-12-plan.md), approved by the
+owner on 2026-11-11.
+
+| ID | Task | Status |
+|---|---|---|
+| SN-292 | E-12 prerequisites: pinned references, toolchain, oracles, the owner's bench; the Cortex-M3/Cortex-M4F feature switch in the core with nothing changed for the M3 | plan approved 2026-11-11; in progress |
+| SN-293 | Cortex-M4F core: DSP instructions, FPv4-SP-D16 FPU, FPSCR, CPACR, lazy stacking, cycle counts (gate G12a) | open |
+| SN-294 | STM32F407 machine: memory map, RCC with the Crystal's frequency, PWR, FLASH interface, GPIO with the alternate function table, SYSCFG, EXTI, NVIC, the six serial ports | open |
+| SN-295 | Integration: the `stm32f407vet6_lqfp100` part with its pin model, the crystal from the diagram, NRST and BOOT0, GDB with the FPU registers, the Register Viewer's map, examples and guides | open |
+| SN-296 | Board comparison of `f4_blink`, `f4_clock`, `f4_float`, `f4_button` and the timing calibration (gate G12b, decision DE12) | open, needs the owner's board |
+| SN-297 | Timers TIM1-TIM14, ADC1-ADC3, the DAC as an analog output into the circuit | open |
+| SN-298 | SPI1-3, I2C1-3, DMA streams, the RTC calendar with backup registers, IWDG, WWDG, CRC, RNG (gate G12c) | open |
+| SN-299 | E-12 report and the board comparison of the remaining firmware | open |
+
 ## Later (after freeze or after classroom)
 
 | ID | Task |

@@ -1,6 +1,6 @@
 # Current state
 
-Updated: 2026-11-11 (the Register Viewer SN-290 and SN-291 on main after 0.18.0; release 0.18.0 published: the chart recorder SN-281, the review and speed passes SN-282 to SN-284, the owner's requests SN-285, the protocol decoders SN-286 and SN-288, the chart fix SN-287 and the Memory Viewer's editing SN-289, tested by the owner on the 2026-11-11 previews; DE9 waits for the owner). Keep this file short: present state, last results, next
+Updated: 2026-11-11 (the Register Viewer SN-290 and SN-291 on main after 0.18.0; the STM32F407VET6 plan E-12 approved, SN-292 and SN-293 next; release 0.18.0 published: the chart recorder SN-281, the review and speed passes SN-282 to SN-284, the owner's requests SN-285, the protocol decoders SN-286 and SN-288, the chart fix SN-287 and the Memory Viewer's editing SN-289, tested by the owner on the 2026-11-11 previews; DE9 waits for the owner). Keep this file short: present state, last results, next
 steps. Replace it, do not append. History of the first development line
 (2026-08-31 → 2026-10-06) is in
 [archive/2026-10-legacy/CURRENT.md](../archive/2026-10-legacy/CURRENT.md);
@@ -291,6 +291,14 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
    - logic parts as behavioral sources make ngspice-bound circuits slow
      (examples 23, 26); KLU gave nothing. A GPU would not help: the
      matrices are tiny and the time goes to device evaluation and iterations.
+9. **STM32F4 track** (owner's request of 2026-11-11): the STM32F407VET6
+   as a bare LQFP-100 chip clocked by the Crystal on the diagram, compared
+   with the owner's test board (25 MHz crystal, SWD).
+   [Plan](../experiments/E-12-plan.md) with gates G12a (Cortex-M4F core
+   with the FPU), G12b (firmware in the circuit, board comparison) and G12c
+   (timers, ADC, DAC, SPI, I2C, DMA, RTC); tasks SN-292..SN-299. Approved
+   on 2026-11-11; SN-292 and SN-293 (the core) come first, because they
+   decide whether the rest is worth doing.
 
 ## Known constraints
 
