@@ -725,12 +725,16 @@ compared with a real chip yet, and only part of the chip is simulated.
 - **What works**: the clock tree (HSI, HSE, the PLL), GPIO with the
   alternate function numbers, external interrupts on any port, the six
   serial ports (USART1 to USART3, UART4, UART5, USART6), the timers TIM1
-  to TIM14, the three ADCs, the DAC, SysTick and the interrupt
-  controller, the DSP and floating-point instructions.
-- **Not yet simulated**: SPI, I2C, DMA, RTC, the watchdogs, USB,
-  Ethernet, SDIO, CAN; in the timers the center-aligned modes, the break
-  input, the input filters and the slave modes other than the encoder; in
-  the ADCs the discontinuous and multi-ADC modes; the DAC's noise wave.
+  to TIM14, the three ADCs, the DAC, SPI1 to SPI3, I2C1 to I2C3, DMA1 and
+  DMA2, the RTC with its backup registers and the backup SRAM, the two
+  watchdogs, the CRC unit, the random number generator, SysTick and the
+  interrupt controller, the DSP and floating-point instructions.
+- **Not yet simulated**: USB, Ethernet, SDIO, CAN, I2S, the camera
+  interface, the external memory controller; in the timers the
+  center-aligned modes, the break input, the input filters, the slave
+  modes other than the encoder and their DMA requests; in the ADCs the
+  discontinuous and multi-ADC modes; the DAC's noise wave; SPI and I2C
+  slave modes; the RTC's tamper and time stamp inputs and its calibration.
   Their registers keep what the firmware writes and the Messages panel
   says once what does nothing. A project from STM32CubeMX runs as far as
   it uses what works (HAL's time base is SysTick).
@@ -776,10 +780,38 @@ compared with a real chip yet, and only part of the chip is simulated.
   its output buffer (the default) the voltage stays between 0.2 V and
   3.1 V behind a small resistance (an approximation of the buffer); without
   it, 0 to 3.3 V behind 15 kΩ, so a load pulls it down.
+- **SPI and I2C**: masters, as on the Blue Pill (above), on the pins of
+  their alternate function number: 5 for SPI1 and SPI2, 6 for SPI3, 4 for
+  the I2Cs. The chips on the diagram (74HC595, MAX7219, 24C02, LM75 and
+  the others) answer within the transfer. I2C needs its pull-up resistors
+  and open-drain pins; without them SCL stays low and the Messages panel
+  says so.
+- **DMA**: the streams of DMA1 and DMA2 serve the serial ports, the SPIs,
+  the I2Cs, the ADCs and the DAC on the channel the firmware selects
+  (CHSEL, from RM0090's tables), from peripheral to memory, from memory to
+  peripheral and from memory to memory (DMA2 only), in normal, circular
+  and double-buffer modes, with the half and complete transfer flags and
+  interrupts. A transfer takes no bus time. The timers' DMA requests are
+  not wired yet.
+- **RTC**: the calendar (BCD time and date, the weekday, 24-hour or AM/PM)
+  counts on a **Crystal** part of 32.768 kHz between **PC14** and **PC15**
+  (the LSE), on the LSI (32 kHz) or on the HSE divided; alarms A and B,
+  the wakeup timer and the twenty backup registers, which keep their
+  values through a reset (NRST, the watchdog, software) and are cleared
+  only when the run starts. As on the chip, the firmware must set
+  `PWR_CR.DBP` and write the protection key before it changes the RTC;
+  without a running clock the initialization mode never starts, and the
+  Messages panel says why.
+- **Watchdogs, CRC, RNG**: the independent watchdog runs on the LSI
+  (32 kHz) and the window watchdog on PCLK1; either resets the chip, and
+  `RCC_CSR` says which. The random number generator gives a fixed
+  pseudo-random sequence, the same on every run, so that runs repeat.
 - **Speed**: firmware that waits in a busy loop at 168 MHz runs below real
   time (about 0.8 times); firmware that sleeps between interrupts (`WFI`,
   as `HAL_Delay` does not, but an RTOS's idle task does) runs several
-  times faster than real time.
+  times faster than real time (example 71: about 6 times). A MAX7219 that
+  scans its matrix 800 times a second slows any run (example 69: about
+  0.4 times real time).
 - **Timing**: instructions take the Cortex-M4's cycles; the flash's wait
   states and its accelerator are not modelled yet, so loops counted in
   instructions are approximate.
@@ -787,10 +819,16 @@ compared with a real chip yet, and only part of the chip is simulated.
   section); the FPU's registers S0 to S31 and FPSCR are shown too. The
   **Register Viewer** has the chip's registers, with the FPU's.
 - **Examples**: 67 (a 25 MHz crystal, the PLL at 168 MHz, USART1 at 115200
-  baud, an LED on PC13, a reset button) and 68 (timers, ADC and DAC: a
+  baud, an LED on PC13, a reset button), 68 (timers, ADC and DAC: a
   potentiometer on PA1 sets the duty cycle of TIM1's PWM on PA8 and PB13,
-  the DAC gives the voltage back on PA4 and draws a triangle on PA5). The
-  firmware sources and more test firmware are in `examples/firmware/f4_*`.
+  the DAC gives the voltage back on PA4 and draws a triangle on PA5), 69
+  (SPI to a 74HC595 and a MAX7219, I2C to a 24C02 and an LM75, USART1
+  through DMA), 70 (the RTC on its crystal, an alarm, the backup registers
+  and the watchdog) and 71 (the station at 168 MHz that sleeps between the
+  RTC's seconds: temperature, PWM, DAC and serial output). The firmware
+  sources and more test firmware are in `examples/firmware/f4_*`; they use
+  the registers, except `f4_hal_buses`, example 69's firmware written with
+  the STM32CubeF4 HAL.
 
 ## Debugging with STM32CubeIDE or GDB
 

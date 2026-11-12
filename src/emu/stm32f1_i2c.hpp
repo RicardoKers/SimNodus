@@ -14,6 +14,9 @@
 // interrupts (event and error) and DMA requests (I2C1 TX/RX on DMA1 channels
 // 6/7, I2C2 on 4/5), the I2C1 remap and SWRST. Not simulated (reported once):
 // slave mode, 10-bit addressing, SMBus, PEC, DMA's LAST bit, arbitration.
+// The STM32F4 has the same I2C (RM0090 chapter 27) with a filter register
+// (FLTR, kept): the chip gives its number, interrupts, DMA requests and pins
+// (I2cConfig, I2cHost::i2c_pin).
 #pragma once
 
 #include "bus.hpp"
@@ -24,6 +27,14 @@
 #include <utility>
 
 namespace simnodus::emu {
+
+// What the chip gives an I2C.
+struct I2cConfig {
+    int number = 1;
+    int irq_ev = 31, irq_er = 32;
+    int dma_tx = 6, dma_rx = 7; // passed to I2cHost::i2c_dma
+    bool stm32f4 = false;       // FLTR exists
+};
 
 class I2cHost {
 public:
@@ -38,14 +49,18 @@ public:
     virtual bool i2c_dma(int channel) = 0;
     virtual void i2c_schedule_changed() = 0;
     virtual void i2c_diagnostic(const std::string& text) = 0;
+    // SCL or SDA of I2C `number` as the chip routes it now (port -1: none).
+    // The default is the STM32F103's (I2C1 with its remap, I2C2 on PB10, PB11).
+    virtual std::pair<int, int> i2c_pin(int number, bool scl) const;
 };
 
 class Stm32F1I2c : public Device, public TimedDevice {
 public:
     // number: 1 or 2 (both on APB1).
     Stm32F1I2c(I2cHost& host, int number);
+    Stm32F1I2c(I2cHost& host, const I2cConfig& config);
 
-    const char* name() const override { return number_ == 1 ? "I2C1" : "I2C2"; }
+    const char* name() const override;
     bool read(std::uint32_t offset, unsigned size, std::uint32_t& value) override;
     bool write(std::uint32_t offset, unsigned size, std::uint32_t value) override;
     void reset() override;
@@ -74,8 +89,8 @@ private:
     };
     enum class Stall { None, Sb, Addr, TxEmpty, Btf, Af };
 
-    std::pair<int, int> scl() const;
-    std::pair<int, int> sda() const;
+    std::pair<int, int> scl() const { return host_.i2c_pin(number_, true); }
+    std::pair<int, int> sda() const { return host_.i2c_pin(number_, false); }
     void drive(bool scl_side, bool released, std::uint64_t cycle);
     std::uint64_t low_cycles() const;
     std::uint64_t high_cycles() const;
@@ -99,8 +114,9 @@ private:
     int number_;
     int irq_ev_, irq_er_;
     int dma_tx_, dma_rx_;
+    bool f4_;
     // Registers.
-    std::uint32_t cr1_ = 0, cr2_ = 0, oar1_ = 0, oar2_ = 0, ccr_ = 0, trise_ = 2;
+    std::uint32_t cr1_ = 0, cr2_ = 0, oar1_ = 0, oar2_ = 0, ccr_ = 0, trise_ = 2, fltr_ = 0;
     bool sb_ = false, addr_ = false, btf_ = false, rxne_ = false, txe_ = false, af_ = false, ovr_ = false;
     bool msl_ = false, busy_ = false, tra_ = false;
     bool sr1_read_ = false; // SR1 was read: the next SR2 read clears ADDR

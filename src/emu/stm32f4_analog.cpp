@@ -31,7 +31,7 @@ constexpr std::uint32_t sample_cycles[8] = {3, 15, 28, 56, 84, 112, 144, 480};
 constexpr double temperature_volts = 0.76; // V25, datasheet typical (25 °C)
 constexpr double vrefint_volts = 1.21;
 
-enum : std::uint32_t { F_DMA = 1u << 0, F_EXTI = 1u << 1, F_DISCONTINUOUS = 1u << 2, F_MULTI = 1u << 3 };
+enum : std::uint32_t { F_EXTI = 1u << 1, F_DISCONTINUOUS = 1u << 2, F_MULTI = 1u << 3 };
 
 // The EXTSEL code of a timer event for the regular group (RM0090 table 69);
 // signal 0 is TRGO, 1 to 4 a channel's reference rising. -1: none.
@@ -222,6 +222,7 @@ void Stm32F4Adc::finish_step(int index)
             if (last || (u.cr2 & CR2_EOCS)) {
                 u.sr |= SR_EOC;
             }
+            offer_dma(index);
             if (last) {
                 u.regular_index = 0;
                 if (!(u.cr2 & CR2_CONT)) {
@@ -247,6 +248,22 @@ void Stm32F4Adc::finish_step(int index)
     }
     update_irq();
     schedule_next(index, at);
+}
+
+void Stm32F4Adc::offer_dma(int index)
+{
+    Unit& u = unit(index);
+    if ((u.cr2 & CR2_DMA) && u.unread && !(u.sr & SR_OVR)) {
+        host_.adc_dma(index + 1); // the DMA reads DR, which clears EOC
+    }
+}
+
+void Stm32F4Adc::dma_enabled()
+{
+    for (int i = 0; i < 3; ++i) {
+        offer_dma(i);
+    }
+    update_irq();
 }
 
 void Stm32F4Adc::check_watchdog(Unit& u, int channel, std::uint32_t code, bool injected)
@@ -419,9 +436,6 @@ void Stm32F4Adc::write_unit(int index, std::uint32_t reg, std::uint32_t value, s
             host_.analog_schedule_changed();
             break;
         }
-        if (u.cr2 & CR2_DMA) {
-            report(F_DMA, "DMA");
-        }
         if ((((u.cr2 >> 28) & 3u) != 0 && ((u.cr2 >> 24) & 15u) == 15u)
             || (((u.cr2 >> 20) & 3u) != 0 && ((u.cr2 >> 16) & 15u) == 15u)) {
             report(F_EXTI, "starting conversions from an EXTI line");
@@ -459,12 +473,14 @@ namespace {
 
 enum : std::uint32_t {
     DAC_CR = 0x00, DAC_SWTRIGR = 0x04, DHR12R1 = 0x08, DHR12L1 = 0x0C, DHR8R1 = 0x10, DHR12R2 = 0x14,
-    DHR12L2 = 0x18, DHR8R2 = 0x1C, DHR12RD = 0x20, DHR12LD = 0x24, DHR8RD = 0x28, DOR1 = 0x2C, DOR2 = 0x30
+    DHR12L2 = 0x18, DHR8R2 = 0x1C, DHR12RD = 0x20, DHR12LD = 0x24, DHR8RD = 0x28, DOR1 = 0x2C, DOR2 = 0x30,
+    DAC_SR = 0x34
 };
 
-constexpr std::uint32_t DAC_EN = 1u << 0, DAC_BOFF = 1u << 1, DAC_TEN = 1u << 2, DAC_DMAEN = 1u << 12;
+constexpr std::uint32_t DAC_EN = 1u << 0, DAC_BOFF = 1u << 1, DAC_TEN = 1u << 2, DAC_DMAEN = 1u << 12,
+                        DAC_DMAUDRIE = 1u << 13;
 
-enum : std::uint32_t { F_NOISE = 1u << 0, F_DAC_DMA = 1u << 1 };
+enum : std::uint32_t { F_NOISE = 1u << 0 };
 
 } // namespace
 
@@ -475,7 +491,36 @@ void Stm32F4Dac::reset()
     dor_ = {};
     wave_ = {};
     rising_ = {true, true};
+    sr_ = 0;
+    dma_waiting_ = {};
     // The machine releases the pins at reset.
+}
+
+void Stm32F4Dac::update_irq()
+{
+    host_.dac_irq(((sr_ & (1u << 13)) && (control(0) & DAC_DMAUDRIE))
+        || ((sr_ & (1u << 29)) && (control(1) & DAC_DMAUDRIE)));
+}
+
+void Stm32F4Dac::request_dma(int channel)
+{
+    const auto i = static_cast<std::size_t>(channel);
+    if (dma_waiting_[i]) {
+        sr_ |= 1u << (13 + 16 * channel); // DMAUDR: the last request was not served before this trigger
+        update_irq();
+        return;
+    }
+    dma_waiting_[i] = !host_.dac_dma(channel);
+}
+
+void Stm32F4Dac::dma_enabled()
+{
+    for (int channel = 0; channel < 2; ++channel) {
+        const auto i = static_cast<std::size_t>(channel);
+        if (dma_waiting_[i] && (control(channel) & DAC_DMAEN)) {
+            dma_waiting_[i] = !host_.dac_dma(channel);
+        }
+    }
 }
 
 void Stm32F4Dac::report(std::uint32_t feature, const std::string& text)
@@ -524,6 +569,9 @@ void Stm32F4Dac::trigger(int channel, std::uint64_t cycle)
     const std::uint32_t c = control(channel);
     if ((c & DAC_EN) && (c & DAC_TEN)) {
         load(channel, cycle);
+        if (c & DAC_DMAEN) {
+            request_dma(channel); // the DMA writes the next value into DHR
+        }
     }
 }
 
@@ -557,7 +605,8 @@ bool Stm32F4Dac::read32(std::uint32_t offset, std::uint32_t& value)
     case DHR8RD: value = dhr_[0] >> 4 | (dhr_[1] >> 4) << 8; break;
     case DOR1: value = dor_[0]; break;
     case DOR2: value = dor_[1]; break;
-    default: value = 0; break; // SWTRIGR reads 0; SR: no underrun without DMA
+    case DAC_SR: value = sr_; break;
+    default: value = 0; break; // SWTRIGR reads 0
     }
     return true;
 }
@@ -575,8 +624,8 @@ bool Stm32F4Dac::write32(std::uint32_t offset, std::uint32_t value, std::uint32_
         cr_ = v & 0x3FFF3FFFu;
         for (int channel = 0; channel < 2; ++channel) {
             const std::uint32_t changed = ((before ^ cr_) >> (16 * channel)) & 0xFFFFu;
-            if (control(channel) & DAC_DMAEN) {
-                report(F_DAC_DMA, "DMA");
+            if (!(control(channel) & DAC_DMAEN)) {
+                dma_waiting_[static_cast<std::size_t>(channel)] = false;
             }
             if (changed & (DAC_EN | DAC_BOFF)) {
                 const auto i = static_cast<std::size_t>(channel);
@@ -591,8 +640,13 @@ bool Stm32F4Dac::write32(std::uint32_t offset, std::uint32_t value, std::uint32_
                 publish(channel, now);
             }
         }
+        update_irq();
         return true;
     }
+    case DAC_SR:
+        sr_ &= ~(value & mask & 0x20002000u); // rc_w1
+        update_irq();
+        return true;
     case DAC_SWTRIGR:
         for (int channel = 0; channel < 2; ++channel) {
             if ((value & mask & (1u << channel)) && ((control(channel) >> 3) & 7u) == 7u) {

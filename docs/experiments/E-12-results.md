@@ -6,9 +6,11 @@ work; a gate is marked met only with its numbers here.
 Status on 2026-11-12: **G12a (the Cortex-M4F core) met on the host**, with
 the limits listed under it. **The STM32F407 machine (SN-294) runs the first
 four owned firmware, and the chip is a part on the diagram (SN-295, example
-67)**; the timers, the ADCs and the DAC are simulated (SN-297, example 68:
-G12c.1 to G12c.3 on the host, without DMA). Nothing was compared with the
-owner's chip yet (SN-296).
+67)**; the timers, the ADCs and the DAC are simulated (SN-297, example 68),
+and SPI, I2C, DMA, the RTC, the watchdogs, CRC and the RNG (SN-298,
+examples 69 to 71): **G12c.1 to G12c.6 met on the host** with the limits
+listed under them. Nothing was compared
+with the owner's chip yet (SN-296, G12c.7).
 
 ## Prerequisites (SN-292)
 
@@ -229,8 +231,8 @@ What was built:
 | Criterion | Result on the host |
 |---|---|
 | G12c.1 | TIM1 PWM 10 us with CCR1 40: high 1.5 us and low 8.5 us on PA8, the complement 6.5 us and 3.5 us on PA7, each edge 1 us (16 clocks of dead time) after the other's, for 1000 periods; TIM2 with ARR 0x1FFFF (32 bits) gives 4.096 ms pulses; capture on both edges within one count; encoder mode 3 counts 4 per cycle up and down, mode 1 counts 2, underflow reloads ARR with an update. The F103's tests unchanged. Not done: center-aligned modes, the break input, slave modes 4 to 7, the input filters (reported once) |
-| G12c.2 | Codes ⌊V·2ⁿ/3.3⌋ at 12 and 8 bits, left alignment, conversion times of 15 and 11 ADC cycles at 8 MHz, scan with EOCS, overrun, injected channel 16 with its offset, VREFINT, ADC3's channels, a TIM3 TRGO start 100 us apart, the end-of-conversion interrupt. Without DMA (SN-298); not compared with the chip |
-| G12c.3 | The DAC's codes on its pins in the three alignments and the dual registers, a TIM6 trigger at its exact time, the triangle 101-102-103-102-101-100, the software trigger; in example 68 the code 2867 gives 2.310 V on PA4 in the circuit. A sine through DMA waits for SN-298 |
+| G12c.2 | Codes ⌊V·2ⁿ/3.3⌋ at 12 and 8 bits, left alignment, conversion times of 15 and 11 ADC cycles at 8 MHz, scan with EOCS, overrun, injected channel 16 with its offset, VREFINT, ADC3's channels, a TIM3 TRGO start 100 us apart, the end-of-conversion interrupt; DMA (SN-298, see G12c.5). Not compared with the chip |
+| G12c.3 | The DAC's codes on its pins in the three alignments and the dual registers, a TIM6 trigger at its exact time, the triangle 101-102-103-102-101-100, the software trigger; in example 68 the code 2867 gives 2.310 V on PA4 in the circuit. Through DMA (SN-298): a table of four codes on TIM6's 10 us trigger gives 100, 1000, 2000, 3000, 100, 1000 at the trigger times, and a stopped stream an underrun with its interrupt; a sine is the same mechanism with a longer table |
 
 Example 68 runs at about 1.6 times real time (16 MHz, the firmware sleeping
 between conversions, the PWM at 20 kHz and the triangle's 10 000 steps a
@@ -241,10 +243,70 @@ temperature sensor gives a fixed 0.76 V; a DAC output is not limited by its
 load current; the ADC's sampling capacitor is not modelled (a high source
 impedance reads as a low one).
 
+## SPI, I2C, DMA, RTC and the system peripherals (SN-298)
+
+What was built:
+- SPI and I2C: the STM32F103's models (SN-204, SN-205) take their number,
+  bus, interrupts, DMA requests and pins from the chip (`SpiConfig`,
+  `I2cConfig`, `SpiHost::spi_pins`, `I2cHost::i2c_pin`); the F103 keeps
+  its tables and its tests pass unchanged. On the F407: SPI1 to SPI3 on
+  functions 5 and 6, I2C1 to I2C3 on function 4, with the datasheet's
+  pins; the F4's extra registers (CR2.FRF, I2SCFGR, I2SPR, FLTR) are kept
+  and what they would do is reported once.
+- `stm32f4_dma.*`: DMA1 and DMA2, eight streams each, the request tables
+  of RM0090 (tables 42 and 43) for the peripherals SimNodus simulates;
+  normal, circular and double-buffer modes, memory to memory on DMA2,
+  priorities, the flags and interrupts, a software disable setting TCIF as
+  on the chip. In FIFO mode the memory side is moved in peripheral-sized
+  items through consecutive addresses, which leaves the same bytes as the
+  FIFO's packing; thresholds, bursts and the FIFO error flags are not
+  modelled.
+- The ADC asks for a transfer after each regular result with CR2.DMA (a
+  result not taken is an overrun); the DAC asks at each trigger and flags
+  DMAUDR when a request is still waiting at the next one.
+- `stm32f4_system.*`: the RTC (BCD calendar with weekday, leap years,
+  24-hour or AM/PM, initialization mode, the key, ADD1H and SUB1H, alarms A
+  and B with masks on EXTI 17, the wakeup timer on EXTI 22 counting either
+  RTCCLK / 16 to / 2 or the calendar's 1 Hz edges, twenty backup
+  registers) and the RNG. RTCCLK comes from RCC_BDCR: the LSE when a
+  crystal is between PC14 and PC15, the LSI at 32 kHz, or HSE / RTCPRE.
+  BDCR and the RTC need PWR_CR.DBP, as on the chip; a power-on or BDRST
+  clears them. The IWDG (on the 32 kHz LSI), WWDG and CRC are the F103's.
+  The 4 KiB backup SRAM keeps its contents through resets.
+- Firmware `f4_buses`, `f4_rtc`, `f4_station` with the shared
+  `f4_peripherals.h`; `f4_hal_buses` with the STM32CubeF4 HAL, built by
+  `tools/build_f4_firmware.py` from a `cube.json` like the Blue Pill's HAL
+  examples (`stm32f407ve_cube.ld`, newlib-nano); examples 69, 70 and 71;
+  the Register Viewer's map.
+  The other F4 ELFs were rebuilt because `f4.h` gained optional vectors
+  (their code is the same; their debug line numbers moved).
+
+| Criterion | Result on the host |
+|---|---|
+| G12c.4 | SPI1 at PCLK / 8: 16 edges 250 ns apart, MOSI with 0xA5 at the rising edges, MISO read as 0xFF; SPI3 only on function 6. In example 69, SPI1 counts on the 74HC595 (Q0 changes every 250 ms in the circuit), SPI2 with 16-bit frames drives the MAX7219, I2C1 writes "SimNodus" into the 24C02, polls its write cycle and reads it back, and reads 23.5 °C from the LM75. I2C1 alone: SB, an address nobody acknowledges gives AF, SCL 5 us high and 5 us low at 100 kHz. With the HAL: `f4_hal_buses`, an STM32CubeIDE-style project on STM32CubeF4 1.28.3 (HAL_SPI_Transmit, HAL_I2C_Mem_Write, HAL_I2C_IsDeviceReady, HAL_I2C_Mem_Read, HAL_UART_Transmit_DMA), gives the same lines and the same count in example 69's circuit |
+| G12c.5 | Memory to memory on DMA2 (four words, half and full transfer, the stream's interrupt), refused on DMA1 with a message; USART2 sends "hello" through DMA1 stream 6 and receives into a circular buffer on stream 5 (the fourth byte wraps around, NDTR reloads); ADC1 scans two channels continuously into a circular buffer of four on DMA2 stream 0 without overrun; the DAC's table above |
+| G12c.6 | The calendar on the LSE from 2024-02-28 23:59:58 (a Wednesday) gives 2024-02-29, a Thursday, 00:00:01 after 3 s; alarm A on the seconds fires between 6.999 s and 7.001 s with its interrupt; the wakeup timer on the 1 Hz clock every 2 s; the backup registers, the calendar and the backup SRAM survive a software reset and a power-on clears them; on the LSI with 128 × 250 the seconds come at 1 s ± 1 ms. In example 70 the watchdog resets the chip while SW2 is held and the calendar and the start count go on. Without DBP writes are ignored and reported; without a clock INITF never sets |
+| G12c.7 | Waits for the board (SN-296). In the simulator, example 71 at 168 MHz prints "12:00:01 2026-11-12 lm75 23.5 pwm 235 dac 940" every second, PWM_AVG is 0.776 V (23.5 % of 3.3 V) and PA4 0.757 V (940 / 4095 of 3.3 V); at 30 °C the line says "pwm 300 dac 1200" |
+
+Also: the IWDG at LSI / 4 with 320 counts resets after 40 ms (IWDGRSTF),
+the WWDG from 0x7F after 16.384 ms (WWDGRSTF), CRC of 0x12345678 is
+0xDF8A8A2B, and the RNG gives its first number 834 ns after it starts, the
+same on every run.
+
+Example 69 runs at about 0.4 times real time, as the F103's example 26
+(0.67): the MAX7219 scans its matrix 800 times a second. Example 70 runs at
+about 5 times and example 71 at about 6 times real time (the core sleeps).
+
+**Limits of SN-298.** The HAL firmware covers SPI, I2C and UART with
+DMA, not the RTC or the ADC through the HAL; the timers' DMA requests are not wired; DMA transfers take no bus time; SPI and
+I2C are masters only, without I2S, CRC, TI mode or the I2C noise filters;
+the LSI is exactly 32 kHz (a chip's varies from 17 to 47 kHz); the RNG's
+numbers are a fixed sequence.
+
 ## Next
 
 SN-296: the owner runs `f4_float`, `f4_clock` and `f4_blink` on the board
 ([how](../../examples/firmware/f4_common/README.md)), tries STM32CubeIDE's
-debugger against example 67, and the timing is calibrated; `f4_analog` can
-be compared too (PWM edges with the logic analyzer, the codes on USART1).
-Then SN-298: SPI, I2C, DMA, RTC.
+debugger against example 67, and the timing is calibrated; `f4_analog`,
+`f4_buses`, `f4_rtc` and `f4_station` (G12c.7) can be compared too. Then
+SN-299: the report and the review of the gates with the owner.

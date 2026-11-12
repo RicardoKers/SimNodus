@@ -81,8 +81,8 @@ private:
 
 class Stm32F1Iwdg : public WordDevice, public TimedDevice {
 public:
-    static constexpr std::uint32_t lsi_hz = 40000;
-    explicit Stm32F1Iwdg(SystemHost& host) : host_(host) {}
+    static constexpr std::uint32_t lsi_hz = 40000; // the STM32F1's; the STM32F4's is 32 kHz
+    explicit Stm32F1Iwdg(SystemHost& host, std::uint32_t lsi = lsi_hz) : host_(host), lsi_(lsi) {}
     const char* name() const override { return "IWDG"; }
     void reset() override;
     std::uint64_t next_event() const override;
@@ -97,6 +97,7 @@ private:
     void reload();
 
     SystemHost& host_;
+    std::uint32_t lsi_;
     bool running_ = false;
     bool unlocked_ = false; // 0x5555 written: PR and RLR accept writes
     std::uint32_t pr_ = 0;

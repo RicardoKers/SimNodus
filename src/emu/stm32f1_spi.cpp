@@ -15,10 +15,44 @@ enum Signal { NSS, SCK, MOSI };
 
 } // namespace
 
-Stm32F1Spi::Stm32F1Spi(SpiHost& host, int number)
-    : host_(host), number_(number), irq_(number == 1 ? 35 : 36), dma_rx_(number == 1 ? 2 : 4),
-      dma_tx_(number == 1 ? 3 : 5)
+namespace {
+
+SpiConfig f103_config(int number)
 {
+    SpiConfig config;
+    config.number = number;
+    config.apb2 = number == 1;
+    config.irq = number == 1 ? 35 : 36;
+    config.dma_rx = number == 1 ? 2 : 4;
+    config.dma_tx = number == 1 ? 3 : 5;
+    return config;
+}
+
+} // namespace
+
+SpiPins SpiHost::spi_pins(int number) const
+{
+    if (number == 2) {
+        return {{1, 12}, {1, 13}, {1, 14}, {1, 15}};
+    }
+    if (afio_mapr() & 1u) { // SPI1_REMAP
+        return {{0, 15}, {1, 3}, {1, 4}, {1, 5}};
+    }
+    return {{0, 4}, {0, 5}, {0, 6}, {0, 7}};
+}
+
+Stm32F1Spi::Stm32F1Spi(SpiHost& host, int number) : Stm32F1Spi(host, f103_config(number)) {}
+
+Stm32F1Spi::Stm32F1Spi(SpiHost& host, const SpiConfig& config)
+    : host_(host), number_(config.number), apb2_(config.apb2), irq_(config.irq), dma_rx_(config.dma_rx),
+      dma_tx_(config.dma_tx), f4_(config.stm32f4)
+{
+}
+
+const char* Stm32F1Spi::name() const
+{
+    static const char* const names[] = {"SPI", "SPI1", "SPI2", "SPI3"};
+    return names[number_ >= 1 && number_ <= 3 ? number_ : 0];
 }
 
 void Stm32F1Spi::reset()
@@ -31,17 +65,8 @@ void Stm32F1Spi::reset()
     next_edge_ = no_event;
     sck_ = false;
     driven_ = {{-1, -1}, {-1, -1}, {-1, -1}, {-1, -1}}; // the machine reset released the pins
-}
-
-Stm32F1Spi::Pins Stm32F1Spi::pins() const
-{
-    if (number_ == 2) {
-        return {{1, 12}, {1, 13}, {1, 14}, {1, 15}};
-    }
-    if (host_.afio_mapr() & 1u) { // SPI1_REMAP
-        return {{0, 15}, {1, 3}, {1, 4}, {1, 5}};
-    }
-    return {{0, 4}, {0, 5}, {0, 6}, {0, 7}};
+    i2scfgr_ = 0;
+    i2spr_ = 2;
 }
 
 bool Stm32F1Spi::read(std::uint32_t offset, unsigned size, std::uint32_t& value)
@@ -85,6 +110,8 @@ std::uint32_t Stm32F1Spi::read16(std::uint32_t offset)
         return value;
     }
     case 0x10: return 7; // CRCPR reset value
+    case 0x1C: return f4_ ? i2scfgr_ : 0;
+    case 0x20: return f4_ ? i2spr_ : 0;
     default: return 0;
     }
 }
@@ -100,8 +127,22 @@ void Stm32F1Spi::write16(std::uint32_t offset, std::uint32_t value)
         configure();
         break;
     case 0x04:
-        cr2_ = value & 0xE7u;
+        cr2_ = value & (f4_ ? 0xF7u : 0xE7u);
         configure();
+        break;
+    case 0x1C:
+        if (f4_) {
+            i2scfgr_ = value & 0x0FBFu;
+            if ((i2scfgr_ & (1u << 11)) && !warned_i2s_) {
+                warned_i2s_ = true;
+                host_.spi_diagnostic(std::string(name()) + " in I2S mode, which SimNodus does not simulate yet.");
+            }
+        }
+        break;
+    case 0x20:
+        if (f4_) {
+            i2spr_ = value & 0x03FFu;
+        }
         break;
     case 0x08:
         // CRCERR is the only rc_w0 flag; not simulated.
@@ -148,13 +189,18 @@ void Stm32F1Spi::configure()
         host_.spi_diagnostic(std::string(name())
             + " in receive-only or bidirectional mode, which SimNodus does not simulate yet.");
     }
+    if (f4_ && (cr2_ & (1u << 4)) && !warned_ti_) {
+        warned_ti_ = true;
+        host_.spi_diagnostic(std::string(name()) + " with the TI frame format, which SimNodus does not simulate yet.");
+    }
     if ((cr1_ & CR1_CRCEN) && !warned_crc_) {
         warned_crc_ = true;
         host_.spi_diagnostic(std::string(name()) + " with CRC, which SimNodus does not simulate yet.");
     }
     const Pins p = pins();
     // A master with NSS from its pin (SSM 0, SSOE 0) faults when the pin is low.
-    if (master() && !(cr1_ & CR1_SSM) && !(cr2_ & CR2_SSOE) && !host_.pin_level(p.nss.first, p.nss.second)) {
+    if (master() && !(cr1_ & CR1_SSM) && !(cr2_ & CR2_SSOE) && p.nss.first >= 0
+        && !host_.pin_level(p.nss.first, p.nss.second)) {
         if (!warned_modf_) {
             warned_modf_ = true;
             host_.spi_diagnostic(std::string(name()) + ": mode fault, the NSS pin is low while the SPI is a master "
@@ -203,7 +249,7 @@ void Stm32F1Spi::start(std::uint64_t cycle)
         const bool first = (cr1_ & CR1_LSBFIRST) ? (shift_out_ & 1u) : ((shift_out_ >> (n - 1)) & 1u);
         output(pins().mosi, MOSI, first, cycle);
     }
-    const std::uint64_t half = static_cast<std::uint64_t>(host_.hclk_per_pclk(number_ == 1)) << ((cr1_ >> 3) & 7u);
+    const std::uint64_t half = static_cast<std::uint64_t>(host_.hclk_per_pclk(apb2_)) << ((cr1_ >> 3) & 7u);
     next_edge_ = cycle + half;
     host_.spi_schedule_changed();
 }
@@ -221,7 +267,7 @@ void Stm32F1Spi::edge(std::uint64_t cycle)
     auto bit_of = [&](int k) { return lsb ? ((shift_out_ >> k) & 1u) != 0 : ((shift_out_ >> (n - 1 - k)) & 1u) != 0; };
     if (leading != cpha) {
         // Sample MISO: on the leading edge with CPHA 0, the trailing one with CPHA 1.
-        const bool level = host_.pin_level(p.miso.first, p.miso.second);
+        const bool level = p.miso.first >= 0 && host_.pin_level(p.miso.first, p.miso.second);
         if (lsb) {
             shift_in_ |= (level ? 1u : 0u) << bit_;
         } else {
@@ -236,7 +282,7 @@ void Stm32F1Spi::edge(std::uint64_t cycle)
         }
     }
     if (half_ < 2 * n) {
-        next_edge_ = cycle + (static_cast<std::uint64_t>(host_.hclk_per_pclk(number_ == 1)) << ((cr1_ >> 3) & 7u));
+        next_edge_ = cycle + (static_cast<std::uint64_t>(host_.hclk_per_pclk(apb2_)) << ((cr1_ >> 3) & 7u));
         return;
     }
     // The frame is complete.

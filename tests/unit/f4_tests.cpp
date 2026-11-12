@@ -4,7 +4,8 @@
 // STM32F407 machine of experiment E-12 (SN-294): the owned test firmware of
 // examples/firmware/f4_* in the machine without a circuit, and the registers
 // of the clock tree, GPIO, SYSCFG, EXTI, the serial ports, the timers, the
-// ADCs and the DAC (SN-297).
+// ADCs and the DAC (SN-297), SPI, I2C, DMA, the RTC, the watchdogs, CRC and
+// the RNG (SN-298).
 //
 //   f4_tests <repository-dir> [filter]
 #include "test_support.hpp"
@@ -17,6 +18,7 @@
 #include <cstdint>
 #include <cstdio>
 #include <filesystem>
+#include <initializer_list>
 #include <map>
 #include <memory>
 #include <string>
@@ -368,11 +370,11 @@ TEST_CASE("f4: GPIO registers, alternate functions and the external interrupt of
     CHECK(reg(m, exti + 0x14) == 0);
     // A peripheral that is not simulated yet says so once, and keeps its registers.
     m.take_diagnostics();
-    set(m, 0x40013000u + 0x0C, 0x5A); // SPI1_DR
-    CHECK(reg(m, 0x40013000u + 0x0C) == 0x5A);
+    set(m, 0x40006400u + 0x0C, 0x5A); // CAN1_IER
+    CHECK(reg(m, 0x40006400u + 0x0C) == 0x5A);
     const auto told = m.take_diagnostics();
     REQUIRE(told.size() == 1);
-    CHECK(told[0].text.find("SPI1 is not simulated yet") != std::string::npos);
+    CHECK(told[0].text.find("CAN1 is not simulated yet") != std::string::npos);
     // The chip's identity.
     CHECK(reg(m, 0xE0042000) == 0x10076413u);
     std::uint32_t kib = 0;
@@ -797,10 +799,10 @@ TEST_CASE("f4: the ADC's resolutions, scan with EOCS, overrun, injected channels
     CHECK(reg(m, adc3 + 0x4C) == 3103);
     CHECK((reg(m, adc_common + 0x00) & (2u << 16)) != 0);
     // What is not simulated says so.
-    set(m, adc1 + 0x08, 1u | (1u << 8));
+    set(m, adc1 + 0x04, 1u << 11); // DISCEN
     const auto told = m.take_diagnostics();
     REQUIRE(told.size() == 1);
-    CHECK(told[0].text.find("ADC: DMA is not simulated yet") != std::string::npos);
+    CHECK(told[0].text.find("ADC: discontinuous mode is not simulated yet") != std::string::npos);
 }
 
 TEST_CASE("f4: the DAC drives its pins with its codes, from the data, a timer or the triangle (SN-297)")
@@ -924,6 +926,376 @@ TEST_CASE("f4: the analog firmware: a timer starts the ADC, its code sets the PW
     t = run(*m, m->time_ns() + 150 * ms);
     CHECK(t.text.at(1).find("adc 3103\r\n") != std::string::npos);
     CHECK(m->pin_config(A, 4).dac_code == 3103);
+}
+
+namespace {
+
+constexpr std::uint32_t spi1 = 0x40013000, spi3 = 0x40003C00, i2c1 = 0x40005400, dma1 = 0x40026000,
+                        dma2 = 0x40026400, rtc = 0x40002800, pwr = 0x40007000, iwdg = 0x40003000,
+                        wwdg = 0x40002C00, crc = 0x40023000, rng = 0x50060800, nvic_ispr = 0xE000E200;
+
+// The level of a pin at `time` from its changes (the level before the first change: `initial`).
+bool level_at(const std::vector<std::pair<std::uint64_t, bool>>& changes, std::uint64_t time, bool initial)
+{
+    bool level = initial;
+    for (const auto& [at, high] : changes) {
+        if (at > time) {
+            break;
+        }
+        level = high;
+    }
+    return level;
+}
+
+// The pins of a port in alternate function `function`.
+void alternate(Stm32F407& m, std::uint32_t port, std::initializer_list<int> pins, std::uint32_t function)
+{
+    std::uint32_t moder = reg(m, port + 0x00);
+    for (const int pin : pins) {
+        moder = (moder & ~(3u << (2 * pin))) | (2u << (2 * pin));
+        const std::uint32_t afr = port + (pin < 8 ? 0x20u : 0x24u);
+        const int shift = 4 * (pin % 8);
+        set(m, afr, (reg(m, afr) & ~(15u << shift)) | (function << shift));
+    }
+    set(m, port + 0x00, moder);
+}
+
+bool pending(Stm32F407& m, int irq)
+{
+    return (reg(m, nvic_ispr + 4u * static_cast<std::uint32_t>(irq / 32)) >> (irq % 32)) & 1u;
+}
+
+// A stream's registers: CR, NDTR, PAR, M0AR.
+std::uint32_t stream(std::uint32_t dma, int index)
+{
+    return dma + 0x10u + 0x18u * static_cast<std::uint32_t>(index);
+}
+
+void write_words(Stm32F407& m, std::uint32_t address, const std::vector<std::uint32_t>& words)
+{
+    for (std::size_t i = 0; i < words.size(); ++i) {
+        set(m, address + 4u * static_cast<std::uint32_t>(i), words[i]);
+    }
+}
+
+} // namespace
+
+TEST_CASE("f4: SPI masters on their pins and functions, and an I2C start and address (SN-298)")
+{
+    Stm32F407 m;
+    idle(m);
+    // SPI1 on PA5 (SCK), PA6 (MISO), PA7 (MOSI), function 5; MISO held high.
+    alternate(m, gpioa, {5, 6, 7}, 5);
+    m.set_pin_input(A, 6, true);
+    set(m, spi1 + 0x00, (1u << 2) | (2u << 3) | (1u << 6) | (1u << 8) | (1u << 9)); // MSTR, PCLK / 8, SPE, SSI, SSM
+    m.take_pin_events();
+    const std::uint64_t start = m.time_ns();
+    set(m, spi1 + 0x0C, 0xA5);
+    Trace t = run(m, start + 10000);
+    CHECK((reg(m, spi1 + 0x08) & 1u) != 0); // RXNE
+    CHECK(reg(m, spi1 + 0x0C) == 0xFF);
+    const auto& sck = t.of(A, 5);
+    REQUIRE(sck.size() == 16);
+    CHECK(sck[0].first - start == 250u); // half a clock of 8 PCLK cycles at 16 MHz
+    CHECK(shortest(sck) == 250u);
+    // MOSI has each bit of 0xA5, MSB first, at the rising edges (CPOL 0, CPHA 0).
+    int value = 0;
+    for (std::size_t i = 0; i < sck.size(); i += 2) {
+        REQUIRE(sck[i].second);
+        value = (value << 1) | (level_at(t.of(A, 7), sck[i].first, false) ? 1 : 0);
+    }
+    CHECK(value == 0xA5);
+
+    // SPI3 is on function 6: on PC10 and PC12 with it, not with 5.
+    alternate(m, gpioc, {10, 12}, 5);
+    set(m, spi3 + 0x00, (1u << 2) | (1u << 6) | (1u << 8) | (1u << 9));
+    set(m, spi3 + 0x0C, 0x0F);
+    t = run(m, m.time_ns() + 5000);
+    CHECK(std::none_of(t.of(C, 10).begin(), t.of(C, 10).end(), [](const auto& change) { return change.second; }));
+    alternate(m, gpioc, {10, 12}, 6);
+    set(m, spi3 + 0x0C, 0x0F);
+    t = run(m, m.time_ns() + 5000);
+    CHECK(t.of(C, 10).size() >= 16); // PCLK1 / 2
+    CHECK(t.diagnostics.empty());
+
+    // I2C1 on PB6 (SCL) and PB7 (SDA), function 4, open drain with pull-ups.
+    alternate(m, gpiob, {6, 7}, 4);
+    set(m, gpiob + 0x04, (1u << 6) | (1u << 7));
+    set(m, gpiob + 0x0C, (1u << 12) | (1u << 14));
+    set(m, i2c1 + 0x04, 16);   // FREQ: 16 MHz
+    set(m, i2c1 + 0x1C, 80);   // 100 kHz
+    set(m, i2c1 + 0x20, 17);
+    set(m, i2c1 + 0x24, 0x10); // FLTR: kept
+    CHECK(reg(m, i2c1 + 0x24) == 0x10);
+    set(m, i2c1 + 0x00, 1u);
+    set(m, i2c1 + 0x00, 1u | (1u << 8)); // START
+    run(m, m.time_ns() + 20000);
+    REQUIRE((reg(m, i2c1 + 0x14) & 1u) != 0); // SB
+    std::uint32_t sr1 = 0;
+    REQUIRE(m.bus().read(i2c1 + 0x14, 4, sr1));
+    set(m, i2c1 + 0x10, 0x90); // an address no one answers
+    t = run(m, m.time_ns() + 200000);
+    CHECK((reg(m, i2c1 + 0x14) & (1u << 10)) != 0); // AF: not acknowledged
+    const auto [high, low] = pulses(t.of(B, 6));
+    REQUIRE(high.size() >= 9);
+    CHECK(high[2] == 5000u);
+    CHECK(low[2] == 5000u);
+    CHECK(t.diagnostics.empty());
+}
+
+TEST_CASE("f4: DMA streams: memory to memory, the serial ports, the ADC and the DAC (SN-298)")
+{
+    Stm32F407 m;
+    idle(m);
+    // Memory to memory on DMA2 stream 0: four words, half and full transfer.
+    write_words(m, 0x20001000, {0x11111111, 0x22222222, 0x33333333, 0x44444444});
+    std::uint32_t s = stream(dma2, 0);
+    set(m, s + 0x04, 4);
+    set(m, s + 0x08, 0x20001000);
+    set(m, s + 0x0C, 0x20002000);
+    set(m, s + 0x14, 1u << 2); // DMDIS: FIFO mode, which memory to memory needs
+    set(m, s + 0x00, (2u << 6) | (1u << 9) | (1u << 10) | (2u << 11) | (2u << 13) | (1u << 4) | 1u);
+    CHECK(reg(m, 0x20002000) == 0x11111111);
+    CHECK(reg(m, 0x2000200C) == 0x44444444);
+    CHECK((reg(m, s) & 1u) == 0);              // EN clears at the end
+    CHECK((reg(m, dma2 + 0x00) & 0x30u) == 0x30u); // TCIF0, HTIF0
+    CHECK(pending(m, 56));
+    set(m, dma2 + 0x08, 0x3Du);                // LIFCR
+    CHECK(reg(m, dma2 + 0x00) == 0);
+    // DMA1 cannot.
+    s = stream(dma1, 0);
+    set(m, s + 0x04, 1);
+    set(m, s + 0x08, 0x20001000);
+    set(m, s + 0x0C, 0x20003000);
+    set(m, s + 0x00, (2u << 6) | (2u << 11) | 1u);
+    CHECK(reg(m, 0x20003000) == 0);
+    Trace t;
+    t.take(m);
+    CHECK(t.told("DMA1: memory-to-memory transfers need DMA2"));
+
+    // USART2 sends "hello" through DMA1 stream 6, channel 4, and receives through stream 5 in circular mode.
+    alternate(m, gpioa, {2, 3}, 7);
+    set(m, usart2 + 0x08, 139); // 115200 baud at 16 MHz
+    set(m, usart2 + 0x14, (1u << 6) | (1u << 7)); // DMAR, DMAT
+    const std::uint8_t hello[] = {'h', 'e', 'l', 'l', 'o'};
+    REQUIRE(m.bus().load(0x20004000, hello, sizeof hello));
+    s = stream(dma1, 6);
+    set(m, s + 0x04, 5);
+    set(m, s + 0x08, usart2 + 0x04);
+    set(m, s + 0x0C, 0x20004000);
+    set(m, s + 0x00, (4u << 25) | (1u << 6) | (1u << 10) | (1u << 4) | 1u);
+    std::uint32_t r = stream(dma1, 5);
+    set(m, r + 0x04, 3);
+    set(m, r + 0x08, usart2 + 0x04);
+    set(m, r + 0x0C, 0x20005000);
+    set(m, r + 0x00, (4u << 25) | (1u << 8) | (1u << 10) | 1u);
+    set(m, usart2 + 0x0C, (1u << 13) | (1u << 3) | (1u << 2)); // UE, TE, RE
+    for (const char c : std::string("abcd")) {
+        m.uart_receive(2, static_cast<std::uint8_t>(c));
+    }
+    t = run(m, m.time_ns() + 2 * ms);
+    CHECK(t.text[2] == "hello");
+    CHECK((reg(m, dma1 + 0x04) & (1u << 21)) != 0); // HISR: TCIF6
+    CHECK(pending(m, 17));
+    CHECK(reg(m, 0x20005000) == ('d' | 'b' << 8 | 'c' << 16)); // the fourth byte wrapped around to the start
+    CHECK(reg(m, r + 0x04) == 2);
+    CHECK((reg(m, dma1 + 0x04) & (1u << 11)) != 0); // TCIF5
+
+    // ADC1 scans PA1 and PA2 continuously into a circular buffer through DMA2 stream 0, channel 0.
+    m.set_analog_source([](int port, int pin, std::uint64_t) { return port == A && pin == 1 ? 1.0 : pin == 2 ? 2.0 : 0.0; });
+    s = stream(dma2, 0);
+    set(m, s + 0x04, 4);
+    set(m, s + 0x08, adc1 + 0x4C);
+    set(m, s + 0x0C, 0x20006000);
+    set(m, s + 0x00, (1u << 8) | (1u << 10) | (1u << 11) | (1u << 13) | 1u); // circular, 16-bit items
+    set(m, adc1 + 0x04, 1u << 8);           // SCAN
+    set(m, adc1 + 0x2C, 1u << 20);          // two conversions
+    set(m, adc1 + 0x34, 1u | (2u << 5));
+    set(m, adc1 + 0x08, 1u | 2u | (1u << 8) | (1u << 9)); // ADON, CONT, DMA, DDS
+    set(m, adc1 + 0x08, 1u | 2u | (1u << 8) | (1u << 9) | (1u << 30));
+    m.run_until_ns(m.time_ns() + 50000);
+    CHECK(reg(m, 0x20006000) == (1241u | 2482u << 16));
+    CHECK(reg(m, 0x20006004) == (1241u | 2482u << 16));
+    CHECK((reg(m, adc1 + 0x00) & (1u << 5)) == 0); // no overrun
+    CHECK((reg(m, dma2 + 0x00) & 0x30u) == 0x30u);
+    set(m, adc1 + 0x08, 0);
+
+    // The DAC takes its next codes from a table at each TIM6 update (every 10 us).
+    write_words(m, 0x20007000, {100, 1000, 2000, 3000});
+    s = stream(dma1, 5);
+    set(m, s + 0x00, 0);
+    set(m, s + 0x04, 4);
+    set(m, s + 0x08, dac + 0x08);
+    set(m, s + 0x0C, 0x20007000);
+    set(m, s + 0x00, (7u << 25) | (1u << 6) | (1u << 8) | (1u << 10) | (2u << 11) | (2u << 13) | 1u);
+    set(m, dac + 0x00, 1u | (1u << 2) | (1u << 12) | (1u << 13)); // EN1, TEN1 (TIM6), DMAEN1, DMAUDRIE1
+    set(m, tim6 + 0x04, 2u << 4);
+    set(m, tim6 + 0x2C, 159);
+    m.take_pin_events();
+    set(m, tim6 + 0x00, 1u);
+    m.run_until_ns(m.time_ns() + 75000);
+    std::vector<int> codes;
+    for (const auto& e : m.take_pin_events()) {
+        if (e.port == A && e.pin == 4) {
+            codes.push_back(e.config.dac_code);
+        }
+    }
+    const std::vector<int> expected = {100, 1000, 2000, 3000, 100, 1000};
+    CHECK(codes == expected);
+    // The stream stops: the request waits, and the next trigger is an underrun.
+    set(m, s + 0x00, 0);
+    m.run_until_ns(m.time_ns() + 25000);
+    CHECK((reg(m, dac + 0x34) & (1u << 13)) != 0);
+    CHECK(pending(m, 54));
+    t.take(m);
+    CHECK(!t.told("not simulated"));
+}
+
+TEST_CASE("f4: the RTC calendar on the LSE and the LSI, its alarm, wakeup and backup registers (SN-298)")
+{
+    F4MachineOptions options;
+    options.lse_crystal = true;
+    Stm32F407 m(options);
+    idle(m);
+    // Without PWR_CR.DBP the backup domain ignores writes.
+    set(m, rtc + 0x50, 0xCAFE);
+    CHECK(reg(m, rtc + 0x50) == 0);
+    set(m, rcc + 0x70, 1u);
+    CHECK(reg(m, rcc + 0x70) == 0);
+    Trace t;
+    t.take(m);
+    CHECK(t.told("PWR_CR.DBP"));
+    set(m, pwr + 0x00, reg(m, pwr + 0x00) | (1u << 8));
+    set(m, rcc + 0x70, 1u);                               // LSEON
+    CHECK((reg(m, rcc + 0x70) & 2u) != 0);                // LSERDY
+    set(m, rcc + 0x70, 1u | (1u << 8) | (1u << 15));      // RTCSEL = LSE, RTCEN
+    // The protection key, then initialization mode: 2024-02-28, a Wednesday, 23:59:58.
+    set(m, rtc + 0x0C, 1u << 7);
+    CHECK((reg(m, rtc + 0x0C) & (1u << 6)) == 0);         // still locked
+    set(m, rtc + 0x24, 0xCA);
+    set(m, rtc + 0x24, 0x53);
+    set(m, rtc + 0x0C, 1u << 7);
+    CHECK((reg(m, rtc + 0x0C) & (1u << 6)) != 0);         // INITF
+    set(m, rtc + 0x00, 0x235958);
+    set(m, rtc + 0x04, 0x00246228);
+    set(m, rtc + 0x0C, 0);
+    const std::uint64_t t0 = m.time_ns();
+    CHECK(reg(m, rtc + 0x00) == 0x235958);
+    m.run_until_ns(t0 + 3000 * ms);
+    CHECK(reg(m, rtc + 0x00) == 0x000001);
+    CHECK(reg(m, rtc + 0x04) == 0x00248229);             // the 29th, a Thursday: 2024 is a leap year
+    CHECK((reg(m, rtc + 0x0C) & (1u << 4)) != 0);         // INITS
+    // Alarm A when the seconds are 05, through EXTI line 17 to the RTC_Alarm interrupt.
+    set(m, rtc + 0x1C, (1u << 31) | (1u << 23) | (1u << 15) | 0x05);
+    set(m, rtc + 0x08, (1u << 8) | (1u << 12));           // ALRAE, ALRAIE
+    set(m, exti + 0x00, 1u << 17);
+    set(m, exti + 0x08, 1u << 17);
+    m.run_until_ns(t0 + 6999 * ms);
+    CHECK((reg(m, rtc + 0x0C) & (1u << 8)) == 0);
+    m.run_until_ns(t0 + 7001 * ms);
+    CHECK((reg(m, rtc + 0x0C) & (1u << 8)) != 0);         // ALRAF
+    CHECK(pending(m, 41));
+    // The wakeup timer every 2 s on the 1 Hz clock, through EXTI line 22.
+    set(m, rtc + 0x14, 1);
+    set(m, rtc + 0x08, 4u | (1u << 10) | (1u << 14));     // WUCKSEL ck_spre, WUTE, WUTIE
+    set(m, exti + 0x00, 1u << 22);
+    set(m, exti + 0x08, 1u << 22);
+    const std::uint64_t w0 = m.time_ns();
+    m.run_until_ns(w0 + 1990 * ms);
+    CHECK((reg(m, rtc + 0x0C) & (1u << 10)) == 0);
+    m.run_until_ns(w0 + 2010 * ms);
+    CHECK((reg(m, rtc + 0x0C) & (1u << 10)) != 0);        // WUTF
+    CHECK(pending(m, 3));
+    // A backup register and the calendar survive a system reset; a power-on clears them.
+    set(m, rtc + 0x50, 0xCAFE);
+    set(m, rtc + 0x9C, 19);                               // BKP19R
+    set(m, 0x40024000, 0x12345678);                       // the backup SRAM
+    m.reset(ResetKind::Software);
+    CHECK(reg(m, rtc + 0x50) == 0xCAFE);
+    CHECK(reg(m, rtc + 0x9C) == 19);
+    CHECK(reg(m, 0x40024000) == 0x12345678);
+    m.run_until_ns(t0 + 12000 * ms);
+    CHECK(reg(m, rtc + 0x00) == 0x000010);
+    m.reset(ResetKind::PowerOn);
+    CHECK(reg(m, rtc + 0x50) == 0);
+    CHECK(reg(m, rtc + 0x00) == 0);
+    CHECK(reg(m, rtc + 0x04) == 0x2101);
+    CHECK(reg(m, 0x40024000) == 0);
+    t.take(m);
+
+    // Initialization without a clock: INITF never sets, and the log says why.
+    set(m, pwr + 0x00, reg(m, pwr + 0x00) | (1u << 8));
+    set(m, rtc + 0x24, 0xCA);
+    set(m, rtc + 0x24, 0x53);
+    set(m, rtc + 0x0C, 1u << 7);
+    m.run_until_ns(m.time_ns() + ms);
+    CHECK((reg(m, rtc + 0x0C) & (1u << 6)) == 0);
+    t.take(m);
+    CHECK(t.told("INITF never sets"));
+    // The LSI (32 kHz) with the prescalers STM32CubeMX gives it: 128 * 250.
+    set(m, rcc + 0x74, 1u);
+    set(m, rcc + 0x70, (2u << 8) | (1u << 15));
+    CHECK((reg(m, rtc + 0x0C) & (1u << 6)) != 0);
+    set(m, rtc + 0x10, (127u << 16) | 249u);
+    set(m, rtc + 0x00, 0);
+    set(m, rtc + 0x0C, 0);
+    const std::uint64_t l0 = m.time_ns();
+    m.run_until_ns(l0 + 9999 * ms);
+    CHECK(reg(m, rtc + 0x00) == 0x000009);
+    m.run_until_ns(l0 + 10001 * ms);
+    CHECK(reg(m, rtc + 0x00) == 0x000010);
+}
+
+TEST_CASE("f4: the watchdogs reset the chip; CRC and the RNG (SN-298)")
+{
+    {
+        Stm32F407 m;
+        idle(m);
+        set(m, iwdg + 0x00, 0x5555);
+        set(m, iwdg + 0x04, 0);   // LSI / 4
+        set(m, iwdg + 0x08, 319); // 320 * 4 / 32 kHz = 40 ms
+        set(m, iwdg + 0x00, 0xCCCC);
+        m.run_until_ns(39 * ms);
+        CHECK((reg(m, rcc + 0x74) & (1u << 29)) == 0);
+        m.run_until_ns(41 * ms);
+        CHECK((reg(m, rcc + 0x74) & (1u << 29)) != 0); // IWDGRSTF
+    }
+    {
+        Stm32F407 m;
+        idle(m);
+        set(m, wwdg + 0x00, 0x80u | 0x7Fu); // 64 ticks of PCLK1 / 4096: 16.384 ms
+        m.run_until_ns(16 * ms);
+        CHECK((reg(m, rcc + 0x74) & (1u << 30)) == 0);
+        m.run_until_ns(17 * ms);
+        CHECK((reg(m, rcc + 0x74) & (1u << 30)) != 0); // WWDGRSTF
+    }
+    Stm32F407 m;
+    idle(m);
+    set(m, crc + 0x08, 1u);
+    set(m, crc + 0x00, 0x12345678);
+    CHECK(reg(m, crc + 0x00) == 0xDF8A8A2Bu);
+    // The RNG: a number about 40 cycles of 48 MHz after it starts or is read, the same on every run.
+    set(m, rng + 0x00, 4u | 8u); // RNGEN, IE
+    CHECK((reg(m, rng + 0x04) & 1u) == 0);
+    m.run_until_ns(m.time_ns() + 1000);
+    CHECK((reg(m, rng + 0x04) & 1u) != 0);
+    CHECK(pending(m, 80));
+    std::uint32_t first = 0, second = 0;
+    REQUIRE(m.bus().read(rng + 0x08, 4, first));
+    CHECK((reg(m, rng + 0x04) & 1u) == 0);
+    m.run_until_ns(m.time_ns() + 1000);
+    REQUIRE(m.bus().read(rng + 0x08, 4, second));
+    CHECK(first != second);
+    Stm32F407 again;
+    idle(again);
+    set(again, rng + 0x00, 4u);
+    again.run_until_ns(again.time_ns() + 1000);
+    std::uint32_t repeated = 0;
+    REQUIRE(again.bus().read(rng + 0x08, 4, repeated));
+    CHECK(repeated == first);
+    Trace t;
+    t.take(m);
+    CHECK(t.told("fixed pseudo-random sequence"));
 }
 
 int main(int argc, char** argv)

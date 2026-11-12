@@ -24,6 +24,7 @@
 #include <cmath>
 #include <cstdlib>
 #include <filesystem>
+#include <map>
 #include <set>
 #include <sstream>
 #include <thread>
@@ -2258,6 +2259,156 @@ TEST_CASE("session: example 68, the STM32F407's ADC reads the circuit and its DA
     // PA8 and PB13 switch at 20 kHz.
     CHECK(session.mcu_pin_log(chip, "PA8", 0).changes.size() > 100);
     CHECK(session.mcu_pin_log(chip, "PB13", 0).changes.size() > 100);
+    session.stop();
+}
+
+namespace {
+
+// Example `file` with the vectors `vectors`, run at full speed; `ids` gets the parts by designator.
+// `firmware`, if given, replaces U1's.
+sim::RunRequest f4_example(const char* file, std::vector<std::string> vectors, std::map<std::string, model::Id>& ids,
+    const char* firmware = nullptr)
+{
+    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / file);
+    REQUIRE(loaded.schematic.has_value());
+    for (const auto& c : loaded.schematic->components()) {
+        ids[c.designator] = c.id;
+    }
+    sim::RunRequest request;
+    request.schematic = *loaded.schematic;
+    if (firmware) {
+        model::Component chip = *request.schematic.component_by_designator("U1");
+        chip.parameters["firmware"] = firmware;
+        request.schematic.put(chip);
+    }
+    auto settings = request.schematic.settings();
+    settings.speed = 0.0;
+    request.schematic.set_settings(settings);
+    request.library = &board_library();
+    request.vectors = std::move(vectors);
+    std::string error;
+    REQUIRE(sim::build_mcu_requests(request.schematic, board_library(), environment(), request.mcus, error));
+    return request;
+}
+
+// Waits until USART1 of `chip` has printed `wanted`; returns all it printed.
+std::string f4_wait_text(sim::SimulationSession& session, model::Id chip, const std::string& wanted)
+{
+    const auto begin = std::chrono::steady_clock::now();
+    std::string text;
+    while (text.find(wanted) == std::string::npos) {
+        REQUIRE(session.active());
+        if (std::chrono::steady_clock::now() - begin > 240s) {
+            std::printf("  USART1 so far: %s\n", text.c_str());
+            REQUIRE(false);
+        }
+        std::this_thread::sleep_for(10ms);
+        text.clear();
+        session.mcu_uart_received(chip, "usart1", 0, text);
+    }
+    return text;
+}
+
+} // namespace
+
+TEST_CASE("session: example 69, the STM32F407's SPI to a 74HC595 and a MAX7219, I2C to a 24C02 and an LM75 (SN-298)")
+{
+    REQUIRE(test::engine() != nullptr);
+    std::map<std::string, model::Id> ids;
+    sim::RunRequest request = f4_example("69_STM32F407_SPI_I2C_DMA.snx", {"q0", "q1", "q2", "scl"}, ids);
+    sim::SimulationSession session;
+    std::string error;
+    REQUIRE(session.start(request, error));
+    const model::Id chip = ids.at("U1");
+    // The EEPROM gives back what was written, after its write cycle; the LM75 its temperature.
+    const std::string text = f4_wait_text(session, chip, "lm75 23.5\r\n");
+    CHECK(text == "f4_buses\r\neeprom SimNodus\r\nlm75 23.5\r\n");
+    // The 74HC595's outputs count every 250 ms: Q0 changes four times a second.
+    for (const char* vector : {"q0", "q1", "q2", "scl"}) {
+        REQUIRE(!session.samples(vector).empty());
+    }
+    int changes = 0;
+    bool high = false;
+    for (const auto& sample : session.samples("q0")) {
+        if ((sample.value > 1.65) != high) {
+            high = !high;
+            ++changes;
+        }
+    }
+    CHECK(changes >= 3);
+    // SPI2 sent the MAX7219 its setup, the smiley and the count on PB15.
+    CHECK(session.mcu_pin_log(chip, "PB15", 0).changes.size() > 50);
+    session.stop();
+}
+
+TEST_CASE("session: the STM32CubeF4 HAL drives example 69's SPI and I2C chips and its UART through DMA (SN-298)")
+{
+    REQUIRE(test::engine() != nullptr);
+    std::map<std::string, model::Id> ids;
+    sim::RunRequest request
+        = f4_example("69_STM32F407_SPI_I2C_DMA.snx", {"q0"}, ids, "firmware/f4_hal_buses/f4_hal_buses.elf");
+    sim::SimulationSession session;
+    std::string error;
+    REQUIRE(session.start(request, error));
+    const std::string text = f4_wait_text(session, ids.at("U1"), "lm75 23.5\r\n");
+    CHECK(text == "f4_hal_buses\r\neeprom SimNodus\r\nlm75 23.5\r\n");
+    int changes = 0;
+    bool high = false;
+    for (const auto& sample : session.samples("q0")) {
+        if ((sample.value > 1.65) != high) {
+            high = !high;
+            ++changes;
+        }
+    }
+    CHECK(changes >= 3); // HAL_SPI_Transmit counts on the 74HC595
+    session.stop();
+}
+
+TEST_CASE("session: example 70, the STM32F407's RTC on its crystal, the alarm and the watchdog (SN-298)")
+{
+    REQUIRE(test::engine() != nullptr);
+    std::map<std::string, model::Id> ids;
+    sim::RunRequest request = f4_example("70_STM32F407_RTC_and_watchdog.snx", {}, ids);
+    REQUIRE(request.mcus.size() == 1);
+    CHECK(request.mcus.front().options.parameters.at("lse_hz") == "32768"); // Y2 between PC14 and PC15
+    sim::SimulationSession session;
+    std::string error;
+    REQUIRE(session.start(request, error));
+    const model::Id chip = ids.at("U1");
+    std::string text = f4_wait_text(session, chip, "alarm\r\n");
+    CHECK(text.rfind("f4_rtc\r\ncalendar set (LSE)\r\nstart 1\r\n12:00:01 2026-11-12\r\n", 0) == 0);
+    CHECK(text.find("12:00:05 2026-11-12\r\nalarm\r\n") != std::string::npos);
+    // SW2 held: the watchdog is no longer reloaded and resets the chip; the calendar goes on.
+    session.set_control(ids.at("SW2"), 1.0);
+    text = f4_wait_text(session, chip, "start 2\r\n");
+    session.set_control(ids.at("SW2"), 0.0);
+    CHECK(text.find("f4_rtc\r\nreset by the watchdog\r\ncalendar kept (LSE)\r\nstart 2\r\n") != std::string::npos);
+    const std::size_t restart = text.find("start 2\r\n");
+    text = f4_wait_text(session, chip, "12:00:10 2026-11-12\r\n");
+    CHECK(text.find("12:00:10 2026-11-12\r\n") > restart);
+    session.stop();
+}
+
+TEST_CASE("session: example 71, the STM32F407 station at 168 MHz: RTC, I2C, PWM, DAC and DMA (SN-298)")
+{
+    REQUIRE(test::engine() != nullptr);
+    std::map<std::string, model::Id> ids;
+    sim::RunRequest request = f4_example("71_STM32F407_station.snx", {"pwm_avg", "dac_out"}, ids);
+    sim::SimulationSession session;
+    std::string error;
+    REQUIRE(session.start(request, error));
+    const model::Id chip = ids.at("U1");
+    std::string text = f4_wait_text(session, chip, "12:00:02 2026-11-12");
+    text = f4_wait_text(session, chip, "12:00:03 2026-11-12");
+    CHECK(text.rfind("f4_station\r\n12:00:01 2026-11-12 lm75 23.5 pwm 235 dac 940\r\n"
+                     "12:00:02 2026-11-12 lm75 23.5 pwm 235 dac 940\r\n", 0) == 0);
+    REQUIRE(!session.samples("dac_out").empty());
+    REQUIRE(!session.samples("pwm_avg").empty());
+    CHECK(std::abs(session.samples("dac_out").back().value - 940 * 3.3 / 4095) < 0.005);
+    CHECK(std::abs(session.samples("pwm_avg").back().value - 0.235 * 3.3) < 0.02);
+    // A warmer sensor: the next lines follow it.
+    session.set_device_parameter(ids.at("U5"), "temperature", "30");
+    text = f4_wait_text(session, chip, "lm75 30.0 pwm 300 dac 1200\r\n");
     session.stop();
 }
 

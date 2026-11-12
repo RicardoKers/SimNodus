@@ -119,6 +119,31 @@ const TimerPin timer_pins[] = {
     {12, 0, B, 14}, {12, 1, B, 15}, {13, 0, A, 6}, {14, 0, A, 7},
 };
 
+// SPI and I2C pins on the LQFP-100 package (datasheet, alternate function
+// mapping): SPI1 and SPI2 on function 5, SPI3 on 6, the I2Cs on 4.
+// SPI: NSS, SCK, MISO, MOSI, two candidates each.
+const std::pair<int, int> spi_candidates[3][4][2] = {
+    {{{A, 4}, {A, 15}}, {{A, 5}, {B, 3}}, {{A, 6}, {B, 4}}, {{A, 7}, {B, 5}}},
+    {{{B, 9}, {B, 12}}, {{B, 10}, {B, 13}}, {{B, 14}, {C, 2}}, {{B, 15}, {C, 3}}},
+    {{{A, 4}, {A, 15}}, {{B, 3}, {C, 10}}, {{B, 4}, {C, 11}}, {{B, 5}, {C, 12}}},
+};
+constexpr int spi_function[3] = {5, 5, 6};
+constexpr int spi_irqs[3] = {35, 36, 51};
+constexpr std::uint32_t spi_base[3] = {0x40013000u, 0x40003800u, 0x40003C00u};
+
+// I2C: SCL, SDA (port -1: no second candidate).
+const std::pair<int, int> i2c_candidates[3][2][2] = {
+    {{{B, 6}, {B, 8}}, {{B, 7}, {B, 9}}},
+    {{{B, 10}, none}, {{B, 11}, none}},
+    {{{A, 8}, none}, {{C, 9}, none}},
+};
+constexpr int i2c_irqs[3][2] = {{31, 32}, {33, 34}, {72, 73}};
+constexpr std::uint32_t i2c_base[3] = {0x40005400u, 0x40005800u, 0x40005C00u};
+constexpr int i2c_function = 4;
+
+// Sources of the SPI and I2C outputs (stm32f1_spi.cpp, stm32f1_i2c.cpp).
+constexpr int spi_source = 300, i2c_source = 400;
+
 } // namespace
 
 // ---------------------------------------------------------------------------
@@ -138,14 +163,33 @@ public:
         cfgr_ = 0;
         cir_flags_ = cir_ie_ = 0;
         ahb1enr_ = 0x00100000u; // CCMDATARAMEN
+        csr_ = 0;               // LSION (the reset flags are the machine's)
         others_.clear();
         sws_ = 0;
         previous_ready_ = 4;
         update_clocks();
+        m_.rtc_clock_changed();
     }
 
     // The backup domain (BDCR) survives system resets.
     void reset_backup_domain() { bdcr_ = 0; }
+
+    // RTCCLK: the LSE (with its crystal), the LSI or HSE / RTCPRE; 0 while RTCEN is off or the source is not ready.
+    std::uint32_t rtc_clock_hz() const
+    {
+        if (!(bdcr_ & (1u << 15))) {
+            return 0;
+        }
+        switch ((bdcr_ >> 8) & 3u) {
+        case 1: return (bdcr_ & 1u) && m_.options_.lse_crystal ? 32768u : 0u;
+        case 2: return (csr_ & 1u) ? lsi_hz : 0u;
+        case 3: {
+            const std::uint32_t pre = (cfgr_ >> 16) & 31u;
+            return pre >= 2 && ready(1) ? m_.options_.hse_hz / pre : 0u;
+        }
+        default: return 0;
+        }
+    }
 
     std::uint32_t pll_hz() const
     {
@@ -221,20 +265,35 @@ protected:
                               "as on a board without the crystal.");
             }
             update_ready();
+            m_.rtc_clock_changed();
             break;
         case 0x04: pllcfgr_ = merge(pllcfgr_, value, mask) & 0x0F437FFFu; update_clocks(); break;
-        case 0x08: cfgr_ = merge(cfgr_, value, mask) & 0xFFFFFCF3u; switch_clock(); break;
+        case 0x08:
+            cfgr_ = merge(cfgr_, value, mask) & 0xFFFFFCF3u;
+            switch_clock();
+            m_.rtc_clock_changed();
+            break;
         case 0x0C:
             cir_ie_ = merge(cir_ie_ << 8, value, mask & 0x3F00u) >> 8;
             cir_flags_ &= ~((value & mask & 0xBF0000u) >> 16);
             break;
         case 0x30: ahb1enr_ = merge(ahb1enr_, value, mask); break;
         case 0x70: {
+            if (!m_.backup_writable()) {
+                if (!reported_bdcr_) {
+                    reported_bdcr_ = true;
+                    m_.diagnostic("RCC_BDCR is in the backup domain: the write was ignored because PWR_CR.DBP is "
+                                  "clear (enable the PWR clock and call HAL_PWR_EnableBkUpAccess first).");
+                }
+                break;
+            }
             const std::uint32_t old = bdcr_;
             bdcr_ = merge(bdcr_, value, mask) & 0x18305u;
             if ((bdcr_ & 0x10000u) && !(old & 0x10000u)) {
-                bdcr_ = 0x10000u; // BDRST resets the whole backup domain, BDCR included
+                m_.backup_domain_reset(); // BDRST resets the whole backup domain, BDCR included
+                bdcr_ = 0x10000u;
             }
+            m_.rtc_clock_changed();
             break;
         }
         case 0x74:
@@ -242,6 +301,7 @@ protected:
             if (value & mask & (1u << 24)) {
                 m_.clear_reset_flags(); // RMVF
             }
+            m_.rtc_clock_changed();
             break;
         default:
             others_[offset] = merge(others_[offset], value, mask); // resets, enables, low-power enables: kept
@@ -308,6 +368,7 @@ private:
     std::map<std::uint32_t, std::uint32_t> others_;
     std::uint32_t sws_ = 0, previous_ready_ = 0, applied_ = 0;
     bool reported_no_crystal_ = false;
+    bool reported_bdcr_ = false;
 };
 
 // ---------------------------------------------------------------------------
@@ -370,6 +431,7 @@ public:
         cr_ = 0x4000u; // VOS
         csr_ = 0;
     }
+    bool dbp() const { return (cr_ & (1u << 8)) != 0; }
 
 protected:
     bool read32(std::uint32_t offset, std::uint32_t& value) override
@@ -936,22 +998,65 @@ Stm32F407::Stm32F407(F4MachineOptions options) : options_(options), cpu_(bus_)
     dac_ = std::make_unique<Stm32F4Dac>(static_cast<F4AnalogHost&>(*this));
     bus_.add_device(0x40007400u, 0x400, dac_.get());
 
-    // The rest of the chip, not simulated yet (SN-298 and later).
+    for (int n = 0; n < num_spis; ++n) {
+        SpiConfig config;
+        config.number = n + 1;
+        config.apb2 = n == 0;
+        config.irq = spi_irqs[n];
+        const int rx = static_cast<int>(F4DmaRequest::Spi1Rx) + 2 * n;
+        config.dma_rx = rx;
+        config.dma_tx = rx + 1;
+        config.stm32f4 = true;
+        auto& spi = spi_[static_cast<std::size_t>(n)];
+        spi = std::make_unique<Stm32F1Spi>(static_cast<SpiHost&>(*this), config);
+        bus_.add_device(spi_base[n], 0x400, spi.get());
+        timed_.push_back(spi.get());
+    }
+    for (int n = 0; n < num_i2cs; ++n) {
+        I2cConfig config;
+        config.number = n + 1;
+        config.irq_ev = i2c_irqs[n][0];
+        config.irq_er = i2c_irqs[n][1];
+        const int rx = static_cast<int>(F4DmaRequest::I2c1Rx) + 2 * n;
+        config.dma_rx = rx;
+        config.dma_tx = rx + 1;
+        config.stm32f4 = true;
+        auto& i2c = i2c_[static_cast<std::size_t>(n)];
+        i2c = std::make_unique<Stm32F1I2c>(static_cast<I2cHost&>(*this), config);
+        bus_.add_device(i2c_base[n], 0x400, i2c.get());
+        timed_.push_back(i2c.get());
+    }
+    for (int n = 0; n < 2; ++n) {
+        dma_[static_cast<std::size_t>(n)] = std::make_unique<Stm32F4Dma>(static_cast<DmaHost&>(*this), n + 1);
+        bus_.add_device(0x40026000u + 0x400u * static_cast<std::uint32_t>(n), 0x400, dma_[static_cast<std::size_t>(n)].get());
+    }
+    rtc_ = std::make_unique<Stm32F4Rtc>(static_cast<SystemHost&>(*this));
+    bus_.add_device(0x40002800u, 0x400, rtc_.get());
+    timed_.push_back(rtc_.get());
+    rng_ = std::make_unique<Stm32F4Rng>(static_cast<SystemHost&>(*this));
+    bus_.add_device(0x50060800u, 0x400, rng_.get());
+    timed_.push_back(rng_.get());
+    iwdg_ = std::make_unique<Stm32F1Iwdg>(static_cast<SystemHost&>(*this), lsi_hz);
+    bus_.add_device(0x40003000u, 0x400, iwdg_.get());
+    timed_.push_back(iwdg_.get());
+    wwdg_ = std::make_unique<Stm32F1Wwdg>(static_cast<SystemHost&>(*this));
+    bus_.add_device(0x40002C00u, 0x400, wwdg_.get());
+    timed_.push_back(wwdg_.get());
+    crc_ = std::make_unique<Stm32F1Crc>();
+    bus_.add_device(0x40023000u, 0x400, crc_.get());
+    bus_.add_memory("backup SRAM", 0x40024000u, 0x1000u, true); // kept through resets except power-on
+
+    // The rest of the chip, not simulated yet.
     struct Block {
         std::uint32_t base;
         std::uint32_t size;
         const char* name;
     };
     static const Block blocks[] = {
-        {0x40002800u, 0x400, "RTC and the backup registers"}, {0x40002C00u, 0x400, "WWDG"},
-        {0x40003000u, 0x400, "IWDG"}, {0x40003400u, 0x400, "I2S2ext"}, {0x40003800u, 0x400, "SPI2"},
-        {0x40003C00u, 0x400, "SPI3"}, {0x40004000u, 0x400, "I2S3ext"}, {0x40005400u, 0x400, "I2C1"},
-        {0x40005800u, 0x400, "I2C2"}, {0x40005C00u, 0x400, "I2C3"}, {0x40006400u, 0x400, "CAN1"},
-        {0x40006800u, 0x400, "CAN2"}, {0x40012C00u, 0x400, "SDIO"},
-        {0x40013000u, 0x400, "SPI1"}, {0x40023000u, 0x400, "CRC"}, {0x40024000u, 0x1000, "backup SRAM"},
-        {0x40026000u, 0x400, "DMA1"}, {0x40026400u, 0x400, "DMA2"}, {0x40028000u, 0x1400, "Ethernet"},
+        {0x40003400u, 0x400, "I2S2ext"}, {0x40004000u, 0x400, "I2S3ext"}, {0x40006400u, 0x400, "CAN1"},
+        {0x40006800u, 0x400, "CAN2"}, {0x40012C00u, 0x400, "SDIO"}, {0x40028000u, 0x1400, "Ethernet"},
         {0x40040000u, 0x40000, "USB OTG HS"}, {0x50000000u, 0x40000, "USB OTG FS"}, {0x50050000u, 0x400, "DCMI"},
-        {0x50060800u, 0x400, "RNG"}, {0xA0000000u, 0x1000, "FSMC"},
+        {0xA0000000u, 0x1000, "FSMC"},
     };
     for (const Block& block : blocks) {
         stubs_.push_back(std::make_unique<Stub>(*this, block.name));
@@ -1019,9 +1124,9 @@ void Stm32F407::reset(ResetKind kind)
     switch (kind) {
     case ResetKind::PowerOn:
         reset_flags_ = 0x0E000000u; // PORRSTF | PINRSTF | BORRSTF
-        rcc_->reset_backup_domain();
-        for (const std::uint32_t base : {0x20000000u, 0x10000000u}) {
-            const std::uint32_t size = base == 0x20000000u ? 0x20000u : 0x10000u;
+        backup_domain_reset();
+        for (const std::uint32_t base : {0x20000000u, 0x10000000u, 0x40024000u}) {
+            const std::uint32_t size = base == 0x20000000u ? 0x20000u : base == 0x10000000u ? 0x10000u : 0x1000u;
             if (std::uint8_t* memory = bus_.memory_at(base, size)) {
                 std::fill(memory, memory + size, std::uint8_t{0});
             }
@@ -1245,6 +1350,9 @@ F4PinConfig Stm32F407::pin_config(int port, int pin) const
 
 bool Stm32F407::pin_level(int port, int pin) const
 {
+    if (port < 0 || port >= num_ports || pin < 0 || pin >= 16 || !gpio_[static_cast<std::size_t>(port)]) {
+        return true; // a function on no pin: an idle, pulled-up line
+    }
     return gpio_[static_cast<std::size_t>(port)]->level(pin);
 }
 
@@ -1291,6 +1399,11 @@ void Stm32F407::pin_input_changed(int port, int pin, bool level)
             timer->pin_changed(port, pin, level);
         }
     }
+    for (const auto& i2c : i2c_) {
+        if (i2c) {
+            i2c->pin_changed(port, pin, level);
+        }
+    }
 }
 
 int Stm32F407::exti_port(int line) const
@@ -1328,6 +1441,16 @@ void Stm32F407::routing_changed()
     for (const auto& timer : timers_) {
         if (timer) {
             timer->remap_changed();
+        }
+    }
+    for (const auto& spi : spi_) {
+        if (spi) {
+            spi->remap_changed();
+        }
+    }
+    for (const auto& i2c : i2c_) {
+        if (i2c) {
+            i2c->remap_changed();
         }
     }
 }
@@ -1379,6 +1502,9 @@ void Stm32F407::clocks_changed()
         if (timer) {
             timer->clocks_changed();
         }
+    }
+    if (wwdg_) {
+        wwdg_->clocks_changed();
     }
 }
 
@@ -1467,6 +1593,16 @@ double Stm32F407::adc_voltage(int adc, int channel, std::uint64_t cycle)
     return pin_level(port, pin) ? vref : 0.0;
 }
 
+bool Stm32F407::adc_dma(int adc)
+{
+    return dma_request(static_cast<F4DmaRequest>(static_cast<int>(F4DmaRequest::Adc1) + adc - 1));
+}
+
+bool Stm32F407::dac_dma(int channel)
+{
+    return dma_request(channel == 0 ? F4DmaRequest::Dac1 : F4DmaRequest::Dac2);
+}
+
 void Stm32F407::dac_output(int channel, bool enabled, bool buffered, std::uint32_t code, std::uint64_t cycle)
 {
     dac_pins_[static_cast<std::size_t>(channel)] = {enabled, buffered, code};
@@ -1477,6 +1613,176 @@ void Stm32F407::dac_output(int channel, bool enabled, bool buffered, std::uint32
     pin_output_changed(0, 4 + channel);
     stamping_ = nested;
     stamp_cycles_ = outer;
+}
+
+
+// ---------------------------------------------------------------------------
+// SPI and I2C
+
+std::uint32_t Stm32F407::hclk_per_pclk(bool apb2) const
+{
+    return rcc_ ? rcc_->apb_divider(apb2) : 1u;
+}
+
+std::uint32_t Stm32F407::hclk_per_pclk1() const
+{
+    return hclk_per_pclk(false);
+}
+
+SpiPins Stm32F407::spi_pins(int number) const
+{
+    const int n = number - 1;
+    const auto function = static_cast<std::uint32_t>(spi_function[n]);
+    std::pair<int, int> found[4];
+    for (int signal = 0; signal < 4; ++signal) {
+        found[signal] = {-1, -1};
+        for (const auto& [port, pin] : spi_candidates[n][signal]) {
+            const Gpio* gpio = gpio_[static_cast<std::size_t>(port)].get();
+            if (gpio && gpio->mode(pin) == 2 && gpio->function(pin) == function) {
+                found[signal] = {port, pin};
+                break;
+            }
+        }
+    }
+    return {found[0], found[1], found[2], found[3]};
+}
+
+std::pair<int, int> Stm32F407::i2c_pin(int number, bool scl) const
+{
+    for (const auto& [port, pin] : i2c_candidates[number - 1][scl ? 0 : 1]) {
+        if (port < 0) {
+            break;
+        }
+        const Gpio* gpio = gpio_[static_cast<std::size_t>(port)].get();
+        if (gpio && gpio->mode(pin) == 2 && gpio->function(pin) == static_cast<std::uint32_t>(i2c_function)) {
+            return {port, pin};
+        }
+    }
+    return {-1, -1};
+}
+
+void Stm32F407::af_output_at(int port, int pin, int source, int function, bool level, std::uint64_t cycle)
+{
+    const bool nested = stamping_;
+    const std::uint64_t outer = stamp_cycles_;
+    stamping_ = true;
+    stamp_cycles_ = std::min(cycle, cpu_.cycles());
+    af_output(port, pin, source, function, level);
+    stamping_ = nested;
+    stamp_cycles_ = outer;
+}
+
+void Stm32F407::spi_output(int port, int pin, int source, bool level, std::uint64_t cycle)
+{
+    const int number = (source - spi_source) / 8;
+    af_output_at(port, pin, source, spi_function[number - 1], level, cycle);
+}
+
+void Stm32F407::i2c_output(int port, int pin, int source, bool level, std::uint64_t cycle)
+{
+    af_output_at(port, pin, source, i2c_function, level, cycle);
+}
+
+// ---------------------------------------------------------------------------
+// DMA
+
+bool Stm32F407::usart_dma(int number, bool transmit)
+{
+    return dma_request(static_cast<F4DmaRequest>(static_cast<int>(F4DmaRequest::Usart1Rx) + 2 * (number - 1)
+        + (transmit ? 1 : 0)));
+}
+
+bool Stm32F407::dma_request(F4DmaRequest request)
+{
+    for (const auto& dma : dma_) {
+        if (dma && dma->request(request)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void Stm32F407::dma_channel_enabled(int stream)
+{
+    (void)stream;
+    for (const auto& usart : usart_) {
+        if (usart) {
+            usart->update(); // a transmitter waiting with DMAT set starts now
+        }
+    }
+    for (const auto& spi : spi_) {
+        if (spi) {
+            spi->dma_enabled();
+        }
+    }
+    for (const auto& i2c : i2c_) {
+        if (i2c) {
+            i2c->dma_enabled();
+        }
+    }
+    if (adc_) {
+        adc_->dma_enabled();
+    }
+    if (dac_) {
+        dac_->dma_enabled();
+    }
+}
+
+// ---------------------------------------------------------------------------
+// RTC, watchdogs, RNG
+
+std::uint32_t Stm32F407::pclk1_hz() const
+{
+    return hclk_ / (rcc_ ? rcc_->apb_divider(false) : 1u);
+}
+
+std::uint32_t Stm32F407::rtc_clock_hz() const
+{
+    return rcc_ ? rcc_->rtc_clock_hz() : 0;
+}
+
+bool Stm32F407::backup_writable() const
+{
+    return pwr_ && pwr_->dbp();
+}
+
+void Stm32F407::system_exti(int line, bool level)
+{
+    if (exti_) {
+        exti_->input(line, level);
+    }
+}
+
+void Stm32F407::watchdog_reset(bool independent)
+{
+    bool& reported = independent ? reported_iwdg_ : reported_wwdg_;
+    if (!reported) {
+        reported = true;
+        diagnostic(independent
+                ? "The independent watchdog (IWDG) reset the chip: the firmware did not reload it in time. "
+                  "Later watchdog resets are not reported."
+                : "The window watchdog (WWDG) reset the chip. Later watchdog resets are not reported.");
+    }
+    reset_requested_ = true;
+    requested_kind_ = independent ? ResetKind::IndependentWatchdog : ResetKind::WindowWatchdog;
+    cpu_.request_stop();
+}
+
+void Stm32F407::rtc_clock_changed()
+{
+    if (rtc_) {
+        rtc_->clock_changed();
+    }
+}
+
+void Stm32F407::backup_domain_reset()
+{
+    if (rcc_) {
+        rcc_->reset_backup_domain();
+    }
+    if (rtc_) {
+        rtc_->backup_reset();
+    }
 }
 
 } // namespace simnodus::emu
