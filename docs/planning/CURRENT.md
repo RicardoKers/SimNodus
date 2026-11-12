@@ -1,6 +1,6 @@
 # Current state
 
-Updated: 2026-11-11 (the Register Viewer SN-290 and SN-291 on main after 0.18.0; the STM32F407VET6 plan E-12 approved, SN-292 and SN-293 next; release 0.18.0 published: the chart recorder SN-281, the review and speed passes SN-282 to SN-284, the owner's requests SN-285, the protocol decoders SN-286 and SN-288, the chart fix SN-287 and the Memory Viewer's editing SN-289, tested by the owner on the 2026-11-11 previews; DE9 waits for the owner). Keep this file short: present state, last results, next
+Updated: 2026-11-11 (the Register Viewer SN-290 and SN-291 on main after 0.18.0; the STM32F407VET6 track E-12: the Cortex-M4F core done (G12a on the host), the machine SN-294 next; release 0.18.0 published: the chart recorder SN-281, the review and speed passes SN-282 to SN-284, the owner's requests SN-285, the protocol decoders SN-286 and SN-288, the chart fix SN-287 and the Memory Viewer's editing SN-289, tested by the owner on the 2026-11-11 previews; DE9 waits for the owner). Keep this file short: present state, last results, next
 steps. Replace it, do not append. History of the first development line
 (2026-08-31 → 2026-10-06) is in
 [archive/2026-10-legacy/CURRENT.md](../archive/2026-10-legacy/CURRENT.md);
@@ -297,8 +297,14 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
    [Plan](../experiments/E-12-plan.md) with gates G12a (Cortex-M4F core
    with the FPU), G12b (firmware in the circuit, board comparison) and G12c
    (timers, ADC, DAC, SPI, I2C, DMA, RTC); tasks SN-292..SN-299. Approved
-   on 2026-11-11; SN-292 and SN-293 (the core) come first, because they
-   decide whether the rest is worth doing.
+   on 2026-11-11. Done: the Cortex-M4F core (`src/emu/cpu_m4.cpp`,
+   `softfloat32.cpp`, tests `m4_tests`), gate G12a met on the host
+   ([results](../experiments/E-12-results.md)). Next: SN-294, the
+   STM32F407 machine (`stm32f407.*`: RCC with the Crystal, GPIO with the
+   alternate function table, EXTI, the serial ports; the NVIC needs 82
+   interrupts and the code cache 512 KB, both fixed sizes in `cpu.*` now).
+   The owner's bench: ST-LINK V2 and V3, a USB-serial adapter, a logic
+   analyzer; a 32.768 kHz crystal can go on the breadboard.
 
 ## Known constraints
 

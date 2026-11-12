@@ -48,6 +48,16 @@ public:
     Cpu(const Cpu&) = delete;
     Cpu& operator=(const Cpu&) = delete;
 
+    // Which core this is (experiment E-12, SN-292): the Cortex-M3 of the
+    // STM32F103, or the Cortex-M4F of the STM32F4 with the DSP instructions
+    // and the single-precision FPU (cpu_m4.cpp). Chosen before reset().
+    enum class Architecture { CortexM3, CortexM4F };
+    void set_architecture(Architecture architecture)
+    {
+        dsp_ = fpu_ = architecture == Architecture::CortexM4F;
+    }
+    Architecture architecture() const { return fpu_ ? Architecture::CortexM4F : Architecture::CortexM3; }
+
     // Power-on or system reset: NVIC/SCB/SysTick to reset values, SP and PC from
     // the vector table at address 0.
     void reset();
@@ -90,6 +100,11 @@ public:
     std::uint32_t primask() const { return primask_; }
     std::uint32_t control() const;
     int active_exception() const { return ipsr_; }
+    // The FPU's registers (Cortex-M4F): S0..S31 (D0..D15 are pairs of them) and FPSCR.
+    std::uint32_t fp_reg(int n) const { return s_[static_cast<unsigned>(n) & 31u]; }
+    void set_fp_reg(int n, std::uint32_t value) { s_[static_cast<unsigned>(n) & 31u] = value; }
+    std::uint32_t fpscr() const { return fpscr_; }
+    void set_fpscr(std::uint32_t value) { fpscr_ = value & 0xF7C0009Fu; }
     std::uint64_t instructions() const { return instructions_; }
 
     // SysTick: called by the machine when its next event is due.
@@ -165,6 +180,13 @@ private:
     void step();
     bool fast(const Insn& insn); // inline forms of the run loop; false: use step()
     void execute(const Insn& insn);
+    // Cortex-M4F (cpu_m4.cpp).
+    void execute_dsp(const Insn& insn);
+    void execute_vfp(const Insn& insn);
+    bool fp_check();
+    void preserve_fp_state();
+    bool push_fp_frame(std::uint32_t frame);
+    bool pop_fp_frame(std::uint32_t frame);
     const Insn& fetch_decode();
     bool condition_passed(unsigned cond) const;
     bool in_it_block() const { return (itstate_ & 0xF) != 0; }
@@ -281,6 +303,18 @@ private:
     Insn scratch_;
     bool count_ops_ = false;
     std::vector<std::uint64_t> op_hits_;
+    // (Kept after everything else: the Cortex-M3's hot members stay where they were.)
+
+    // Cortex-M4F: the GE flags of the DSP instructions (APSR 19:16), the
+    // FPU's registers and its control (CPACR, FPCCR, FPCAR, FPDSCR), and
+    // CONTROL.FPCA (the current context used the FPU).
+    bool dsp_ = false;
+    bool fpu_ = false;
+    std::uint32_t ge_ = 0;
+    std::array<std::uint32_t, 32> s_{};
+    std::uint32_t fpscr_ = 0;
+    std::uint32_t cpacr_ = 0, fpccr_ = 0, fpcar_ = 0, fpdscr_ = 0;
+    bool fpca_ = false;
 };
 
 } // namespace simnodus::emu

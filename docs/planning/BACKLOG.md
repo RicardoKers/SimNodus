@@ -267,8 +267,8 @@ owner on 2026-11-11.
 
 | ID | Task | Status |
 |---|---|---|
-| SN-292 | E-12 prerequisites: pinned references, toolchain, oracles, the owner's bench; the Cortex-M3/Cortex-M4F feature switch in the core with nothing changed for the M3 | plan approved 2026-11-11; in progress |
-| SN-293 | Cortex-M4F core: DSP instructions, FPv4-SP-D16 FPU, FPSCR, CPACR, lazy stacking, cycle counts (gate G12a) | open |
+| SN-292 | E-12 prerequisites: pinned references, toolchain, oracles, the owner's bench; the Cortex-M3/Cortex-M4F feature switch in the core with nothing changed for the M3 | done 2026-11-11 except the documents' revisions ([results](../experiments/E-12-results.md)) |
+| SN-293 | Cortex-M4F core: DSP instructions, FPv4-SP-D16 FPU, FPSCR, CPACR, lazy stacking, cycle counts (gate G12a) | done 2026-11-11: G12a met on the host (`m4_tests`); open: cycle counts and semantics against the documents' text and the owner's chip, a PendSV context switch |
 | SN-294 | STM32F407 machine: memory map, RCC with the Crystal's frequency, PWR, FLASH interface, GPIO with the alternate function table, SYSCFG, EXTI, NVIC, the six serial ports | open |
 | SN-295 | Integration: the `stm32f407vet6_lqfp100` part with its pin model, the crystal from the diagram, NRST and BOOT0, GDB with the FPU registers, the Register Viewer's map, examples and guides | open |
 | SN-296 | Board comparison of `f4_blink`, `f4_clock`, `f4_float`, `f4_button` and the timing calibration (gate G12b, decision DE12) | open, needs the owner's board |

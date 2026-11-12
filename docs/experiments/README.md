@@ -147,7 +147,8 @@ Crystal on the diagram, with results equal to the owner's chip, at a useful
 speed, without changing the STM32F103, ESP32-C3 and AVR paths? Plan and the
 predeclared gates G12a (Cortex-M4F core), G12b (firmware in the circuit) and
 G12c (the peripherals students use), recorded 2026-11-11 before any code:
-[E-12-plan.md](E-12-plan.md). Approved by the owner on 2026-11-11.
+[E-12-plan.md](E-12-plan.md). Approved by the owner on 2026-11-11. Report:
+[E-12-results.md](E-12-results.md) (G12a met on the host, 2026-11-11).
 
 ## E-06: Classroom rehearsal — SN-028
 

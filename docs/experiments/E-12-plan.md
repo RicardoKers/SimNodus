@@ -1,7 +1,8 @@
 # E-12: STM32F407VET6 on the own emulator — plan
 
 Date: 2026-11-11. Tasks: SN-292..SN-299 in the [backlog](../planning/BACKLOG.md).
-Status: **approved by the owner on 2026-11-11**; work starts with SN-292 and SN-293.
+Status: **approved by the owner on 2026-11-11**; G12a met on the host
+([results](E-12-results.md)), SN-294 next.
 The criteria below are recorded before any code, as for
 [E-07](E-07-results.md), [E-08](E-08-plan.md) and [E-10](E-10-plan.md), and
 are not relaxed after a run: a failed criterion leads to a recorded decision.
