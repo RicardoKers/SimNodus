@@ -4,6 +4,12 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-11-11, E-12 / SN-292 and SN-293, experimental, no part yet)
+
+- **Cortex-M4F core** beside the Cortex-M3 (`Cpu::set_architecture`), the first step of the STM32F407VET6 ([plan](docs/experiments/E-12-plan.md), [results](docs/experiments/E-12-results.md)): the DSP extension (saturating and parallel arithmetic with the GE flags, the halfword and dual multiplies, `UMAAL`) and the single-precision FPU (FPv4-SP-D16) with FPSCR, CPACR, lazy stacking of the floating-point context and the Cortex-M4's cycle counts. No chip uses it yet: the STM32F407 machine and its part come next.
+- Single precision is computed in integer arithmetic from ARM's pseudocode (`softfloat32`), not with the computer's `float`: NaN results, the default NaN, flush-to-zero and underflow follow ARM. Compared with the computer's IEEE arithmetic in the four rounding modes: 6 000 000 results and 3.4 million conversions, no difference.
+- Gate G12a met on the host: every DSP form against an independent reference, the FPU's special cases, seven lazy stacking scenarios, 393 376 shared encodings equal on both cores, 10 million encodings decoded, 70 MIPS with a third of FPU instructions. The Cortex-M3 is unchanged (its 53 tests, speed within 1 %). Still to do: the comparison with the owner's chip.
+
 ### Added (2026-11-11, SN-291, Register Viewer: editing and the CPU's registers)
 
 - **Registers edited in the running chip**: a double-click on a Value in the Register Viewer (or F2) takes a number in decimal, `0x` hexadecimal or `0b` binary and writes it to the chip, with the effects of a write by the firmware, also while the run is paused or the firmware is halted by a debugger. A field's edit writes its register with the other fields as shown. A value that does not fit its bits is refused with the reason. The editor keeps what is typed while the value behind it changes.

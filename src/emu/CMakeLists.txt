@@ -17,12 +17,14 @@ add_library(simnodus_emu STATIC
     avr_cpu.cpp
     bus.cpp
     cpu.cpp
+    cpu_m4.cpp
     elf.cpp
     riscv_cpu.cpp
     riscv_test_machine.cpp
     esp32c3.cpp
     esp32c3_rom.cpp
     sha.cpp
+    softfloat32.cpp
     gdb_server.cpp
     gdb_socket.cpp
     stm32f103.cpp

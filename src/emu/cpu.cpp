@@ -6,6 +6,8 @@
 // A7 (instruction details), B1.5 (exception model), B3 (system address map).
 #include "cpu.hpp"
 
+#include "cpu_m4.hpp"
+
 #include <algorithm>
 #include <bit>
 #include <cstdio>
@@ -26,6 +28,7 @@ enum Op : std::uint8_t {
     OP_LDM, OP_STM, OP_TBB, OP_TBH,
     OP_B, OP_BCOND, OP_BL, OP_BX, OP_BLX, OP_CBZ, OP_CBNZ, OP_IT,
     OP_MRS, OP_MSR, OP_CPS, OP_NOP, OP_YIELD, OP_WFE, OP_WFI, OP_SEV, OP_BARRIER, OP_SVC, OP_BKPT, OP_UDF,
+    OP_DSP, OP_VFP, // Cortex-M4F: the operation is in Insn::alu (cpu_m4.hpp)
     // Fast forms chosen after decoding (specialize): no shift, Rd is not the PC,
     // word accesses with a plain positive offset.
     OP_ADD_I, OP_SUB_I, OP_CMP_I, OP_MOV_I, OP_ADD_R, OP_SUB_R, OP_CMP_R, OP_MOV_R, OP_LDR_W, OP_STR_W,
@@ -42,6 +45,7 @@ const char* const op_names[OP_COUNT] = {
     "LDM", "STM", "TBB", "TBH",
     "B", "B<cond>", "BL", "BX", "BLX", "CBZ", "CBNZ", "IT",
     "MRS", "MSR", "CPS", "NOP", "YIELD", "WFE", "WFI", "SEV", "barrier", "SVC", "BKPT", "UDF",
+    "DSP extension", "FPU",
     "ADD immediate", "SUB immediate", "CMP immediate", "MOV immediate", "ADD register", "SUB register",
     "CMP register", "MOV register", "LDR word", "STR word",
 };
@@ -831,6 +835,16 @@ void specialize(Insn& in)
 Insn Cpu::decode(std::uint32_t hw1, std::uint32_t hw2)
 {
     Insn in = (hw1 >> 11) >= 0x1Du ? decode32(hw1, hw2) : decode16(hw1);
+    if (in.op == OP_UNDEF || in.op == OP_NOCP) {
+        // What the Cortex-M3 does not have may be a DSP or FPU instruction: it
+        // decodes on every core, and executes on the cores that have it.
+        Insn more;
+        const m4::Kind kind = in.size == 4 ? m4::decode(hw1, hw2, more) : m4::Kind::None;
+        if (kind != m4::Kind::None) {
+            more.op = kind == m4::Kind::Dsp ? OP_DSP : OP_VFP;
+            return more;
+        }
+    }
     specialize(in);
     return in;
 }
@@ -948,13 +962,13 @@ std::uint32_t Cpu::psp() const
 
 std::uint32_t Cpu::control() const
 {
-    return (npriv_ ? 1u : 0u) | (spsel_ ? 2u : 0u);
+    return (npriv_ ? 1u : 0u) | (spsel_ ? 2u : 0u) | (fpca_ ? 4u : 0u);
 }
 
 std::uint32_t Cpu::xpsr() const
 {
     return (n_ ? 1u << 31 : 0) | (z_ ? 1u << 30 : 0) | (c_ ? 1u << 29 : 0) | (v_ ? 1u << 28 : 0) | (q_ ? 1u << 27 : 0)
-        | ((itstate_ & 3u) << 25) | (thumb_ ? 1u << 24 : 0) | ((itstate_ >> 2) << 10) | ipsr_;
+        | ((itstate_ & 3u) << 25) | (thumb_ ? 1u << 24 : 0) | (ge_ << 16) | ((itstate_ >> 2) << 10) | ipsr_;
 }
 
 void Cpu::branch_write_pc(std::uint32_t address)
@@ -1049,6 +1063,12 @@ void Cpu::reset()
     ipsr_ = 0;
     primask_ = faultmask_ = basepri_ = 0;
     npriv_ = spsel_ = false;
+    ge_ = 0;
+    s_.fill(0);
+    fpscr_ = 0;
+    cpacr_ = fpcar_ = fpdscr_ = 0;
+    fpccr_ = fpu_ ? 0xC0000000u : 0u; // ASPEN and LSPEN: automatic and lazy state preservation
+    fpca_ = false;
     pending_.fill(false);
     active_.fill(false);
     irq_enabled_.fill(false);
@@ -1056,7 +1076,7 @@ void Cpu::reset()
     vtor_ = 0;
     aircr_prigroup_ = 0;
     scr_ = 0;
-    ccr_ = 0; // Cortex-M3 r1p1: STKALIGN resets to 0
+    ccr_ = fpu_ ? 0x200u : 0u; // STKALIGN resets to 0 on the Cortex-M3 r1p1, to 1 on the Cortex-M4
     shcsr_ = 0;
     cfsr_ = hfsr_ = mmfar_ = bfar_ = 0;
     monitor_ = false;
@@ -1148,6 +1168,7 @@ void Cpu::set_xpsr(std::uint32_t value)
     q_ = (value >> 27) & 1u;
     thumb_ = (value >> 24) & 1u;
     itstate_ = ((value >> 25) & 3u) | (((value >> 10) & 0x3Fu) << 2);
+    ge_ = dsp_ ? (value >> 16) & 0xFu : 0u;
 }
 
 void Cpu::invalidate_code_cache()
@@ -1435,6 +1456,14 @@ inline bool Cpu::fast(const Insn& in)
         }
         r_[in.rd] = in.op == OP_MOVW ? in.imm : ((r_[in.rd] & 0xFFFFu) | (in.imm << 16));
         break;
+    case OP_VFP:
+        // Arithmetic among the FPU's registers, with the FPU on for every mode
+        // and no lazily saved context waiting: nothing here can fault.
+        if (in.alu < m4::V_MLA || in.alu > m4::V_CVT_FIXED || (cpacr_ & 0x00300000u) != 0x00300000u || (fpccr_ & 1u)) {
+            { --cycles_; return false; }
+        }
+        execute_vfp(in);
+        break;
     default:
         { --cycles_; return false; }
     }
@@ -1490,13 +1519,19 @@ unsigned Cpu::cycle_cost(const Insn& in) const
     case OP_TBB:
     case OP_TBH:
         return 2 + (from_flash(in.rn) ? wait_states_ : 0);
+    case OP_DSP:
+    case OP_VFP:
+        return m4::cycles(in, in.op == OP_DSP);
     case OP_MLA:
     case OP_MLS:
-        return 2;
+        return dsp_ ? 1 : 2; // the Cortex-M4's multiplier takes one cycle
     case OP_SMULL:
     case OP_UMULL:
     case OP_SMLAL:
     case OP_UMLAL: {
+        if (dsp_) {
+            return 1;
+        }
         // 3-5 (4-7 with accumulate), shorter for small operands (early termination).
         const bool sign = in.op == OP_SMULL || in.op == OP_SMLAL;
         const auto wide = [&](std::uint32_t v) {
@@ -2102,7 +2137,7 @@ void Cpu::execute(const Insn& original)
         std::uint32_t value = 0;
         switch (in.imm) {
         case 0: case 1: case 2: case 3: case 5: case 6: case 7: // xPSR views; EPSR bits read as zero
-            value = ((in.imm & 4u) ? 0 : (xpsr() & 0xF8000000u)) | ((in.imm & 1u) ? ipsr_ : 0);
+            value = ((in.imm & 4u) ? 0 : (xpsr() & 0xF80F0000u)) | ((in.imm & 1u) ? ipsr_ : 0);
             break;
         case 8: value = msp(); break;
         case 9: value = psp(); break;
@@ -2125,6 +2160,9 @@ void Cpu::execute(const Insn& original)
                 c_ = (value >> 29) & 1u;
                 v_ = (value >> 28) & 1u;
                 q_ = (value >> 27) & 1u;
+            }
+            if (in.imm < 4 && (in.mode & 1u) && dsp_) { // APSR GE
+                ge_ = (value >> 16) & 0xFu;
             }
             return;
         }
@@ -2163,6 +2201,9 @@ void Cpu::execute(const Insn& original)
             if (ipsr_ == 0) {
                 spsel_ = (value & 2u) != 0;
                 select_sp(spsel_);
+            }
+            if (fpu_) {
+                fpca_ = (value & 4u) != 0;
             }
             break;
         default: break;
@@ -2225,6 +2266,12 @@ void Cpu::execute(const Insn& original)
         return;
     case OP_NOCP:
         raise_usage_fault(UF_NOCP, "coprocessor or floating-point instruction (the Cortex-M3 has none)");
+        return;
+    case OP_DSP:
+        execute_dsp(in);
+        return;
+    case OP_VFP:
+        execute_vfp(in);
         return;
     case OP_UDF:
     case OP_UNDEF:
@@ -2397,9 +2444,11 @@ void Cpu::take_exception(int number, std::uint32_t return_address)
     if (number >= EX_HARDFAULT && number <= EX_USAGEFAULT && on_fault) {
         on_fault(number, last_fault_);
     }
-    // Stacking (B1.5.6) on the stack in use.
-    const bool frame_align = (ccr_ & (1u << 9)) && (r_[13] & 4u);
-    const std::uint32_t frame = (r_[13] - 0x20u) & ~(frame_align ? 4u : 0u);
+    // Stacking (B1.5.6) on the stack in use. A context that used the FPU
+    // gets the extended frame (S0-S15, FPSCR), always aligned to 8 bytes.
+    const bool fp_frame = fpca_;
+    const bool frame_align = ((ccr_ & (1u << 9)) || fp_frame) && (r_[13] & 4u);
+    const std::uint32_t frame = (r_[13] - (fp_frame ? 0x68u : 0x20u)) & ~(frame_align ? 4u : 0u);
     const std::uint32_t psr = (xpsr() & ~(1u << 9)) | (frame_align ? (1u << 9) : 0u);
     const std::uint32_t values[8] = {r_[0], r_[1], r_[2], r_[3], r_[12], r_[14], return_address & ~1u, psr};
     for (unsigned i = 0; i < 8; ++i) {
@@ -2411,12 +2460,20 @@ void Cpu::take_exception(int number, std::uint32_t return_address)
             return;
         }
     }
+    if (fp_frame && !push_fp_frame(frame)) {
+        lockup("the stack pointer is outside RAM during exception entry (stack overflow?)");
+        return;
+    }
     set_sp(frame);
     std::uint32_t exc_return;
     if (ipsr_ != 0) {
         exc_return = 0xFFFFFFF1u;
     } else {
         exc_return = sp_process_ ? 0xFFFFFFFDu : 0xFFFFFFF9u;
+    }
+    if (fp_frame) {
+        exc_return &= ~0x10u; // the frame has the floating-point part
+        fpca_ = false;
     }
     r_[14] = exc_return;
     std::uint32_t vector = 0;
@@ -2459,7 +2516,8 @@ void Cpu::exception_return(std::uint32_t exc_return)
 {
     const std::uint32_t kind = exc_return & 0xFu;
     const int returning = static_cast<int>(ipsr_);
-    if ((exc_return & 0x0FFFFFF0u) != 0x0FFFFFF0u || (kind != 1 && kind != 9 && kind != 0xD)) {
+    const bool fp_frame = fpu_ && !(exc_return & 0x10u);
+    if (((exc_return | (fpu_ ? 0x10u : 0u)) & 0x0FFFFFF0u) != 0x0FFFFFF0u || (kind != 1 && kind != 9 && kind != 0xD)) {
         raise_usage_fault(UF_INVPC, "invalid EXC_RETURN value");
         return;
     }
@@ -2490,7 +2548,15 @@ void Cpu::exception_return(std::uint32_t exc_return)
     r_[12] = values[4];
     r_[14] = values[5];
     const std::uint32_t psr = values[7];
-    set_sp(frame + 0x20u + ((psr & (1u << 9)) ? 4u : 0u));
+    if (fp_frame && !pop_fp_frame(frame)) {
+        lockup("the stack pointer is outside RAM during exception return");
+        return;
+    }
+    if (fpu_) {
+        fpca_ = fp_frame;
+    }
+    ge_ = dsp_ ? (psr >> 16) & 0xFu : 0u;
+    set_sp(frame + (fp_frame ? 0x68u : 0x20u) + ((psr & (1u << 9)) ? 4u : 0u));
     n_ = (psr >> 31) & 1u;
     z_ = (psr >> 30) & 1u;
     c_ = (psr >> 29) & 1u;
@@ -2667,7 +2733,13 @@ bool Cpu::scs_read(std::uint32_t offset, std::uint32_t& value)
     case 0x014: value = st_reload_; return true;
     case 0x018: value = systick_value(cycles_); return true;
     case 0x01C: value = 9000; return true; // STK_CALIB: 1 ms at 9 MHz (HCLK/8 at 72 MHz), PM0056
-    case 0xD00: value = 0x411FC231u; return true; // CPUID: Cortex-M3 r1p1
+    case 0xD00: value = fpu_ ? 0x410FC241u : 0x411FC231u; return true; // CPUID: Cortex-M4 r0p1, Cortex-M3 r1p1
+    case 0xD88: value = cpacr_; return true;
+    case 0xF34: value = fpccr_; return true;
+    case 0xF38: value = fpcar_; return true;
+    case 0xF3C: value = fpdscr_; return true;
+    case 0xF40: value = fpu_ ? 0x10110021u : 0u; return true; // MVFR0: single precision, divide, square root
+    case 0xF44: value = fpu_ ? 0x11000011u : 0u; return true; // MVFR1: half precision, fused multiply-add
     case 0xD04: {
         const int vectpending = [this] {
             const std::uint32_t saved = primask_;
@@ -2842,6 +2914,26 @@ bool Cpu::scs_write(std::uint32_t offset, std::uint32_t value)
         return true;
     case 0xD24:
         shcsr_ = value & 0x70000u;
+        return true;
+    case 0xD88:
+        if (fpu_) {
+            cpacr_ = value & 0x00F00000u; // CP10 and CP11
+        }
+        return true;
+    case 0xF34:
+        if (fpu_) {
+            fpccr_ = value & 0xC000017Fu;
+        }
+        return true;
+    case 0xF38:
+        if (fpu_) {
+            fpcar_ = value & ~7u;
+        }
+        return true;
+    case 0xF3C:
+        if (fpu_) {
+            fpdscr_ = value & 0x07C00000u;
+        }
         return true;
     case 0xD28:
         cfsr_ &= ~value;

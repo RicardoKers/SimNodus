@@ -56,6 +56,16 @@ add_test(NAME emu-atmega328 COMMAND avr_tests "${PROJECT_SOURCE_DIR}" "atmega328
 add_test(NAME emu-atmega32 COMMAND avr_tests "${PROJECT_SOURCE_DIR}" "atmega32: ")
 add_test(NAME emu-avr-gdb COMMAND avr_tests "${PROJECT_SOURCE_DIR}" "avr-gdb: ")
 
+# Cortex-M4F core of experiment E-12 (SN-293): the FPU's arithmetic against
+# the ARM pseudocode's cases and the host's IEEE single precision
+# (docs/experiments/E-12-plan.md).
+add_executable(m4_tests m4_tests.cpp)
+target_include_directories(m4_tests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
+target_link_libraries(m4_tests PRIVATE simnodus::emu simnodus::warnings)
+add_test(NAME emu-m4-unit COMMAND m4_tests "${PROJECT_SOURCE_DIR}" "m4: ")
+add_test(NAME emu-m4-differential COMMAND m4_tests "${PROJECT_SOURCE_DIR}" "m4-diff: ")
+add_test(NAME emu-m4-benchmark COMMAND m4_tests "${PROJECT_SOURCE_DIR}" "m4-bench: ")
+
 # ESP32-C3 machine of experiment E-08 (SN-244): unmodified ESP-IDF and
 # MicroPython images from tests/experiments/esp32c3/firmware.
 add_executable(esp32c3_tests esp32c3_tests.cpp)
