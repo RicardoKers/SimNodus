@@ -1,6 +1,6 @@
 # Current state
 
-Updated: 2026-11-11 (the Register Viewer SN-290 and SN-291 on main after 0.18.0; the STM32F407VET6 track E-12: the Cortex-M4F core done (G12a on the host), the machine SN-294 next; release 0.18.0 published: the chart recorder SN-281, the review and speed passes SN-282 to SN-284, the owner's requests SN-285, the protocol decoders SN-286 and SN-288, the chart fix SN-287 and the Memory Viewer's editing SN-289, tested by the owner on the 2026-11-11 previews; DE9 waits for the owner). Keep this file short: present state, last results, next
+Updated: 2026-11-12 (the Register Viewer SN-290 and SN-291 on main after 0.18.0; the STM32F407VET6 track E-12: the Cortex-M4F core (G12a on the host) and the machine SN-294 done, the part SN-295 next; release 0.18.0 published: the chart recorder SN-281, the review and speed passes SN-282 to SN-284, the owner's requests SN-285, the protocol decoders SN-286 and SN-288, the chart fix SN-287 and the Memory Viewer's editing SN-289, tested by the owner on the 2026-11-11 previews; DE9 waits for the owner). Keep this file short: present state, last results, next
 steps. Replace it, do not append. History of the first development line
 (2026-08-31 → 2026-10-06) is in
 [archive/2026-10-legacy/CURRENT.md](../archive/2026-10-legacy/CURRENT.md);
@@ -299,10 +299,16 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
    (timers, ADC, DAC, SPI, I2C, DMA, RTC); tasks SN-292..SN-299. Approved
    on 2026-11-11. Done: the Cortex-M4F core (`src/emu/cpu_m4.cpp`,
    `softfloat32.cpp`, tests `m4_tests`), gate G12a met on the host
-   ([results](../experiments/E-12-results.md)). Next: SN-294, the
-   STM32F407 machine (`stm32f407.*`: RCC with the Crystal, GPIO with the
-   alternate function table, EXTI, the serial ports; the NVIC needs 82
-   interrupts and the code cache 512 KB, both fixed sizes in `cpu.*` now).
+   ([results](../experiments/E-12-results.md)); the machine
+   (`src/emu/stm32f407.*`, `simnodus-emu --stm32f407`, tests `f4_tests`,
+   firmware `examples/firmware/f4_*` built by `tools/build_f4_firmware.py`)
+   with RCC, GPIO, SYSCFG, EXTI and the six serial ports (SN-294). Next:
+   SN-295, the part `stm32f407vet6_lqfp100` (an `McuMachine` adapter with
+   the F4's pin configuration, the crystal from the diagram, NRST, BOOT0,
+   GDB, the Register Viewer's map, examples), then SN-296: the owner runs
+   `f4_float`, `f4_clock`, `f4_blink` on the board
+   (`examples/firmware/f4_common/README.md`). The STM32CubeF4 package is
+   not installed here: HAL firmware waits for it.
    The owner's bench: ST-LINK V2 and V3, a USB-serial adapter, a logic
    analyzer; a 32.768 kHz crystal can go on the breadboard.
 

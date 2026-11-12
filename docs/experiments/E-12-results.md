@@ -3,9 +3,11 @@
 Plan and gates: [E-12-plan.md](E-12-plan.md). This report grows with the
 work; a gate is marked met only with its numbers here.
 
-Status on 2026-11-11: **G12a (the Cortex-M4F core) met on the host**, with
-the limits listed under it; G12b and G12c not started. No STM32F407 machine
-exists yet: the core runs in tests on a bare bus.
+Status on 2026-11-12: **G12a (the Cortex-M4F core) met on the host**, with
+the limits listed under it. **The STM32F407 machine (SN-294) runs the first
+four owned firmware from the command line**; it is not a part on the
+diagram yet (SN-295) and nothing was compared with the owner's chip yet
+(SN-296). G12c not started.
 
 ## Prerequisites (SN-292)
 
@@ -90,8 +92,65 @@ Measured on the owner's laptop, Windows, MSVC Release, 2026-11-11
 - Cycle counts are the TRM's as known, not yet read against it or
   measured (SN-296).
 
+## The STM32F407 machine (SN-294)
+
+`src/emu/stm32f407.*`, run with `simnodus-emu --stm32f407 firmware.elf
+[--crystal Hz]`, tests `f4_tests` (ctest `emu-stm32f407`).
+
+**Built.**
+- Memory map: 512 KiB of flash with its alias at 0, 128 KiB of SRAM, 64 KiB
+  of CCM memory, the bit-band aliases, system memory with the unique ID and
+  the flash size, DBGMCU (device 0x413), DWT's cycle counter.
+- RCC: HSI 16 MHz, the HSE with the frequency of `--crystal` (later: of the
+  Crystal on the diagram), the main PLL (`PLLCFGR`), the AHB and APB
+  prescalers, the reset flags. With no crystal the HSE never becomes ready
+  and the log says why. A flash latency too low for HCLK gives a warning.
+- PWR (the regulator ready at once) and the flash interface's registers
+  (programming from the firmware is not simulated and says so).
+- GPIO ports A to I in the F4's form (mode, output type, pull-up and
+  pull-down, BSRR, alternate function numbers), SYSCFG's EXTI port
+  selection, EXTI with its 23 lines.
+- USART1 to USART3, UART4, UART5 and USART6 with frames on the pins. The
+  USART is the STM32F103's, moved to `stm32_usart.hpp` behind a host
+  interface, with the F4's oversampling by 8. A port's TX and RX are on the
+  first of its candidate pins that is in alternate function mode with the
+  port's function number (7 for USART1 to USART3, 8 for UART4, UART5 and
+  USART6). The table was written from the datasheet as known and is to be
+  checked against its text.
+- Every other peripheral of the chip is a stub that keeps its registers and
+  says once that it is not simulated.
+- The core: 82 interrupts (`Cpu::set_irq_count`) and a decoded-code cache of
+  the flash's size (`Cpu::set_code_cache_bytes`). Pending exceptions are a
+  bit set now: "nothing pending" is one comparison in the run loop.
+
+**Owned firmware** (`examples/firmware/f4_*`, no HAL: the STM32CubeF4
+package is not installed on this computer; `tools/build_f4_firmware.py`):
+`f4_blink`, `f4_clock`, `f4_float`, `f4_button`. Their README says how to
+run them on the owner's board.
+
+**Measured on the host** (owner's laptop, Release):
+
+| Criterion of G12b | Result so far |
+|---|---|
+| G12b.1 | `f4_blink` on the HSI: PC13 toggles every 500 ms exactly; the busy loop of 1 000 000 turns takes 501.254 ms (8.02 cycles a turn with the TRM's counts and no flash wait state). Not compared with the chip |
+| G12b.2 | `f4_clock`: no crystal: the firmware waits and the log explains; 25 MHz: `SYSCLK 168000000 HCLK 168000000 PCLK1 42000000 PCLK2 84000000`, one bit on PA9 is 8.679 us (115226 baud); 8 MHz with the same firmware: HCLK 53.76 MHz and 36872 baud on the pin |
+| G12b.3 | GPIO output types, pulls, BSRR, analog mode; a serial port reaches PA9 only with function 7, and moves to PB6; EXTI line 3 from port D through SYSCFG. Speed bits are kept and not simulated; 5 V tolerance is the part's business (SN-295) |
+| G12b.4 | Bytes of USART1 and USART2 reach the terminal and the pins, also with OVER8; a terminal's byte sets RXNE. The six ports share one model; only two are exercised by tests so far |
+| G12b.5 | `f4_float` prints `A 1A3EE223`, `B 183ECD01`, `C 596EC23A`, `I 46B57D98`, `x 40182DAE`, `done`, the same with the Cortex-M4's cycle counts and with one cycle per instruction. **To be compared with the chip** |
+| G12b.6 | Power-on, software and pin resets set their flags in `RCC_CSR`; RMVF clears them. NRST and BOOT0 from the circuit: SN-295 |
+| G12b.8 | `f4_blink` at 16 MHz: 7.7 times real time; `f4_clock` at 168 MHz, which waits in a busy loop: 0.85 times real time, 86 MIPS. As planned: firmware that never sleeps at 168 MHz runs below real time |
+| G12b.10 | Two runs of `f4_float` give the same pin changes and bytes at the same times |
+| G12b.11 | The STM32F103's 53 tests pass with the USART moved; its speed with room for 96 interrupts, best of five: `hal_clock` 163.5 -> 163.6 MIPS, `cycle_loops` 119.2 -> 117.3 (-1.6 %), `freertos_tasks` 151.3 -> 148.7 (-1.7 %). A plain enlargement of the arrays cost 3 to 7 %; the bit set and moving the arrays after the hot members brought it back |
+
+Not done in SN-294: GDB for the F407, the Register Viewer's map, the part
+(G12b.7 and the rest of the integration: SN-295), and the board comparison
+(G12b.9: SN-296).
+
 ## Next
 
-SN-294: the STM32F407 machine (memory map, RCC with the Crystal's
-frequency, GPIO with the alternate function table, EXTI, the serial
-ports), then SN-295 (the part and integration) and the board comparison.
+SN-295: the `stm32f407vet6_lqfp100` part with its pin model, the crystal
+read from the diagram, NRST and BOOT0, GDB with the FPU registers, the
+Register Viewer's map, examples and guides. Then SN-296: the owner runs
+`f4_float`, `f4_clock` and `f4_blink` on the board
+([how](../../examples/firmware/f4_common/README.md)) and the timing is
+calibrated.

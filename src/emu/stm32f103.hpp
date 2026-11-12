@@ -20,6 +20,7 @@
 #include "stm32f1_spi.hpp"
 #include "stm32f1_system.hpp"
 #include "stm32f1_timer.hpp"
+#include "stm32_usart.hpp"
 
 #include <array>
 #include <cstdint>
@@ -92,7 +93,7 @@ struct MachineOptions {
 };
 
 class Stm32F103 : private TimerHost, private AdcHost, private DmaHost, private SystemHost, private SpiHost,
-                  private I2cHost {
+                  private I2cHost, private UsartHost {
 public:
     static constexpr int num_ports = 5;
 
@@ -171,7 +172,6 @@ private:
     class Gpio;
     class Afio;
     class Exti;
-    class Usart;
     class Stub;
     class Dwt;
     class Dbgmcu;
@@ -229,6 +229,23 @@ private:
     void spi_schedule_changed() override { cpu_.request_stop(); }
     void spi_diagnostic(const std::string& text) override { diagnostic(text); }
 
+    // UsartHost (the USART is shared with the STM32F4, SN-294)
+    std::uint64_t usart_now_cycles() const override { return cpu_.cycles(); }
+    std::uint32_t usart_hclk_hz() const override { return hclk_; }
+    std::uint32_t usart_apb_divider(int number) const override;
+    std::pair<int, int> usart_tx_pin(int number) const override;
+    std::pair<int, int> usart_rx_pin(int number) const override;
+    void usart_irq(int irq, bool level) override { cpu_.set_irq_line(irq, level); }
+    void usart_line(int port, int pin, int number, bool level) override { af_output(port, pin, number, level); }
+    void usart_line_at(int port, int pin, int number, bool level, std::uint64_t cycle) override
+    {
+        timer_output(port, pin, number, level, cycle);
+    }
+    void usart_byte(int number, std::uint8_t value, std::uint64_t cycle) override { uart_transmit(number, value, cycle); }
+    bool usart_dma(int number, bool transmit) override;
+    void usart_schedule_changed() override { cpu_.request_stop(); }
+    void usart_diagnostic(const std::string& text) override { diagnostic(text); }
+
     // SystemHost (SN-187)
     std::uint64_t system_now_ns() const override { return time_ns(); }
     std::uint64_t system_cycles_at(std::uint64_t ns) const override { return cycles_at_ns(ns); }
@@ -257,7 +274,8 @@ private:
     std::array<std::unique_ptr<Gpio>, num_ports> gpio_;
     std::unique_ptr<Afio> afio_;
     std::unique_ptr<Exti> exti_;
-    std::array<std::unique_ptr<Usart>, 3> usart_;
+    UsartOptions usart_options_;
+    std::array<std::unique_ptr<Stm32Usart>, 3> usart_;
     std::array<std::unique_ptr<Stm32F1Timer>, 4> timers_; // TIM1..TIM4
     std::array<std::unique_ptr<Stm32F1Adc>, 2> adcs_;     // ADC1, ADC2
     std::unique_ptr<Stm32F1Dma> dma_;                     // DMA1

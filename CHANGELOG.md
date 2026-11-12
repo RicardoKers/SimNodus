@@ -4,6 +4,16 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-11-12, E-12 / SN-294, experimental, no part yet)
+
+- **STM32F407 machine** (`simnodus-emu --stm32f407 firmware.elf [--crystal 25000000]`): the memory map, the clock tree with the HSE at the crystal's frequency and the PLL up to 168 MHz, GPIO in the F4's form with alternate function numbers, SYSCFG, EXTI and the six serial ports. Without a crystal the HSE never becomes ready and the log says why; the wrong crystal for a firmware gives the wrong baud rate, as on the bench. The other peripherals are stubs that say once that they are not simulated. Not a part on the diagram yet.
+- Test firmware `examples/firmware/f4_blink`, `f4_clock`, `f4_float` and `f4_button` (no HAL; `tools/build_f4_firmware.py`), with a README on running them on a real chip: `f4_float` prints checksums of floating-point and DSP work that the owner's chip must repeat.
+
+### Changed (2026-11-12, SN-294)
+
+- The STM32's USART is shared by the F103 and the F407 (`stm32_usart.hpp`, with the F4's oversampling by 8); the F103 behaves as before (its tests pass unchanged).
+- The Cortex-M core has room for 96 interrupts (the chip sets how many it has) and a decoded-code cache of the flash's size; pending exceptions are a bit set, so a sleeping core checks them with one comparison.
+
 ### Added (2026-11-11, E-12 / SN-292 and SN-293, experimental, no part yet)
 
 - **Cortex-M4F core** beside the Cortex-M3 (`Cpu::set_architecture`), the first step of the STM32F407VET6 ([plan](docs/experiments/E-12-plan.md), [results](docs/experiments/E-12-results.md)): the DSP extension (saturating and parallel arithmetic with the GE flags, the halfword and dual multiplies, `UMAAL`) and the single-precision FPU (FPv4-SP-D16) with FPSCR, CPACR, lazy stacking of the floating-point context and the Cortex-M4's cycle counts. No chip uses it yet: the STM32F407 machine and its part come next.

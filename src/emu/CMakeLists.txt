@@ -28,6 +28,7 @@ add_library(simnodus_emu STATIC
     gdb_server.cpp
     gdb_socket.cpp
     stm32f103.cpp
+    stm32f407.cpp
     stm32f1_adc.cpp
     stm32f1_dma.cpp
     stm32f1_i2c.cpp

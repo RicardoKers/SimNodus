@@ -87,9 +87,7 @@ constexpr int EX_RESET = 1, EX_NMI = 2, EX_HARDFAULT = 3, EX_MEMMANAGE = 4, EX_B
               EX_SVCALL = 11, EX_PENDSV = 14, EX_SYSTICK = 15;
 
 constexpr std::uint32_t flash_base = 0x08000000;
-constexpr std::uint32_t cache_bytes = 128 * 1024;
 constexpr std::uint64_t never = std::numeric_limits<std::uint64_t>::max();
-constexpr std::uint32_t irq_count = static_cast<std::uint32_t>(Cpu::num_irqs);
 
 inline std::uint32_t bits(std::uint32_t x, unsigned hi, unsigned lo)
 {
@@ -800,7 +798,7 @@ Insn decode32(std::uint32_t h1, std::uint32_t h2)
 
 Cpu::Cpu(Bus& bus) : bus_(bus)
 {
-    flash_cache_.resize(cache_bytes / 2);
+    flash_cache_.resize(cache_bytes_ / 2);
 }
 
 namespace {
@@ -863,9 +861,9 @@ const Insn& Cpu::fetch_decode()
 {
     const std::uint32_t pc = pc_;
     Insn* slot = nullptr;
-    if (pc - flash_base < cache_bytes) {
+    if (pc - flash_base < cache_bytes_) {
         slot = &flash_cache_[(pc - flash_base) >> 1];
-    } else if (pc < cache_bytes) {
+    } else if (pc < cache_bytes_) {
         slot = &flash_cache_[pc >> 1];
     }
     if (slot && slot->op != OP_NONE) {
@@ -1069,7 +1067,7 @@ void Cpu::reset()
     cpacr_ = fpcar_ = fpdscr_ = 0;
     fpccr_ = fpu_ ? 0xC0000000u : 0u; // ASPEN and LSPEN: automatic and lazy state preservation
     fpca_ = false;
-    pending_.fill(false);
+    pending_.reset();
     active_.fill(false);
     irq_enabled_.fill(false);
     priority_.fill(0);
@@ -1095,7 +1093,7 @@ void Cpu::reset()
     stream_line_ = 0;
     stream_ready_ = 0;
     std::fill(flash_cache_.begin(), flash_cache_.end(), Insn{});
-    for (int irq = 0; irq < num_irqs; ++irq) {
+    for (int irq = 0; irq < irqs_; ++irq) {
         if (irq_line_[static_cast<unsigned>(irq)]) {
             pending_[static_cast<unsigned>(16 + irq)] = true;
         }
@@ -1171,6 +1169,12 @@ void Cpu::set_xpsr(std::uint32_t value)
     ge_ = dsp_ ? (value >> 16) & 0xFu : 0u;
 }
 
+void Cpu::set_code_cache_bytes(std::uint32_t bytes)
+{
+    cache_bytes_ = bytes;
+    flash_cache_.assign(bytes / 2, Insn{});
+}
+
 void Cpu::invalidate_code_cache()
 {
     std::fill(flash_cache_.begin(), flash_cache_.end(), Insn{});
@@ -1214,7 +1218,7 @@ CoreState Cpu::run(std::uint64_t limit)
         // Breakpoints were checked above, before either path runs the instruction;
         // watchpoints need the slow path, whose loads and stores check them.
         if (!attention_ && watchpoints_.empty() && thumb_ && itstate_ == 0 && !count_ops_
-            && pc_ - flash_base < cache_bytes) {
+            && pc_ - flash_base < cache_bytes_) {
             const Insn& in = flash_cache_[(pc_ - flash_base) >> 1];
             if (in.op != OP_NONE && fast(in)) {
                 continue;
@@ -2307,7 +2311,7 @@ int Cpu::group_priority(int number) const
 int Cpu::execution_priority() const
 {
     int priority = 256;
-    for (int n = 2; n < num_exceptions; ++n) {
+    for (int n = 2; n < 16 + irqs_; ++n) {
         if (active_[static_cast<unsigned>(n)]) {
             priority = std::min(priority, group_priority(n));
         }
@@ -2327,10 +2331,13 @@ int Cpu::execution_priority() const
 
 int Cpu::pending_exception() const
 {
+    if (pending_.none()) {
+        return 0;
+    }
     int best = 0;
     int best_group = 0;
     int best_priority = 0;
-    for (int n = 2; n < num_exceptions; ++n) {
+    for (int n = 2; n < 16 + irqs_; ++n) {
         if (!pending_[static_cast<unsigned>(n)]) {
             continue;
         }
@@ -2364,7 +2371,7 @@ void Cpu::check_exceptions()
 
 void Cpu::set_pending(int number)
 {
-    if (number > 0 && number < num_exceptions) {
+    if (number > 0 && number < 16 + irqs_) {
         pending_[static_cast<unsigned>(number)] = true;
         attention_ = true;
     }
@@ -2372,7 +2379,7 @@ void Cpu::set_pending(int number)
 
 void Cpu::set_irq_line(int irq, bool level)
 {
-    if (irq < 0 || irq >= num_irqs) {
+    if (irq < 0 || irq >= irqs_) {
         return;
     }
     irq_line_[static_cast<unsigned>(irq)] = level;
@@ -2660,11 +2667,11 @@ bool Cpu::Scs::read(std::uint32_t offset, unsigned size, std::uint32_t& value)
 bool Cpu::Scs::write(std::uint32_t offset, unsigned size, std::uint32_t value)
 {
     // Byte-addressable priority registers.
-    if ((offset >= 0x400 && offset < 0x400 + irq_count) || (offset >= 0xD18 && offset < 0xD24)) {
+    if ((offset >= 0x400 && offset < 0x400 + static_cast<std::uint32_t>(cpu_.irqs_)) || (offset >= 0xD18 && offset < 0xD24)) {
         for (unsigned i = 0; i < size; ++i) {
             const std::uint32_t byte_offset = offset + i;
             const std::uint8_t byte = static_cast<std::uint8_t>((value >> (8 * i)) & 0xF0u); // 4 priority bits
-            if (byte_offset >= 0x400 && byte_offset < 0x400 + irq_count) {
+            if (byte_offset >= 0x400 && byte_offset < 0x400 + static_cast<std::uint32_t>(cpu_.irqs_)) {
                 cpu_.priority_[16 + (byte_offset - 0x400)] = byte;
             } else if (byte_offset >= 0xD18 && byte_offset < 0xD24) {
                 cpu_.priority_[4 + (byte_offset - 0xD18)] = byte;
@@ -2688,7 +2695,7 @@ bool Cpu::scs_read(std::uint32_t offset, std::uint32_t& value)
     value = 0;
     if (offset >= 0x100 && offset < 0x180) { // ISER
         const std::uint32_t base = (offset - 0x100) * 8;
-        for (std::uint32_t i = 0; i < 32 && base + i < irq_count; ++i) {
+        for (std::uint32_t i = 0; i < 32 && base + i < static_cast<std::uint32_t>(irqs_); ++i) {
             value |= irq_enabled_[base + i] ? (1u << i) : 0;
         }
         return true;
@@ -2698,14 +2705,14 @@ bool Cpu::scs_read(std::uint32_t offset, std::uint32_t& value)
     }
     if (offset >= 0x200 && offset < 0x300) { // ISPR, ICPR
         const std::uint32_t base = ((offset - 0x200) & 0x7Fu) * 8;
-        for (std::uint32_t i = 0; i < 32 && base + i < irq_count; ++i) {
+        for (std::uint32_t i = 0; i < 32 && base + i < static_cast<std::uint32_t>(irqs_); ++i) {
             value |= pending_[16 + base + i] ? (1u << i) : 0;
         }
         return true;
     }
     if (offset >= 0x300 && offset < 0x380) { // IABR
         const std::uint32_t base = (offset - 0x300) * 8;
-        for (std::uint32_t i = 0; i < 32 && base + i < irq_count; ++i) {
+        for (std::uint32_t i = 0; i < 32 && base + i < static_cast<std::uint32_t>(irqs_); ++i) {
             value |= active_[16 + base + i] ? (1u << i) : 0;
         }
         return true;
@@ -2713,7 +2720,7 @@ bool Cpu::scs_read(std::uint32_t offset, std::uint32_t& value)
     if (offset >= 0x400 && offset < 0x5F0) { // IPR
         for (std::uint32_t i = 0; i < 4; ++i) {
             const std::uint32_t irq = offset - 0x400 + i;
-            if (irq < irq_count) {
+            if (irq < static_cast<std::uint32_t>(irqs_)) {
                 value |= std::uint32_t{priority_[16 + irq]} << (8 * i);
             }
         }
@@ -2744,7 +2751,7 @@ bool Cpu::scs_read(std::uint32_t offset, std::uint32_t& value)
         const int vectpending = [this] {
             const std::uint32_t saved = primask_;
             int best = 0;
-            for (int n = 2; n < num_exceptions; ++n) {
+            for (int n = 2; n < 16 + irqs_; ++n) {
                 if (pending_[static_cast<unsigned>(n)] && (n < 16 || irq_enabled_[static_cast<unsigned>(n - 16)])) {
                     if (best == 0 || exception_priority(n) < exception_priority(best)) {
                         best = n;
@@ -2755,11 +2762,11 @@ bool Cpu::scs_read(std::uint32_t offset, std::uint32_t& value)
             return best;
         }();
         int active_count = 0;
-        for (int n = 1; n < num_exceptions; ++n) {
+        for (int n = 1; n < 16 + irqs_; ++n) {
             active_count += active_[static_cast<unsigned>(n)] ? 1 : 0;
         }
         bool isr_pending = false;
-        for (int n = 16; n < num_exceptions; ++n) {
+        for (int n = 16; n < 16 + irqs_; ++n) {
             isr_pending = isr_pending || pending_[static_cast<unsigned>(n)];
         }
         value = ipsr_ | (active_count <= 1 ? (1u << 11) : 0) | (static_cast<std::uint32_t>(vectpending) << 12)
@@ -2807,7 +2814,7 @@ bool Cpu::scs_write(std::uint32_t offset, std::uint32_t value)
     attention_ = true;
     if (offset >= 0x100 && offset < 0x180) { // ISER
         const std::uint32_t base = (offset - 0x100) * 8;
-        for (std::uint32_t i = 0; i < 32 && base + i < irq_count; ++i) {
+        for (std::uint32_t i = 0; i < 32 && base + i < static_cast<std::uint32_t>(irqs_); ++i) {
             if (value & (1u << i)) {
                 irq_enabled_[base + i] = true;
             }
@@ -2816,7 +2823,7 @@ bool Cpu::scs_write(std::uint32_t offset, std::uint32_t value)
     }
     if (offset >= 0x180 && offset < 0x200) { // ICER
         const std::uint32_t base = (offset - 0x180) * 8;
-        for (std::uint32_t i = 0; i < 32 && base + i < irq_count; ++i) {
+        for (std::uint32_t i = 0; i < 32 && base + i < static_cast<std::uint32_t>(irqs_); ++i) {
             if (value & (1u << i)) {
                 irq_enabled_[base + i] = false;
             }
@@ -2825,7 +2832,7 @@ bool Cpu::scs_write(std::uint32_t offset, std::uint32_t value)
     }
     if (offset >= 0x200 && offset < 0x280) { // ISPR
         const std::uint32_t base = (offset - 0x200) * 8;
-        for (std::uint32_t i = 0; i < 32 && base + i < irq_count; ++i) {
+        for (std::uint32_t i = 0; i < 32 && base + i < static_cast<std::uint32_t>(irqs_); ++i) {
             if (value & (1u << i)) {
                 pending_[16 + base + i] = true;
             }
@@ -2834,7 +2841,7 @@ bool Cpu::scs_write(std::uint32_t offset, std::uint32_t value)
     }
     if (offset >= 0x280 && offset < 0x300) { // ICPR
         const std::uint32_t base = (offset - 0x280) * 8;
-        for (std::uint32_t i = 0; i < 32 && base + i < irq_count; ++i) {
+        for (std::uint32_t i = 0; i < 32 && base + i < static_cast<std::uint32_t>(irqs_); ++i) {
             if (value & (1u << i)) {
                 pending_[16 + base + i] = irq_line_[base + i]; // a level still asserted re-pends
             }
@@ -2843,7 +2850,7 @@ bool Cpu::scs_write(std::uint32_t offset, std::uint32_t value)
     }
     if (offset == 0xF00) { // STIR
         const std::uint32_t irq = value & 0x1FFu;
-        if (irq < irq_count) {
+        if (irq < static_cast<std::uint32_t>(irqs_)) {
             pending_[16 + irq] = true;
         }
         return true;

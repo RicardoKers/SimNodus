@@ -12,6 +12,7 @@
 #include "bus.hpp"
 
 #include <array>
+#include <bitset>
 #include <cstdint>
 #include <functional>
 #include <string>
@@ -41,8 +42,10 @@ enum class CoreState { Running, Sleeping, Lockup };
 
 class Cpu {
 public:
-    static constexpr int num_irqs = 68;               // STM32F103 uses 0..42; NVIC sized for 68
+    static constexpr int num_irqs = 96;               // room for; ICTR says up to 96
     static constexpr int num_exceptions = 16 + num_irqs;
+    // Interrupts of this chip's NVIC (68 unless set: the STM32F103 uses 0..42; the STM32F407 has 82).
+    void set_irq_count(int irqs) { irqs_ = irqs < 1 ? 1 : irqs > num_irqs ? num_irqs : irqs; }
 
     explicit Cpu(Bus& bus);
     Cpu(const Cpu&) = delete;
@@ -145,6 +148,9 @@ public:
     void set_xpsr(std::uint32_t value); // the APSR flags, EPSR.T and IT bits (IPSR is read-only)
     // Code in memory changed outside the CPU's stores (debugger, loader).
     void invalidate_code_cache();
+    // How much of the flash from 0x08000000 (and of its alias at 0) keeps its
+    // instructions decoded: the chip's flash size. 128 KiB unless set.
+    void set_code_cache_bytes(std::uint32_t bytes);
 
     // Called when the firmware requests a system reset (AIRCR.SYSRESETREQ).
     std::function<void()> on_system_reset;
@@ -242,11 +248,11 @@ private:
     bool npriv_ = false, spsel_ = false;
 
     // Exception state.
-    std::array<bool, num_exceptions> pending_{};
-    std::array<bool, num_exceptions> active_{};
-    std::array<bool, num_irqs> irq_enabled_{};
-    std::array<bool, num_irqs> irq_line_{};
-    std::array<std::uint8_t, num_exceptions> priority_{}; // programmable priorities
+    int irqs_ = 68; // interrupts this chip's NVIC has: the loops over exceptions stop there
+    // Pending exceptions as bits: the run loop asks "is anything pending?" at
+    // every turn while the core sleeps, and that is one comparison.
+    std::bitset<num_exceptions> pending_;
+    // (active_, irq_enabled_, irq_line_ and priority_, with room for 96 interrupts, are at the end of the class.)
     std::uint32_t vtor_ = 0, aircr_prigroup_ = 0, scr_ = 0, ccr_ = 0, shcsr_ = 0;
     std::uint32_t cfsr_ = 0, hfsr_ = 0, mmfar_ = 0, bfar_ = 0;
     bool monitor_ = false;
@@ -300,10 +306,16 @@ private:
 
     // Decoded instruction cache for code in the flash and its alias.
     std::vector<Insn> flash_cache_; // per halfword of 0x08000000..+cache size
+    std::uint32_t cache_bytes_ = 128 * 1024;
     Insn scratch_;
     bool count_ops_ = false;
     std::vector<std::uint64_t> op_hits_;
-    // (Kept after everything else: the Cortex-M3's hot members stay where they were.)
+    // The exception arrays and the Cortex-M4F's state are kept after everything
+    // else: what the run loop uses stays close together.
+    std::array<bool, num_exceptions> active_{};
+    std::array<bool, num_irqs> irq_enabled_{};
+    std::array<bool, num_irqs> irq_line_{};
+    std::array<std::uint8_t, num_exceptions> priority_{}; // programmable priorities
 
     // Cortex-M4F: the GE flags of the DSP instructions (APSR 19:16), the
     // FPU's registers and its control (CPACR, FPCCR, FPCAR, FPDSCR), and

@@ -1,0 +1,64 @@
+{
+  "compiler": "arm-none-eabi-gcc.exe (GNU Tools for STM32 14.3.rel1.20251027-0700) 14.3.1 20250623",
+  "flags": [
+    "-mcpu=cortex-m4",
+    "-mthumb",
+    "-mfpu=fpv4-sp-d16",
+    "-mfloat-abi=hard",
+    "-std=c11",
+    "-O2",
+    "-g",
+    "-ffreestanding",
+    "-fno-builtin",
+    "-fno-math-errno",
+    "-fno-tree-loop-distribute-patterns",
+    "-fno-common",
+    "-ffunction-sections",
+    "-fdata-sections",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-nostdlib",
+    "-Wl,--build-id=none",
+    "-Wl,--gc-sections",
+    "-ffile-prefix-map={root}=."
+  ],
+  "firmware": {
+    "f4_blink": {
+      "sources": [
+        "examples/firmware/f4_blink/f4_blink.c",
+        "examples/firmware/f4_common/f4.h"
+      ],
+      "elf": "examples/firmware/f4_blink/f4_blink.elf",
+      "sha256": "0abe2d299091790941267d72a68905da4e1d8d91721b93f40df550dfe3bd9cbc",
+      "size": 9164
+    },
+    "f4_button": {
+      "sources": [
+        "examples/firmware/f4_button/f4_button.c",
+        "examples/firmware/f4_common/f4.h"
+      ],
+      "elf": "examples/firmware/f4_button/f4_button.elf",
+      "sha256": "ef14efec0e77607ebbe376e1fa29afeac1ab8de9a1fe1d11e91e2e0c35d14ee9",
+      "size": 9072
+    },
+    "f4_clock": {
+      "sources": [
+        "examples/firmware/f4_clock/f4_clock.c",
+        "examples/firmware/f4_common/f4.h"
+      ],
+      "elf": "examples/firmware/f4_clock/f4_clock.elf",
+      "sha256": "40f26c48d10bd4a0d3227f9d9061eb5e4c2cb965a374d5f62b02566427294b35",
+      "size": 13156
+    },
+    "f4_float": {
+      "sources": [
+        "examples/firmware/f4_float/f4_float.c",
+        "examples/firmware/f4_common/f4.h"
+      ],
+      "elf": "examples/firmware/f4_float/f4_float.elf",
+      "sha256": "e8f6b7921d3927a9675996876e59b5e44654f7ee60cfe8bbd082fb9c43bb8771",
+      "size": 22216
+    }
+  }
+}
