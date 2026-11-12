@@ -11,6 +11,9 @@
 // SPI2 on 4/5), the NSS output (SSOE) and the remap of SPI1. Not simulated
 // (reported once): slave mode, receive-only and bidirectional modes, CRC, I2S;
 // mode fault is reported instead of raised.
+// The STM32F4 has the same SPI (RM0090 chapter 28): the chip gives its
+// number, bus, interrupt, DMA requests and pins (SpiConfig, SpiHost::spi_pins);
+// its TI frame format and I2S mode are reported once.
 #pragma once
 
 #include "bus.hpp"
@@ -21,6 +24,20 @@
 #include <utility>
 
 namespace simnodus::emu {
+
+struct SpiPins {
+    std::pair<int, int> nss, sck, miso, mosi; // port -1: none
+};
+
+// What the chip gives an SPI.
+struct SpiConfig {
+    int number = 1;
+    bool apb2 = true;
+    int irq = 35;
+    int dma_rx = 2; // passed to SpiHost::spi_dma
+    int dma_tx = 3;
+    bool stm32f4 = false; // CR2.FRF (the TI frame format) and I2SCFGR exist
+};
 
 // What an SPI needs from the machine.
 class SpiHost {
@@ -38,30 +55,32 @@ public:
     virtual bool spi_dma(int channel) = 0;
     virtual void spi_schedule_changed() = 0;
     virtual void spi_diagnostic(const std::string& text) = 0;
+    // The pins of SPI `number` as the chip routes them now. The default is
+    // the STM32F103's (SPI1 with its remap in AFIO_MAPR, SPI2 on PB12 to PB15).
+    virtual SpiPins spi_pins(int number) const;
 };
 
 class Stm32F1Spi : public Device, public TimedDevice {
 public:
     // number: 1 (APB2) or 2 (APB1).
     Stm32F1Spi(SpiHost& host, int number);
+    Stm32F1Spi(SpiHost& host, const SpiConfig& config);
 
-    const char* name() const override { return number_ == 1 ? "SPI1" : "SPI2"; }
+    const char* name() const override;
     bool read(std::uint32_t offset, unsigned size, std::uint32_t& value) override;
     bool write(std::uint32_t offset, unsigned size, std::uint32_t value) override;
     void reset() override;
 
     std::uint64_t next_event() const override;
     void on_time(std::uint64_t cycle) override;
-    // AFIO_MAPR changed: SPI1 moves to its other pins.
+    // AFIO_MAPR or the GPIO alternate functions changed: the SPI moves to its other pins.
     void remap_changed();
     // A DMA channel was enabled: a waiting request is served now.
     void dma_enabled() { service(); }
 
 private:
-    struct Pins {
-        std::pair<int, int> nss, sck, miso, mosi;
-    };
-    Pins pins() const;
+    using Pins = SpiPins;
+    Pins pins() const { return host_.spi_pins(number_); }
     std::uint32_t read16(std::uint32_t offset);
     void write16(std::uint32_t offset, std::uint32_t value);
     void configure();          // after CR1/CR2 writes: idle levels, reports
@@ -74,9 +93,11 @@ private:
 
     SpiHost& host_;
     int number_;
+    bool apb2_;
     int irq_;
     int dma_rx_;
     int dma_tx_;
+    bool f4_;
     std::uint32_t cr1_ = 0, cr2_ = 0;
     bool txe_ = true, rxne_ = false, ovr_ = false, modf_ = false;
     bool ovr_dr_read_ = false; // OVR clears with a DR read followed by an SR read
@@ -90,7 +111,9 @@ private:
     bool sck_ = false;
     Pins driven_{{-1, -1}, {-1, -1}, {-1, -1}, {-1, -1}}; // pins the outputs were written to
     bool in_service_ = false;
+    std::uint32_t i2scfgr_ = 0, i2spr_ = 2;
     bool warned_slave_ = false, warned_mode_ = false, warned_crc_ = false, warned_modf_ = false;
+    bool warned_ti_ = false, warned_i2s_ = false;
 };
 
 } // namespace simnodus::emu

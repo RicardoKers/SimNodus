@@ -30,8 +30,8 @@
         "examples/firmware/f4_common/f4.h"
       ],
       "elf": "examples/firmware/f4_analog/f4_analog.elf",
-      "sha256": "cb8c9f9fdd970f6544e87d90985c542caba1a459ddd70e4e0af98ea550894975",
-      "size": 11036
+      "sha256": "1cf4ab213bbd2fe12a8f1b017003645d65522920b623ab614bfeb59f9cf31738",
+      "size": 11040
     },
     "f4_blink": {
       "sources": [
@@ -39,8 +39,18 @@
         "examples/firmware/f4_common/f4.h"
       ],
       "elf": "examples/firmware/f4_blink/f4_blink.elf",
-      "sha256": "3b8836d7159e829b5caec1a0aa67d4b5553103b285d6fd23edf149ec220e1688",
+      "sha256": "5694b13999fc616e31fc601ca34b44b47604137b8d710c9b051dca1f482cfb04",
       "size": 9164
+    },
+    "f4_buses": {
+      "sources": [
+        "examples/firmware/f4_buses/f4_buses.c",
+        "examples/firmware/f4_common/f4.h",
+        "examples/firmware/f4_common/f4_peripherals.h"
+      ],
+      "elf": "examples/firmware/f4_buses/f4_buses.elf",
+      "sha256": "a0e244e0c00aebeae6c7c29e0dc038b7cc5c0576898214849c425ac61de0690a",
+      "size": 23416
     },
     "f4_button": {
       "sources": [
@@ -48,7 +58,7 @@
         "examples/firmware/f4_common/f4.h"
       ],
       "elf": "examples/firmware/f4_button/f4_button.elf",
-      "sha256": "d05de493c8563f9caebcf128ab2a0f278c68261d28ebfb75dec7c725c781aada",
+      "sha256": "9a0c05e3ad6be4dea332806ba6c01a87c1d2a8df400b52b2d5f739433893eb6a",
       "size": 9072
     },
     "f4_clock": {
@@ -57,8 +67,8 @@
         "examples/firmware/f4_common/f4.h"
       ],
       "elf": "examples/firmware/f4_clock/f4_clock.elf",
-      "sha256": "0a779114d2a3525140a00cc1369ba82e3b5f91fcf5606eb27086619b86468771",
-      "size": 13184
+      "sha256": "abaac92eb43bb3620c2d5ad268f460d318d5fe5020f0415d1924de3727995ddf",
+      "size": 13192
     },
     "f4_float": {
       "sources": [
@@ -66,8 +76,28 @@
         "examples/firmware/f4_common/f4.h"
       ],
       "elf": "examples/firmware/f4_float/f4_float.elf",
-      "sha256": "b9762b626312674704899d984808e676728298ab02f50fe0eb7a11bead70d0a6",
-      "size": 22216
+      "sha256": "14a4b207a353f748796c4464b4d1b2d1f727e892f5a806061a76ea53be143ba2",
+      "size": 22208
+    },
+    "f4_rtc": {
+      "sources": [
+        "examples/firmware/f4_rtc/f4_rtc.c",
+        "examples/firmware/f4_common/f4.h",
+        "examples/firmware/f4_common/f4_peripherals.h"
+      ],
+      "elf": "examples/firmware/f4_rtc/f4_rtc.elf",
+      "sha256": "fbbcaf9431956ad84cecd0589eb7cc3754cfb0b2af438d1f3882758297b6e536",
+      "size": 16440
+    },
+    "f4_station": {
+      "sources": [
+        "examples/firmware/f4_station/f4_station.c",
+        "examples/firmware/f4_common/f4.h",
+        "examples/firmware/f4_common/f4_peripherals.h"
+      ],
+      "elf": "examples/firmware/f4_station/f4_station.elf",
+      "sha256": "601e38850b9449f74171ba9bdd38162317676f300ff7782ba34aa95904cb287d",
+      "size": 22604
     }
   }
 }

@@ -7,9 +7,13 @@
 // the crystal on the diagram, PWR and the flash interface, GPIO ports with
 // the alternate functions of the datasheet, SYSCFG, EXTI, and the six serial
 // ports (stm32_usart.hpp), the fourteen timers (stm32f1_timer.hpp), ADC1 to
-// ADC3 and the DAC (stm32f4_analog.hpp; SN-297). The chip's other
-// peripherals are stubs that keep their register values and report once
-// that they are not simulated (SPI, I2C, DMA, RTC: SN-298).
+// ADC3 and the DAC (stm32f4_analog.hpp; SN-297), SPI1 to SPI3
+// (stm32f1_spi.hpp), I2C1 to I2C3 (stm32f1_i2c.hpp), DMA1 and DMA2
+// (stm32f4_dma.hpp), the RTC with its backup registers and the RNG
+// (stm32f4_system.hpp), the watchdogs and the CRC unit (stm32f1_system.hpp),
+// and the 4 KiB backup SRAM (SN-298). The chip's other peripherals are stubs
+// that keep their register values and report once that they are not
+// simulated (CAN, USB, Ethernet, SDIO, DCMI, FSMC, I2S).
 //
 // Experimental: nothing here has been compared with a real chip yet.
 #pragma once
@@ -19,8 +23,13 @@
 #include "elf.hpp"
 #include "stm32_usart.hpp"
 #include "stm32f103.hpp" // UartByte, Diagnostic, ResetKind
+#include "stm32f1_i2c.hpp"
+#include "stm32f1_spi.hpp"
+#include "stm32f1_system.hpp"
 #include "stm32f1_timer.hpp"
 #include "stm32f4_analog.hpp"
+#include "stm32f4_dma.hpp"
+#include "stm32f4_system.hpp"
 #include "timed_device.hpp"
 
 #include <array>
@@ -68,11 +77,15 @@ struct F4MachineOptions {
     UsartOptions usart;
 };
 
-class Stm32F407 : private UsartHost, private TimerHost, private F4AnalogHost {
+class Stm32F407 : private UsartHost, private TimerHost, private F4AnalogHost, private SpiHost, private I2cHost,
+                  private DmaHost, private SystemHost {
 public:
     static constexpr int num_ports = 9; // A to I in the address map; the LQFP-100 chip has pins on A to E and PH0, PH1
     static constexpr int num_usarts = 6;
     static constexpr int num_timers = 14;
+    static constexpr int num_spis = 3;
+    static constexpr int num_i2cs = 3;
+    static constexpr std::uint32_t lsi_hz = 32000; // the LSI's typical frequency (DS8626)
     static constexpr double vref = Stm32F4Adc::vref; // VREF+ and VDDA, not read from the circuit
 
     explicit Stm32F407(F4MachineOptions options = {});
@@ -147,6 +160,8 @@ public:
     void flash_access_changed();
     std::uint32_t reset_flags() const { return reset_flags_; }
     void clear_reset_flags() { reset_flags_ = 0; }
+    void rtc_clock_changed(); // the RTC's clock source, its enable or readiness changed
+    void backup_domain_reset(); // power-on or RCC_BDCR.BDRST
 
 private:
     class Rcc;
@@ -178,7 +193,7 @@ private:
     void usart_line(int port, int pin, int number, bool level) override;
     void usart_line_at(int port, int pin, int number, bool level, std::uint64_t cycle) override;
     void usart_byte(int number, std::uint8_t value, std::uint64_t cycle) override;
-    bool usart_dma(int, bool) override { return false; } // DMA: SN-298
+    bool usart_dma(int number, bool transmit) override;
     void usart_schedule_changed() override { cpu_.request_stop(); }
     void usart_diagnostic(const std::string& text) override { diagnostic(text); }
 
@@ -200,6 +215,49 @@ private:
     void analog_schedule_changed() override { cpu_.request_stop(); }
     void analog_diagnostic(const std::string& text) override { diagnostic(text); }
     void dac_output(int channel, bool enabled, bool buffered, std::uint32_t code, std::uint64_t cycle) override;
+    bool adc_dma(int adc) override;
+    bool dac_dma(int channel) override;
+    void dac_irq(bool level) override { timer_irq(20, 54, level); } // shares TIM6_DAC with TIM6
+
+    // SpiHost and I2cHost
+    std::uint64_t spi_now_cycles() const override { return cpu_.cycles(); }
+    std::uint32_t hclk_per_pclk(bool apb2) const override;
+    std::uint32_t afio_mapr() const override { return 0; } // the STM32F1's remap register; not on this chip
+    void spi_irq(int irq, bool level) override { cpu_.set_irq_line(irq, level); }
+    void spi_output(int port, int pin, int source, bool level, std::uint64_t cycle) override;
+    bool spi_dma(int request) override { return dma_request(static_cast<F4DmaRequest>(request)); }
+    void spi_schedule_changed() override { cpu_.request_stop(); }
+    void spi_diagnostic(const std::string& text) override { diagnostic(text); }
+    SpiPins spi_pins(int number) const override;
+    std::uint64_t i2c_now_cycles() const override { return cpu_.cycles(); }
+    std::uint32_t hclk_per_pclk1() const override;
+    void i2c_irq(int irq, bool level) override { cpu_.set_irq_line(irq, level); }
+    void i2c_output(int port, int pin, int source, bool level, std::uint64_t cycle) override;
+    bool i2c_dma(int request) override { return dma_request(static_cast<F4DmaRequest>(request)); }
+    void i2c_schedule_changed() override { cpu_.request_stop(); }
+    void i2c_diagnostic(const std::string& text) override { diagnostic(text); }
+    std::pair<int, int> i2c_pin(int number, bool scl) const override;
+    // An output at `cycle` of a peripheral whose alternate function number is `function`.
+    void af_output_at(int port, int pin, int source, int function, bool level, std::uint64_t cycle);
+
+    // DmaHost
+    bool dma_request(F4DmaRequest request);
+    Bus& dma_bus() override { return bus_; }
+    void dma_irq(int irq, bool level) override { cpu_.set_irq_line(irq, level); }
+    void dma_diagnostic(const std::string& text) override { diagnostic(text); }
+    void dma_channel_enabled(int stream) override;
+
+    // SystemHost
+    std::uint64_t system_now_ns() const override { return time_ns(); }
+    std::uint64_t system_cycles_at(std::uint64_t ns) const override { return cycles_at_ns(ns); }
+    std::uint32_t pclk1_hz() const override;
+    std::uint32_t rtc_clock_hz() const override;
+    bool backup_writable() const override;
+    void system_irq(int irq, bool level) override { cpu_.set_irq_line(irq, level); }
+    void system_exti(int line, bool level) override;
+    void watchdog_reset(bool independent) override;
+    void system_schedule_changed() override { cpu_.request_stop(); }
+    void system_diagnostic(const std::string& text) override { diagnostic(text); }
 
     F4MachineOptions options_;
     Bus bus_;
@@ -214,6 +272,14 @@ private:
     std::array<std::unique_ptr<Stm32F1Timer>, num_timers> timers_; // TIM1..TIM14
     std::unique_ptr<Stm32F4Adc> adc_;
     std::unique_ptr<Stm32F4Dac> dac_;
+    std::array<std::unique_ptr<Stm32F1Spi>, num_spis> spi_;
+    std::array<std::unique_ptr<Stm32F1I2c>, num_i2cs> i2c_;
+    std::array<std::unique_ptr<Stm32F4Dma>, 2> dma_;
+    std::unique_ptr<Stm32F4Rtc> rtc_;
+    std::unique_ptr<Stm32F4Rng> rng_;
+    std::unique_ptr<Stm32F1Iwdg> iwdg_;
+    std::unique_ptr<Stm32F1Wwdg> wwdg_;
+    std::unique_ptr<Stm32F1Crc> crc_;
     std::vector<std::unique_ptr<Stub>> stubs_;
     std::unique_ptr<Dwt> dwt_;
     std::unique_ptr<Dbgmcu> dbgmcu_;
@@ -243,6 +309,8 @@ private:
     bool boot0_ = false;
     bool bootloader_ = false; // a reset ended with BOOT0 high: nothing runs
     bool reported_bootloader_ = false;
+    bool reported_iwdg_ = false;
+    bool reported_wwdg_ = false;
 
     std::vector<F4PinEvent> pin_events_;
     std::vector<UartByte> uart_bytes_;

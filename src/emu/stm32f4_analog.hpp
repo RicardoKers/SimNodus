@@ -13,13 +13,18 @@
 // (EOCS), the overrun flag, the analog watchdog, the interrupt (IRQ 18,
 // shared), and on ADC1 the temperature sensor (0.76 V at 25 °C), VREFINT
 // (1.21 V) and VBAT / 2. The code of a voltage is floor(V * 2^n / VREF+) with
-// VREF+ = 3.3 V. Not simulated yet (reported once): DMA (SN-298),
+// VREF+ = 3.3 V. DMA (SN-298): with CR2.DMA each regular result asks the
+// DMA for a transfer, which reads DR; a result the DMA does not take before
+// the next one is an overrun. Not simulated yet (reported once):
 // discontinuous mode, the multi-ADC modes, triggers from EXTI lines.
 //
 // The DAC (RM0090 chapter 14). Simulated: both channels with their enable and
 // output buffer bits, the three data alignments and the dual registers, the
 // software trigger and the timer triggers (TIM2, TIM4 to TIM8), the triangle
-// wave. Not simulated yet (reported once): the noise generator, DMA (SN-298).
+// wave, DMA (SN-298: each trigger moves DHR to the output and asks the DMA
+// for the next value; a request still waiting at the next trigger is an
+// underrun, DMAUDR, with its interrupt on IRQ 54). Not simulated yet
+// (reported once): the noise generator.
 #pragma once
 
 #include "reg_device.hpp"
@@ -44,6 +49,18 @@ public:
     // A DAC channel (0 or 1) changed at `cycle`: whether it drives its pin,
     // through the buffer or not, and its 12-bit code.
     virtual void dac_output(int channel, bool enabled, bool buffered, std::uint32_t code, std::uint64_t cycle) = 0;
+    // A DMA request of ADC `adc` (1 to 3) or of DAC channel `channel` (0, 1); true if a transfer was made.
+    virtual bool adc_dma(int adc)
+    {
+        (void)adc;
+        return false;
+    }
+    virtual bool dac_dma(int channel)
+    {
+        (void)channel;
+        return false;
+    }
+    virtual void dac_irq(bool level) { (void)level; } // DMA underrun, shared with TIM6
 };
 
 class Stm32F4Adc : public RegDevice, public TimedDevice {
@@ -59,6 +76,8 @@ public:
 
     // An event of a timer (TimerHost::timer_trigger): starts the groups that wait for it.
     void timer_event(int timer, int signal, std::uint64_t cycle);
+    // A DMA stream was enabled: a result waiting in DR is offered to it.
+    void dma_enabled();
 
     // The code of a voltage at a resolution of `bits`.
     static std::uint32_t code_of(double volts, int bits);
@@ -99,6 +118,7 @@ private:
     void update_irq();
     void write_unit(int index, std::uint32_t offset, std::uint32_t value, std::uint32_t mask);
     void report(std::uint32_t feature, const std::string& text);
+    void offer_dma(int index);
 
     F4AnalogHost& host_;
     std::array<Unit, 3> units_{};
@@ -116,6 +136,8 @@ public:
 
     // A timer's TRGO at `cycle`: the channels that wait for it load their output.
     void timer_event(int timer, std::uint64_t cycle);
+    // A DMA stream was enabled: waiting requests are served.
+    void dma_enabled();
 
 protected:
     bool read32(std::uint32_t offset, std::uint32_t& value) override;
@@ -127,9 +149,13 @@ private:
     void load(int channel, std::uint64_t cycle); // DOR follows DHR (and the wave)
     void publish(int channel, std::uint64_t cycle);
     void report(std::uint32_t feature, const std::string& text);
+    void request_dma(int channel);
+    void update_irq();
 
     F4AnalogHost& host_;
     std::uint32_t cr_ = 0;
+    std::uint32_t sr_ = 0; // DMAUDR1, DMAUDR2
+    std::array<bool, 2> dma_waiting_{};
     std::array<std::uint32_t, 2> dhr_{}; // 12 bits, right aligned
     std::array<std::uint32_t, 2> dor_{};
     std::array<std::uint32_t, 2> wave_{}; // the triangle's counter

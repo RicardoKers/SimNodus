@@ -4,6 +4,14 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-11-12, E-12 / SN-298, experimental)
+
+- **STM32F407VET6: SPI, I2C, DMA, the RTC and the system peripherals.** SPI1 to SPI3 and I2C1 to I2C3 as masters on the pins of their alternate function, talking to the chips on the diagram (the Blue Pill's models, now shared). DMA1 and DMA2: eight streams each, serving the serial ports, the SPIs, the I2Cs, the ADCs and the DAC on the channel the firmware selects, in normal, circular and double-buffer modes, and memory to memory. The RTC: a BCD calendar on a 32.768 kHz crystal between PC14 and PC15, on the LSI or on the HSE, with alarms, the wakeup timer and twenty backup registers that keep their values through a reset; the backup SRAM. The independent and window watchdogs, the CRC unit, and the random number generator (a fixed sequence, the same on every run). The ADCs and the DAC use DMA (a DAC underrun is flagged). Not simulated, and said once: I2S, slave modes, the RTC's tamper and calibration, the timers' DMA requests. Not yet compared with a real chip.
+  - **Example 69**: SPI to a 74HC595 and a MAX7219, I2C to a 24C02 and an LM75, USART1 through DMA (firmware `f4_buses`).
+  - **Example 70**: the RTC on its crystal, an alarm, a backup register counting the starts, and the watchdog (firmware `f4_rtc`).
+  - **Example 71**: the station at 168 MHz that sleeps between the RTC's seconds: temperature over I2C, PWM, DAC and serial output through DMA (firmware `f4_station`, for the board comparison of gate G12c).
+  - The Register Viewer has the new peripherals.
+
 ### Added (2026-11-12, E-12 / SN-297, experimental)
 
 - **STM32F407VET6: timers, ADC and DAC.** TIM1 to TIM14 with PWM, the complementary outputs of TIM1 and TIM8 with dead time, input capture on one or both edges, the encoder interface, one-pulse mode, 32 bits on TIM2 and TIM5, and trigger outputs that start the ADC and the DAC. ADC1 to ADC3 read the circuit's voltage with 12 to 6 bits, single, continuous or scan, injected channels, timer triggers, the temperature sensor, VREFINT and VBAT. The DAC drives PA4 and PA5 in the circuit (through its buffer, or behind 15 kΩ without it), from the firmware, a timer or its triangle wave. Not simulated yet, and said once: DMA, center-aligned modes, the break input, other slave modes, input filters, the noise wave. Not yet compared with a real chip.

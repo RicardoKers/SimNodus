@@ -5,7 +5,8 @@ Firmware of the STM32F407VET6 track
 [results](../../../docs/experiments/E-12-results.md)): each folder
 `f4_<name>` has one C file and the ELF it was built to. They use no library
 and no HAL: `f4.h` here has the register addresses, the vector table and the
-start-up code. `tools/build_f4_firmware.py` builds them with the
+start-up code; `f4_peripherals.h` adds I2C1 as a master, lines of text sent
+on USART1 through DMA2 and the start of the RTC. `tools/build_f4_firmware.py` builds them with the
 arm-none-eabi-gcc of STM32CubeIDE for the Cortex-M4 with its FPU
 (`f4_firmware.json` records the compiler, the flags and each ELF's SHA-256).
 
@@ -16,10 +17,14 @@ arm-none-eabi-gcc of STM32CubeIDE for the Cortex-M4 with its FPU
 | `f4_float` | HSI 16 MHz | floating point and DSP instructions with an interrupt that uses the FPU; prints five checksum lines and `done` on USART1 (PA9) at 115200 baud |
 | `f4_button` | HSI 16 MHz | a push button from PA0 to ground: PC13 is high while it is pressed, PB0..PB3 count the presses |
 | `f4_analog` | HSI 16 MHz | TIM2 starts ADC1 on PA1 every millisecond; the code sets the duty cycle of TIM1's 20 kHz PWM on PA8 and its complement on PB13 (0.5 us of dead time) and DAC channel 1 on PA4; DAC channel 2 draws a triangle on PA5 (TIM6, 100 us a step); prints `adc <code>` every 100 ms on USART1 (PA9) at 115200 baud |
+| `f4_buses` | HSI 16 MHz | SPI1 (PA5, PA7; PA4 the latch) counts on a 74HC595 every 250 ms; SPI2 (PB13, PB15, 16-bit frames; PB12 LOAD) draws a smiley on a MAX7219; I2C1 (PB6, PB7) writes `SimNodus` into a 24C02 at 0x50 and reads it back, then reads an LM75 at 0x48 every second; prints `f4_buses`, `eeprom SimNodus`, `lm75 23.5` on USART1 through DMA2 |
+| `f4_rtc` | HSI 16 MHz; RTC on the LSE (32.768 kHz on PC14, PC15) or the LSI | sets the calendar to 2026-11-12 12:00:00 on its first start, then prints the time every second (wakeup timer) and `alarm` at second 05; backup register 1 counts the starts; the independent watchdog (2 s) resets the chip while PA0 is high; PC13 toggles every second |
+| `f4_station` | 25 MHz crystal, PLL at 168 MHz; RTC as `f4_rtc` | sleeps until the RTC's second, reads an LM75 on I2C1, sets TIM3's 1 kHz PWM on PA6 (10 counts of 1000 per degree) and the DAC on PA4 (40 codes per degree), prints `12:00:01 2026-11-12 lm75 23.5 pwm 235 dac 940` through DMA2 |
 
 ## In the simulator
 
-Examples 67 (`f4_clock`) and 68 (`f4_analog`) run them on the diagram;
+Examples 67 (`f4_clock`), 68 (`f4_analog`), 69 (`f4_buses`), 70 (`f4_rtc`)
+and 71 (`f4_station`) run them on the diagram;
 the command line runs them without a circuit:
 
 ```
@@ -65,6 +70,22 @@ What the simulator prints, to compare:
   for (code × 800 / 4096 − 8) / 16 us of every 50 us. A voltmeter on PA4
   reads PA1's voltage (within the DAC's buffer range, 0.2 V to 3.1 V); PA5
   is a triangle of about 4.9 Hz between 1.24 V and 2.06 V.
+- `f4_buses`: a 24C02 (or any 24Cxx) at 0x50 and an LM75 at 0x48 on PB6 and
+  PB7 with 4.7 kΩ pull-ups; a 74HC595 on PA4, PA5, PA7 and a MAX7219 on
+  PB12, PB13, PB15 as in example 69. The lines `eeprom SimNodus` and
+  `lm75 <temperature>`; with the logic analyzer, SPI1's clock at 1 MHz and
+  SPI2's at 2 MHz.
+- `f4_rtc`: with the board's 32.768 kHz crystal the first line after
+  `start 1` comes one second after the calendar is set; the seconds of the
+  board and of the simulator must not drift apart by more than the
+  crystal's tolerance (20 ppm: 0.07 s an hour). Without the crystal the
+  firmware says `(LSI)`, whose frequency varies from chip to chip (17 to
+  47 kHz in DS8626): a measured drift is the chip's, not the simulator's.
+  A wire from 3.3 V to PA0 for 2 s: `reset by the watchdog` and `start 2`.
+- `f4_station` (gate G12c.7): the 25 MHz crystal, an LM75 on PB6 and PB7.
+  The serial lines must match the simulator's byte for byte (with the
+  board's temperature); PA6's duty cycle within one count of 1000; PA4
+  within 1 % of 3.3 V of 3.3 × code / 4095.
 
 The simulator's numbers are not confirmed by a chip yet: a difference is a
 finding to report, not a mistake of the bench.

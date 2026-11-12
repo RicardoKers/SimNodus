@@ -777,7 +777,7 @@ reg IDR 0x04 4 | Independent data (one free byte)
 cortex_system_registers,
 nullptr};
 
-// The STM32F407 (RM0090): what the machine of experiment E-12 has so far.
+// The STM32F407 (RM0090): what the machine of experiment E-12 has.
 const char* const stm32f407_registers[] = {
 "chip stm32f407\n\n",
 cortex_core_registers,
@@ -1355,14 +1355,16 @@ reg CDR 0x08 4 | ADC1's data (bits 0 to 15) and ADC2's (16 to 31)
 
 per DAC 0x40007400 | Digital-to-analog converter (channel 1 PA4, channel 2 PA5)
 reg CR 0x00 4 | Control
-f DMAEN2 28 1 | Channel 2 DMA (not simulated)
+f DMAUDRIE2 29 1 | Channel 2 DMA underrun interrupt enable
+f DMAEN2 28 1 | Channel 2 DMA: a request at each trigger
 f MAMP2 24 4 | Channel 2 amplitude: 2^(MAMP + 1) - 1 codes for the triangle
 f WAVE2 22 2 | Channel 2 wave: 0 none, 1 noise (not simulated), 2 triangle
 f TSEL2 19 3 | Channel 2 trigger: 0 TIM6, 1 TIM8, 2 TIM7, 3 TIM5, 4 TIM2, 5 TIM4, 6 EXTI 9, 7 software
 f TEN2 18 1 | Channel 2 trigger enable
 f BOFF2 17 1 | Channel 2 output buffer off
 f EN2 16 1 | Channel 2 enable
-f DMAEN1 12 1 | Channel 1 DMA (not simulated)
+f DMAUDRIE1 13 1 | Channel 1 DMA underrun interrupt enable
+f DMAEN1 12 1 | Channel 1 DMA: a request at each trigger
 f MAMP1 8 4 | Channel 1 amplitude: 2^(MAMP + 1) - 1 codes for the triangle
 f WAVE1 6 2 | Channel 1 wave: 0 none, 1 noise (not simulated), 2 triangle
 f TSEL1 3 3 | Channel 1 trigger: 0 TIM6, 1 TIM8, 2 TIM7, 3 TIM5, 4 TIM2, 5 TIM4, 6 EXTI 9, 7 software
@@ -1380,7 +1382,9 @@ reg DHR12LD 0x24 4 | Both channels' data, 12 bits left aligned
 reg DHR8RD 0x28 4 | Both channels' data, 8 bits
 reg DOR1 0x2C 4 | Channel 1 output: the code on PA4 (VREF+ * DOR / 4095)
 reg DOR2 0x30 4 | Channel 2 output: the code on PA5
-reg SR 0x34 4 | Status (underrun flags, with DMA)
+reg SR 0x34 4 | Status
+f DMAUDR2 29 1 | Channel 2 DMA underrun: a trigger came before the DMA served the last request
+f DMAUDR1 13 1 | Channel 1 DMA underrun
 )",
 stm32_usart_registers,
 R"(
@@ -1396,6 +1400,374 @@ per UART5 0x40005000 | Serial port 5 (PC12 TX, PD2 RX; function 8)
 use USART
 per USART6 0x40011400 | Serial port 6 (PC6 TX, PC7 RX; function 8)
 use USART
+
+)",
+R"(
+type F4_SPI
+reg CR1 0x00 2 | Control 1
+f BIDIMODE 15 1 | One data line for both directions
+f BIDIOE 14 1 | Output enable on the one data line
+f CRCEN 13 1 | CRC enable
+f CRCNEXT 12 1 | The CRC goes next
+f DFF 11 1 | Frame: 0 eight bits, 1 sixteen bits
+f RXONLY 10 1 | Receive only
+f SSM 9 1 | Slave select by software
+f SSI 8 1 | Internal slave select
+f LSBFIRST 7 1 | Lowest bit first
+f SPE 6 1 | SPI enable
+f BR 3 3 | Baud rate: PCLK divided by 2, 4, 8 ... 256
+f MSTR 2 1 | Master
+f CPOL 1 1 | Clock polarity: its level while idle
+f CPHA 0 1 | Clock phase: 0 sample on the first edge, 1 on the second
+reg CR2 0x04 2 | Control 2
+f TXEIE 7 1 | TXE interrupt enable
+f RXNEIE 6 1 | RXNE interrupt enable
+f ERRIE 5 1 | Error interrupt enable
+f FRF 4 1 | Frame format: 0 Motorola, 1 TI (not simulated)
+f SSOE 2 1 | NSS output enable
+f TXDMAEN 1 1 | DMA for transmission
+f RXDMAEN 0 1 | DMA for reception
+reg SR 0x08 2 | Status
+f FRE 8 1 | TI frame format error
+f BSY 7 1 | Busy
+f OVR 6 1 | Overrun
+f MODF 5 1 | Mode fault
+f CRCERR 4 1 | CRC error
+f TXE 1 1 | Transmit buffer empty
+f RXNE 0 1 | Received data ready to be read
+reg DR 0x0C 2 | Data: the last word received (shown without taking it)
+reg CRCPR 0x10 2 | CRC polynomial (CRC not simulated)
+reg I2SCFGR 0x1C 2 | I2S configuration
+f I2SMOD 11 1 | I2S mode (not simulated)
+reg I2SPR 0x20 2 | I2S prescaler
+
+per SPI1 0x40013000 | SPI 1 (function 5: PA5 or PB3 SCK, PA6 or PB4 MISO, PA7 or PB5 MOSI, PA4 or PA15 NSS)
+use F4_SPI
+per SPI2 0x40003800 | SPI 2 (function 5: PB10 or PB13 SCK, PB14 or PC2 MISO, PB15 or PC3 MOSI, PB9 or PB12 NSS)
+use F4_SPI
+per SPI3 0x40003C00 | SPI 3 (function 6: PB3 or PC10 SCK, PB4 or PC11 MISO, PB5 or PC12 MOSI, PA4 or PA15 NSS)
+use F4_SPI
+
+type F4_I2C
+reg CR1 0x00 2 | Control 1
+f SWRST 15 1 | Software reset
+f ALERT 13 1 | SMBus alert
+f PEC 12 1 | Packet error checking
+f POS 11 1 | ACK and PEC position
+f ACK 10 1 | Acknowledge the bytes received
+f STOP 9 1 | Stop generation
+f START 8 1 | Start generation
+f NOSTRETCH 7 1 | No clock stretching (slave)
+f ENGC 6 1 | General call enable
+f ENPEC 5 1 | PEC enable
+f ENARP 4 1 | ARP enable
+f SMBTYPE 3 1 | SMBus type
+f SMBUS 1 1 | SMBus mode
+f PE 0 1 | Peripheral enable
+reg CR2 0x04 2 | Control 2
+f LAST 12 1 | DMA last transfer
+f DMAEN 11 1 | DMA requests enable
+f ITBUFEN 10 1 | Buffer interrupt enable
+f ITEVTEN 9 1 | Event interrupt enable
+f ITERREN 8 1 | Error interrupt enable
+f FREQ 0 6 | PCLK1 in MHz
+reg OAR1 0x08 2 | Own address 1
+f ADDMODE 15 1 | 10-bit address
+f ADD 0 10 | Address (7 bits in bits 7 to 1)
+reg OAR2 0x0C 2 | Own address 2
+reg DR 0x10 2 | Data: the byte received (shown without taking it)
+reg SR1 0x14 2 | Status 1
+f SMBALERT 15 1 | SMBus alert
+f TIMEOUT 14 1 | Timeout
+f PECERR 12 1 | PEC error
+f OVR 11 1 | Overrun or underrun
+f AF 10 1 | Acknowledge failure: nobody answered
+f ARLO 9 1 | Arbitration lost
+f BERR 8 1 | Bus error
+f TXE 7 1 | Data register empty (transmitting)
+f RXNE 6 1 | Data register not empty (receiving)
+f STOPF 4 1 | Stop detected (slave)
+f ADD10 3 1 | 10-bit header sent
+f BTF 2 1 | Byte transfer finished
+f ADDR 1 1 | Address sent (master) or matched (slave)
+f SB 0 1 | Start condition generated
+reg SR2 0x18 2 | Status 2
+f PEC 8 8 | Packet error checking register
+f DUALF 7 1 | Dual flag
+f SMBHOST 6 1 | SMBus host header
+f SMBDEFAULT 5 1 | SMBus device default address
+f GENCALL 4 1 | General call address
+f TRA 2 1 | Transmitter
+f BUSY 1 1 | Bus busy
+f MSL 0 1 | Master
+reg CCR 0x1C 2 | Clock control
+f F_S 15 1 | Fast mode (400 kHz)
+f DUTY 14 1 | Fast mode duty cycle
+f CCR 0 12 | Clock control: half an SCL period in PCLK1 periods (standard mode)
+reg TRISE 0x20 2 | Maximum rise time
+reg FLTR 0x24 2 | Noise filters (kept, not simulated)
+f ANOFF 4 1 | Analog filter off
+f DNF 0 4 | Digital filter: 0 off, else this many PCLK1 periods
+
+per I2C1 0x40005400 | I2C 1 (function 4: PB6 or PB8 SCL, PB7 or PB9 SDA)
+use F4_I2C
+per I2C2 0x40005800 | I2C 2 (function 4: PB10 SCL, PB11 SDA)
+use F4_I2C
+per I2C3 0x40005C00 | I2C 3 (function 4: PA8 SCL, PC9 SDA)
+use F4_I2C
+
+)",
+R"(
+type F4_DMA
+reg LISR 0x00 4 | Status of streams 0 to 3
+f TCIF0 5 1 | Stream 0 transfer complete
+f HTIF0 4 1 | Stream 0 half transfer
+f TEIF0 3 1 | Stream 0 transfer error
+f DMEIF0 2 1 | Stream 0 direct mode error (not raised)
+f FEIF0 0 1 | Stream 0 FIFO error (not raised)
+f TCIF1 11 1 | Stream 1 transfer complete
+f HTIF1 10 1 | Stream 1 half transfer
+f TEIF1 9 1 | Stream 1 transfer error
+f DMEIF1 8 1 | Stream 1 direct mode error (not raised)
+f FEIF1 6 1 | Stream 1 FIFO error (not raised)
+f TCIF2 21 1 | Stream 2 transfer complete
+f HTIF2 20 1 | Stream 2 half transfer
+f TEIF2 19 1 | Stream 2 transfer error
+f DMEIF2 18 1 | Stream 2 direct mode error (not raised)
+f FEIF2 16 1 | Stream 2 FIFO error (not raised)
+f TCIF3 27 1 | Stream 3 transfer complete
+f HTIF3 26 1 | Stream 3 half transfer
+f TEIF3 25 1 | Stream 3 transfer error
+f DMEIF3 24 1 | Stream 3 direct mode error (not raised)
+f FEIF3 22 1 | Stream 3 FIFO error (not raised)
+reg HISR 0x04 4 | Status of streams 4 to 7
+f TCIF4 5 1 | Stream 4 transfer complete
+f HTIF4 4 1 | Stream 4 half transfer
+f TEIF4 3 1 | Stream 4 transfer error
+f DMEIF4 2 1 | Stream 4 direct mode error (not raised)
+f FEIF4 0 1 | Stream 4 FIFO error (not raised)
+f TCIF5 11 1 | Stream 5 transfer complete
+f HTIF5 10 1 | Stream 5 half transfer
+f TEIF5 9 1 | Stream 5 transfer error
+f DMEIF5 8 1 | Stream 5 direct mode error (not raised)
+f FEIF5 6 1 | Stream 5 FIFO error (not raised)
+f TCIF6 21 1 | Stream 6 transfer complete
+f HTIF6 20 1 | Stream 6 half transfer
+f TEIF6 19 1 | Stream 6 transfer error
+f DMEIF6 18 1 | Stream 6 direct mode error (not raised)
+f FEIF6 16 1 | Stream 6 FIFO error (not raised)
+f TCIF7 27 1 | Stream 7 transfer complete
+f HTIF7 26 1 | Stream 7 half transfer
+f TEIF7 25 1 | Stream 7 transfer error
+f DMEIF7 24 1 | Stream 7 direct mode error (not raised)
+f FEIF7 22 1 | Stream 7 FIFO error (not raised)
+reg LIFCR 0x08 4 | Clears the flags of streams 0 to 3 (write-only)
+reg HIFCR 0x0C 4 | Clears the flags of streams 4 to 7 (write-only)
+reg S0CR 0x10 4 | Stream 0 configuration
+f CHSEL 25 3 | Channel: which peripheral request the stream serves (RM0090 tables 42, 43)
+f MBURST 23 2 | Memory burst (not simulated)
+f PBURST 21 2 | Peripheral burst (not simulated)
+f CT 19 1 | Current target in double-buffer mode: 0 M0AR, 1 M1AR
+f DBM 18 1 | Double-buffer mode
+f PL 16 2 | Priority: 0 low to 3 very high
+f PINCOS 15 1 | Peripheral increment of 4 bytes
+f MSIZE 13 2 | Memory size: 0 byte, 1 half word, 2 word
+f PSIZE 11 2 | Peripheral size: 0 byte, 1 half word, 2 word
+f MINC 10 1 | Memory address increments
+f PINC 9 1 | Peripheral address increments
+f CIRC 8 1 | Circular mode
+f DIR 6 2 | Direction: 0 peripheral to memory, 1 memory to peripheral, 2 memory to memory (DMA2)
+f PFCTRL 5 1 | Peripheral flow controller (not simulated)
+f TCIE 4 1 | Transfer complete interrupt enable
+f HTIE 3 1 | Half transfer interrupt enable
+f TEIE 2 1 | Transfer error interrupt enable
+f DMEIE 1 1 | Direct mode error interrupt enable
+f EN 0 1 | Stream enable
+reg S0NDTR 0x14 4 | Stream 0: items left to transfer
+reg S0PAR 0x18 4 | Stream 0: peripheral address (the source from memory to memory)
+reg S0M0AR 0x1C 4 | Stream 0: memory address 0
+reg S0M1AR 0x20 4 | Stream 0: memory address 1 (double-buffer mode)
+reg S0FCR 0x24 4 | Stream 0 FIFO control
+f FEIE 7 1 | FIFO error interrupt enable
+f FS 3 3 | FIFO status (4: empty)
+f DMDIS 2 1 | Direct mode off: the FIFO is used
+f FTH 0 2 | FIFO threshold (not simulated)
+reg S1CR 0x28 4 | Stream 1 configuration
+like S0CR
+reg S1NDTR 0x2C 4 | Stream 1: items left to transfer
+reg S1PAR 0x30 4 | Stream 1: peripheral address (the source from memory to memory)
+reg S1M0AR 0x34 4 | Stream 1: memory address 0
+reg S1M1AR 0x38 4 | Stream 1: memory address 1 (double-buffer mode)
+reg S1FCR 0x3C 4 | Stream 1 FIFO control
+like S0FCR
+reg S2CR 0x40 4 | Stream 2 configuration
+like S0CR
+reg S2NDTR 0x44 4 | Stream 2: items left to transfer
+reg S2PAR 0x48 4 | Stream 2: peripheral address (the source from memory to memory)
+reg S2M0AR 0x4C 4 | Stream 2: memory address 0
+reg S2M1AR 0x50 4 | Stream 2: memory address 1 (double-buffer mode)
+reg S2FCR 0x54 4 | Stream 2 FIFO control
+like S0FCR
+reg S3CR 0x58 4 | Stream 3 configuration
+like S0CR
+reg S3NDTR 0x5C 4 | Stream 3: items left to transfer
+reg S3PAR 0x60 4 | Stream 3: peripheral address (the source from memory to memory)
+reg S3M0AR 0x64 4 | Stream 3: memory address 0
+reg S3M1AR 0x68 4 | Stream 3: memory address 1 (double-buffer mode)
+reg S3FCR 0x6C 4 | Stream 3 FIFO control
+like S0FCR
+reg S4CR 0x70 4 | Stream 4 configuration
+like S0CR
+reg S4NDTR 0x74 4 | Stream 4: items left to transfer
+reg S4PAR 0x78 4 | Stream 4: peripheral address (the source from memory to memory)
+reg S4M0AR 0x7C 4 | Stream 4: memory address 0
+reg S4M1AR 0x80 4 | Stream 4: memory address 1 (double-buffer mode)
+reg S4FCR 0x84 4 | Stream 4 FIFO control
+like S0FCR
+reg S5CR 0x88 4 | Stream 5 configuration
+like S0CR
+reg S5NDTR 0x8C 4 | Stream 5: items left to transfer
+reg S5PAR 0x90 4 | Stream 5: peripheral address (the source from memory to memory)
+reg S5M0AR 0x94 4 | Stream 5: memory address 0
+reg S5M1AR 0x98 4 | Stream 5: memory address 1 (double-buffer mode)
+reg S5FCR 0x9C 4 | Stream 5 FIFO control
+like S0FCR
+reg S6CR 0xA0 4 | Stream 6 configuration
+like S0CR
+reg S6NDTR 0xA4 4 | Stream 6: items left to transfer
+reg S6PAR 0xA8 4 | Stream 6: peripheral address (the source from memory to memory)
+reg S6M0AR 0xAC 4 | Stream 6: memory address 0
+reg S6M1AR 0xB0 4 | Stream 6: memory address 1 (double-buffer mode)
+reg S6FCR 0xB4 4 | Stream 6 FIFO control
+like S0FCR
+reg S7CR 0xB8 4 | Stream 7 configuration
+like S0CR
+reg S7NDTR 0xBC 4 | Stream 7: items left to transfer
+reg S7PAR 0xC0 4 | Stream 7: peripheral address (the source from memory to memory)
+reg S7M0AR 0xC4 4 | Stream 7: memory address 0
+reg S7M1AR 0xC8 4 | Stream 7: memory address 1 (double-buffer mode)
+reg S7FCR 0xCC 4 | Stream 7 FIFO control
+like S0FCR
+
+per DMA1 0x40026000 | DMA controller 1 (serial ports 2 to 5, SPI2, SPI3, the I2Cs, the DAC)
+use F4_DMA
+per DMA2 0x40026400 | DMA controller 2 (USART1, USART6, SPI1, the ADCs; memory to memory)
+use F4_DMA
+)",
+R"(
+
+per RTC 0x40002800 | Real-time clock with its backup registers (kept through a reset)
+reg TR 0x00 4 | Time (BCD)
+f PM 22 1 | PM in the 12-hour format
+f HT 20 2 | Hour tens
+f HU 16 4 | Hour units
+f MNT 12 3 | Minute tens
+f MNU 8 4 | Minute units
+f ST 4 3 | Second tens
+f SU 0 4 | Second units
+reg DR 0x04 4 | Date (BCD)
+f YT 20 4 | Year tens
+f YU 16 4 | Year units
+f WDU 13 3 | Weekday: 1 Monday to 7 Sunday
+f MT 12 1 | Month tens
+f MU 8 4 | Month units
+f DT 4 2 | Day tens
+f DU 0 4 | Day units
+reg CR 0x08 4 | Control
+f COE 23 1 | Calibration output (not simulated)
+f OSEL 21 2 | Output: alarm A, alarm B or wakeup (not simulated)
+f BKP 18 1 | Summer time already applied (a note for the firmware)
+f SUB1H 17 1 | Subtract one hour
+f ADD1H 16 1 | Add one hour
+f WUTIE 14 1 | Wakeup interrupt enable
+f ALRBIE 13 1 | Alarm B interrupt enable
+f ALRAIE 12 1 | Alarm A interrupt enable
+f WUTE 10 1 | Wakeup timer enable
+f ALRBE 9 1 | Alarm B enable
+f ALRAE 8 1 | Alarm A enable
+f FMT 6 1 | Hour format: 0 24 hours, 1 AM/PM
+f WUCKSEL 0 3 | Wakeup clock: 0 RTCCLK/16, 1 /8, 2 /4, 3 /2, 4 1 Hz, 6 1 Hz + 2^16
+reg ISR 0x0C 4 | Initialization and status
+f WUTF 10 1 | Wakeup flag
+f ALRBF 9 1 | Alarm B flag
+f ALRAF 8 1 | Alarm A flag
+f INIT 7 1 | Initialization mode requested
+f INITF 6 1 | In initialization mode: TR, DR and PRER can be written
+f RSF 5 1 | Shadow registers synchronized
+f INITS 4 1 | The calendar was initialized (the year is not 0)
+f WUTWF 2 1 | WUTR can be written
+f ALRBWF 1 1 | ALRMBR can be written
+f ALRAWF 0 1 | ALRMAR can be written
+reg PRER 0x10 4 | Prescalers: RTCCLK / (PREDIV_A + 1) / (PREDIV_S + 1) is the 1 Hz clock
+f PREDIV_A 16 7 | Asynchronous prescaler
+f PREDIV_S 0 15 | Synchronous prescaler
+reg WUTR 0x14 4 | Wakeup timer: an event every WUTR + 1 periods of its clock
+reg ALRMAR 0x1C 4 | Alarm A (BCD; a mask bit set leaves its field out)
+f MSK4 31 1 | Leave the date or weekday out
+f WDSEL 30 1 | DU is a weekday
+f DT 28 2 | Day tens
+f DU 24 4 | Day units or weekday
+f MSK3 23 1 | Leave the hours out
+f HT 20 2 | Hour tens
+f HU 16 4 | Hour units
+f MSK2 15 1 | Leave the minutes out
+f MNT 12 3 | Minute tens
+f MNU 8 4 | Minute units
+f MSK1 7 1 | Leave the seconds out
+f ST 4 3 | Second tens
+f SU 0 4 | Second units
+reg ALRMBR 0x20 4 | Alarm B
+like ALRMAR
+reg SSR 0x28 4 | Subseconds: PREDIV_S down to 0 in each second
+reg BKP0R 0x50 4 | Backup register 0
+reg BKP1R 0x54 4 | Backup register 1
+reg BKP2R 0x58 4 | Backup register 2
+reg BKP3R 0x5C 4 | Backup register 3
+reg BKP4R 0x60 4 | Backup register 4
+reg BKP5R 0x64 4 | Backup register 5
+reg BKP6R 0x68 4 | Backup register 6
+reg BKP7R 0x6C 4 | Backup register 7
+reg BKP8R 0x70 4 | Backup register 8
+reg BKP9R 0x74 4 | Backup register 9
+reg BKP10R 0x78 4 | Backup register 10
+reg BKP11R 0x7C 4 | Backup register 11
+reg BKP12R 0x80 4 | Backup register 12
+reg BKP13R 0x84 4 | Backup register 13
+reg BKP14R 0x88 4 | Backup register 14
+reg BKP15R 0x8C 4 | Backup register 15
+reg BKP16R 0x90 4 | Backup register 16
+reg BKP17R 0x94 4 | Backup register 17
+reg BKP18R 0x98 4 | Backup register 18
+reg BKP19R 0x9C 4 | Backup register 19
+
+per IWDG 0x40003000 | Independent watchdog (LSI, 32 kHz)
+reg PR 0x04 4 | Prescaler
+f PR 0 3 | LSI divided by 4, 8, 16, 32, 64, 128, 256
+reg RLR 0x08 4 | Reload value
+f RL 0 12
+
+per WWDG 0x40002C00 | Window watchdog
+reg CR 0x00 4 | Control
+f WDGA 7 1 | Watchdog active
+f T 0 7 | Counter: a reset when it goes from 0x40 to 0x3F
+reg CFR 0x04 4 | Configuration
+f EWI 9 1 | Early wakeup interrupt enable
+f WDGTB 7 2 | Timer base: PCLK1/4096 divided by 1, 2, 4, 8
+f W 0 7 | Window: a refresh above it resets the chip
+reg SR 0x08 4 | Status
+f EWIF 0 1 | Early wakeup interrupt flag
+
+per CRC 0x40023000 | CRC calculation unit
+reg DR 0x00 4 | Data: the CRC so far
+reg IDR 0x04 4 | Independent data (one free byte)
+
+per RNG 0x50060800 | Random number generator (a fixed sequence in SimNodus)
+reg CR 0x00 4 | Control
+f IE 3 1 | Interrupt enable
+f RNGEN 2 1 | Generator enable
+reg SR 0x04 4 | Status
+f DRDY 0 1 | A number is ready
+reg DR 0x08 4 | Data: the number (shown without taking it)
 
 per NVIC_64_81 0xE000E100 | Cortex-M interrupt controller: interrupts 64 to 81
 reg ISER2 0x008 4 | Interrupts 64 to 81 enabled

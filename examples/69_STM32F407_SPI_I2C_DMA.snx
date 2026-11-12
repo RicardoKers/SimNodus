@@ -1,0 +1,1661 @@
+{
+  "buses": [],
+  "components": [
+    {
+      "at": [
+        0,
+        0
+      ],
+      "designator": "U1",
+      "id": 1,
+      "mirrored": false,
+      "parameters": {
+        "firmware": "firmware/f4_buses/f4_buses.elf"
+      },
+      "rotation": 0,
+      "type": "stm32f407vet6_lqfp100"
+    },
+    {
+      "at": [
+        -44,
+        -44
+      ],
+      "designator": "V1",
+      "id": 2,
+      "mirrored": false,
+      "parameters": {
+        "V": "3.3"
+      },
+      "rotation": 0,
+      "type": "vdc"
+    },
+    {
+      "at": [
+        -24,
+        -26
+      ],
+      "designator": "Y1",
+      "id": 20,
+      "mirrored": false,
+      "parameters": {
+        "frequency": "25M"
+      },
+      "rotation": 90,
+      "type": "crystal"
+    },
+    {
+      "at": [
+        -32,
+        -29
+      ],
+      "designator": "C1",
+      "id": 23,
+      "mirrored": false,
+      "parameters": {
+        "C": "22p",
+        "V0": "0"
+      },
+      "rotation": 90,
+      "type": "capacitor"
+    },
+    {
+      "at": [
+        -32,
+        -23
+      ],
+      "designator": "C2",
+      "id": 24,
+      "mirrored": false,
+      "parameters": {
+        "C": "22p",
+        "V0": "0"
+      },
+      "rotation": 90,
+      "type": "capacitor"
+    },
+    {
+      "at": [
+        -44,
+        -30
+      ],
+      "designator": "SW1",
+      "id": 35,
+      "mirrored": false,
+      "parameters": {
+        "bounce": "no"
+      },
+      "rotation": 0,
+      "type": "button_no"
+    },
+    {
+      "at": [
+        60,
+        -20
+      ],
+      "designator": "U2",
+      "id": 49,
+      "mirrored": false,
+      "parameters": {},
+      "rotation": 0,
+      "type": "74hc595"
+    },
+    {
+      "at": [
+        80,
+        -34
+      ],
+      "designator": "R2",
+      "id": 57,
+      "mirrored": false,
+      "parameters": {
+        "R": "330"
+      },
+      "rotation": 270,
+      "type": "resistor"
+    },
+    {
+      "at": [
+        88,
+        -34
+      ],
+      "designator": "LED1",
+      "id": 58,
+      "mirrored": false,
+      "parameters": {
+        "color": "red"
+      },
+      "rotation": 270,
+      "type": "led"
+    },
+    {
+      "at": [
+        80,
+        -30
+      ],
+      "designator": "R3",
+      "id": 63,
+      "mirrored": false,
+      "parameters": {
+        "R": "330"
+      },
+      "rotation": 270,
+      "type": "resistor"
+    },
+    {
+      "at": [
+        88,
+        -30
+      ],
+      "designator": "LED2",
+      "id": 64,
+      "mirrored": false,
+      "parameters": {
+        "color": "red"
+      },
+      "rotation": 270,
+      "type": "led"
+    },
+    {
+      "at": [
+        80,
+        -26
+      ],
+      "designator": "R4",
+      "id": 69,
+      "mirrored": false,
+      "parameters": {
+        "R": "330"
+      },
+      "rotation": 270,
+      "type": "resistor"
+    },
+    {
+      "at": [
+        88,
+        -26
+      ],
+      "designator": "LED3",
+      "id": 70,
+      "mirrored": false,
+      "parameters": {
+        "color": "red"
+      },
+      "rotation": 270,
+      "type": "led"
+    },
+    {
+      "at": [
+        80,
+        -22
+      ],
+      "designator": "R5",
+      "id": 75,
+      "mirrored": false,
+      "parameters": {
+        "R": "330"
+      },
+      "rotation": 270,
+      "type": "resistor"
+    },
+    {
+      "at": [
+        88,
+        -22
+      ],
+      "designator": "LED4",
+      "id": 76,
+      "mirrored": false,
+      "parameters": {
+        "color": "red"
+      },
+      "rotation": 270,
+      "type": "led"
+    },
+    {
+      "at": [
+        80,
+        -18
+      ],
+      "designator": "R6",
+      "id": 81,
+      "mirrored": false,
+      "parameters": {
+        "R": "330"
+      },
+      "rotation": 270,
+      "type": "resistor"
+    },
+    {
+      "at": [
+        88,
+        -18
+      ],
+      "designator": "LED5",
+      "id": 82,
+      "mirrored": false,
+      "parameters": {
+        "color": "red"
+      },
+      "rotation": 270,
+      "type": "led"
+    },
+    {
+      "at": [
+        80,
+        -14
+      ],
+      "designator": "R7",
+      "id": 87,
+      "mirrored": false,
+      "parameters": {
+        "R": "330"
+      },
+      "rotation": 270,
+      "type": "resistor"
+    },
+    {
+      "at": [
+        88,
+        -14
+      ],
+      "designator": "LED6",
+      "id": 88,
+      "mirrored": false,
+      "parameters": {
+        "color": "red"
+      },
+      "rotation": 270,
+      "type": "led"
+    },
+    {
+      "at": [
+        80,
+        -10
+      ],
+      "designator": "R8",
+      "id": 93,
+      "mirrored": false,
+      "parameters": {
+        "R": "330"
+      },
+      "rotation": 270,
+      "type": "resistor"
+    },
+    {
+      "at": [
+        88,
+        -10
+      ],
+      "designator": "LED7",
+      "id": 94,
+      "mirrored": false,
+      "parameters": {
+        "color": "red"
+      },
+      "rotation": 270,
+      "type": "led"
+    },
+    {
+      "at": [
+        80,
+        -6
+      ],
+      "designator": "R9",
+      "id": 99,
+      "mirrored": false,
+      "parameters": {
+        "R": "330"
+      },
+      "rotation": 270,
+      "type": "resistor"
+    },
+    {
+      "at": [
+        88,
+        -6
+      ],
+      "designator": "LED8",
+      "id": 100,
+      "mirrored": false,
+      "parameters": {
+        "color": "red"
+      },
+      "rotation": 270,
+      "type": "led"
+    },
+    {
+      "at": [
+        40,
+        62
+      ],
+      "designator": "V2",
+      "id": 105,
+      "mirrored": false,
+      "parameters": {
+        "V": "5"
+      },
+      "rotation": 0,
+      "type": "vdc"
+    },
+    {
+      "at": [
+        60,
+        30
+      ],
+      "designator": "U3",
+      "id": 108,
+      "mirrored": false,
+      "parameters": {},
+      "rotation": 0,
+      "type": "max7219"
+    },
+    {
+      "at": [
+        95,
+        30
+      ],
+      "designator": "DS1",
+      "id": 114,
+      "mirrored": false,
+      "parameters": {
+        "color": "red"
+      },
+      "rotation": 0,
+      "type": "led_matrix_8x8"
+    },
+    {
+      "at": [
+        -40,
+        22
+      ],
+      "designator": "R10",
+      "id": 147,
+      "mirrored": false,
+      "parameters": {
+        "R": "4k7"
+      },
+      "rotation": 0,
+      "type": "resistor"
+    },
+    {
+      "at": [
+        -46,
+        22
+      ],
+      "designator": "R11",
+      "id": 150,
+      "mirrored": false,
+      "parameters": {
+        "R": "4k7"
+      },
+      "rotation": 0,
+      "type": "resistor"
+    },
+    {
+      "at": [
+        -70,
+        22
+      ],
+      "designator": "U4",
+      "id": 153,
+      "mirrored": false,
+      "parameters": {
+        "contents": ""
+      },
+      "rotation": 0,
+      "type": "24c02"
+    },
+    {
+      "at": [
+        -70,
+        48
+      ],
+      "designator": "U5",
+      "id": 154,
+      "mirrored": false,
+      "parameters": {
+        "temperature": "23.5"
+      },
+      "rotation": 0,
+      "type": "lm75"
+    }
+  ],
+  "format": "simnodus-project",
+  "labels": [
+    {
+      "at": [
+        -44,
+        -47
+      ],
+      "id": 3,
+      "name": "3V3"
+    },
+    {
+      "at": [
+        -44,
+        -41
+      ],
+      "id": 4,
+      "name": "GND"
+    },
+    {
+      "at": [
+        -13,
+        -29
+      ],
+      "id": 5,
+      "name": "3V3"
+    },
+    {
+      "at": [
+        -13,
+        -13
+      ],
+      "id": 6,
+      "name": "3V3"
+    },
+    {
+      "at": [
+        -13,
+        5
+      ],
+      "id": 7,
+      "name": "3V3"
+    },
+    {
+      "at": [
+        -13,
+        49
+      ],
+      "id": 8,
+      "name": "3V3"
+    },
+    {
+      "at": [
+        13,
+        1
+      ],
+      "id": 9,
+      "name": "3V3"
+    },
+    {
+      "at": [
+        13,
+        -49
+      ],
+      "id": 10,
+      "name": "3V3"
+    },
+    {
+      "at": [
+        -13,
+        -7
+      ],
+      "id": 11,
+      "name": "3V3"
+    },
+    {
+      "at": [
+        -13,
+        -9
+      ],
+      "id": 12,
+      "name": "3V3"
+    },
+    {
+      "at": [
+        -13,
+        -39
+      ],
+      "id": 13,
+      "name": "3V3"
+    },
+    {
+      "at": [
+        -13,
+        -31
+      ],
+      "id": 14,
+      "name": "GND"
+    },
+    {
+      "at": [
+        -13,
+        3
+      ],
+      "id": 15,
+      "name": "GND"
+    },
+    {
+      "at": [
+        13,
+        3
+      ],
+      "id": 16,
+      "name": "GND"
+    },
+    {
+      "at": [
+        13,
+        -47
+      ],
+      "id": 17,
+      "name": "GND"
+    },
+    {
+      "at": [
+        -13,
+        -11
+      ],
+      "id": 18,
+      "name": "GND"
+    },
+    {
+      "at": [
+        13,
+        -37
+      ],
+      "id": 19,
+      "name": "GND"
+    },
+    {
+      "at": [
+        -35,
+        -29
+      ],
+      "id": 27,
+      "name": "GND"
+    },
+    {
+      "at": [
+        -35,
+        -23
+      ],
+      "id": 28,
+      "name": "GND"
+    },
+    {
+      "at": [
+        -13,
+        -23
+      ],
+      "id": 34,
+      "name": "NRST"
+    },
+    {
+      "at": [
+        -47,
+        -30
+      ],
+      "id": 38,
+      "name": "NRST"
+    },
+    {
+      "at": [
+        -41,
+        -30
+      ],
+      "id": 39,
+      "name": "GND"
+    },
+    {
+      "at": [
+        -13,
+        13
+      ],
+      "id": 41,
+      "name": "SER"
+    },
+    {
+      "at": [
+        -13,
+        9
+      ],
+      "id": 42,
+      "name": "SCK"
+    },
+    {
+      "at": [
+        -13,
+        7
+      ],
+      "id": 43,
+      "name": "LATCH"
+    },
+    {
+      "at": [
+        13,
+        43
+      ],
+      "id": 44,
+      "name": "MDIN"
+    },
+    {
+      "at": [
+        13,
+        47
+      ],
+      "id": 45,
+      "name": "MCLK"
+    },
+    {
+      "at": [
+        13,
+        49
+      ],
+      "id": 46,
+      "name": "MLOAD"
+    },
+    {
+      "at": [
+        13,
+        -33
+      ],
+      "id": 47,
+      "name": "SCL"
+    },
+    {
+      "at": [
+        13,
+        -35
+      ],
+      "id": 48,
+      "name": "SDA"
+    },
+    {
+      "at": [
+        54,
+        -24
+      ],
+      "id": 50,
+      "name": "SER"
+    },
+    {
+      "at": [
+        54,
+        -22
+      ],
+      "id": 51,
+      "name": "SCK"
+    },
+    {
+      "at": [
+        54,
+        -20
+      ],
+      "id": 52,
+      "name": "LATCH"
+    },
+    {
+      "at": [
+        54,
+        -18
+      ],
+      "id": 53,
+      "name": "3V3"
+    },
+    {
+      "at": [
+        54,
+        -16
+      ],
+      "id": 54,
+      "name": "GND"
+    },
+    {
+      "at": [
+        60,
+        -32
+      ],
+      "id": 55,
+      "name": "3V3"
+    },
+    {
+      "at": [
+        60,
+        -8
+      ],
+      "id": 56,
+      "name": "GND"
+    },
+    {
+      "at": [
+        66,
+        -28
+      ],
+      "id": 60,
+      "name": "Q0"
+    },
+    {
+      "at": [
+        77,
+        -34
+      ],
+      "id": 61,
+      "name": "Q0"
+    },
+    {
+      "at": [
+        91,
+        -34
+      ],
+      "id": 62,
+      "name": "GND"
+    },
+    {
+      "at": [
+        66,
+        -26
+      ],
+      "id": 66,
+      "name": "Q1"
+    },
+    {
+      "at": [
+        77,
+        -30
+      ],
+      "id": 67,
+      "name": "Q1"
+    },
+    {
+      "at": [
+        91,
+        -30
+      ],
+      "id": 68,
+      "name": "GND"
+    },
+    {
+      "at": [
+        66,
+        -24
+      ],
+      "id": 72,
+      "name": "Q2"
+    },
+    {
+      "at": [
+        77,
+        -26
+      ],
+      "id": 73,
+      "name": "Q2"
+    },
+    {
+      "at": [
+        91,
+        -26
+      ],
+      "id": 74,
+      "name": "GND"
+    },
+    {
+      "at": [
+        66,
+        -22
+      ],
+      "id": 78,
+      "name": "Q3"
+    },
+    {
+      "at": [
+        77,
+        -22
+      ],
+      "id": 79,
+      "name": "Q3"
+    },
+    {
+      "at": [
+        91,
+        -22
+      ],
+      "id": 80,
+      "name": "GND"
+    },
+    {
+      "at": [
+        66,
+        -20
+      ],
+      "id": 84,
+      "name": "Q4"
+    },
+    {
+      "at": [
+        77,
+        -18
+      ],
+      "id": 85,
+      "name": "Q4"
+    },
+    {
+      "at": [
+        91,
+        -18
+      ],
+      "id": 86,
+      "name": "GND"
+    },
+    {
+      "at": [
+        66,
+        -18
+      ],
+      "id": 90,
+      "name": "Q5"
+    },
+    {
+      "at": [
+        77,
+        -14
+      ],
+      "id": 91,
+      "name": "Q5"
+    },
+    {
+      "at": [
+        91,
+        -14
+      ],
+      "id": 92,
+      "name": "GND"
+    },
+    {
+      "at": [
+        66,
+        -16
+      ],
+      "id": 96,
+      "name": "Q6"
+    },
+    {
+      "at": [
+        77,
+        -10
+      ],
+      "id": 97,
+      "name": "Q6"
+    },
+    {
+      "at": [
+        91,
+        -10
+      ],
+      "id": 98,
+      "name": "GND"
+    },
+    {
+      "at": [
+        66,
+        -14
+      ],
+      "id": 102,
+      "name": "Q7"
+    },
+    {
+      "at": [
+        77,
+        -6
+      ],
+      "id": 103,
+      "name": "Q7"
+    },
+    {
+      "at": [
+        91,
+        -6
+      ],
+      "id": 104,
+      "name": "GND"
+    },
+    {
+      "at": [
+        40,
+        59
+      ],
+      "id": 106,
+      "name": "5V"
+    },
+    {
+      "at": [
+        40,
+        65
+      ],
+      "id": 107,
+      "name": "GND"
+    },
+    {
+      "at": [
+        54,
+        27
+      ],
+      "id": 109,
+      "name": "MDIN"
+    },
+    {
+      "at": [
+        54,
+        29
+      ],
+      "id": 110,
+      "name": "MCLK"
+    },
+    {
+      "at": [
+        54,
+        31
+      ],
+      "id": 111,
+      "name": "MLOAD"
+    },
+    {
+      "at": [
+        60,
+        11
+      ],
+      "id": 112,
+      "name": "5V"
+    },
+    {
+      "at": [
+        60,
+        49
+      ],
+      "id": 113,
+      "name": "GND"
+    },
+    {
+      "at": [
+        66,
+        15
+      ],
+      "id": 115,
+      "name": "ROW1"
+    },
+    {
+      "at": [
+        84,
+        23
+      ],
+      "id": 116,
+      "name": "ROW1"
+    },
+    {
+      "at": [
+        66,
+        17
+      ],
+      "id": 117,
+      "name": "ROW2"
+    },
+    {
+      "at": [
+        84,
+        25
+      ],
+      "id": 118,
+      "name": "ROW2"
+    },
+    {
+      "at": [
+        66,
+        19
+      ],
+      "id": 119,
+      "name": "ROW3"
+    },
+    {
+      "at": [
+        84,
+        27
+      ],
+      "id": 120,
+      "name": "ROW3"
+    },
+    {
+      "at": [
+        66,
+        21
+      ],
+      "id": 121,
+      "name": "ROW4"
+    },
+    {
+      "at": [
+        84,
+        29
+      ],
+      "id": 122,
+      "name": "ROW4"
+    },
+    {
+      "at": [
+        66,
+        23
+      ],
+      "id": 123,
+      "name": "ROW5"
+    },
+    {
+      "at": [
+        84,
+        31
+      ],
+      "id": 124,
+      "name": "ROW5"
+    },
+    {
+      "at": [
+        66,
+        25
+      ],
+      "id": 125,
+      "name": "ROW6"
+    },
+    {
+      "at": [
+        84,
+        33
+      ],
+      "id": 126,
+      "name": "ROW6"
+    },
+    {
+      "at": [
+        66,
+        27
+      ],
+      "id": 127,
+      "name": "ROW7"
+    },
+    {
+      "at": [
+        84,
+        35
+      ],
+      "id": 128,
+      "name": "ROW7"
+    },
+    {
+      "at": [
+        66,
+        29
+      ],
+      "id": 129,
+      "name": "ROW8"
+    },
+    {
+      "at": [
+        84,
+        37
+      ],
+      "id": 130,
+      "name": "ROW8"
+    },
+    {
+      "at": [
+        66,
+        45
+      ],
+      "id": 131,
+      "name": "COL1"
+    },
+    {
+      "at": [
+        88,
+        41
+      ],
+      "id": 132,
+      "name": "COL1"
+    },
+    {
+      "at": [
+        66,
+        31
+      ],
+      "id": 133,
+      "name": "COL2"
+    },
+    {
+      "at": [
+        90,
+        41
+      ],
+      "id": 134,
+      "name": "COL2"
+    },
+    {
+      "at": [
+        66,
+        33
+      ],
+      "id": 135,
+      "name": "COL3"
+    },
+    {
+      "at": [
+        92,
+        41
+      ],
+      "id": 136,
+      "name": "COL3"
+    },
+    {
+      "at": [
+        66,
+        35
+      ],
+      "id": 137,
+      "name": "COL4"
+    },
+    {
+      "at": [
+        94,
+        41
+      ],
+      "id": 138,
+      "name": "COL4"
+    },
+    {
+      "at": [
+        66,
+        37
+      ],
+      "id": 139,
+      "name": "COL5"
+    },
+    {
+      "at": [
+        96,
+        41
+      ],
+      "id": 140,
+      "name": "COL5"
+    },
+    {
+      "at": [
+        66,
+        39
+      ],
+      "id": 141,
+      "name": "COL6"
+    },
+    {
+      "at": [
+        98,
+        41
+      ],
+      "id": 142,
+      "name": "COL6"
+    },
+    {
+      "at": [
+        66,
+        41
+      ],
+      "id": 143,
+      "name": "COL7"
+    },
+    {
+      "at": [
+        100,
+        41
+      ],
+      "id": 144,
+      "name": "COL7"
+    },
+    {
+      "at": [
+        66,
+        43
+      ],
+      "id": 145,
+      "name": "COL8"
+    },
+    {
+      "at": [
+        102,
+        41
+      ],
+      "id": 146,
+      "name": "COL8"
+    },
+    {
+      "at": [
+        -40,
+        19
+      ],
+      "id": 148,
+      "name": "3V3"
+    },
+    {
+      "at": [
+        -40,
+        25
+      ],
+      "id": 149,
+      "name": "SCL"
+    },
+    {
+      "at": [
+        -46,
+        19
+      ],
+      "id": 151,
+      "name": "3V3"
+    },
+    {
+      "at": [
+        -46,
+        25
+      ],
+      "id": 152,
+      "name": "SDA"
+    },
+    {
+      "at": [
+        -76,
+        18
+      ],
+      "id": 155,
+      "name": "SCL"
+    },
+    {
+      "at": [
+        -76,
+        20
+      ],
+      "id": 156,
+      "name": "SDA"
+    },
+    {
+      "at": [
+        -76,
+        22
+      ],
+      "id": 157,
+      "name": "GND"
+    },
+    {
+      "at": [
+        -76,
+        24
+      ],
+      "id": 158,
+      "name": "GND"
+    },
+    {
+      "at": [
+        -76,
+        26
+      ],
+      "id": 159,
+      "name": "GND"
+    },
+    {
+      "at": [
+        -70,
+        14
+      ],
+      "id": 160,
+      "name": "3V3"
+    },
+    {
+      "at": [
+        -70,
+        30
+      ],
+      "id": 161,
+      "name": "GND"
+    },
+    {
+      "at": [
+        -76,
+        44
+      ],
+      "id": 162,
+      "name": "SCL"
+    },
+    {
+      "at": [
+        -76,
+        46
+      ],
+      "id": 163,
+      "name": "SDA"
+    },
+    {
+      "at": [
+        -76,
+        48
+      ],
+      "id": 164,
+      "name": "GND"
+    },
+    {
+      "at": [
+        -76,
+        50
+      ],
+      "id": 165,
+      "name": "GND"
+    },
+    {
+      "at": [
+        -76,
+        52
+      ],
+      "id": 166,
+      "name": "GND"
+    },
+    {
+      "at": [
+        -70,
+        40
+      ],
+      "id": 167,
+      "name": "3V3"
+    },
+    {
+      "at": [
+        -70,
+        56
+      ],
+      "id": 168,
+      "name": "GND"
+    },
+    {
+      "at": [
+        -64,
+        22
+      ],
+      "id": 169,
+      "name": "GND"
+    }
+  ],
+  "next_id": 177,
+  "notes": [
+    {
+      "at": [
+        18,
+        -64
+      ],
+      "id": 176,
+      "text": "STM32F407VET6 (experimental): SPI, I2C and DMA, at 16 MHz (HSI).\nSPI1 (PA5, PA7) shifts a count into the 74HC595 (PA4 latches it): the LEDs count every 250 ms.\nSPI2 (PB13, PB15, 16-bit frames; PB12 is LOAD) draws a smiley on the MAX7219's matrix; its last row counts.\nI2C1 (PB6, PB7, 4k7 pull-ups) writes \"SimNodus\" into the 24C02 and reads it back, then reads the LM75.\nUSART1 (PA9, 115200 baud) prints through DMA2: open Simulate > Serial Terminal.\nTry: change U5's temperature while running, or delete R10 (the bus stops; see the Messages panel)."
+    }
+  ],
+  "probes": [
+    {
+      "color": "",
+      "id": 37,
+      "kind": "voltage",
+      "target": {
+        "at": [
+          13,
+          15
+        ],
+        "item": 1,
+        "pin": "PA9"
+      }
+    },
+    {
+      "color": "",
+      "id": 170,
+      "kind": "voltage",
+      "target": {
+        "at": [
+          -13,
+          9
+        ],
+        "item": 1,
+        "pin": "PA5"
+      }
+    },
+    {
+      "color": "",
+      "id": 171,
+      "kind": "voltage",
+      "target": {
+        "at": [
+          -13,
+          13
+        ],
+        "item": 1,
+        "pin": "PA7"
+      }
+    },
+    {
+      "color": "",
+      "id": 172,
+      "kind": "voltage",
+      "target": {
+        "at": [
+          -13,
+          7
+        ],
+        "item": 1,
+        "pin": "PA4"
+      }
+    },
+    {
+      "color": "",
+      "id": 173,
+      "kind": "voltage",
+      "target": {
+        "at": [
+          13,
+          47
+        ],
+        "item": 1,
+        "pin": "PB13"
+      }
+    },
+    {
+      "color": "",
+      "id": 174,
+      "kind": "voltage",
+      "target": {
+        "at": [
+          13,
+          -33
+        ],
+        "item": 1,
+        "pin": "PB6"
+      }
+    },
+    {
+      "color": "",
+      "id": 175,
+      "kind": "voltage",
+      "target": {
+        "at": [
+          13,
+          -35
+        ],
+        "item": 1,
+        "pin": "PB7"
+      }
+    }
+  ],
+  "settings": {
+    "cortex_m3_timing": true,
+    "exact_edges": false,
+    "max_step": 0.0001,
+    "mcu_quantum": 0.001,
+    "mode": "interactive",
+    "segment": 1.0,
+    "speed": 1.0,
+    "transient_max_step": 1e-06,
+    "transient_stop": 0.01
+  },
+  "splitters": [],
+  "version": 1,
+  "wires": [
+    {
+      "id": 21,
+      "points": [
+        [
+          -13,
+          -27
+        ],
+        [
+          -24,
+          -27
+        ],
+        [
+          -24,
+          -29
+        ]
+      ]
+    },
+    {
+      "id": 22,
+      "points": [
+        [
+          -13,
+          -25
+        ],
+        [
+          -24,
+          -25
+        ],
+        [
+          -24,
+          -23
+        ]
+      ]
+    },
+    {
+      "id": 25,
+      "points": [
+        [
+          -24,
+          -29
+        ],
+        [
+          -29,
+          -29
+        ]
+      ]
+    },
+    {
+      "id": 26,
+      "points": [
+        [
+          -24,
+          -23
+        ],
+        [
+          -29,
+          -23
+        ]
+      ]
+    },
+    {
+      "id": 59,
+      "points": [
+        [
+          83,
+          -34
+        ],
+        [
+          85,
+          -34
+        ]
+      ]
+    },
+    {
+      "id": 65,
+      "points": [
+        [
+          83,
+          -30
+        ],
+        [
+          85,
+          -30
+        ]
+      ]
+    },
+    {
+      "id": 71,
+      "points": [
+        [
+          83,
+          -26
+        ],
+        [
+          85,
+          -26
+        ]
+      ]
+    },
+    {
+      "id": 77,
+      "points": [
+        [
+          83,
+          -22
+        ],
+        [
+          85,
+          -22
+        ]
+      ]
+    },
+    {
+      "id": 83,
+      "points": [
+        [
+          83,
+          -18
+        ],
+        [
+          85,
+          -18
+        ]
+      ]
+    },
+    {
+      "id": 89,
+      "points": [
+        [
+          83,
+          -14
+        ],
+        [
+          85,
+          -14
+        ]
+      ]
+    },
+    {
+      "id": 95,
+      "points": [
+        [
+          83,
+          -10
+        ],
+        [
+          85,
+          -10
+        ]
+      ]
+    },
+    {
+      "id": 101,
+      "points": [
+        [
+          83,
+          -6
+        ],
+        [
+          85,
+          -6
+        ]
+      ]
+    }
+  ]
+}

@@ -15,15 +15,47 @@ constexpr std::uint32_t CR2_DMAEN = 1u << 11, CR2_LAST = 1u << 12;
 
 } // namespace
 
-Stm32F1I2c::Stm32F1I2c(I2cHost& host, int number)
-    : host_(host), number_(number), irq_ev_(number == 1 ? 31 : 33), irq_er_(number == 1 ? 32 : 34),
-      dma_tx_(number == 1 ? 6 : 4), dma_rx_(number == 1 ? 7 : 5)
+std::pair<int, int> I2cHost::i2c_pin(int number, bool scl) const
 {
+    if (number == 2) {
+        return scl ? std::pair{1, 10} : std::pair{1, 11};
+    }
+    const bool remap = (afio_mapr() & 2u) != 0; // I2C1_REMAP
+    return scl ? std::pair{1, remap ? 8 : 6} : std::pair{1, remap ? 9 : 7};
+}
+
+namespace {
+
+I2cConfig f103_config(int number)
+{
+    I2cConfig config;
+    config.number = number;
+    config.irq_ev = number == 1 ? 31 : 33;
+    config.irq_er = number == 1 ? 32 : 34;
+    config.dma_tx = number == 1 ? 6 : 4;
+    config.dma_rx = number == 1 ? 7 : 5;
+    return config;
+}
+
+} // namespace
+
+Stm32F1I2c::Stm32F1I2c(I2cHost& host, int number) : Stm32F1I2c(host, f103_config(number)) {}
+
+Stm32F1I2c::Stm32F1I2c(I2cHost& host, const I2cConfig& config)
+    : host_(host), number_(config.number), irq_ev_(config.irq_ev), irq_er_(config.irq_er), dma_tx_(config.dma_tx),
+      dma_rx_(config.dma_rx), f4_(config.stm32f4)
+{
+}
+
+const char* Stm32F1I2c::name() const
+{
+    static const char* const names[] = {"I2C", "I2C1", "I2C2", "I2C3"};
+    return names[number_ >= 1 && number_ <= 3 ? number_ : 0];
 }
 
 void Stm32F1I2c::reset()
 {
-    cr1_ = cr2_ = oar1_ = oar2_ = ccr_ = 0;
+    cr1_ = cr2_ = oar1_ = oar2_ = ccr_ = fltr_ = 0;
     trise_ = 2;
     sb_ = addr_ = btf_ = rxne_ = txe_ = af_ = ovr_ = false;
     msl_ = busy_ = tra_ = false;
@@ -37,22 +69,6 @@ void Stm32F1I2c::reset()
     stop_pending_ = start_pending_ = false;
     shift_full_ = false;
     driven_scl_ = driven_sda_ = {-1, -1}; // the machine reset released the pins
-}
-
-std::pair<int, int> Stm32F1I2c::scl() const
-{
-    if (number_ == 2) {
-        return {1, 10};
-    }
-    return (host_.afio_mapr() & 2u) ? std::pair{1, 8} : std::pair{1, 6}; // I2C1_REMAP
-}
-
-std::pair<int, int> Stm32F1I2c::sda() const
-{
-    if (number_ == 2) {
-        return {1, 11};
-    }
-    return (host_.afio_mapr() & 2u) ? std::pair{1, 9} : std::pair{1, 7};
 }
 
 void Stm32F1I2c::drive(bool scl_side, bool released, std::uint64_t cycle)
@@ -385,6 +401,7 @@ bool Stm32F1I2c::read(std::uint32_t offset, unsigned size, std::uint32_t& value)
         break;
     case 0x1C: reg = ccr_; break;
     case 0x20: reg = trise_; break;
+    case 0x24: reg = f4_ ? fltr_ : 0; break;
     default: break;
     }
     value = (reg >> (8 * (offset & 3u))) & (size == 1 ? 0xFFu : 0xFFFFu);
@@ -465,6 +482,9 @@ bool Stm32F1I2c::write(std::uint32_t offset, unsigned size, std::uint32_t value)
         break;
     case 0x20:
         trise_ = value & 0x3Fu;
+        break;
+    case 0x24:
+        fltr_ = value & 0x1Fu; // the analog and digital noise filters: kept, not simulated
         break;
     default: break;
     }

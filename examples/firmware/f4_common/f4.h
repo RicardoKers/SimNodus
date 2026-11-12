@@ -41,11 +41,13 @@ enum { PORT_A, PORT_B, PORT_C, PORT_D, PORT_E };
 #define USART1_DR REG(0x40011004u)
 #define USART1_BRR REG(0x40011008u)
 #define USART1_CR1 REG(0x4001100Cu)
+#define USART1_CR3 REG(0x40011014u)
 
 #define SYST_CSR REG(0xE000E010u)
 #define SYST_RVR REG(0xE000E014u)
 #define SYST_CVR REG(0xE000E018u)
 #define NVIC_ISER0 REG(0xE000E100u)
+#define NVIC_ISER1 REG(0xE000E104u)
 #define SCB_VTOR REG(0xE000ED08u)
 #define SCB_CPACR REG(0xE000ED88u)
 #define DWT_CTRL REG(0xE0001000u)
@@ -74,6 +76,12 @@ void F4_USART1(void);
 #ifdef F4_ADC
 void F4_ADC(void);
 #endif
+#ifdef F4_RTC_WKUP
+void F4_RTC_WKUP(void);
+#endif
+#ifdef F4_RTC_ALARM
+void F4_RTC_ALARM(void);
+#endif
 
 __attribute__((section(".vectors"), used))
 const uintptr_t vectors[16 + 82] = {
@@ -87,11 +95,17 @@ const uintptr_t vectors[16 + 82] = {
     [11] = (uintptr_t)Default_Handler, // SVCall
     [14] = (uintptr_t)Default_Handler, // PendSV
     [15] = (uintptr_t)F4_SYSTICK,
+#ifdef F4_RTC_WKUP
+    [16 + 3] = (uintptr_t)F4_RTC_WKUP,
+#endif
     [16 + 6] = (uintptr_t)F4_EXTI0,
 #ifdef F4_ADC
     [16 + 18] = (uintptr_t)F4_ADC,
 #endif
     [16 + 37] = (uintptr_t)F4_USART1,
+#ifdef F4_RTC_ALARM
+    [16 + 41] = (uintptr_t)F4_RTC_ALARM,
+#endif
 };
 
 void Default_Handler(void)

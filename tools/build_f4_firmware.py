@@ -1,7 +1,8 @@
 """Build the STM32F407 test firmware in examples/firmware/f4_<name>/ into f4_<name>.elf.
 
 Each folder holds one C source for the STM32F407VE that includes
-examples/firmware/f4_common/f4.h (registers, vector table, start-up) and
+examples/firmware/f4_common/f4.h (registers, vector table, start-up), or
+f4_peripherals.h there (I2C, USART through DMA, the RTC, on top of f4.h), and
 links with examples/firmware/stm32f407ve.ld, without a C library, for the
 Cortex-M4 with its FPU (hard float ABI, as STM32CubeIDE builds). The ELF
 files are committed so that the tests run without a compiler;
@@ -57,7 +58,11 @@ def main() -> int:
         repeat.unlink()
         if not same:
             raise SystemExit(f"Repeated build of {folder.name} changed the ELF")
-        manifest["firmware"][folder.name] = {"sources": sources + ["examples/firmware/f4_common/f4.h"],
+        text = "".join((ROOT / source).read_text(encoding="utf-8") for source in sources)
+        headers = ["examples/firmware/f4_common/f4.h"] + sorted(
+            h.relative_to(ROOT).as_posix() for h in (FIRMWARE / "f4_common").glob("*.h")
+            if h.name != "f4.h" and h.name in text)
+        manifest["firmware"][folder.name] = {"sources": sources + headers,
                                              "elf": elf.relative_to(ROOT).as_posix(), "sha256": sha256(elf),
                                              "size": elf.stat().st_size}
         print(f"built {elf.relative_to(ROOT)} ({elf.stat().st_size} bytes)")

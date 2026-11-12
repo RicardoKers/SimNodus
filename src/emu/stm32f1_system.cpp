@@ -96,7 +96,7 @@ void Stm32F1Iwdg::reload()
 {
     // Timeout = (RLR + 1) * prescaler / LSI; the prescaler is 4 << PR, at most 256.
     const std::uint64_t prescaler = 4u << std::min<std::uint32_t>(pr_, 6);
-    deadline_ns_ = host_.system_now_ns() + scale((rlr_ + 1) * prescaler, ns_per_s, lsi_hz, true);
+    deadline_ns_ = host_.system_now_ns() + scale((rlr_ + 1) * prescaler, ns_per_s, lsi_, true);
     host_.system_schedule_changed();
 }
 

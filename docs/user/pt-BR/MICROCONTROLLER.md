@@ -1,4 +1,4 @@
-<!-- source: MICROCONTROLLER.md sha256 857f48401c049306c9242f7e4911574003786c45e9323cbe74d95df80a4adcd6 -->
+<!-- source: MICROCONTROLLER.md sha256 77de3d0873edc918d3e7cfe1c6c3675134c1f318c2c039424f1ce0c1fe089d10 -->
 # Microcontrolador: o que é simulado
 
 O SimNodus executa o firmware da **Blue Pill (STM32F103C8)** em seu próprio emulador
@@ -751,12 +751,16 @@ chip real ainda, e só parte do chip é simulada.
 - **O que funciona**: a árvore de clock (HSI, HSE, o PLL), GPIO com os
   números de função alternativa, interrupções externas em qualquer porta, as
   seis portas seriais (USART1 a USART3, UART4, UART5, USART6), os timers
-  TIM1 a TIM14, os três ADCs, o DAC, o SysTick e o controlador de
-  interrupções, as instruções DSP e de ponto flutuante.
-- **Ainda não simulado**: SPI, I2C, DMA, RTC, os watchdogs, USB, Ethernet,
-  SDIO, CAN; nos timers os modos alinhados ao centro, a entrada de break, os
-  filtros de entrada e os modos escravo além do encoder; nos ADCs os modos
-  descontínuo e multi-ADC; a onda de ruído do DAC. Seus registradores
+  TIM1 a TIM14, os três ADCs, o DAC, SPI1 a SPI3, I2C1 a I2C3, DMA1 e DMA2,
+  o RTC com seus registradores de backup e a SRAM de backup, os dois
+  watchdogs, a unidade de CRC, o gerador de números aleatórios, o SysTick e o
+  controlador de interrupções, as instruções DSP e de ponto flutuante.
+- **Ainda não simulado**: USB, Ethernet, SDIO, CAN, I2S, a interface de
+  câmera, o controlador de memória externa; nos timers os modos alinhados ao
+  centro, a entrada de break, os filtros de entrada, os modos escravo além do
+  encoder e seus pedidos de DMA; nos ADCs os modos descontínuo e multi-ADC; a
+  onda de ruído do DAC; os modos escravo de SPI e I2C; as entradas de tamper e
+  de carimbo de tempo do RTC e sua calibração. Seus registradores
   guardam o que o firmware escreve e o painel Mensagens avisa uma vez o que
   não faz nada. Um projeto do STM32CubeMX roda até onde usa o que funciona
   (a base de tempo da HAL é o SysTick).
@@ -803,10 +807,38 @@ chip real ainda, e só parte do chip é simulada.
   Com seu buffer de saída (o padrão) a tensão fica entre 0,2 V e 3,1 V atrás
   de uma resistência pequena (uma aproximação do buffer); sem ele, de 0 a
   3,3 V atrás de 15 kΩ, então uma carga a puxa para baixo.
+- **SPI e I2C**: mestres, como na Blue Pill (acima), nos pinos do seu
+  número de função alternativa: 5 para SPI1 e SPI2, 6 para SPI3, 4 para os
+  I2Cs. Os chips do diagrama (74HC595, MAX7219, 24C02, LM75 e os outros)
+  respondem dentro da transferência. O I2C precisa dos resistores de pull-up
+  e de pinos em dreno aberto; sem eles o SCL fica baixo e o painel Mensagens
+  avisa.
+- **DMA**: os streams do DMA1 e do DMA2 atendem as portas seriais, os SPIs,
+  os I2Cs, os ADCs e o DAC no canal que o firmware escolhe (CHSEL, pelas
+  tabelas do RM0090), de periférico para memória, de memória para periférico
+  e de memória para memória (só o DMA2), nos modos normal, circular e de
+  buffer duplo, com as flags e interrupções de meia transferência e de
+  transferência completa. Uma transferência não gasta tempo de barramento.
+  Os pedidos de DMA dos timers ainda não estão ligados.
+- **RTC**: o calendário (hora e data em BCD, o dia da semana, 24 horas ou
+  AM/PM) conta com uma peça **Cristal** de 32,768 kHz entre **PC14** e
+  **PC15** (o LSE), com o LSI (32 kHz) ou com o HSE dividido; alarmes A e B,
+  o timer de despertar e os vinte registradores de backup, que guardam seus
+  valores num reset (NRST, o watchdog, software) e só se apagam quando a
+  simulação começa. Como no chip, o firmware tem de ligar `PWR_CR.DBP` e
+  escrever a chave de proteção antes de mudar o RTC; sem um clock rodando o
+  modo de inicialização nunca começa, e o painel Mensagens diz por quê.
+- **Watchdogs, CRC, RNG**: o watchdog independente roda com o LSI (32 kHz) e
+  o watchdog de janela com o PCLK1; qualquer um reinicia o chip, e o
+  `RCC_CSR` diz qual. O gerador de números aleatórios dá uma sequência
+  pseudoaleatória fixa, a mesma em toda simulação, para que as simulações se
+  repitam.
 - **Velocidade**: um firmware que espera em laço ativo a 168 MHz roda abaixo
   do tempo real (cerca de 0,8 vez); um firmware que dorme entre interrupções
   (`WFI`, como o `HAL_Delay` não faz, mas a tarefa ociosa de um RTOS faz)
-  roda várias vezes mais rápido que o tempo real.
+  roda várias vezes mais rápido que o tempo real (exemplo 71: cerca de 6
+  vezes). Um MAX7219 que varre sua matriz 800 vezes por segundo deixa
+  qualquer simulação mais lenta (exemplo 69: cerca de 0,4 vez o tempo real).
 - **Tempo das instruções**: as instruções levam os ciclos do Cortex-M4; os
   estados de espera da flash e seu acelerador ainda não são modelados, então
   laços contados em instruções são aproximados.
@@ -815,11 +847,15 @@ chip real ainda, e só parte do chip é simulada.
   **Visualizador de registradores** tem os registradores do chip, com os da
   FPU.
 - **Exemplos**: 67 (um cristal de 25 MHz, o PLL a 168 MHz, a USART1 a 115200
-  baud, um LED em PC13, um botão de reset) e 68 (timers, ADC e DAC: um
+  baud, um LED em PC13, um botão de reset), 68 (timers, ADC e DAC: um
   potenciômetro em PA1 define o ciclo de trabalho do PWM do TIM1 em PA8 e
-  PB13, o DAC devolve a tensão em PA4 e desenha um triângulo em PA5). Os
-  fontes dos firmwares e mais firmwares de teste estão em
-  `examples/firmware/f4_*`.
+  PB13, o DAC devolve a tensão em PA4 e desenha um triângulo em PA5), 69 (SPI
+  para um 74HC595 e um MAX7219, I2C para uma 24C02 e um LM75, USART1 por
+  DMA), 70 (o RTC com seu cristal, um alarme, os registradores de backup e o
+  watchdog) e 71 (a estação a 168 MHz que dorme entre os segundos do RTC:
+  temperatura, PWM, DAC e saída serial). Os fontes dos firmwares e mais
+  firmwares de teste estão em `examples/firmware/f4_*`; eles usam os
+  registradores, não a HAL.
 
 ## Depuração com STM32CubeIDE ou GDB
 
