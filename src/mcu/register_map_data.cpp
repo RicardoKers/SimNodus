@@ -24,14 +24,15 @@ namespace simnodus::mcu {
 
 // Declared for register_map.cpp (a const array is local to its file otherwise).
 extern const char* const stm32f103_registers[];
+extern const char* const stm32f407_registers[];
 extern const char* const atmega8_registers[];
 extern const char* const atmega32_registers[];
 extern const char* const atmega328p_registers[];
 
-const char* const stm32f103_registers[] = {
-R"(chip stm32f103
-
-per CORE 0xFFFFF000 | Cortex-M3 core registers
+// Shared by the STM32F103 and the STM32F407: the Cortex-M core's registers, its
+// system registers, and the USART.
+const char cortex_core_registers[] =
+R"(per CORE 0xFFFFF000 | Cortex-M core registers
 reg R0 0x00 4 | General-purpose register (first argument and return value of a function)
 reg R1 0x04 4 | General-purpose register (second argument)
 reg R2 0x08 4 | General-purpose register (third argument)
@@ -57,6 +58,118 @@ f Q 27 1 | Saturation
 f T 24 1 | Thumb state
 f EXCEPTION 0 9 | Number of the exception running (0: thread mode)
 
+)";
+
+const char cortex_system_registers[] =
+R"(per SysTick 0xE000E010 | Cortex-M system timer
+reg CTRL 0x00 4 | Control and status
+f COUNTFLAG 16 1 | Counted to 0 since the last read by the firmware
+f CLKSOURCE 2 1 | Clock: 0 HCLK/8, 1 HCLK
+f TICKINT 1 1 | Interrupt when it counts to 0
+f ENABLE 0 1 | Counter enable
+reg LOAD 0x04 4 | Reload value: the period is LOAD + 1
+reg VAL 0x08 4 | Current value
+reg CALIB 0x0C 4 | Calibration
+
+per NVIC 0xE000E100 | Cortex-M interrupt controller
+reg ISER0 0x000 4 | Interrupts 0 to 31 enabled
+reg ISER1 0x004 4 | Interrupts 32 to 63 enabled
+reg ISPR0 0x100 4 | Interrupts 0 to 31 pending
+reg ISPR1 0x104 4 | Interrupts 32 to 63 pending
+reg IABR0 0x200 4 | Interrupts 0 to 31 active
+reg IABR1 0x204 4 | Interrupts 32 to 63 active
+
+per SCB 0xE000ED00 | Cortex-M system control block
+reg CPUID 0x00 4 | Processor identification
+reg ICSR 0x04 4 | Interrupt control and state
+f NMIPENDSET 31 1 | NMI pending
+f PENDSVSET 28 1 | PendSV pending
+f PENDSTSET 26 1 | SysTick pending
+f ISRPENDING 22 1 | An interrupt is pending
+f VECTPENDING 12 10 | Number of the highest pending exception
+f RETTOBASE 11 1 | No other exception is active
+f VECTACTIVE 0 9 | Number of the exception running (0: thread mode)
+reg VTOR 0x08 4 | Vector table address
+reg AIRCR 0x0C 4 | Application interrupt and reset control
+f PRIGROUP 8 3 | Priority grouping
+reg SCR 0x10 4 | System control
+f SLEEPDEEP 2 1 | Deep sleep
+f SLEEPONEXIT 1 1 | Sleep when returning to thread mode
+reg CCR 0x14 4 | Configuration and control
+reg SHCSR 0x24 4 | System handler control and state
+reg CFSR 0x28 4 | Configurable fault status
+f UFSR 16 16 | Usage fault: 1 undefined instruction, 2 invalid state, 4 invalid PC, 8 no coprocessor, 0x100 unaligned, 0x200 division by zero
+f BFSR 8 8 | Bus fault: 1 instruction, 2 precise data, 4 imprecise data, 8 unstacking, 0x10 stacking, 0x80 BFAR valid
+f MMFSR 0 8 | Memory management fault
+reg HFSR 0x2C 4 | Hard fault status
+f FORCED 30 1 | A fault that could not run its handler became a hard fault
+f VECTTBL 1 1 | Bus fault reading the vector table
+reg MMFAR 0x34 4 | Memory management fault address
+reg BFAR 0x38 4 | Bus fault address
+)";
+
+const char stm32_usart_registers[] =
+R"(type USART
+reg SR 0x00 2 | Status
+f CTS 9 1 | CTS changed
+f LBD 8 1 | LIN break detected
+f TXE 7 1 | Transmit data register empty
+f TC 6 1 | Transmission complete
+f RXNE 5 1 | Received data ready to be read
+f IDLE 4 1 | Idle line detected
+f ORE 3 1 | Overrun error
+f NE 2 1 | Noise error
+f FE 1 1 | Framing error
+f PE 0 1 | Parity error
+reg DR 0x04 2 | Data: the byte received (shown without taking it)
+reg BRR 0x08 2 | Baud rate: PCLK divided by this number (mantissa and sixteenths)
+f DIV_Mantissa 4 12
+f DIV_Fraction 0 4
+reg CR1 0x0C 2 | Control 1
+f UE 13 1 | USART enable
+f M 12 1 | Word length: 0 eight bits, 1 nine bits
+f WAKE 11 1 | Wakeup method
+f PCE 10 1 | Parity control enable
+f PS 9 1 | Parity: 0 even, 1 odd
+f PEIE 8 1 | Parity error interrupt enable
+f TXEIE 7 1 | TXE interrupt enable
+f TCIE 6 1 | Transmission complete interrupt enable
+f RXNEIE 5 1 | RXNE interrupt enable
+f IDLEIE 4 1 | IDLE interrupt enable
+f TE 3 1 | Transmitter enable
+f RE 2 1 | Receiver enable
+f RWU 1 1 | Receiver in mute mode
+f SBK 0 1 | Send break
+reg CR2 0x10 2 | Control 2
+f LINEN 14 1 | LIN mode enable
+f STOP 12 2 | Stop bits: 0 one, 1 half, 2 two, 3 one and a half
+f CLKEN 11 1 | Clock pin enable
+f CPOL 10 1 | Clock polarity
+f CPHA 9 1 | Clock phase
+f LBCL 8 1 | Last bit clock pulse
+f LBDIE 6 1 | LIN break interrupt enable
+f LBDL 5 1 | LIN break detection length
+f ADD 0 4 | Address of the node
+reg CR3 0x14 2 | Control 3
+f CTSIE 10 1 | CTS interrupt enable
+f CTSE 9 1 | CTS enable
+f RTSE 8 1 | RTS enable
+f DMAT 7 1 | DMA for transmission
+f DMAR 6 1 | DMA for reception
+f SCEN 5 1 | Smartcard mode
+f NACK 4 1 | Smartcard NACK
+f HDSEL 3 1 | Half-duplex (single wire)
+f IRLP 2 1 | IrDA low power
+f IREN 1 1 | IrDA mode
+f EIE 0 1 | Error interrupt enable
+reg GTPR 0x18 2 | Guard time and prescaler
+
+)";
+
+const char* const stm32f103_registers[] = {
+"chip stm32f103\n\n",
+cortex_core_registers,
+R"(
 type GPIO
 reg CRL 0x00 4 | Configuration of pins 0 to 7
 fr MODE 0 8 2 0 4 | Pin #: 0 input, 1 output 10 MHz, 2 output 2 MHz, 3 output 50 MHz
@@ -375,62 +488,8 @@ use TIM
 per TIM4 0x40000800 | General-purpose timer
 use TIM
 )",
+stm32_usart_registers,
 R"(
-type USART
-reg SR 0x00 2 | Status
-f CTS 9 1 | CTS changed
-f LBD 8 1 | LIN break detected
-f TXE 7 1 | Transmit data register empty
-f TC 6 1 | Transmission complete
-f RXNE 5 1 | Received data ready to be read
-f IDLE 4 1 | Idle line detected
-f ORE 3 1 | Overrun error
-f NE 2 1 | Noise error
-f FE 1 1 | Framing error
-f PE 0 1 | Parity error
-reg DR 0x04 2 | Data: the byte received (shown without taking it)
-reg BRR 0x08 2 | Baud rate: PCLK divided by this number (mantissa and sixteenths)
-f DIV_Mantissa 4 12
-f DIV_Fraction 0 4
-reg CR1 0x0C 2 | Control 1
-f UE 13 1 | USART enable
-f M 12 1 | Word length: 0 eight bits, 1 nine bits
-f WAKE 11 1 | Wakeup method
-f PCE 10 1 | Parity control enable
-f PS 9 1 | Parity: 0 even, 1 odd
-f PEIE 8 1 | Parity error interrupt enable
-f TXEIE 7 1 | TXE interrupt enable
-f TCIE 6 1 | Transmission complete interrupt enable
-f RXNEIE 5 1 | RXNE interrupt enable
-f IDLEIE 4 1 | IDLE interrupt enable
-f TE 3 1 | Transmitter enable
-f RE 2 1 | Receiver enable
-f RWU 1 1 | Receiver in mute mode
-f SBK 0 1 | Send break
-reg CR2 0x10 2 | Control 2
-f LINEN 14 1 | LIN mode enable
-f STOP 12 2 | Stop bits: 0 one, 1 half, 2 two, 3 one and a half
-f CLKEN 11 1 | Clock pin enable
-f CPOL 10 1 | Clock polarity
-f CPHA 9 1 | Clock phase
-f LBCL 8 1 | Last bit clock pulse
-f LBDIE 6 1 | LIN break interrupt enable
-f LBDL 5 1 | LIN break detection length
-f ADD 0 4 | Address of the node
-reg CR3 0x14 2 | Control 3
-f CTSIE 10 1 | CTS interrupt enable
-f CTSE 9 1 | CTS enable
-f RTSE 8 1 | RTS enable
-f DMAT 7 1 | DMA for transmission
-f DMAR 6 1 | DMA for reception
-f SCEN 5 1 | Smartcard mode
-f NACK 4 1 | Smartcard NACK
-f HDSEL 3 1 | Half-duplex (single wire)
-f IRLP 2 1 | IrDA low power
-f IREN 1 1 | IrDA mode
-f EIE 0 1 | Error interrupt enable
-reg GTPR 0x18 2 | Guard time and prescaler
-
 per USART1 0x40013800 | Serial port 1 (PA9 TX, PA10 RX)
 use USART
 per USART2 0x40004400 | Serial port 2 (PA2 TX, PA3 RX)
@@ -714,52 +773,305 @@ per CRC 0x40023000 | CRC calculation unit
 reg DR 0x00 4 | Data: the CRC so far
 reg IDR 0x04 4 | Independent data (one free byte)
 
-per SysTick 0xE000E010 | Cortex-M3 system timer
-reg CTRL 0x00 4 | Control and status
-f COUNTFLAG 16 1 | Counted to 0 since the last read by the firmware
-f CLKSOURCE 2 1 | Clock: 0 HCLK/8, 1 HCLK
-f TICKINT 1 1 | Interrupt when it counts to 0
-f ENABLE 0 1 | Counter enable
-reg LOAD 0x04 4 | Reload value: the period is LOAD + 1
-reg VAL 0x08 4 | Current value
-reg CALIB 0x0C 4 | Calibration
-
-per NVIC 0xE000E100 | Cortex-M3 interrupt controller
-reg ISER0 0x000 4 | Interrupts 0 to 31 enabled
-reg ISER1 0x004 4 | Interrupts 32 to 63 enabled
-reg ISPR0 0x100 4 | Interrupts 0 to 31 pending
-reg ISPR1 0x104 4 | Interrupts 32 to 63 pending
-reg IABR0 0x200 4 | Interrupts 0 to 31 active
-reg IABR1 0x204 4 | Interrupts 32 to 63 active
-
-per SCB 0xE000ED00 | Cortex-M3 system control block
-reg CPUID 0x00 4 | Processor identification
-reg ICSR 0x04 4 | Interrupt control and state
-f NMIPENDSET 31 1 | NMI pending
-f PENDSVSET 28 1 | PendSV pending
-f PENDSTSET 26 1 | SysTick pending
-f ISRPENDING 22 1 | An interrupt is pending
-f VECTPENDING 12 10 | Number of the highest pending exception
-f RETTOBASE 11 1 | No other exception is active
-f VECTACTIVE 0 9 | Number of the exception running (0: thread mode)
-reg VTOR 0x08 4 | Vector table address
-reg AIRCR 0x0C 4 | Application interrupt and reset control
-f PRIGROUP 8 3 | Priority grouping
-reg SCR 0x10 4 | System control
-f SLEEPDEEP 2 1 | Deep sleep
-f SLEEPONEXIT 1 1 | Sleep when returning to thread mode
-reg CCR 0x14 4 | Configuration and control
-reg SHCSR 0x24 4 | System handler control and state
-reg CFSR 0x28 4 | Configurable fault status
-f UFSR 16 16 | Usage fault: 1 undefined instruction, 2 invalid state, 4 invalid PC, 8 no coprocessor, 0x100 unaligned, 0x200 division by zero
-f BFSR 8 8 | Bus fault: 1 instruction, 2 precise data, 4 imprecise data, 8 unstacking, 0x10 stacking, 0x80 BFAR valid
-f MMFSR 0 8 | Memory management fault
-reg HFSR 0x2C 4 | Hard fault status
-f FORCED 30 1 | A fault that could not run its handler became a hard fault
-f VECTTBL 1 1 | Bus fault reading the vector table
-reg MMFAR 0x34 4 | Memory management fault address
-reg BFAR 0x38 4 | Bus fault address
 )",
+cortex_system_registers,
+nullptr};
+
+// The STM32F407 (RM0090): what the machine of experiment E-12 has so far.
+const char* const stm32f407_registers[] = {
+"chip stm32f407\n\n",
+cortex_core_registers,
+R"(
+per FPU 0xFFFFF054 | The FPU's single-precision registers (D0 to D15 are pairs of them)
+reg S0 0x00 4 | Single-precision register (first floating-point argument and result)
+reg S1 0x04 4 | Single-precision register
+reg S2 0x08 4 | Single-precision register
+reg S3 0x0C 4 | Single-precision register
+reg S4 0x10 4 | Single-precision register
+reg S5 0x14 4 | Single-precision register
+reg S6 0x18 4 | Single-precision register
+reg S7 0x1C 4 | Single-precision register
+reg S8 0x20 4 | Single-precision register
+reg S9 0x24 4 | Single-precision register
+reg S10 0x28 4 | Single-precision register
+reg S11 0x2C 4 | Single-precision register
+reg S12 0x30 4 | Single-precision register
+reg S13 0x34 4 | Single-precision register
+reg S14 0x38 4 | Single-precision register
+reg S15 0x3C 4 | Single-precision register (S0 to S15 are saved on exception entry)
+reg S16 0x40 4 | Single-precision register (S16 to S31 are kept by a function)
+reg S17 0x44 4 | Single-precision register
+reg S18 0x48 4 | Single-precision register
+reg S19 0x4C 4 | Single-precision register
+reg S20 0x50 4 | Single-precision register
+reg S21 0x54 4 | Single-precision register
+reg S22 0x58 4 | Single-precision register
+reg S23 0x5C 4 | Single-precision register
+reg S24 0x60 4 | Single-precision register
+reg S25 0x64 4 | Single-precision register
+reg S26 0x68 4 | Single-precision register
+reg S27 0x6C 4 | Single-precision register
+reg S28 0x70 4 | Single-precision register
+reg S29 0x74 4 | Single-precision register
+reg S30 0x78 4 | Single-precision register
+reg S31 0x7C 4 | Single-precision register
+reg FPSCR 0x80 4 | Floating-point status and control
+f N 31 1 | Negative (of the last comparison)
+f Z 30 1 | Zero
+f C 29 1 | Carry
+f V 28 1 | Overflow (unordered)
+f AHP 26 1 | Alternative half-precision format
+f DN 25 1 | Default NaN mode
+f FZ 24 1 | Flush-to-zero mode
+f RMode 22 2 | Rounding: 0 to nearest, 1 toward plus infinity, 2 toward minus infinity, 3 toward zero
+f IDC 7 1 | Input denormal (cumulative)
+f IXC 4 1 | Inexact (cumulative)
+f UFC 3 1 | Underflow (cumulative)
+f OFC 2 1 | Overflow (cumulative)
+f DZC 1 1 | Division by zero (cumulative)
+f IOC 0 1 | Invalid operation (cumulative)
+
+per FPU_CONTROL 0xE000ED88 | The FPU's access and context control
+reg CPACR 0x000 4 | Coprocessor access control: the FPU is off until CP10 and CP11 are set
+f CP11 22 2 | 0 no access, 1 privileged only, 3 full access
+f CP10 20 2 | 0 no access, 1 privileged only, 3 full access
+reg FPCCR 0x1AC 4 | Floating-point context control
+f ASPEN 31 1 | The FPU's use is tracked, and its registers are saved on exception entry
+f LSPEN 30 1 | Lazy saving: room is reserved, the registers are written only if the handler uses the FPU
+f THREAD 3 1 | The reserved frame belongs to thread mode
+f USER 1 1 | The reserved frame belongs to unprivileged code
+f LSPACT 0 1 | A reserved frame waits to be written
+reg FPCAR 0x1B0 4 | Address of the reserved frame's floating-point part
+reg FPDSCR 0x1B4 4 | The FPSCR control bits a new context starts with
+
+type GPIO
+reg MODER 0x00 4 | Mode of each pin
+fr MODER 0 16 2 0 2 | Pin #: 0 input, 1 output, 2 alternate function, 3 analog
+reg OTYPER 0x04 4 | Output type
+fr OT 0 16 1 0 1 | Pin #: 0 push-pull, 1 open drain
+reg OSPEEDR 0x08 4 | Output speed (kept; not simulated)
+fr OSPEEDR 0 16 2 0 2 | Pin #: 0 low, 1 medium, 2 fast, 3 high
+reg PUPDR 0x0C 4 | Pull-up and pull-down
+fr PUPDR 0 16 2 0 2 | Pin #: 0 none, 1 pull-up, 2 pull-down
+reg IDR 0x10 4 | Input data: the levels on the pins
+fr IDR 0 16 1 0 1 | Level on pin #
+reg ODR 0x14 4 | Output data
+fr ODR 0 16 1 0 1 | Output of pin #
+reg LCKR 0x1C 4 | Configuration lock
+f LCKK 16 1 | Lock key
+fr LCK 0 16 1 0 1 | Configuration of pin # locked
+reg AFRL 0x20 4 | Alternate function of pins 0 to 7
+fr AFRL 0 8 4 0 4 | Function number of pin # (7: USART1 to USART3; 8: UART4, UART5, USART6)
+reg AFRH 0x24 4 | Alternate function of pins 8 to 15
+fr AFRH 8 8 4 0 4 | Function number of pin # (7: USART1 to USART3; 8: UART4, UART5, USART6)
+
+per GPIOA 0x40020000 | General-purpose I/O port A
+use GPIO
+per GPIOB 0x40020400 | General-purpose I/O port B
+use GPIO
+per GPIOC 0x40020800 | General-purpose I/O port C
+use GPIO
+per GPIOD 0x40020C00 | General-purpose I/O port D
+use GPIO
+per GPIOE 0x40021000 | General-purpose I/O port E
+use GPIO
+per GPIOH 0x40021C00 | General-purpose I/O port H (PH0 and PH1, the HSE crystal's pins)
+use GPIO
+
+per SYSCFG 0x40013800 | System configuration: the pins of the external interrupts
+reg MEMRMP 0x00 4 | Memory remap
+f MEM_MODE 0 2 | What is at address 0: 0 flash, 1 system memory, 2 FSMC, 3 SRAM
+reg PMC 0x04 4 | Peripheral mode configuration
+reg EXTICR1 0x08 4 | Port of the external interrupt lines 0 to 3
+fr EXTI 0 4 4 0 4 | Line #: 0 PA, 1 PB, 2 PC, 3 PD, 4 PE, 7 PH
+reg EXTICR2 0x0C 4 | Port of the external interrupt lines 4 to 7
+fr EXTI 4 4 4 0 4 | Line #: 0 PA, 1 PB, 2 PC, 3 PD, 4 PE, 7 PH
+reg EXTICR3 0x10 4 | Port of the external interrupt lines 8 to 11
+fr EXTI 8 4 4 0 4 | Line #: 0 PA, 1 PB, 2 PC, 3 PD, 4 PE, 7 PH
+reg EXTICR4 0x14 4 | Port of the external interrupt lines 12 to 15
+fr EXTI 12 4 4 0 4 | Line #: 0 PA, 1 PB, 2 PC, 3 PD, 4 PE, 7 PH
+
+per EXTI 0x40013C00 | External interrupts and events
+reg IMR 0x00 4 | Interrupt mask
+fr MR 0 23 1 0 1 | Interrupt of line # enabled
+reg EMR 0x04 4 | Event mask
+fr MR 0 23 1 0 1 | Event of line # enabled
+reg RTSR 0x08 4 | Rising edge trigger
+fr TR 0 23 1 0 1 | Rising edge of line #
+reg FTSR 0x0C 4 | Falling edge trigger
+fr TR 0 23 1 0 1 | Falling edge of line #
+reg SWIER 0x10 4 | Software interrupt
+fr SWIER 0 23 1 0 1 | Software interrupt on line #
+reg PR 0x14 4 | Pending (written with 1 to clear)
+fr PR 0 23 1 0 1 | Line # pending
+)",
+R"(
+per RCC 0x40023800 | Reset and clock control
+reg CR 0x00 4 | Clock control
+f PLLI2SRDY 27 1 | PLLI2S locked
+f PLLI2SON 26 1 | PLLI2S enable
+f PLLRDY 25 1 | Main PLL locked
+f PLLON 24 1 | Main PLL enable
+f CSSON 19 1 | Clock security system enable
+f HSEBYP 18 1 | External clock instead of a crystal
+f HSERDY 17 1 | HSE (crystal) oscillator ready: never without a crystal on PH0 and PH1
+f HSEON 16 1 | HSE (crystal) oscillator enable
+f HSICAL 8 8 | HSI calibration
+f HSITRIM 3 5 | HSI trimming
+f HSIRDY 1 1 | HSI (internal 16 MHz) oscillator ready
+f HSION 0 1 | HSI (internal 16 MHz) oscillator enable
+reg PLLCFGR 0x04 4 | PLL configuration: VCO = input / PLLM * PLLN, SYSCLK = VCO / PLLP
+f PLLQ 24 4 | Division for USB, SDIO and the random number generator (48 MHz)
+f PLLSRC 22 1 | PLL input: 0 HSI, 1 HSE
+f PLLP 16 2 | Division for the system clock: 0 is 2, 1 is 4, 2 is 6, 3 is 8
+f PLLN 6 9 | Multiplication (50 to 432)
+f PLLM 0 6 | Division of the input (to 1 or 2 MHz)
+reg CFGR 0x08 4 | Clock configuration
+f MCO2 30 2 | Clock output 2
+f MCO2PRE 27 3 | Clock output 2 prescaler
+f MCO1PRE 24 3 | Clock output 1 prescaler
+f I2SSRC 23 1 | I2S clock source
+f MCO1 21 2 | Clock output 1
+f RTCPRE 16 5 | HSE division for the RTC
+f PPRE2 13 3 | APB2 prescaler: 0 to 3 none, 4 /2, 5 /4, 6 /8, 7 /16
+f PPRE1 10 3 | APB1 prescaler: 0 to 3 none, 4 /2, 5 /4, 6 /8, 7 /16
+f HPRE 4 4 | AHB prescaler: 0 to 7 none, 8 /2 ... 15 /512
+f SWS 2 2 | System clock in use: 0 HSI, 1 HSE, 2 PLL
+f SW 0 2 | System clock chosen: 0 HSI, 1 HSE, 2 PLL
+reg CIR 0x0C 4 | Clock interrupts
+reg AHB1ENR 0x30 4 | AHB1 peripheral clock enable
+f OTGHSEN 29 1 | USB OTG HS clock
+f ETHMACEN 25 1 | Ethernet clock
+f DMA2EN 22 1 | DMA2 clock
+f DMA1EN 21 1 | DMA1 clock
+f CCMDATARAMEN 20 1 | CCM data RAM clock
+f BKPSRAMEN 18 1 | Backup SRAM clock
+f CRCEN 12 1 | CRC clock
+f GPIOIEN 8 1 | Port I clock
+f GPIOHEN 7 1 | Port H clock
+f GPIOGEN 6 1 | Port G clock
+f GPIOFEN 5 1 | Port F clock
+f GPIOEEN 4 1 | Port E clock
+f GPIODEN 3 1 | Port D clock
+f GPIOCEN 2 1 | Port C clock
+f GPIOBEN 1 1 | Port B clock
+f GPIOAEN 0 1 | Port A clock
+reg AHB2ENR 0x34 4 | AHB2 peripheral clock enable
+f OTGFSEN 7 1 | USB OTG FS clock
+f RNGEN 6 1 | Random number generator clock
+f DCMIEN 0 1 | Camera interface clock
+reg APB1ENR 0x40 4 | APB1 peripheral clock enable
+f DACEN 29 1 | DAC clock
+f PWREN 28 1 | Power interface clock
+f CAN2EN 26 1 | CAN2 clock
+f CAN1EN 25 1 | CAN1 clock
+f I2C3EN 23 1 | I2C3 clock
+f I2C2EN 22 1 | I2C2 clock
+f I2C1EN 21 1 | I2C1 clock
+f UART5EN 20 1 | UART5 clock
+f UART4EN 19 1 | UART4 clock
+f USART3EN 18 1 | USART3 clock
+f USART2EN 17 1 | USART2 clock
+f SPI3EN 15 1 | SPI3 clock
+f SPI2EN 14 1 | SPI2 clock
+f WWDGEN 11 1 | Window watchdog clock
+f TIM14EN 8 1 | TIM14 clock
+f TIM13EN 7 1 | TIM13 clock
+f TIM12EN 6 1 | TIM12 clock
+f TIM7EN 5 1 | TIM7 clock
+f TIM6EN 4 1 | TIM6 clock
+f TIM5EN 3 1 | TIM5 clock
+f TIM4EN 2 1 | TIM4 clock
+f TIM3EN 1 1 | TIM3 clock
+f TIM2EN 0 1 | TIM2 clock
+reg APB2ENR 0x44 4 | APB2 peripheral clock enable
+f TIM11EN 18 1 | TIM11 clock
+f TIM10EN 17 1 | TIM10 clock
+f TIM9EN 16 1 | TIM9 clock
+f SYSCFGEN 14 1 | System configuration clock
+f SPI1EN 12 1 | SPI1 clock
+f SDIOEN 11 1 | SDIO clock
+f ADC3EN 10 1 | ADC3 clock
+f ADC2EN 9 1 | ADC2 clock
+f ADC1EN 8 1 | ADC1 clock
+f USART6EN 5 1 | USART6 clock
+f USART1EN 4 1 | USART1 clock
+f TIM8EN 1 1 | TIM8 clock
+f TIM1EN 0 1 | TIM1 clock
+reg BDCR 0x70 4 | Backup domain control
+f BDRST 16 1 | Backup domain reset
+f RTCEN 15 1 | RTC clock enable
+f RTCSEL 8 2 | RTC clock: 0 none, 1 LSE, 2 LSI, 3 HSE divided
+f LSEBYP 2 1 | External clock instead of the 32768 Hz crystal
+f LSERDY 1 1 | LSE (32768 Hz) oscillator ready: never without a crystal on PC14 and PC15
+f LSEON 0 1 | LSE (32768 Hz) oscillator enable
+reg CSR 0x74 4 | Control and status: what caused the last reset
+f LPWRRSTF 31 1 | Low-power reset
+f WWDGRSTF 30 1 | Window watchdog reset
+f IWDGRSTF 29 1 | Independent watchdog reset
+f SFTRSTF 28 1 | Software reset
+f PORRSTF 27 1 | Power-on reset
+f PINRSTF 26 1 | Reset by the NRST pin
+f BORRSTF 25 1 | Brown-out reset
+f RMVF 24 1 | Remove the reset flags
+f LSIRDY 1 1 | LSI (internal 32 kHz) oscillator ready
+f LSION 0 1 | LSI (internal 32 kHz) oscillator enable
+
+per FLASH 0x40023C00 | Flash memory interface
+reg ACR 0x00 4 | Access control
+f DCEN 10 1 | Data cache enable
+f ICEN 9 1 | Instruction cache enable
+f PRFTEN 8 1 | Prefetch enable
+f LATENCY 0 3 | Wait states: one more for every 30 MHz of HCLK (5 at 168 MHz)
+reg SR 0x0C 4 | Status
+reg CR 0x10 4 | Control
+f LOCK 31 1 | Locked
+f STRT 16 1 | Start an erase
+f MER 2 1 | Mass erase
+f SER 1 1 | Sector erase
+f PG 0 1 | Programming
+reg OPTCR 0x14 4 | Option bytes
+
+per PWR 0x40007000 | Power control
+reg CR 0x00 4 | Control
+f VOS 14 1 | Regulator voltage scale: 1 for the highest frequencies
+f DBP 8 1 | Write access to the backup domain (RTC, backup registers)
+f PLS 5 3 | Voltage detector level
+f PVDE 4 1 | Voltage detector enable
+f PDDS 1 1 | Deep sleep: 0 Stop, 1 Standby
+f LPDS 0 1 | Regulator in low power in Stop
+reg CSR 0x04 4 | Control and status
+f VOSRDY 14 1 | Regulator voltage scale ready
+f BRE 9 1 | Backup regulator enable
+f EWUP 8 1 | WKUP pin enable
+f BRR 3 1 | Backup regulator ready
+f PVDO 2 1 | Supply below the detector level
+f SBF 1 1 | Was in Standby
+f WUF 0 1 | Wakeup event
+
+)",
+stm32_usart_registers,
+R"(
+per USART1 0x40011000 | Serial port 1 (PA9 or PB6 TX, PA10 or PB7 RX; function 7)
+use USART
+per USART2 0x40004400 | Serial port 2 (PA2 or PD5 TX, PA3 or PD6 RX; function 7)
+use USART
+per USART3 0x40004800 | Serial port 3 (PB10, PC10 or PD8 TX; PB11, PC11 or PD9 RX; function 7)
+use USART
+per UART4 0x40004C00 | Serial port 4 (PA0 or PC10 TX, PA1 or PC11 RX; function 8)
+use USART
+per UART5 0x40005000 | Serial port 5 (PC12 TX, PD2 RX; function 8)
+use USART
+per USART6 0x40011400 | Serial port 6 (PC6 TX, PC7 RX; function 8)
+use USART
+
+per NVIC_64_81 0xE000E100 | Cortex-M interrupt controller: interrupts 64 to 81
+reg ISER2 0x008 4 | Interrupts 64 to 81 enabled
+reg ISPR2 0x108 4 | Interrupts 64 to 81 pending
+reg IABR2 0x208 4 | Interrupts 64 to 81 active
+
+)",
+cortex_system_registers,
 nullptr};
 
 // The AVR chips: addresses are in the data space (the I/O address plus 0x20).

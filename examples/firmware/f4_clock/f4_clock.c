@@ -87,6 +87,7 @@ int main(void)
     put_text("\r\n");
     for (uint32_t second = 1;; ++second) {
         while (milliseconds < second * 1000u) {
+            __asm__ volatile("wfi"); // sleep until the next tick: nothing to do meanwhile
         }
         put_text("tick ");
         put_decimal(second);

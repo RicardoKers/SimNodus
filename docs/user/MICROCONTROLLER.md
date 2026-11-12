@@ -165,8 +165,9 @@ The registers are looked at from outside the firmware: showing `USART1_DR`
 does not take the received byte and showing `ADC1_DR` does not clear EOC, as
 a read by the firmware (or by a debugger's memory window) would. Write-only
 registers are not listed. The Blue Pill (STM32F103, with the Cortex-M3's
-SysTick, NVIC and SCB), the ATmega8/8A, ATmega328/328P, ATmega32/32A and the
-Arduino UNO have this view; the ESP32-C3 does not yet.
+SysTick, NVIC and SCB), the STM32F407 (with its FPU), the ATmega8/8A,
+ATmega328/328P, ATmega32/32A and the Arduino UNO have this view; the
+ESP32-C3 does not yet.
 
 **CORE** has the CPU's own registers: R0 to R12, SP, LR, PC and xPSR with
 its flags on the Blue Pill; the PC on an AVR, whose R0 to R31 are under
@@ -712,6 +713,57 @@ experimental until it is compared with a real board.
   resistors from it to D0 and D1, the TX and RX LEDs, VIN's regulator.
 - **Example**: 58 (the serial example of section *ATmega328 and
   ATmega328P* built for 16 MHz; `l` toggles the L LED).
+
+## STM32F407VET6 (experimental)
+
+The **STM32F407VET6 (LQFP-100)** part (Microcontrollers) is the bare chip
+with its 100 pins: a Cortex-M4 with a single-precision FPU, 512 KB of flash
+and 192 KB of RAM, up to 168 MHz. It runs the ELF file that STM32CubeIDE
+builds, FPU included. It is **experimental**: nothing in it has been
+compared with a real chip yet, and only part of the chip is simulated.
+
+- **What works**: the clock tree (HSI, HSE, the PLL), GPIO with the
+  alternate function numbers, external interrupts on any port, the six
+  serial ports (USART1 to USART3, UART4, UART5, USART6), SysTick and the
+  interrupt controller, the DSP and floating-point instructions.
+- **Not yet simulated**: timers, ADC, DAC, SPI, I2C, DMA, RTC, the
+  watchdogs, USB, Ethernet, SDIO, CAN. Their registers keep what the
+  firmware writes and the Messages panel says once that the peripheral
+  does nothing. A project from STM32CubeMX runs as far as it uses what
+  works (HAL's time base is SysTick).
+- **Power and ground**: wire the **VDD** and **VSS** pins (3.3 V); net
+  labels save the wires, as in example 67. The pins of one rail are joined
+  inside the chip. The supply voltage is not read yet: the chip runs with
+  any supply, and its pins work at 3.3 V.
+- **Crystal**: the chip starts on its internal 16 MHz oscillator. A
+  **Crystal** part between **PH0** and **PH1** is the HSE; its frequency is
+  the one typed in the part (4 to 26 MHz on the real chip). Without it the
+  HSE never becomes ready: firmware that waits for it stops there, and the
+  Messages panel says why. The firmware's `HSE_VALUE` must be the crystal's
+  frequency, as on a board: with another crystal the PLL gives another
+  frequency and the baud rates are wrong.
+- **NRST** has the chip's pull-up: leave it open, or wire a push button to
+  ground to reset the chip. **BOOT0** must be at ground (an open BOOT0 is
+  read as low; on a real board it must not float). With BOOT0 high the
+  chip would start the bootloader of its system memory, which is not
+  simulated: nothing runs, and the Messages panel says so.
+- **Serial ports**: a port reaches a pin only when the pin is in alternate
+  function mode with the port's function number (7 for USART1 to USART3,
+  8 for UART4, UART5 and USART6), as on the chip. The Serial Terminal
+  lists the six ports.
+- **Speed**: firmware that waits in a busy loop at 168 MHz runs below real
+  time (about 0.8 times); firmware that sleeps between interrupts (`WFI`,
+  as `HAL_Delay` does not, but an RTOS's idle task does) runs several
+  times faster than real time.
+- **Timing**: instructions take the Cortex-M4's cycles; the flash's wait
+  states and its accelerator are not modelled yet, so loops counted in
+  instructions are approximate.
+- **Debugging** with STM32CubeIDE works as on the Blue Pill (next
+  section); the FPU's registers S0 to S31 and FPSCR are shown too. The
+  **Register Viewer** has the chip's registers, with the FPU's.
+- **Example**: 67 (a 25 MHz crystal, the PLL at 168 MHz, USART1 at 115200
+  baud, an LED on PC13, a reset button). Its firmware source and three more
+  test firmware are in `examples/firmware/f4_*`.
 
 ## Debugging with STM32CubeIDE or GDB
 

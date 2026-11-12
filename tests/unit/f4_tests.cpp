@@ -9,6 +9,7 @@
 #include "test_support.hpp"
 
 #include "emu/elf.hpp"
+#include "emu/gdb_server.hpp"
 #include "emu/stm32f407.hpp"
 
 #include <algorithm>
@@ -407,6 +408,84 @@ TEST_CASE("f4: resets record their cause and two runs give the same trace")
             CHECK(trace == first);
         }
     }
+}
+
+TEST_CASE("f4: NRST holds the chip in reset and BOOT0 high keeps it from starting")
+{
+    auto m = machine_with("f4_blink");
+    m->run_until_ns(600 * ms);
+    CHECK(m->pin_level(C, 13)); // the first toggle, at 500 ms
+    m->set_reset_pin(true);
+    CHECK(m->held());
+    CHECK(m->pin_config(C, 13).mode == 0); // the pins are inputs again
+    const std::uint64_t instructions = m->cpu().instructions();
+    m->run_until_ns(1600 * ms); // time passes, nothing runs
+    CHECK(m->time_ns() >= 1600 * ms);
+    CHECK(m->cpu().instructions() == instructions);
+    m->set_reset_pin(false);
+    CHECK(!m->held());
+    CHECK((reg(*m, rcc + 0x74) & (1u << 26)) != 0); // PINRSTF
+    m->run_until_ns(1600 * ms + 600 * ms);
+    CHECK(m->pin_level(C, 13)); // 500 ms after the release: the firmware started again
+    m->take_diagnostics();
+    // BOOT0 high when a reset ends: the system bootloader is not there, and the log says so once.
+    m->set_boot0(true);
+    m->reset(ResetKind::Pin);
+    CHECK(m->held());
+    Trace t = run(*m, m->time_ns() + 600 * ms);
+    CHECK(t.told("BOOT0 is high at reset"));
+    CHECK(!m->pin_level(C, 13));
+    m->reset(ResetKind::Pin);
+    CHECK(m->take_diagnostics().empty());
+    m->set_boot0(false);
+    m->reset(ResetKind::Pin);
+    CHECK(!m->held());
+}
+
+TEST_CASE("f4: the debugger sees the core's registers and the FPU's")
+{
+    F4MachineOptions options;
+    auto m = machine_with("f4_float", options);
+    m->run_until_ns(50 * ms);
+    const auto target = make_gdb_target(*m);
+    REQUIRE(target != nullptr);
+    const std::string xml = target->target_xml();
+    CHECK(xml.find("org.gnu.gdb.arm.m-profile") != std::string::npos);
+    CHECK(xml.find("org.simnodus.fpu") != std::string::npos);
+    CHECK(xml.find("name=\"s31\"") != std::string::npos);
+    CHECK(xml.find("name=\"fpscr\"") != std::string::npos);
+    CHECK(xml.rfind("</target>") == xml.size() - 9);
+    std::uint32_t value = 0;
+    REQUIRE(target->read_register(15, value));
+    CHECK(value >= 0x08000000u);
+    CHECK(value < 0x08080000u);
+    REQUIRE(target->read_register(13, value));
+    CHECK(value > 0x20000000u);
+    CHECK(value <= 0x20020000u);
+    REQUIRE(target->write_register(21 + 7, 0x40490FDBu)); // S7
+    CHECK(m->cpu().fp_reg(7) == 0x40490FDBu);
+    REQUIRE(target->read_register(21 + 7, value));
+    CHECK(value == 0x40490FDBu);
+    REQUIRE(target->write_register(53, 0x00C00000u)); // FPSCR: round toward zero
+    CHECK(m->cpu().fpscr() == 0x00C00000u);
+    REQUIRE(target->read_register(53, value));
+    CHECK(value == 0x00C00000u);
+    CHECK(!target->read_register(54, value));
+    // Memory: the flash is read, the SRAM written, the flash written as `load` does.
+    std::uint8_t byte = 0;
+    REQUIRE(target->read_byte(0x08000000, byte));
+    bool loaded = false;
+    REQUIRE(target->write_memory(0x20000100, std::string("\x12\x34", 2), loaded));
+    CHECK(!loaded);
+    REQUIRE(target->write_memory(0x08070000, std::string("\xAA", 1), loaded));
+    CHECK(loaded);
+    REQUIRE(target->read_byte(0x08070000, byte));
+    CHECK(byte == 0xAA);
+    // The STM32F103's description has no FPU.
+    Stm32F103 f1;
+    const auto f1_target = make_gdb_target(f1);
+    CHECK(std::string(f1_target->target_xml()).find("org.simnodus.fpu") == std::string::npos);
+    CHECK(!f1_target->read_register(21, value));
 }
 
 int main(int argc, char** argv)
