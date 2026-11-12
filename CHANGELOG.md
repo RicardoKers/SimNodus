@@ -4,6 +4,20 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-11-12, E-12 / SN-297, experimental)
+
+- **STM32F407VET6: timers, ADC and DAC.** TIM1 to TIM14 with PWM, the complementary outputs of TIM1 and TIM8 with dead time, input capture on one or both edges, the encoder interface, one-pulse mode, 32 bits on TIM2 and TIM5, and trigger outputs that start the ADC and the DAC. ADC1 to ADC3 read the circuit's voltage with 12 to 6 bits, single, continuous or scan, injected channels, timer triggers, the temperature sensor, VREFINT and VBAT. The DAC drives PA4 and PA5 in the circuit (through its buffer, or behind 15 kΩ without it), from the firmware, a timer or its triangle wave. Not simulated yet, and said once: DMA, center-aligned modes, the break input, other slave modes, input filters, the noise wave. Not yet compared with a real chip.
+  - **Example 68**: a potentiometer on PA1 sets the duty cycle of TIM1's PWM on PA8 and PB13; the DAC gives the voltage back on PA4 and draws a triangle on PA5. Firmware `f4_analog`.
+  - The Register Viewer has the timers, the ADCs and the DAC.
+
+### Fixed (2026-11-12, SN-297)
+
+- STM32F407: a pin in alternate function mode always drove its level, so an input function (a USART's RX, a timer's capture channel) on such a pin never saw the circuit. It is an input now while no peripheral drives it.
+
+### Changed (2026-11-12, SN-297)
+
+- The STM32F103 and the STM32F407 share one timer model; the F103 gains the dead time of TIM1's complementary outputs, the encoder interface, TRGO and capture on both edges (its existing behaviour and tests are unchanged).
+
 ### Added (2026-11-12, E-12 / SN-295, experimental)
 
 - **STM32F407VET6 (LQFP-100)** in Microcontrollers: the bare chip with its 100 pins, a Cortex-M4 with FPU running the ELF file STM32CubeIDE builds. So far the clocks, GPIO with alternate function numbers, external interrupts and the six serial ports; timers, ADC, DAC, SPI, I2C, DMA and RTC are not simulated yet and say so. Not yet compared with a real chip.

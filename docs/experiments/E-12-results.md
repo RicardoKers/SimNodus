@@ -6,8 +6,9 @@ work; a gate is marked met only with its numbers here.
 Status on 2026-11-12: **G12a (the Cortex-M4F core) met on the host**, with
 the limits listed under it. **The STM32F407 machine (SN-294) runs the first
 four owned firmware, and the chip is a part on the diagram (SN-295, example
-67)**; nothing was compared with the owner's chip yet (SN-296). G12c not
-started.
+67)**; the timers, the ADCs and the DAC are simulated (SN-297, example 68:
+G12c.1 to G12c.3 on the host, without DMA). Nothing was compared with the
+owner's chip yet (SN-296).
 
 ## Prerequisites (SN-292)
 
@@ -195,9 +196,55 @@ Not done in SN-294: GDB for the F407, the Register Viewer's map, the part
 - No ADC yet, so no analog pin; 5 V tolerance is not modelled.
 - The timing of instructions still has no flash model (SN-296).
 
+## Timers, ADC and DAC (SN-297)
+
+What was built:
+- One timer model for the F103 and the F407 (`stm32f1_timer.*`, configured
+  per timer: advanced or not, channels, 16 or 32 bits, APB1 or APB2, its
+  interrupt lines). New in it, for both chips: the dead time of the
+  complementary outputs (DTG with CKD), a complementary output alone,
+  the encoder interface (SMS 1 to 3), the trigger output (MMS 2 to 7),
+  capture on both edges, and registers masked to the channels a timer has.
+  The F103's timer tests pass unchanged.
+- The F407's TIM1 to TIM14 with the datasheet's pins and function numbers,
+  the timer clock at twice PCLK when the bus is divided, and the shared
+  interrupt lines (TIM1's break with TIM9, TIM6 with the DAC...).
+- `stm32f4_analog.*`: ADC1 to ADC3 with the common registers (see the
+  header for what is simulated) and the DAC with its triangle wave and
+  timer triggers.
+- GPIO: a pin in alternate function mode is an input while no peripheral
+  drives it (RM0090 figure 26). Before, it always drove, so a capture
+  channel or a USART's RX on such a pin never saw the circuit.
+- The circuit: the DAC drives PA4 and PA5 as an analog source behind a
+  resistance (`PinState::analog_volts`, `analog_resistance`): 15 kΩ without
+  the buffer (DS8626's R_O), 10 Ω with it, clamped to 0.2 V to VDD - 0.2 V.
+  The 10 Ω is an approximation: the datasheet gives the buffer's minimum
+  load (5 kΩ) and its range, not an output impedance. The engine protocol
+  is unchanged (the drive is computed in the engine).
+- Firmware `f4_analog` (PWM, ADC on a timer trigger, both DAC channels) and
+  example 68; the Register Viewer's map has TIM1 to TIM14, the ADCs and the
+  DAC. `f4_pwm` of the plan is not a separate firmware: `f4_analog` and the
+  machine tests cover the PWM.
+
+| Criterion | Result on the host |
+|---|---|
+| G12c.1 | TIM1 PWM 10 us with CCR1 40: high 1.5 us and low 8.5 us on PA8, the complement 6.5 us and 3.5 us on PA7, each edge 1 us (16 clocks of dead time) after the other's, for 1000 periods; TIM2 with ARR 0x1FFFF (32 bits) gives 4.096 ms pulses; capture on both edges within one count; encoder mode 3 counts 4 per cycle up and down, mode 1 counts 2, underflow reloads ARR with an update. The F103's tests unchanged. Not done: center-aligned modes, the break input, slave modes 4 to 7, the input filters (reported once) |
+| G12c.2 | Codes ⌊V·2ⁿ/3.3⌋ at 12 and 8 bits, left alignment, conversion times of 15 and 11 ADC cycles at 8 MHz, scan with EOCS, overrun, injected channel 16 with its offset, VREFINT, ADC3's channels, a TIM3 TRGO start 100 us apart, the end-of-conversion interrupt. Without DMA (SN-298); not compared with the chip |
+| G12c.3 | The DAC's codes on its pins in the three alignments and the dual registers, a TIM6 trigger at its exact time, the triangle 101-102-103-102-101-100, the software trigger; in example 68 the code 2867 gives 2.310 V on PA4 in the circuit. A sine through DMA waits for SN-298 |
+
+Example 68 runs at about 1.6 times real time (16 MHz, the firmware sleeping
+between conversions, the PWM at 20 kHz and the triangle's 10 000 steps a
+second).
+
+**Limits of SN-297.** The VREF pin is not read (VREF+ is 3.3 V); the
+temperature sensor gives a fixed 0.76 V; a DAC output is not limited by its
+load current; the ADC's sampling capacitor is not modelled (a high source
+impedance reads as a low one).
+
 ## Next
 
 SN-296: the owner runs `f4_float`, `f4_clock` and `f4_blink` on the board
 ([how](../../examples/firmware/f4_common/README.md)), tries STM32CubeIDE's
-debugger against example 67, and the timing is calibrated. Then SN-297 and
-SN-298: timers, ADC, DAC, SPI, I2C, DMA, RTC.
+debugger against example 67, and the timing is calibrated; `f4_analog` can
+be compared too (PWM edges with the logic analyzer, the codes on USART1).
+Then SN-298: SPI, I2C, DMA, RTC.

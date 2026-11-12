@@ -35,6 +35,7 @@ add_library(simnodus_emu STATIC
     stm32f1_spi.cpp
     stm32f1_system.cpp
     stm32f1_timer.cpp
+    stm32f4_analog.cpp
     host_socket.cpp
     wifi_air.cpp
     wifi_crypto.cpp

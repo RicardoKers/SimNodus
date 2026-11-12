@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: MIT
 //
 // The register maps of the register view (SN-290) as text, with the names of
-// RM0008 (STM32F103), PM0056 (Cortex-M3) and the ATmega8, ATmega32 and
+// RM0008 (STM32F103), RM0090 (STM32F407), PM0056 (Cortex-M3) and the ATmega8, ATmega32 and
 // ATmega328P datasheets. Only registers the emulators have are listed, and
 // write-only registers are left out (there is nothing to show).
 //
@@ -1049,6 +1049,338 @@ f PVDO 2 1 | Supply below the detector level
 f SBF 1 1 | Was in Standby
 f WUF 0 1 | Wakeup event
 
+)",
+R"(type F4_TIM
+reg CR1 0x00 4 | Control 1
+f CKD 8 2 | Clock division for the dead time and the filters: 0 1, 1 2, 2 4
+f ARPE 7 1 | ARR buffered until the next update
+f CMS 5 2 | Center-aligned mode (not simulated: edge-aligned)
+f DIR 4 1 | Direction: 0 up, 1 down
+f OPM 3 1 | One-pulse mode
+f URS 2 1 | Update request source
+f UDIS 1 1 | Update disable
+f CEN 0 1 | Counter enable
+reg CR2 0x04 4 | Control 2
+f TI1S 7 1 | TI1 from CH1, CH2 and CH3 (XOR)
+f MMS 4 3 | Master mode, the trigger output (TRGO) for the ADC, the DAC and other timers: 0 reset, 1 enable, 2 update, 3 compare pulse, 4 to 7 OC1REF to OC4REF
+f CCDS 3 1 | DMA request on update instead of on compare
+reg SMCR 0x08 4 | Slave mode control
+f ETP 15 1 | External trigger polarity
+f ECE 14 1 | External clock enable
+f ETPS 12 2 | External trigger prescaler
+f ETF 8 4 | External trigger filter
+f MSM 7 1 | Master/slave mode
+f TS 4 3 | Trigger selection
+f SMS 0 3 | Slave mode: 0 off, 1 to 3 encoder (simulated), 4 reset, 5 gated, 6 trigger, 7 external clock
+reg DIER 0x0C 4 | DMA and interrupt enable
+f TDE 14 1 | Trigger DMA request enable
+f CC4DE 12 1 | Capture/compare 4 DMA request enable
+f CC3DE 11 1 | Capture/compare 3 DMA request enable
+f CC2DE 10 1 | Capture/compare 2 DMA request enable
+f CC1DE 9 1 | Capture/compare 1 DMA request enable
+f UDE 8 1 | Update DMA request enable
+f BIE 7 1 | Break interrupt enable (TIM1, TIM8)
+f TIE 6 1 | Trigger interrupt enable
+f COMIE 5 1 | Commutation interrupt enable (TIM1, TIM8)
+f CC4IE 4 1 | Capture/compare 4 interrupt enable
+f CC3IE 3 1 | Capture/compare 3 interrupt enable
+f CC2IE 2 1 | Capture/compare 2 interrupt enable
+f CC1IE 1 1 | Capture/compare 1 interrupt enable
+f UIE 0 1 | Update interrupt enable
+reg SR 0x10 4 | Status
+f CC4OF 12 1 | Capture 4 overcapture
+f CC3OF 11 1 | Capture 3 overcapture
+f CC2OF 10 1 | Capture 2 overcapture
+f CC1OF 9 1 | Capture 1 overcapture
+f BIF 7 1 | Break flag (TIM1, TIM8)
+f TIF 6 1 | Trigger flag
+f COMIF 5 1 | Commutation flag (TIM1, TIM8)
+f CC4IF 4 1 | Capture/compare 4 flag
+f CC3IF 3 1 | Capture/compare 3 flag
+f CC2IF 2 1 | Capture/compare 2 flag
+f CC1IF 1 1 | Capture/compare 1 flag
+f UIF 0 1 | Update flag
+reg CCMR1 0x18 4 | Capture/compare mode of channels 1 and 2 (fields named as for outputs)
+f OC2CE 15 1 | Output 2 clear enable
+f OC2M 12 3 | Output 2 mode: 0 frozen, 1 active on match, 2 inactive on match, 3 toggle, 4 low, 5 high, 6 PWM 1, 7 PWM 2
+f OC2PE 11 1 | CCR2 buffered until the next update
+f OC2FE 10 1 | Output 2 fast enable
+f CC2S 8 2 | Channel 2: 0 output, 1 input on TI2, 2 input on TI1, 3 input on TRC
+f OC1CE 7 1 | Output 1 clear enable
+f OC1M 4 3 | Output 1 mode: 0 frozen, 1 active on match, 2 inactive on match, 3 toggle, 4 low, 5 high, 6 PWM 1, 7 PWM 2
+f OC1PE 3 1 | CCR1 buffered until the next update
+f OC1FE 2 1 | Output 1 fast enable
+f CC1S 0 2 | Channel 1: 0 output, 1 input on TI1, 2 input on TI2, 3 input on TRC
+reg CCMR2 0x1C 4 | Capture/compare mode of channels 3 and 4 (fields named as for outputs)
+f OC4CE 15 1 | Output 4 clear enable
+f OC4M 12 3 | Output 4 mode: 0 frozen, 1 active on match, 2 inactive on match, 3 toggle, 4 low, 5 high, 6 PWM 1, 7 PWM 2
+f OC4PE 11 1 | CCR4 buffered until the next update
+f OC4FE 10 1 | Output 4 fast enable
+f CC4S 8 2 | Channel 4: 0 output, 1 input on TI4, 2 input on TI3, 3 input on TRC
+f OC3CE 7 1 | Output 3 clear enable
+f OC3M 4 3 | Output 3 mode: 0 frozen, 1 active on match, 2 inactive on match, 3 toggle, 4 low, 5 high, 6 PWM 1, 7 PWM 2
+f OC3PE 3 1 | CCR3 buffered until the next update
+f OC3FE 2 1 | Output 3 fast enable
+f CC3S 0 2 | Channel 3: 0 output, 1 input on TI3, 2 input on TI4, 3 input on TRC
+reg CCER 0x20 4 | Capture/compare enable (CCxNE, CCxNP: the complementary outputs of TIM1 and TIM8)
+f CC4NP 15 1 | Channel 4 input: with CC4P, both edges
+f CC4P 13 1 | Channel 4 polarity (output: active low; input: falling edge)
+f CC4E 12 1 | Channel 4 enable
+f CC3NP 11 1 | Complementary output 3 polarity; input: with CC3P, both edges
+f CC3NE 10 1 | Complementary output 3 enable
+f CC3P 9 1 | Channel 3 polarity
+f CC3E 8 1 | Channel 3 enable
+f CC2NP 7 1 | Complementary output 2 polarity; input: with CC2P, both edges
+f CC2NE 6 1 | Complementary output 2 enable
+f CC2P 5 1 | Channel 2 polarity
+f CC2E 4 1 | Channel 2 enable
+f CC1NP 3 1 | Complementary output 1 polarity; input: with CC1P, both edges
+f CC1NE 2 1 | Complementary output 1 enable
+f CC1P 1 1 | Channel 1 polarity
+f CC1E 0 1 | Channel 1 enable
+reg CNT 0x24 4 | Counter (32 bits on TIM2 and TIM5, 16 on the others)
+reg PSC 0x28 4 | Prescaler: the counter's clock is the timer's clock divided by PSC + 1
+reg ARR 0x2C 4 | Auto-reload: the counter's period is ARR + 1
+reg CCR1 0x34 4 | Capture/compare 1
+reg CCR2 0x38 4 | Capture/compare 2
+reg CCR3 0x3C 4 | Capture/compare 3
+reg CCR4 0x40 4 | Capture/compare 4
+
+type F4_TIM_ADVANCED F4_TIM
+reg RCR 0x30 4 | Repetition counter: an update every RCR + 1 periods
+reg BDTR 0x44 4 | Break and dead time
+f MOE 15 1 | Main output enable: the outputs are off without it
+f AOE 14 1 | Automatic output enable
+f BKP 13 1 | Break polarity
+f BKE 12 1 | Break enable (not simulated)
+f OSSR 11 1 | Off-state selection for Run mode
+f OSSI 10 1 | Off-state selection for Idle mode
+f LOCK 8 2 | Lock configuration
+f DTG 0 8 | Dead time between an output and its complement, in clock periods (scaled when above 127)
+
+)",
+R"(type F4_TIM_TWO
+reg CR1 0x00 4 | Control 1
+f CKD 8 2 | Clock division for the filters
+f ARPE 7 1 | ARR buffered until the next update
+f OPM 3 1 | One-pulse mode
+f URS 2 1 | Update request source
+f UDIS 1 1 | Update disable
+f CEN 0 1 | Counter enable
+reg SMCR 0x08 4 | Slave mode control
+f MSM 7 1 | Master/slave mode
+f TS 4 3 | Trigger selection
+f SMS 0 3 | Slave mode: 0 off, 4 reset, 5 gated, 6 trigger, 7 external clock
+reg DIER 0x0C 4 | Interrupt enable
+f TIE 6 1 | Trigger interrupt enable
+f CC2IE 2 1 | Capture/compare 2 interrupt enable
+f CC1IE 1 1 | Capture/compare 1 interrupt enable
+f UIE 0 1 | Update interrupt enable
+reg SR 0x10 4 | Status
+f CC2OF 10 1 | Capture 2 overcapture
+f CC1OF 9 1 | Capture 1 overcapture
+f TIF 6 1 | Trigger flag
+f CC2IF 2 1 | Capture/compare 2 flag
+f CC1IF 1 1 | Capture/compare 1 flag
+f UIF 0 1 | Update flag
+reg CCMR1 0x18 4 | Capture/compare mode of channels 1 and 2 (fields named as for outputs)
+f OC2M 12 3 | Output 2 mode: 0 frozen, 1 active on match, 2 inactive on match, 3 toggle, 4 low, 5 high, 6 PWM 1, 7 PWM 2
+f OC2PE 11 1 | CCR2 buffered until the next update
+f CC2S 8 2 | Channel 2: 0 output, 1 input on TI2, 2 input on TI1, 3 input on TRC
+f OC1M 4 3 | Output 1 mode: 0 frozen, 1 active on match, 2 inactive on match, 3 toggle, 4 low, 5 high, 6 PWM 1, 7 PWM 2
+f OC1PE 3 1 | CCR1 buffered until the next update
+f CC1S 0 2 | Channel 1: 0 output, 1 input on TI1, 2 input on TI2, 3 input on TRC
+reg CCER 0x20 4 | Capture/compare enable
+f CC2NP 7 1 | Channel 2 input: with CC2P, both edges
+f CC2P 5 1 | Channel 2 polarity
+f CC2E 4 1 | Channel 2 enable
+f CC1NP 3 1 | Channel 1 input: with CC1P, both edges
+f CC1P 1 1 | Channel 1 polarity
+f CC1E 0 1 | Channel 1 enable
+reg CNT 0x24 4 | Counter (16 bits)
+reg PSC 0x28 4 | Prescaler: the counter's clock is the timer's clock divided by PSC + 1
+reg ARR 0x2C 4 | Auto-reload: the counter's period is ARR + 1
+reg CCR1 0x34 4 | Capture/compare 1
+reg CCR2 0x38 4 | Capture/compare 2
+
+type F4_TIM_ONE
+reg CR1 0x00 4 | Control 1
+f ARPE 7 1 | ARR buffered until the next update
+f URS 2 1 | Update request source
+f UDIS 1 1 | Update disable
+f CEN 0 1 | Counter enable
+reg DIER 0x0C 4 | Interrupt enable
+f CC1IE 1 1 | Capture/compare 1 interrupt enable
+f UIE 0 1 | Update interrupt enable
+reg SR 0x10 4 | Status
+f CC1OF 9 1 | Capture 1 overcapture
+f CC1IF 1 1 | Capture/compare 1 flag
+f UIF 0 1 | Update flag
+reg CCMR1 0x18 4 | Capture/compare mode of channel 1 (fields named as for an output)
+f OC1M 4 3 | Output 1 mode: 0 frozen, 1 active on match, 2 inactive on match, 3 toggle, 4 low, 5 high, 6 PWM 1, 7 PWM 2
+f OC1PE 3 1 | CCR1 buffered until the next update
+f CC1S 0 2 | Channel 1: 0 output, 1 input on TI1
+reg CCER 0x20 4 | Capture/compare enable
+f CC1NP 3 1 | Channel 1 input: with CC1P, both edges
+f CC1P 1 1 | Channel 1 polarity
+f CC1E 0 1 | Channel 1 enable
+reg CNT 0x24 4 | Counter (16 bits)
+reg PSC 0x28 4 | Prescaler: the counter's clock is the timer's clock divided by PSC + 1
+reg ARR 0x2C 4 | Auto-reload: the counter's period is ARR + 1
+reg CCR1 0x34 4 | Capture/compare 1
+
+type F4_TIM_BASIC
+reg CR1 0x00 4 | Control 1
+f ARPE 7 1 | ARR buffered until the next update
+f OPM 3 1 | One-pulse mode
+f URS 2 1 | Update request source
+f UDIS 1 1 | Update disable
+f CEN 0 1 | Counter enable
+reg CR2 0x04 4 | Control 2
+f MMS 4 3 | Master mode, the trigger output (TRGO) for the DAC and the ADC: 0 reset, 1 enable, 2 update
+reg DIER 0x0C 4 | Interrupt enable
+f UIE 0 1 | Update interrupt enable
+reg SR 0x10 4 | Status
+f UIF 0 1 | Update flag
+reg CNT 0x24 4 | Counter (16 bits)
+reg PSC 0x28 4 | Prescaler: the counter's clock is the timer's clock divided by PSC + 1
+reg ARR 0x2C 4 | Auto-reload: the counter's period is ARR + 1
+
+per TIM1 0x40010000 | Advanced-control timer 1 (function 1: CH1 PA8 or PE9, CH1N PA7, PB13 or PE8; APB2)
+use F4_TIM_ADVANCED
+per TIM8 0x40010400 | Advanced-control timer 8 (function 3: CH1 to CH4 PC6 to PC9; APB2)
+use F4_TIM_ADVANCED
+per TIM2 0x40000000 | General-purpose timer 2, 32 bits (function 1: CH1 PA0, PA5 or PA15)
+use F4_TIM
+per TIM3 0x40000400 | General-purpose timer 3 (function 2: CH1 PA6, PB4 or PC6)
+use F4_TIM
+per TIM4 0x40000800 | General-purpose timer 4 (function 2: CH1 to CH4 PB6 to PB9 or PD12 to PD15)
+use F4_TIM
+per TIM5 0x40000C00 | General-purpose timer 5, 32 bits (function 2: CH1 to CH4 PA0 to PA3)
+use F4_TIM
+per TIM9 0x40014000 | General-purpose timer 9, two channels (function 3: PA2, PA3 or PE5, PE6; APB2)
+use F4_TIM_TWO
+per TIM12 0x40001800 | General-purpose timer 12, two channels (function 9: PB14, PB15)
+use F4_TIM_TWO
+per TIM10 0x40014400 | General-purpose timer 10, one channel (function 3: PB8; APB2)
+use F4_TIM_ONE
+per TIM11 0x40014800 | General-purpose timer 11, one channel (function 3: PB9; APB2)
+use F4_TIM_ONE
+per TIM13 0x40001C00 | General-purpose timer 13, one channel (function 9: PA6)
+use F4_TIM_ONE
+per TIM14 0x40002000 | General-purpose timer 14, one channel (function 9: PA7)
+use F4_TIM_ONE
+per TIM6 0x40001000 | Basic timer 6 (the DAC's trigger; no pins)
+use F4_TIM_BASIC
+per TIM7 0x40001400 | Basic timer 7 (no pins)
+use F4_TIM_BASIC
+
+)",
+R"(type F4_ADC
+reg SR 0x00 4 | Status
+f OVR 5 1 | Overrun: a result was lost because DR was not read
+f STRT 4 1 | Regular conversion started
+f JSTRT 3 1 | Injected conversion started
+f JEOC 2 1 | Injected conversions ended
+f EOC 1 1 | Regular conversion ended (cleared by reading DR)
+f AWD 0 1 | Analog watchdog: a result outside HTR and LTR
+reg CR1 0x04 4 | Control 1
+f OVRIE 26 1 | Overrun interrupt enable
+f RES 24 2 | Resolution: 0 12 bits (15 cycles), 1 10 bits (13), 2 8 bits (11), 3 6 bits (9)
+f AWDEN 23 1 | Analog watchdog on the regular channels
+f JAWDEN 22 1 | Analog watchdog on the injected channels
+f DISCNUM 13 3 | Discontinuous mode count (not simulated)
+f JDISCEN 12 1 | Discontinuous mode on the injected channels (not simulated)
+f DISCEN 11 1 | Discontinuous mode on the regular channels (not simulated)
+f JAUTO 10 1 | Injected conversions after the regular ones
+f AWDSGL 9 1 | Analog watchdog on one channel only
+f SCAN 8 1 | Scan mode: the whole sequence
+f JEOCIE 7 1 | Injected end of conversion interrupt enable
+f AWDIE 6 1 | Analog watchdog interrupt enable
+f EOCIE 5 1 | End of conversion interrupt enable
+f AWDCH 0 5 | Analog watchdog channel
+reg CR2 0x08 4 | Control 2
+f EXTEN 28 2 | Regular trigger edge: 0 none, 1 rising, 2 falling, 3 both
+f EXTSEL 24 4 | Regular trigger: 6 TIM2 TRGO, 8 TIM3 TRGO, 14 TIM8 TRGO, ... (RM0090 table 69)
+f JEXTEN 20 2 | Injected trigger edge
+f JEXTSEL 16 4 | Injected trigger (RM0090 table 70)
+f ALIGN 11 1 | Alignment: 0 right, 1 left
+f EOCS 10 1 | EOC after each conversion instead of after the sequence
+f DDS 9 1 | DMA requests continue (not simulated)
+f DMA 8 1 | DMA mode (not simulated)
+f CONT 1 1 | Continuous conversion
+f ADON 0 1 | Converter on
+reg SMPR1 0x0C 4 | Sample time of channels 10 to 18
+fr SMP 10 9 3 0 3 | Channel #: 0 3, 1 15, 2 28, 3 56, 4 84, 5 112, 6 144, 7 480 cycles
+reg SMPR2 0x10 4 | Sample time of channels 0 to 9
+fr SMP 0 10 3 0 3 | Channel #: 0 3, 1 15, 2 28, 3 56, 4 84, 5 112, 6 144, 7 480 cycles
+reg JOFR1 0x14 4 | Offset of injected channel 1
+reg JOFR2 0x18 4 | Offset of injected channel 2
+reg JOFR3 0x1C 4 | Offset of injected channel 3
+reg JOFR4 0x20 4 | Offset of injected channel 4
+reg HTR 0x24 4 | Analog watchdog high threshold
+reg LTR 0x28 4 | Analog watchdog low threshold
+reg SQR1 0x2C 4 | Regular sequence 1
+f L 20 4 | Length of the sequence minus 1
+fr SQ 13 4 5 0 5 | Channel of conversion #
+reg SQR2 0x30 4 | Regular sequence 2
+fr SQ 7 6 5 0 5 | Channel of conversion #
+reg SQR3 0x34 4 | Regular sequence 3
+fr SQ 1 6 5 0 5 | Channel of conversion #
+reg JSQR 0x38 4 | Injected sequence
+f JL 20 2 | Length of the sequence minus 1
+fr JSQ 1 4 5 0 5 | Channel of injected conversion #
+reg JDR1 0x3C 4 | Injected data 1
+reg JDR2 0x40 4 | Injected data 2
+reg JDR3 0x44 4 | Injected data 3
+reg JDR4 0x48 4 | Injected data 4
+reg DR 0x4C 4 | Regular data: the last conversion (shown without clearing EOC)
+
+per ADC1 0x40012000 | Analog-to-digital converter 1 (channels 0 to 15: PA0 to PA7, PB0, PB1, PC0 to PC5; 16 temperature, 17 VREFINT, 18 VBAT)
+use F4_ADC
+per ADC2 0x40012100 | Analog-to-digital converter 2 (the same pins as ADC1)
+use F4_ADC
+per ADC3 0x40012200 | Analog-to-digital converter 3 (on this package: PA0 to PA3, PC0 to PC3)
+use F4_ADC
+per ADC_COMMON 0x40012300 | Registers the three converters share
+reg CSR 0x00 4 | The flags of ADC1 (bits 0 to 5), ADC2 (8 to 13) and ADC3 (16 to 21)
+reg CCR 0x04 4 | Common control
+f TSVREFE 23 1 | Temperature sensor and VREFINT on
+f VBATE 22 1 | VBAT / 2 on channel 18
+f ADCPRE 16 2 | ADC clock: PCLK2 divided by 2, 4, 6 or 8
+f DMA 14 2 | DMA in the multi-ADC modes (not simulated)
+f DELAY 8 4 | Delay between two sampling phases (multi-ADC modes)
+f MULTI 0 5 | Multi-ADC mode (not simulated: 0 independent)
+reg CDR 0x08 4 | ADC1's data (bits 0 to 15) and ADC2's (16 to 31)
+
+per DAC 0x40007400 | Digital-to-analog converter (channel 1 PA4, channel 2 PA5)
+reg CR 0x00 4 | Control
+f DMAEN2 28 1 | Channel 2 DMA (not simulated)
+f MAMP2 24 4 | Channel 2 amplitude: 2^(MAMP + 1) - 1 codes for the triangle
+f WAVE2 22 2 | Channel 2 wave: 0 none, 1 noise (not simulated), 2 triangle
+f TSEL2 19 3 | Channel 2 trigger: 0 TIM6, 1 TIM8, 2 TIM7, 3 TIM5, 4 TIM2, 5 TIM4, 6 EXTI 9, 7 software
+f TEN2 18 1 | Channel 2 trigger enable
+f BOFF2 17 1 | Channel 2 output buffer off
+f EN2 16 1 | Channel 2 enable
+f DMAEN1 12 1 | Channel 1 DMA (not simulated)
+f MAMP1 8 4 | Channel 1 amplitude: 2^(MAMP + 1) - 1 codes for the triangle
+f WAVE1 6 2 | Channel 1 wave: 0 none, 1 noise (not simulated), 2 triangle
+f TSEL1 3 3 | Channel 1 trigger: 0 TIM6, 1 TIM8, 2 TIM7, 3 TIM5, 4 TIM2, 5 TIM4, 6 EXTI 9, 7 software
+f TEN1 2 1 | Channel 1 trigger enable
+f BOFF1 1 1 | Channel 1 output buffer off
+f EN1 0 1 | Channel 1 enable
+reg DHR12R1 0x08 4 | Channel 1 data, 12 bits right aligned
+reg DHR12L1 0x0C 4 | Channel 1 data, 12 bits left aligned
+reg DHR8R1 0x10 4 | Channel 1 data, 8 bits
+reg DHR12R2 0x14 4 | Channel 2 data, 12 bits right aligned
+reg DHR12L2 0x18 4 | Channel 2 data, 12 bits left aligned
+reg DHR8R2 0x1C 4 | Channel 2 data, 8 bits
+reg DHR12RD 0x20 4 | Both channels' data, 12 bits right aligned
+reg DHR12LD 0x24 4 | Both channels' data, 12 bits left aligned
+reg DHR8RD 0x28 4 | Both channels' data, 8 bits
+reg DOR1 0x2C 4 | Channel 1 output: the code on PA4 (VREF+ * DOR / 4095)
+reg DOR2 0x30 4 | Channel 2 output: the code on PA5
+reg SR 0x34 4 | Status (underrun flags, with DMA)
 )",
 stm32_usart_registers,
 R"(

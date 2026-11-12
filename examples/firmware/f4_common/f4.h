@@ -71,6 +71,9 @@ void Default_Handler(void);
 void F4_SYSTICK(void);
 void F4_EXTI0(void);
 void F4_USART1(void);
+#ifdef F4_ADC
+void F4_ADC(void);
+#endif
 
 __attribute__((section(".vectors"), used))
 const uintptr_t vectors[16 + 82] = {
@@ -85,6 +88,9 @@ const uintptr_t vectors[16 + 82] = {
     [14] = (uintptr_t)Default_Handler, // PendSV
     [15] = (uintptr_t)F4_SYSTICK,
     [16 + 6] = (uintptr_t)F4_EXTI0,
+#ifdef F4_ADC
+    [16 + 18] = (uintptr_t)F4_ADC,
+#endif
     [16 + 37] = (uintptr_t)F4_USART1,
 };
 
