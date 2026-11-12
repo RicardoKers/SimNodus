@@ -303,8 +303,8 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
    STM32F407 machine (`stm32f407.*`: RCC with the Crystal, GPIO with the
    alternate function table, EXTI, the serial ports; the NVIC needs 82
    interrupts and the code cache 512 KB, both fixed sizes in `cpu.*` now).
-   Waiting on the owner: the SWD probe, USB-serial adapter and logic
-   analyzer at hand, and whether the board has a 32.768 kHz crystal.
+   The owner's bench: ST-LINK V2 and V3, a USB-serial adapter, a logic
+   analyzer; a 32.768 kHz crystal can go on the breadboard.
 
 ## Known constraints
 

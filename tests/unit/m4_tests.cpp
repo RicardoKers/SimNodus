@@ -645,7 +645,7 @@ TEST_CASE("m4: every DSP instruction gives the result, Q and GE of the manual's 
     for (const DspCase& k : dsp_cases) {
         Core core({k.h1, k.h2, 0xE7FE});
         for (int round = 0; round < 20000; ++round) {
-            const In in{dsp_operand(random), dsp_operand(random), dsp_operand(random), dsp_operand(random), random() & 0xFu};
+            const In in{dsp_operand(random), dsp_operand(random), dsp_operand(random), dsp_operand(random), static_cast<std::uint32_t>(random() & 0xFu)};
             core.cpu.reset();
             core.set(0, in.r0);
             core.set(1, in.r1);

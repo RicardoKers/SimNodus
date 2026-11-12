@@ -35,9 +35,11 @@ below and to be confirmed against the documents' text and the owner's chip
 - The owner's chip: waits for the STM32F407 machine (SN-294) and a
   self-checking firmware (`f4_float`, G12b.5).
 
-**Owner's bench.** Still to confirm: the SWD probe used with
-STM32CubeIDE, the USB-serial adapter and logic analyzer of E-10, and
-whether the test board has a 32.768 kHz crystal.
+**Owner's bench** (confirmed 2026-11-11): ST-LINK/V2 (an original and a
+clone) and an ST-LINK V3 for SWD with STM32CubeIDE, a USB-serial adapter
+and a logic analyzer; the test board has a 25 MHz crystal and a 3.3 V
+regulator, and a 32.768 kHz crystal can be added on the breadboard for the
+RTC comparisons (G12c.6).
 
 ## What was built (SN-292, SN-293)
 
