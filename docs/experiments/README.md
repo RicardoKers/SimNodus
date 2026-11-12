@@ -139,6 +139,16 @@ and G10c (complete chip), recorded 2026-11-02 before any code:
 [E-10-plan.md](E-10-plan.md). Report: [E-10-results.md](E-10-results.md)
 (gates G10a met, G10b and G10c met except the owner's chip comparisons, 2026-11-02).
 
+## E-12: STM32F407VET6 on the own emulator — SN-292..SN-299
+
+Question: can SimNodus's own emulator run unmodified STM32F407VET6 firmware
+from STM32CubeIDE (FPU on) in the circuit, as a bare chip clocked by the
+Crystal on the diagram, with results equal to the owner's chip, at a useful
+speed, without changing the STM32F103, ESP32-C3 and AVR paths? Plan and the
+predeclared gates G12a (Cortex-M4F core), G12b (firmware in the circuit) and
+G12c (the peripherals students use), recorded 2026-11-11 before any code:
+[E-12-plan.md](E-12-plan.md). Approved by the owner on 2026-11-11.
+
 ## E-06: Classroom rehearsal — SN-028
 
 On a representative Windows PC, reproduce installation without development-machine paths. Open each lesson, build/load firmware, run and debug, save/reopen, and recover from an intentional error. Test offline operation when required. Record setup duration, memory, responsiveness, missing assets, and instructor observations.
