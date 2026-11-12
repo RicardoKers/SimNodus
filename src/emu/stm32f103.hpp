@@ -188,7 +188,11 @@ private:
     std::uint64_t now_cycles() const override { return cpu_.cycles(); }
     std::uint32_t hclk_per_kernel_tick(bool apb2) const override;
     std::uint32_t afio_mapr() const override;
-    void timer_irq(int irq, bool level) override { cpu_.set_irq_line(irq, level); }
+    std::pair<int, int> timer_pin(int number, int channel, bool complementary) const override
+    {
+        return Stm32F1Timer::f1_pin(afio_mapr(), number, channel, complementary);
+    }
+    void timer_irq(int, int irq, bool level) override { cpu_.set_irq_line(irq, level); }
     void timer_output(int port, int pin, int source, bool level, std::uint64_t cycle) override;
     void timer_schedule_changed() override { cpu_.request_stop(); }
     void timer_diagnostic(const std::string& text) override { diagnostic(text); }

@@ -1,4 +1,4 @@
-<!-- source: MICROCONTROLLER.md sha256 7e511ec412cd57f00aa79c7dc653fc36846764d74ad6ed4f90e4360bc4c1578a -->
+<!-- source: MICROCONTROLLER.md sha256 857f48401c049306c9242f7e4911574003786c45e9323cbe74d95df80a4adcd6 -->
 # Microcontrolador: o que é simulado
 
 O SimNodus executa o firmware da **Blue Pill (STM32F103C8)** em seu próprio emulador
@@ -202,7 +202,7 @@ serial, ou qual falha parou um firmware (`SCB.CFSR`).
 | Parte | Previsão |
 |---|---|
 | Recursos do ADC: conversões disparadas por timer ou EXTI, modos descontínuo e duplo; requisições de DMA de timers, SPI e I2C | Mais tarde; o firmware recebe uma mensagem no painel Mensagens quando usa um deles |
-| Recursos dos timers: contagem center-aligned, encoder e outros modos escravos, filtros de entrada, dead time, entrada de break, requisições de DMA dos timers | Mais tarde; o firmware recebe uma mensagem no painel Mensagens quando usa um deles |
+| Recursos dos timers: contagem center-aligned, modos escravos além do encoder, filtros de entrada, entrada de break, requisições de DMA dos timers | Mais tarde; o firmware recebe uma mensagem no painel Mensagens quando usa um deles |
 | SPI escravo, modos só recepção e bidirecional, CRC, I2S | Ainda não; uma mensagem avisa |
 | I2C modo escravo, endereços de 10 bits, SMBus, PEC, bit LAST do DMA | Ainda não; uma mensagem avisa |
 | CAN, USB, pino de tamper do RTC e saída de calibração | Ainda sem previsão |
@@ -750,13 +750,16 @@ chip real ainda, e só parte do chip é simulada.
 
 - **O que funciona**: a árvore de clock (HSI, HSE, o PLL), GPIO com os
   números de função alternativa, interrupções externas em qualquer porta, as
-  seis portas seriais (USART1 a USART3, UART4, UART5, USART6), o SysTick e o
-  controlador de interrupções, as instruções DSP e de ponto flutuante.
-- **Ainda não simulado**: timers, ADC, DAC, SPI, I2C, DMA, RTC, os
-  watchdogs, USB, Ethernet, SDIO, CAN. Seus registradores guardam o que o
-  firmware escreve e o painel Mensagens avisa uma vez que o periférico não
-  faz nada. Um projeto do STM32CubeMX roda até onde usa o que funciona (a
-  base de tempo da HAL é o SysTick).
+  seis portas seriais (USART1 a USART3, UART4, UART5, USART6), os timers
+  TIM1 a TIM14, os três ADCs, o DAC, o SysTick e o controlador de
+  interrupções, as instruções DSP e de ponto flutuante.
+- **Ainda não simulado**: SPI, I2C, DMA, RTC, os watchdogs, USB, Ethernet,
+  SDIO, CAN; nos timers os modos alinhados ao centro, a entrada de break, os
+  filtros de entrada e os modos escravo além do encoder; nos ADCs os modos
+  descontínuo e multi-ADC; a onda de ruído do DAC. Seus registradores
+  guardam o que o firmware escreve e o painel Mensagens avisa uma vez o que
+  não faz nada. Um projeto do STM32CubeMX roda até onde usa o que funciona
+  (a base de tempo da HAL é o SysTick).
 - **Alimentação e terra**: ligue os pinos **VDD** e **VSS** (3,3 V); rótulos
   de rede poupam os fios, como no exemplo 67. Os pinos de um mesmo trilho são
   unidos dentro do chip. A tensão de alimentação ainda não é lida: o chip
@@ -777,6 +780,29 @@ chip real ainda, e só parte do chip é simulada.
   modo de função alternativa com o número de função da porta (7 para USART1
   a USART3, 8 para UART4, UART5 e USART6), como no chip. O Terminal Serial
   lista as seis portas.
+- **Timers**: PWM e os outros modos de comparação de saída, as saídas
+  complementares do TIM1 e do TIM8 com seu tempo morto, captura de entrada
+  numa ou nas duas bordas, a interface de encoder (modos 1 a 3), o modo de
+  pulso único, o contador de repetição, 32 bits no TIM2 e no TIM5, e as
+  saídas de gatilho (TRGO) que disparam o ADC e o DAC. O clock dos timers é
+  o dobro do PCLK1 ou do PCLK2 quando esse barramento é dividido, como no
+  chip. Um pino em modo de função alternativa é uma entrada enquanto sua
+  função não o aciona (um canal de captura, o RX de uma porta serial): o
+  nível do circuito chega ao periférico.
+- **ADC**: os ADC1 a ADC3 leem a tensão do circuito em seus pinos (PA0 a
+  PA7, PB0, PB1, PC0 a PC5; o ADC3 só PA0 a PA3 e PC0 a PC3 neste
+  encapsulamento), disparados por software ou por um timer, em conversão
+  única, contínua ou de varredura, com canais injetados, as resoluções de 12
+  a 6 bits e o tempo de conversão do tempo de amostragem mais a resolução em
+  ciclos do clock do ADC. O VREF+ é tomado como 3,3 V (o pino VREF não é
+  lido): o código de 12 bits é V × 4096 / 3,3. No ADC1 o sensor de
+  temperatura dá 0,76 V (25 °C, um valor fixo), o VREFINT 1,21 V e o VBAT a
+  metade de 3,3 V.
+- **DAC**: o canal 1 aciona PA4 e o canal 2 PA5 com 3,3 V × código / 4095,
+  definido pelo firmware, pelo gatilho de um timer ou pela onda triangular.
+  Com seu buffer de saída (o padrão) a tensão fica entre 0,2 V e 3,1 V atrás
+  de uma resistência pequena (uma aproximação do buffer); sem ele, de 0 a
+  3,3 V atrás de 15 kΩ, então uma carga a puxa para baixo.
 - **Velocidade**: um firmware que espera em laço ativo a 168 MHz roda abaixo
   do tempo real (cerca de 0,8 vez); um firmware que dorme entre interrupções
   (`WFI`, como o `HAL_Delay` não faz, mas a tarefa ociosa de um RTOS faz)
@@ -788,9 +814,12 @@ chip real ainda, e só parte do chip é simulada.
   seção); os registradores da FPU, S0 a S31 e FPSCR, também aparecem. O
   **Visualizador de registradores** tem os registradores do chip, com os da
   FPU.
-- **Exemplo**: 67 (um cristal de 25 MHz, o PLL a 168 MHz, a USART1 a 115200
-  baud, um LED em PC13, um botão de reset). O fonte do firmware e mais três
-  firmwares de teste estão em `examples/firmware/f4_*`.
+- **Exemplos**: 67 (um cristal de 25 MHz, o PLL a 168 MHz, a USART1 a 115200
+  baud, um LED em PC13, um botão de reset) e 68 (timers, ADC e DAC: um
+  potenciômetro em PA1 define o ciclo de trabalho do PWM do TIM1 em PA8 e
+  PB13, o DAC devolve a tensão em PA4 e desenha um triângulo em PA5). Os
+  fontes dos firmwares e mais firmwares de teste estão em
+  `examples/firmware/f4_*`.
 
 ## Depuração com STM32CubeIDE ou GDB
 

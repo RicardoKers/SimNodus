@@ -1,6 +1,6 @@
 # Current state
 
-Updated: 2026-11-12 (the Register Viewer SN-290 and SN-291 on main after 0.18.0; the STM32F407VET6 track E-12: the Cortex-M4F core (G12a on the host), the machine SN-294 and the part SN-295 (example 67) done, the board comparison SN-296 next; release 0.18.0 published: the chart recorder SN-281, the review and speed passes SN-282 to SN-284, the owner's requests SN-285, the protocol decoders SN-286 and SN-288, the chart fix SN-287 and the Memory Viewer's editing SN-289, tested by the owner on the 2026-11-11 previews; DE9 waits for the owner). Keep this file short: present state, last results, next
+Updated: 2026-11-12 (the Register Viewer SN-290 and SN-291 on main after 0.18.0; the STM32F407VET6 track E-12: the Cortex-M4F core (G12a on the host), the machine SN-294, the part SN-295 (example 67) and the timers, ADC and DAC SN-297 (example 68) done, the board comparison SN-296 waits for the owner; release 0.18.0 published: the chart recorder SN-281, the review and speed passes SN-282 to SN-284, the owner's requests SN-285, the protocol decoders SN-286 and SN-288, the chart fix SN-287 and the Memory Viewer's editing SN-289, tested by the owner on the 2026-11-11 previews; DE9 waits for the owner). Keep this file short: present state, last results, next
 steps. Replace it, do not append. History of the first development line
 (2026-08-31 → 2026-10-06) is in
 [archive/2026-10-legacy/CURRENT.md](../archive/2026-10-legacy/CURRENT.md);
@@ -306,11 +306,15 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
    `stm32f407vet6_lqfp100` (`tools/generate_stm32_parts.py`, the adapter
    `Stm32F407Machine` in `mcu_machine.cpp`, the crystals read from the
    diagram, NRST, BOOT0, GDB with the FPU's registers, the Register
-   Viewer's map, example 67, the guide's section; SN-295). Next: SN-296,
-   the owner runs `f4_float`, `f4_clock`, `f4_blink` on the board
-   (`examples/firmware/f4_common/README.md`) and tries STM32CubeIDE's
-   debugger on example 67; then SN-297 and SN-298 (timers, ADC, DAC, SPI,
-   I2C, DMA, RTC). Not done: the supply voltage is not read, PH0/PH1 are
+   Viewer's map, example 67, the guide's section; SN-295); the timers
+   TIM1-TIM14 (one model shared with the F103: dead time, encoder, TRGO),
+   ADC1-ADC3 and the DAC (`stm32f4_analog.*`) driving PA4/PA5 as an analog
+   source in the circuit (`PinState::analog_volts`), AF pins as inputs
+   while nothing drives them, firmware `f4_analog`, example 68 (SN-297).
+   Next: SN-296, the owner runs `f4_float`, `f4_clock`, `f4_blink` (and
+   `f4_analog`) on the board (`examples/firmware/f4_common/README.md`) and
+   tries STM32CubeIDE's debugger on example 67; SN-298 (SPI, I2C, DMA, RTC)
+   with the owner's go. Not done: the supply voltage is not read, PH0/PH1 are
    not GPIO, the pinout and the alternate function table are from memory
    of the datasheet. The STM32CubeF4 package is not installed here: HAL
    firmware waits for it.

@@ -55,6 +55,10 @@ PinDrive pin_drive(const PinState& state, const PinModel& model)
         }
         return {};
     case PinMode::Analog:
+        if (state.analog_resistance > 0.0) {
+            return {1.0 / state.analog_resistance, state.analog_volts / state.analog_resistance};
+        }
+        break;
     case PinMode::Unknown:
         break;
     }

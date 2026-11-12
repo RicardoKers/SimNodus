@@ -195,7 +195,7 @@ or which fault stopped a firmware (`SCB.CFSR`).
 | Part | Planned |
 |---|---|
 | ADC features: conversions started by a timer or EXTI, discontinuous and dual modes; DMA requests of timers, SPI and I2C | Later; the firmware gets a message in the Messages panel when it uses one |
-| Timer features: center-aligned counting, encoder and other slave modes, input filters, dead time, break input, timer DMA requests | Later; the firmware gets a message in the Messages panel when it uses one |
+| Timer features: center-aligned counting, slave modes other than the encoder, input filters, break input, timer DMA requests | Later; the firmware gets a message in the Messages panel when it uses one |
 | SPI slave, receive-only and bidirectional modes, CRC, I2S | Not yet; a message says so |
 | I2C slave mode, 10-bit addresses, SMBus, PEC, DMA's LAST bit | Not yet; a message says so |
 | CAN, USB, RTC tamper pin and calibration output | Not planned yet |
@@ -724,13 +724,16 @@ compared with a real chip yet, and only part of the chip is simulated.
 
 - **What works**: the clock tree (HSI, HSE, the PLL), GPIO with the
   alternate function numbers, external interrupts on any port, the six
-  serial ports (USART1 to USART3, UART4, UART5, USART6), SysTick and the
-  interrupt controller, the DSP and floating-point instructions.
-- **Not yet simulated**: timers, ADC, DAC, SPI, I2C, DMA, RTC, the
-  watchdogs, USB, Ethernet, SDIO, CAN. Their registers keep what the
-  firmware writes and the Messages panel says once that the peripheral
-  does nothing. A project from STM32CubeMX runs as far as it uses what
-  works (HAL's time base is SysTick).
+  serial ports (USART1 to USART3, UART4, UART5, USART6), the timers TIM1
+  to TIM14, the three ADCs, the DAC, SysTick and the interrupt
+  controller, the DSP and floating-point instructions.
+- **Not yet simulated**: SPI, I2C, DMA, RTC, the watchdogs, USB,
+  Ethernet, SDIO, CAN; in the timers the center-aligned modes, the break
+  input, the input filters and the slave modes other than the encoder; in
+  the ADCs the discontinuous and multi-ADC modes; the DAC's noise wave.
+  Their registers keep what the firmware writes and the Messages panel
+  says once what does nothing. A project from STM32CubeMX runs as far as
+  it uses what works (HAL's time base is SysTick).
 - **Power and ground**: wire the **VDD** and **VSS** pins (3.3 V); net
   labels save the wires, as in example 67. The pins of one rail are joined
   inside the chip. The supply voltage is not read yet: the chip runs with
@@ -751,6 +754,28 @@ compared with a real chip yet, and only part of the chip is simulated.
   function mode with the port's function number (7 for USART1 to USART3,
   8 for UART4, UART5 and USART6), as on the chip. The Serial Terminal
   lists the six ports.
+- **Timers**: PWM and the other output compare modes, the complementary
+  outputs of TIM1 and TIM8 with their dead time, input capture on one or
+  both edges, the encoder interface (modes 1 to 3), one-pulse mode, the
+  repetition counter, 32 bits on TIM2 and TIM5, and the trigger outputs
+  (TRGO) that start the ADC and the DAC. The timers' clock is twice PCLK1
+  or PCLK2 when that bus is divided, as on the chip. A pin in alternate
+  function mode is an input as long as its function does not drive it (a
+  capture channel, a serial port's RX): the circuit's level reaches the
+  peripheral.
+- **ADC**: ADC1 to ADC3 read the circuit's voltage on their pins (PA0 to
+  PA7, PB0, PB1, PC0 to PC5; ADC3 only PA0 to PA3 and PC0 to PC3 on this
+  package), started by software or by a timer, single, continuous or
+  scanning, with injected channels, the resolutions of 12 to 6 bits and
+  the conversion time of the sample time plus the resolution in ADC clock
+  cycles. VREF+ is taken as 3.3 V (the VREF pin is not read): the code of
+  12 bits is V × 4096 / 3.3. On ADC1 the temperature sensor gives 0.76 V
+  (25 °C, a fixed value), VREFINT 1.21 V and VBAT a half of 3.3 V.
+- **DAC**: channel 1 drives PA4 and channel 2 PA5 with 3.3 V × code / 4095,
+  set by the firmware, by a timer's trigger or by the triangle wave. With
+  its output buffer (the default) the voltage stays between 0.2 V and
+  3.1 V behind a small resistance (an approximation of the buffer); without
+  it, 0 to 3.3 V behind 15 kΩ, so a load pulls it down.
 - **Speed**: firmware that waits in a busy loop at 168 MHz runs below real
   time (about 0.8 times); firmware that sleeps between interrupts (`WFI`,
   as `HAL_Delay` does not, but an RTOS's idle task does) runs several
@@ -761,9 +786,11 @@ compared with a real chip yet, and only part of the chip is simulated.
 - **Debugging** with STM32CubeIDE works as on the Blue Pill (next
   section); the FPU's registers S0 to S31 and FPSCR are shown too. The
   **Register Viewer** has the chip's registers, with the FPU's.
-- **Example**: 67 (a 25 MHz crystal, the PLL at 168 MHz, USART1 at 115200
-  baud, an LED on PC13, a reset button). Its firmware source and three more
-  test firmware are in `examples/firmware/f4_*`.
+- **Examples**: 67 (a 25 MHz crystal, the PLL at 168 MHz, USART1 at 115200
+  baud, an LED on PC13, a reset button) and 68 (timers, ADC and DAC: a
+  potentiometer on PA1 sets the duty cycle of TIM1's PWM on PA8 and PB13,
+  the DAC gives the voltage back on PA4 and draws a triangle on PA5). The
+  firmware sources and more test firmware are in `examples/firmware/f4_*`.
 
 ## Debugging with STM32CubeIDE or GDB
 

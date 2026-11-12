@@ -950,7 +950,7 @@ TEST_CASE("timer features that are not simulated are reported once")
     REQUIRE(m);
     poke(*m, tim1 + 0x00, 1u << 5); // CMS: center-aligned
     poke(*m, tim1 + 0x00, 2u << 5);
-    poke(*m, tim2 + 0x08, 3);       // SMS: encoder mode 3
+    poke(*m, tim2 + 0x08, 4);       // SMS: reset mode
     const auto diagnostics = m->take_diagnostics();
     REQUIRE(diagnostics.size() == 2);
     CHECK(diagnostics[0].text.find("TIM1: center-aligned counting is not simulated yet") != std::string::npos);

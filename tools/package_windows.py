@@ -53,6 +53,7 @@ REQUIRED = [
     "library/mcu/atmega32_pdip40.json", "library/mcu/atmega32a_pdip40.json", "library/passive/crystal.json",
     "library/mcu/stm32f407vet6_lqfp100.json", "examples/67_STM32F407_clock_and_serial.snx",
     "examples/firmware/f4_clock/f4_clock.elf",
+    "examples/68_STM32F407_PWM_ADC_DAC.snx", "examples/firmware/f4_analog/f4_analog.elf",
     "examples/50_ATmega8_serial_and_EEPROM.snx", "examples/firmware/avr_serial/avr_serial.elf",
     "examples/51_ATmega8_crystal_16_MHz.snx", "examples/firmware/avr_blink/avr_blink_16mhz.elf",
     "examples/52_ATmega8_ADC_PWM_station.snx", "examples/firmware/avr_station/avr_station.elf",

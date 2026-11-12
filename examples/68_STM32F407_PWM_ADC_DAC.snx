@@ -1,0 +1,588 @@
+{
+  "buses": [],
+  "components": [
+    {
+      "at": [
+        0,
+        0
+      ],
+      "designator": "U1",
+      "id": 1,
+      "mirrored": false,
+      "parameters": {
+        "firmware": "firmware/f4_analog/f4_analog.elf"
+      },
+      "rotation": 0,
+      "type": "stm32f407vet6_lqfp100"
+    },
+    {
+      "at": [
+        -44,
+        -44
+      ],
+      "designator": "V1",
+      "id": 2,
+      "mirrored": false,
+      "parameters": {
+        "V": "3.3"
+      },
+      "rotation": 0,
+      "type": "vdc"
+    },
+    {
+      "at": [
+        -24,
+        -26
+      ],
+      "designator": "Y1",
+      "id": 20,
+      "mirrored": false,
+      "parameters": {
+        "frequency": "25M"
+      },
+      "rotation": 90,
+      "type": "crystal"
+    },
+    {
+      "at": [
+        -32,
+        -29
+      ],
+      "designator": "C1",
+      "id": 23,
+      "mirrored": false,
+      "parameters": {
+        "C": "22p",
+        "V0": "0"
+      },
+      "rotation": 90,
+      "type": "capacitor"
+    },
+    {
+      "at": [
+        -32,
+        -23
+      ],
+      "designator": "C2",
+      "id": 24,
+      "mirrored": false,
+      "parameters": {
+        "C": "22p",
+        "V0": "0"
+      },
+      "rotation": 90,
+      "type": "capacitor"
+    },
+    {
+      "at": [
+        -44,
+        -30
+      ],
+      "designator": "SW1",
+      "id": 35,
+      "mirrored": false,
+      "parameters": {
+        "bounce": "no"
+      },
+      "rotation": 0,
+      "type": "button_no"
+    },
+    {
+      "at": [
+        -24,
+        -3
+      ],
+      "designator": "RV1",
+      "id": 41,
+      "mirrored": false,
+      "parameters": {
+        "R": "10k",
+        "position": "70"
+      },
+      "rotation": 0,
+      "type": "potentiometer"
+    },
+    {
+      "at": [
+        22,
+        17
+      ],
+      "designator": "R1",
+      "id": 45,
+      "mirrored": false,
+      "parameters": {
+        "R": "10k"
+      },
+      "rotation": 90,
+      "type": "resistor"
+    },
+    {
+      "at": [
+        28,
+        20
+      ],
+      "designator": "C3",
+      "id": 47,
+      "mirrored": false,
+      "parameters": {
+        "C": "100n",
+        "V0": "0"
+      },
+      "rotation": 0,
+      "type": "capacitor"
+    }
+  ],
+  "format": "simnodus-project",
+  "labels": [
+    {
+      "at": [
+        -44,
+        -47
+      ],
+      "id": 3,
+      "name": "3V3"
+    },
+    {
+      "at": [
+        -44,
+        -41
+      ],
+      "id": 4,
+      "name": "GND"
+    },
+    {
+      "at": [
+        -13,
+        -29
+      ],
+      "id": 5,
+      "name": "3V3"
+    },
+    {
+      "at": [
+        -13,
+        -13
+      ],
+      "id": 6,
+      "name": "3V3"
+    },
+    {
+      "at": [
+        -13,
+        5
+      ],
+      "id": 7,
+      "name": "3V3"
+    },
+    {
+      "at": [
+        -13,
+        49
+      ],
+      "id": 8,
+      "name": "3V3"
+    },
+    {
+      "at": [
+        13,
+        1
+      ],
+      "id": 9,
+      "name": "3V3"
+    },
+    {
+      "at": [
+        13,
+        -49
+      ],
+      "id": 10,
+      "name": "3V3"
+    },
+    {
+      "at": [
+        -13,
+        -7
+      ],
+      "id": 11,
+      "name": "3V3"
+    },
+    {
+      "at": [
+        -13,
+        -9
+      ],
+      "id": 12,
+      "name": "3V3"
+    },
+    {
+      "at": [
+        -13,
+        -39
+      ],
+      "id": 13,
+      "name": "3V3"
+    },
+    {
+      "at": [
+        -13,
+        -31
+      ],
+      "id": 14,
+      "name": "GND"
+    },
+    {
+      "at": [
+        -13,
+        3
+      ],
+      "id": 15,
+      "name": "GND"
+    },
+    {
+      "at": [
+        13,
+        3
+      ],
+      "id": 16,
+      "name": "GND"
+    },
+    {
+      "at": [
+        13,
+        -47
+      ],
+      "id": 17,
+      "name": "GND"
+    },
+    {
+      "at": [
+        -13,
+        -11
+      ],
+      "id": 18,
+      "name": "GND"
+    },
+    {
+      "at": [
+        13,
+        -37
+      ],
+      "id": 19,
+      "name": "GND"
+    },
+    {
+      "at": [
+        -35,
+        -29
+      ],
+      "id": 27,
+      "name": "GND"
+    },
+    {
+      "at": [
+        -35,
+        -23
+      ],
+      "id": 28,
+      "name": "GND"
+    },
+    {
+      "at": [
+        -13,
+        -23
+      ],
+      "id": 34,
+      "name": "NRST"
+    },
+    {
+      "at": [
+        -47,
+        -30
+      ],
+      "id": 38,
+      "name": "NRST"
+    },
+    {
+      "at": [
+        -41,
+        -30
+      ],
+      "id": 39,
+      "name": "GND"
+    },
+    {
+      "at": [
+        -24,
+        -6
+      ],
+      "id": 43,
+      "name": "GND"
+    },
+    {
+      "at": [
+        -24,
+        0
+      ],
+      "id": 44,
+      "name": "3V3"
+    },
+    {
+      "at": [
+        28,
+        23
+      ],
+      "id": 49,
+      "name": "GND"
+    },
+    {
+      "at": [
+        -13,
+        -3
+      ],
+      "id": 50,
+      "name": "ADC_IN"
+    },
+    {
+      "at": [
+        -13,
+        7
+      ],
+      "id": 51,
+      "name": "DAC_OUT"
+    },
+    {
+      "at": [
+        -13,
+        9
+      ],
+      "id": 52,
+      "name": "TRIANGLE"
+    },
+    {
+      "at": [
+        28,
+        17
+      ],
+      "id": 53,
+      "name": "PWM_AVG"
+    }
+  ],
+  "next_id": 61,
+  "notes": [
+    {
+      "at": [
+        18,
+        -50
+      ],
+      "id": 60,
+      "text": "STM32F407VET6 (experimental): timers, the ADC and the DAC, at 16 MHz (HSI).\nTIM2 starts ADC1 every millisecond on PA1 (RV1's wiper); the result sets\nthe duty cycle of TIM1's 20 kHz PWM on PA8 and its complement on PB13\n(0.5 us of dead time), and DAC channel 1 gives it back on PA4.\nR1 and C3 average the PWM: about the same voltage as PA1.\nDAC channel 2 on PA5 draws a triangle (1.24 V to 2.06 V, about 5 Hz) on TIM6.\nUSART1 (PA9, 115200 baud) prints the code every 100 ms.\nTry: turn RV1 while running and watch the probes in the Signal Analyzer."
+    }
+  ],
+  "probes": [
+    {
+      "color": "",
+      "id": 37,
+      "kind": "voltage",
+      "target": {
+        "at": [
+          13,
+          15
+        ],
+        "item": 1,
+        "pin": "PA9"
+      }
+    },
+    {
+      "color": "",
+      "id": 54,
+      "kind": "voltage",
+      "target": {
+        "at": [
+          -13,
+          -3
+        ],
+        "item": 1,
+        "pin": "PA1"
+      }
+    },
+    {
+      "color": "",
+      "id": 55,
+      "kind": "voltage",
+      "target": {
+        "at": [
+          -13,
+          7
+        ],
+        "item": 1,
+        "pin": "PA4"
+      }
+    },
+    {
+      "color": "",
+      "id": 56,
+      "kind": "voltage",
+      "target": {
+        "at": [
+          -13,
+          9
+        ],
+        "item": 1,
+        "pin": "PA5"
+      }
+    },
+    {
+      "color": "",
+      "id": 57,
+      "kind": "voltage",
+      "target": {
+        "at": [
+          28,
+          17
+        ],
+        "item": 47,
+        "pin": "1"
+      }
+    },
+    {
+      "color": "",
+      "id": 58,
+      "kind": "voltage",
+      "target": {
+        "at": [
+          13,
+          17
+        ],
+        "item": 1,
+        "pin": "PA8"
+      }
+    },
+    {
+      "color": "",
+      "id": 59,
+      "kind": "voltage",
+      "target": {
+        "at": [
+          13,
+          47
+        ],
+        "item": 1,
+        "pin": "PB13"
+      }
+    }
+  ],
+  "settings": {
+    "cortex_m3_timing": true,
+    "exact_edges": false,
+    "max_step": 0.0001,
+    "mcu_quantum": 0.001,
+    "mode": "interactive",
+    "segment": 1.0,
+    "speed": 1.0,
+    "transient_max_step": 1e-06,
+    "transient_stop": 0.01
+  },
+  "splitters": [],
+  "version": 1,
+  "wires": [
+    {
+      "id": 21,
+      "points": [
+        [
+          -13,
+          -27
+        ],
+        [
+          -24,
+          -27
+        ],
+        [
+          -24,
+          -29
+        ]
+      ]
+    },
+    {
+      "id": 22,
+      "points": [
+        [
+          -13,
+          -25
+        ],
+        [
+          -24,
+          -25
+        ],
+        [
+          -24,
+          -23
+        ]
+      ]
+    },
+    {
+      "id": 25,
+      "points": [
+        [
+          -24,
+          -29
+        ],
+        [
+          -29,
+          -29
+        ]
+      ]
+    },
+    {
+      "id": 26,
+      "points": [
+        [
+          -24,
+          -23
+        ],
+        [
+          -29,
+          -23
+        ]
+      ]
+    },
+    {
+      "id": 42,
+      "points": [
+        [
+          -21,
+          -3
+        ],
+        [
+          -13,
+          -3
+        ]
+      ]
+    },
+    {
+      "id": 46,
+      "points": [
+        [
+          13,
+          17
+        ],
+        [
+          19,
+          17
+        ]
+      ]
+    },
+    {
+      "id": 48,
+      "points": [
+        [
+          25,
+          17
+        ],
+        [
+          28,
+          17
+        ]
+      ]
+    }
+  ]
+}

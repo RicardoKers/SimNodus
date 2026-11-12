@@ -53,8 +53,71 @@ const UsartPins usart_pins[Stm32F407::num_usarts] = {
     {"USART6", 0x40011400u, true, 71, 8, {{C, 6}, none, none}, {{C, 7}, none, none}},
 };
 
-// Sources of alternate-function outputs: a serial port is its number.
+// Sources of alternate-function outputs: a serial port is its number; a
+// timer's channels are 100 + 10 * timer + channel (stm32f1_timer.cpp).
 constexpr int usart_source = 0;
+
+// The timers: what each has (RM0090 chapters 17 to 20) and its interrupt
+// lines (break, update, trigger and commutation, capture/compare; the
+// others have one line, some shared with TIM1 and TIM8).
+struct TimerInfo {
+    int number;
+    std::uint32_t base;
+    bool apb2;
+    bool advanced;
+    int channels;
+    bool wide;
+    int irq[4];
+};
+
+const TimerInfo timer_info[Stm32F407::num_timers] = {
+    {1, 0x40010000u, true, true, 4, false, {24, 25, 26, 27}},
+    {2, 0x40000000u, false, false, 4, true, {-1, 28, -1, -1}},
+    {3, 0x40000400u, false, false, 4, false, {-1, 29, -1, -1}},
+    {4, 0x40000800u, false, false, 4, false, {-1, 30, -1, -1}},
+    {5, 0x40000C00u, false, false, 4, true, {-1, 50, -1, -1}},
+    {6, 0x40001000u, false, false, 0, false, {-1, 54, -1, -1}},
+    {7, 0x40001400u, false, false, 0, false, {-1, 55, -1, -1}},
+    {8, 0x40010400u, true, true, 4, false, {43, 44, 45, 46}},
+    {9, 0x40014000u, true, false, 2, false, {-1, 24, -1, -1}},
+    {10, 0x40014400u, true, false, 1, false, {-1, 25, -1, -1}},
+    {11, 0x40014800u, true, false, 1, false, {-1, 26, -1, -1}},
+    {12, 0x40001800u, false, false, 2, false, {-1, 43, -1, -1}},
+    {13, 0x40001C00u, false, false, 1, false, {-1, 44, -1, -1}},
+    {14, 0x40002000u, false, false, 1, false, {-1, 45, -1, -1}},
+};
+
+// The alternate function number of a timer's pins.
+int timer_function(int number)
+{
+    return number <= 2 ? 1 : number <= 5 ? 2 : number <= 11 ? 3 : 9;
+}
+
+// The pins that can carry a timer's channels on the LQFP-100 package
+// (datasheet, alternate function mapping): channel 0 to 3, or 4 to 6 for the
+// complementary outputs of channels 1 to 3.
+struct TimerPin {
+    std::uint8_t timer, channel, port, pin;
+};
+
+constexpr int E = 4;
+
+const TimerPin timer_pins[] = {
+    {1, 0, A, 8}, {1, 0, E, 9}, {1, 1, A, 9}, {1, 1, E, 11}, {1, 2, A, 10}, {1, 2, E, 13}, {1, 3, A, 11}, {1, 3, E, 14},
+    {1, 4, A, 7}, {1, 4, B, 13}, {1, 4, E, 8}, {1, 5, B, 0}, {1, 5, B, 14}, {1, 5, E, 10},
+    {1, 6, B, 1}, {1, 6, B, 15}, {1, 6, E, 12},
+    {2, 0, A, 0}, {2, 0, A, 5}, {2, 0, A, 15}, {2, 1, A, 1}, {2, 1, B, 3}, {2, 2, A, 2}, {2, 2, B, 10},
+    {2, 3, A, 3}, {2, 3, B, 11},
+    {3, 0, A, 6}, {3, 0, B, 4}, {3, 0, C, 6}, {3, 1, A, 7}, {3, 1, B, 5}, {3, 1, C, 7}, {3, 2, B, 0}, {3, 2, C, 8},
+    {3, 3, B, 1}, {3, 3, C, 9},
+    {4, 0, B, 6}, {4, 0, D, 12}, {4, 1, B, 7}, {4, 1, D, 13}, {4, 2, B, 8}, {4, 2, D, 14}, {4, 3, B, 9}, {4, 3, D, 15},
+    {5, 0, A, 0}, {5, 1, A, 1}, {5, 2, A, 2}, {5, 3, A, 3},
+    {8, 0, C, 6}, {8, 1, C, 7}, {8, 2, C, 8}, {8, 3, C, 9},
+    {8, 4, A, 5}, {8, 4, A, 7}, {8, 5, B, 0}, {8, 5, B, 14}, {8, 6, B, 1}, {8, 6, B, 15},
+    {9, 0, A, 2}, {9, 0, E, 5}, {9, 1, A, 3}, {9, 1, E, 6},
+    {10, 0, B, 8}, {11, 0, B, 9},
+    {12, 0, B, 14}, {12, 1, B, 15}, {13, 0, A, 6}, {14, 0, A, 7},
+};
 
 } // namespace
 
@@ -222,6 +285,7 @@ private:
 
     void update_clocks()
     {
+        m_.clocks_changed();
         const std::uint32_t hz = hclk();
         if (hz != 0 && hz != applied_) {
             applied_ = hz;
@@ -354,6 +418,9 @@ public:
         for (auto& drivers : af_drivers_) {
             drivers.clear();
         }
+        for (auto& claims : af_claims_) {
+            claims.clear();
+        }
         update();
     }
 
@@ -370,6 +437,7 @@ public:
         c.function = static_cast<std::uint8_t>(function(pin));
         c.level = level(pin);
         c.drive_high = c.mode == 2 ? af_level(pin) : ((odr_ >> pin) & 1u) != 0;
+        c.af_input = c.mode == 2 && !af_driven(pin);
         return c;
     }
 
@@ -382,12 +450,23 @@ public:
     }
 
     // A peripheral's output on the pin: it reaches the pin only while the
-    // pin's alternate function number is the peripheral's.
+    // pin's alternate function number is the peripheral's. A pin whose
+    // function no peripheral drives is an input (RM0090 figure 26: the input
+    // buffer is always on, the output driver is the peripheral's).
     void set_af(int pin, int source, int function_number, bool high)
     {
         auto& drivers = af_drivers_[static_cast<std::size_t>(pin)];
+        auto& claims = af_claims_[static_cast<std::size_t>(pin)];
         const std::pair<int, int> driver{source, function_number};
+        const bool claimed = std::find(claims.begin(), claims.end(), driver) == claims.end();
+        if (claimed) {
+            claims.push_back(driver);
+        }
         const auto it = std::find(drivers.begin(), drivers.end(), driver);
+        if (claimed && !high && it == drivers.end()) {
+            update();
+            return;
+        }
         if (high && it == drivers.end()) {
             drivers.push_back(driver);
         } else if (!high && it != drivers.end()) {
@@ -400,9 +479,10 @@ public:
 
     void update()
     {
-        std::uint32_t af_levels = 0;
+        std::uint32_t af_levels = 0, af_inputs = 0;
         for (int pin = 0; pin < 16; ++pin) {
             af_levels |= af_level(pin) ? 1u << pin : 0u;
+            af_inputs |= af_driven(pin) ? 0u : 1u << pin;
         }
         std::uint32_t levels = 0;
         for (int pin = 0; pin < 16; ++pin) {
@@ -414,6 +494,12 @@ public:
             switch (mode(pin)) {
             case 0: high = external; break;
             case 3: high = false; break; // analog: the digital input is off and reads 0
+            case 2:
+                if (af_inputs & bit) {
+                    high = external;
+                    break;
+                }
+                [[fallthrough]];
             default: {
                 const bool driven = mode(pin) == 2 ? (af_levels & bit) != 0 : (odr_ & bit) != 0;
                 high = (otyper_ & bit) && driven ? external : driven; // open drain: released when high
@@ -428,7 +514,8 @@ public:
             const std::uint32_t bit = 1u << pin;
             // The configuration as the circuit sees it, with the level a driver gives.
             const std::uint32_t config = mode(pin) | ((otyper_ >> pin) & 1u) << 2 | ((pupdr_ >> (2 * pin)) & 3u) << 3
-                | ((odr_ >> pin) & 1u) << 5 | ((af_levels >> pin) & 1u) << 6 | function(pin) << 7;
+                | ((odr_ >> pin) & 1u) << 5 | ((af_levels >> pin) & 1u) << 6 | function(pin) << 7
+                | ((af_inputs >> pin) & 1u) << 11;
             const bool config_changed = !updated_ || config != configs_[static_cast<std::size_t>(pin)];
             configs_[static_cast<std::size_t>(pin)] = config;
             if (config_changed || (changed & bit)) {
@@ -501,6 +588,16 @@ private:
         }
         return false;
     }
+    bool af_driven(int pin) const
+    {
+        const int wanted = static_cast<int>(function(pin));
+        for (const auto& [source, number] : af_claims_[static_cast<std::size_t>(pin)]) {
+            if (number == wanted) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     Stm32F407& m_;
     int port_;
@@ -510,6 +607,7 @@ private:
     std::uint32_t input_ = 0, input_set_ = 0;
     std::uint32_t levels_ = 0;
     std::array<std::vector<std::pair<int, int>>, 16> af_drivers_; // per pin: (source, function) driving high
+    std::array<std::vector<std::pair<int, int>>, 16> af_claims_;  // per pin: (source, function) driving it at all
     std::array<std::uint32_t, 16> configs_{};
     bool updated_ = false;
 };
@@ -815,24 +913,42 @@ Stm32F407::Stm32F407(F4MachineOptions options) : options_(options), cpu_(bus_)
         timed_.push_back(usart_[static_cast<std::size_t>(n)].get());
     }
 
-    // The rest of the chip, not simulated yet (SN-297, SN-298 and later).
+    for (const TimerInfo& info : timer_info) {
+        TimerConfig config;
+        config.number = info.number;
+        config.advanced = info.advanced;
+        config.channels = info.channels;
+        config.wide = info.wide;
+        config.apb2 = info.apb2;
+        config.both_edges = true;
+        config.irq_break = info.irq[0];
+        config.irq_update = info.irq[1];
+        config.irq_trigger = info.irq[2];
+        config.irq_compare = info.irq[3];
+        auto& timer = timers_[static_cast<std::size_t>(info.number - 1)];
+        timer = std::make_unique<Stm32F1Timer>(static_cast<TimerHost&>(*this), config);
+        bus_.add_device(info.base, 0x400, timer.get());
+        timed_.push_back(timer.get());
+    }
+    adc_ = std::make_unique<Stm32F4Adc>(static_cast<F4AnalogHost&>(*this));
+    bus_.add_device(0x40012000u, 0x400, adc_.get());
+    timed_.push_back(adc_.get());
+    dac_ = std::make_unique<Stm32F4Dac>(static_cast<F4AnalogHost&>(*this));
+    bus_.add_device(0x40007400u, 0x400, dac_.get());
+
+    // The rest of the chip, not simulated yet (SN-298 and later).
     struct Block {
         std::uint32_t base;
         std::uint32_t size;
         const char* name;
     };
     static const Block blocks[] = {
-        {0x40000000u, 0x400, "TIM2"}, {0x40000400u, 0x400, "TIM3"}, {0x40000800u, 0x400, "TIM4"},
-        {0x40000C00u, 0x400, "TIM5"}, {0x40001000u, 0x400, "TIM6"}, {0x40001400u, 0x400, "TIM7"},
-        {0x40001800u, 0x400, "TIM12"}, {0x40001C00u, 0x400, "TIM13"}, {0x40002000u, 0x400, "TIM14"},
         {0x40002800u, 0x400, "RTC and the backup registers"}, {0x40002C00u, 0x400, "WWDG"},
         {0x40003000u, 0x400, "IWDG"}, {0x40003400u, 0x400, "I2S2ext"}, {0x40003800u, 0x400, "SPI2"},
         {0x40003C00u, 0x400, "SPI3"}, {0x40004000u, 0x400, "I2S3ext"}, {0x40005400u, 0x400, "I2C1"},
         {0x40005800u, 0x400, "I2C2"}, {0x40005C00u, 0x400, "I2C3"}, {0x40006400u, 0x400, "CAN1"},
-        {0x40006800u, 0x400, "CAN2"}, {0x40007400u, 0x400, "DAC"}, {0x40010000u, 0x400, "TIM1"},
-        {0x40010400u, 0x400, "TIM8"}, {0x40012000u, 0x400, "ADC"}, {0x40012C00u, 0x400, "SDIO"},
-        {0x40013000u, 0x400, "SPI1"}, {0x40014000u, 0x400, "TIM9"}, {0x40014400u, 0x400, "TIM10"},
-        {0x40014800u, 0x400, "TIM11"}, {0x40023000u, 0x400, "CRC"}, {0x40024000u, 0x1000, "backup SRAM"},
+        {0x40006800u, 0x400, "CAN2"}, {0x40012C00u, 0x400, "SDIO"},
+        {0x40013000u, 0x400, "SPI1"}, {0x40023000u, 0x400, "CRC"}, {0x40024000u, 0x1000, "backup SRAM"},
         {0x40026000u, 0x400, "DMA1"}, {0x40026400u, 0x400, "DMA2"}, {0x40028000u, 0x1400, "Ethernet"},
         {0x40040000u, 0x40000, "USB OTG HS"}, {0x50000000u, 0x40000, "USB OTG FS"}, {0x50050000u, 0x400, "DCMI"},
         {0x50060800u, 0x400, "RNG"}, {0xA0000000u, 0x1000, "FSMC"},
@@ -925,6 +1041,8 @@ void Stm32F407::reset(ResetKind kind)
         break;
     }
     reset_requested_ = false;
+    irq_sources_.fill(0);
+    dac_pins_ = {};
     bus_.reset_devices();
     for (auto& gpio : gpio_) {
         gpio->update();
@@ -1115,7 +1233,14 @@ std::vector<Diagnostic> Stm32F407::take_diagnostics()
 
 F4PinConfig Stm32F407::pin_config(int port, int pin) const
 {
-    return gpio_[static_cast<std::size_t>(port)]->config(pin);
+    F4PinConfig config = gpio_[static_cast<std::size_t>(port)]->config(pin);
+    if (port == 0 && (pin == 4 || pin == 5)) {
+        const DacPin& dac = dac_pins_[static_cast<std::size_t>(pin - 4)];
+        config.dac = dac.enabled;
+        config.dac_buffered = dac.buffered;
+        config.dac_code = static_cast<std::uint16_t>(dac.code);
+    }
+    return config;
 }
 
 bool Stm32F407::pin_level(int port, int pin) const
@@ -1143,7 +1268,7 @@ void Stm32F407::pin_output_changed(int port, int pin)
     if (!pin_events_.empty()) {
         at = std::max(at, pin_events_.back().time_ns); // a timed event can be found an instruction late
     }
-    pin_events_.push_back({at, port, pin, gpio_[static_cast<std::size_t>(port)]->config(pin)});
+    pin_events_.push_back({at, port, pin, pin_config(port, pin)});
     if (pin_hook_) {
         pin_hook_(port, pin, at);
     }
@@ -1159,6 +1284,11 @@ void Stm32F407::pin_input_changed(int port, int pin, bool level)
     for (const auto& usart : usart_) {
         if (usart) {
             usart->pin_changed(port, pin, level, at);
+        }
+    }
+    for (const auto& timer : timers_) {
+        if (timer) {
+            timer->pin_changed(port, pin, level);
         }
     }
 }
@@ -1193,6 +1323,11 @@ void Stm32F407::routing_changed()
     for (const auto& usart : usart_) {
         if (usart) {
             usart->update();
+        }
+    }
+    for (const auto& timer : timers_) {
+        if (timer) {
+            timer->remap_changed();
         }
     }
 }
@@ -1233,6 +1368,115 @@ void Stm32F407::usart_line_at(int port, int pin, int number, bool level, std::ui
 void Stm32F407::usart_byte(int number, std::uint8_t value, std::uint64_t cycle)
 {
     uart_bytes_.push_back({ns_at_cycles(cycle), number, value});
+}
+
+// ---------------------------------------------------------------------------
+// Timers
+
+void Stm32F407::clocks_changed()
+{
+    for (const auto& timer : timers_) {
+        if (timer) {
+            timer->clocks_changed();
+        }
+    }
+}
+
+std::uint32_t Stm32F407::hclk_per_kernel_tick(bool apb2) const
+{
+    // RM0090 figure 21 with RCC_DCKCFGR.TIMPRE clear: the timer clock is PCLK
+    // with APB divider 1, else twice PCLK.
+    const std::uint32_t divider = rcc_ ? rcc_->apb_divider(apb2) : 1u;
+    return divider == 1 ? 1u : divider / 2u;
+}
+
+std::pair<int, int> Stm32F407::timer_pin(int number, int channel, bool complementary) const
+{
+    const int key = channel + (complementary ? 4 : 0);
+    const auto function = static_cast<std::uint32_t>(timer_function(number));
+    for (const TimerPin& p : timer_pins) {
+        if (p.timer == number && p.channel == key) {
+            const Gpio* gpio = gpio_[p.port].get();
+            if (gpio && gpio->mode(p.pin) == 2 && gpio->function(p.pin) == function) {
+                return {p.port, p.pin};
+            }
+        }
+    }
+    return {-1, -1};
+}
+
+void Stm32F407::timer_irq(int number, int irq, bool level)
+{
+    std::uint32_t& sources = irq_sources_[static_cast<std::size_t>(irq)];
+    const std::uint32_t bit = 1u << number;
+    sources = level ? sources | bit : sources & ~bit;
+    cpu_.set_irq_line(irq, sources != 0);
+}
+
+void Stm32F407::timer_output(int port, int pin, int source, bool level, std::uint64_t cycle)
+{
+    const bool nested = stamping_;
+    const std::uint64_t outer = stamp_cycles_;
+    stamping_ = true;
+    stamp_cycles_ = cycle;
+    af_output(port, pin, source, timer_function((source - 100) / 10), level);
+    stamping_ = nested;
+    stamp_cycles_ = outer;
+}
+
+void Stm32F407::timer_trigger(int number, int signal, std::uint64_t cycle)
+{
+    if (adc_) {
+        adc_->timer_event(number, signal, cycle);
+    }
+    if (dac_ && signal == 0) {
+        dac_->timer_event(number, cycle);
+    }
+}
+
+// ---------------------------------------------------------------------------
+// ADC and DAC
+
+std::uint32_t Stm32F407::hclk_per_pclk2() const
+{
+    return rcc_->apb_divider(true);
+}
+
+double Stm32F407::adc_voltage(int adc, int channel, std::uint64_t cycle)
+{
+    // IN0..IN7: PA0..PA7, IN8, IN9: PB0, PB1, IN10..IN15: PC0..PC5. ADC3 has
+    // PA0..PA3 and PC0..PC3 on this package (its other inputs are on port F).
+    int port = 0;
+    int pin = channel;
+    if (channel >= 8 && channel < 10) {
+        port = 1;
+        pin = channel - 8;
+    } else if (channel >= 10) {
+        port = 2;
+        pin = channel - 10;
+    }
+    if (adc == 3 && !(channel < 4 || (channel >= 10 && channel < 14))) {
+        return 0.0;
+    }
+    if (analog_source_) {
+        return analog_source_(port, pin, ns_at_cycles(cycle));
+    }
+    if (port == 0 && (pin == 4 || pin == 5) && dac_pins_[static_cast<std::size_t>(pin - 4)].enabled) {
+        return vref * dac_pins_[static_cast<std::size_t>(pin - 4)].code / 4096.0;
+    }
+    return pin_level(port, pin) ? vref : 0.0;
+}
+
+void Stm32F407::dac_output(int channel, bool enabled, bool buffered, std::uint32_t code, std::uint64_t cycle)
+{
+    dac_pins_[static_cast<std::size_t>(channel)] = {enabled, buffered, code};
+    const bool nested = stamping_;
+    const std::uint64_t outer = stamp_cycles_;
+    stamping_ = true;
+    stamp_cycles_ = cycle;
+    pin_output_changed(0, 4 + channel);
+    stamping_ = nested;
+    stamp_cycles_ = outer;
 }
 
 } // namespace simnodus::emu

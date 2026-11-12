@@ -3,7 +3,8 @@
 //
 // STM32F407 machine of experiment E-12 (SN-294): the owned test firmware of
 // examples/firmware/f4_* in the machine without a circuit, and the registers
-// of the clock tree, GPIO, SYSCFG, EXTI and the serial ports.
+// of the clock tree, GPIO, SYSCFG, EXTI, the serial ports, the timers, the
+// ADCs and the DAC (SN-297).
 //
 //   f4_tests <repository-dir> [filter]
 #include "test_support.hpp"
@@ -367,11 +368,11 @@ TEST_CASE("f4: GPIO registers, alternate functions and the external interrupt of
     CHECK(reg(m, exti + 0x14) == 0);
     // A peripheral that is not simulated yet says so once, and keeps its registers.
     m.take_diagnostics();
-    set(m, 0x40000000u + 0x2C, 999); // TIM2_ARR
-    CHECK(reg(m, 0x40000000u + 0x2C) == 999);
+    set(m, 0x40013000u + 0x0C, 0x5A); // SPI1_DR
+    CHECK(reg(m, 0x40013000u + 0x0C) == 0x5A);
     const auto told = m.take_diagnostics();
     REQUIRE(told.size() == 1);
-    CHECK(told[0].text.find("TIM2 is not simulated yet") != std::string::npos);
+    CHECK(told[0].text.find("SPI1 is not simulated yet") != std::string::npos);
     // The chip's identity.
     CHECK(reg(m, 0xE0042000) == 0x10076413u);
     std::uint32_t kib = 0;
@@ -486,6 +487,443 @@ TEST_CASE("f4: the debugger sees the core's registers and the FPU's")
     const auto f1_target = make_gdb_target(f1);
     CHECK(std::string(f1_target->target_xml()).find("org.simnodus.fpu") == std::string::npos);
     CHECK(!f1_target->read_register(21, value));
+}
+
+namespace {
+
+constexpr std::uint32_t tim1 = 0x40010000, tim2 = 0x40000000, tim3 = 0x40000400, tim4 = 0x40000800,
+                        tim6 = 0x40001000, tim9 = 0x40014000, adc1 = 0x40012000, adc_common = 0x40012300,
+                        dac = 0x40007400;
+constexpr int E = 4;
+
+// A firmware that only waits (`b .`), so that the registers are the test's.
+void idle(Stm32F407& m)
+{
+    ElfImage image;
+    image.entry = 0x08000009;
+    ElfSegment code;
+    code.physical = code.virtual_address = 0x08000000;
+    code.data = {0x00, 0x00, 0x02, 0x20, 0x09, 0x00, 0x00, 0x08, 0xFE, 0xE7};
+    code.memory_size = static_cast<std::uint32_t>(code.data.size());
+    image.segments.push_back(code);
+    std::string error;
+    REQUIRE(m.load(image, error));
+}
+
+// The durations of the high and of the low pulses of a pin, in order.
+std::pair<std::vector<std::uint64_t>, std::vector<std::uint64_t>> pulses(
+    const std::vector<std::pair<std::uint64_t, bool>>& changes)
+{
+    std::pair<std::vector<std::uint64_t>, std::vector<std::uint64_t>> out;
+    for (std::size_t i = 1; i < changes.size(); ++i) {
+        (changes[i - 1].second ? out.first : out.second).push_back(changes[i].first - changes[i - 1].first);
+    }
+    return out;
+}
+
+} // namespace
+
+TEST_CASE("f4: TIM1 complementary PWM with dead time, a 32-bit TIM2 and the timers' shapes (SN-297)")
+{
+    Stm32F407 m; // HSI: 16 MHz, 62.5 ns a cycle
+    idle(m);
+    // PA8 = TIM1_CH1, PA7 = TIM1_CH1N (AF1), PA5 = TIM2_CH1 (AF1).
+    set(m, gpioa + 0x00, 0xA8000000u | (2u << 16) | (2u << 14) | (2u << 10));
+    set(m, gpioa + 0x20, (1u << 28) | (1u << 20));
+    set(m, gpioa + 0x24, 1u);
+    set(m, tim1 + 0x2C, 159);                 // 160 counts: 10 us
+    set(m, tim1 + 0x34, 40);                  // CCR1
+    set(m, tim1 + 0x18, 6u << 4);             // PWM 1
+    set(m, tim1 + 0x44, (1u << 15) | 16u);    // MOE, a dead time of 16 clock periods: 1 us
+    set(m, tim1 + 0x20, 0x5u);                // CC1E, CC1NE
+    set(m, tim1 + 0x00, 1u);
+    set(m, tim2 + 0x2C, 0x1FFFFu);            // 131072 counts: 8.192 ms, more than 16 bits
+    set(m, tim2 + 0x34, 0x10000u);
+    set(m, tim2 + 0x18, 6u << 4);
+    set(m, tim2 + 0x20, 0x1u);
+    set(m, tim2 + 0x00, 1u);
+    CHECK(reg(m, tim2 + 0x2C) == 0x1FFFFu);
+    set(m, tim3 + 0x2C, 0x1FFFFu);
+    CHECK(reg(m, tim3 + 0x2C) == 0xFFFFu); // TIM3 has 16 bits
+    Trace t;
+    m.run_until_ns(30 * ms);
+    t.take(m);
+    const auto& main_out = t.of(A, 8);
+    const auto& complement = t.of(A, 7);
+    REQUIRE(main_out.size() > 1000);
+    REQUIRE(complement.size() > 1000);
+    const auto [high, low] = pulses(main_out);
+    const auto [high_n, low_n] = pulses(complement);
+    for (std::size_t i = 4; i < 1000; ++i) {
+        CHECK(high[i] == 1500u);   // 40 counts less the dead time: 24 cycles
+        CHECK(low[i] == 8500u);
+        CHECK(high_n[i] == 6500u); // 120 counts less the dead time
+        CHECK(low_n[i] == 3500u);
+    }
+    // Neither output turns on until 1 us after the other turned off.
+    std::size_t checked = 0;
+    for (std::size_t i = 10; i < 200; ++i) {
+        if (!main_out[i].second) {
+            continue;
+        }
+        const auto before = std::find_if(complement.rbegin(), complement.rend(),
+            [&](const auto& c) { return c.first < main_out[i].first; });
+        REQUIRE(before != complement.rend());
+        CHECK(!before->second);
+        CHECK(main_out[i].first - before->first == 1000u);
+        ++checked;
+    }
+    CHECK(checked > 50);
+    const auto [wide_high, wide_low] = pulses(t.of(A, 5));
+    REQUIRE(wide_high.size() >= 3);
+    CHECK(wide_high[1] == 4096000u);
+    CHECK(wide_low[1] == 4096000u);
+    CHECK(reg(m, tim2 + 0x24) <= 0x1FFFFu);
+    CHECK(t.diagnostics.empty());
+
+    // A complementary output alone follows the reference (it is not inverted).
+    Stm32F407 alone;
+    idle(alone);
+    set(alone, gpioa + 0x00, 0xA8000000u | (2u << 14));
+    set(alone, gpioa + 0x20, 1u << 28);
+    set(alone, tim1 + 0x2C, 159);
+    set(alone, tim1 + 0x34, 40);
+    set(alone, tim1 + 0x18, 6u << 4);
+    set(alone, tim1 + 0x44, 1u << 15);
+    set(alone, tim1 + 0x20, 0x4u); // CC1NE only
+    set(alone, tim1 + 0x00, 1u);
+    Trace n;
+    alone.run_until_ns(ms);
+    n.take(alone);
+    const auto [alone_high, alone_low] = pulses(n.of(A, 7));
+    REQUIRE(alone_high.size() > 50);
+    CHECK(alone_high[10] == 2500u);
+    CHECK(alone_low[10] == 7500u);
+
+    // What each timer has: the basic timers no channels, TIM9 two, TIM10 one.
+    set(m, tim6 + 0x18, 0xFFFFu);
+    CHECK(reg(m, tim6 + 0x18) == 0);
+    set(m, tim9 + 0x18, 0xFFFFu);
+    set(m, tim9 + 0x1C, 0xFFFFu);
+    CHECK(reg(m, tim9 + 0x18) == 0xFFFFu);
+    CHECK(reg(m, tim9 + 0x1C) == 0);
+    set(m, 0x40014400u + 0x18, 0xFFFFu); // TIM10
+    CHECK(reg(m, 0x40014400u + 0x18) == 0xFFu);
+    // The timer clock is twice PCLK1 when APB1 is divided: HCLK / 2 here.
+    Stm32F407 slow;
+    idle(slow);
+    set(slow, rcc + 0x08, 5u << 10); // PPRE1: divide by 4
+    set(slow, tim3 + 0x2C, 0xFFFF);
+    set(slow, tim3 + 0x00, 1u);
+    slow.run_until_ns(ms);
+    const std::uint32_t count = reg(slow, tim3 + 0x24);
+    CHECK(count >= 7999);
+    CHECK(count <= 8001);
+    (void)E;
+}
+
+TEST_CASE("f4: input capture on both edges, the encoder interface and the shared interrupt lines (SN-297)")
+{
+    Stm32F407 m;
+    idle(m);
+    m.set_pin_input(A, 6, false);
+    m.set_pin_input(B, 6, false);
+    m.set_pin_input(B, 7, false);
+    set(m, gpioa + 0x00, 0xA8000000u | (2u << 12)); // PA6 = TIM3_CH1 (AF2)
+    set(m, gpioa + 0x20, 2u << 24);
+    set(m, tim3 + 0x28, 15);                 // 1 us a count
+    set(m, tim3 + 0x14, 1u);                 // UG: the prescaler takes its value now
+    set(m, tim3 + 0x18, 1u);                 // CC1S: TI1
+    set(m, tim3 + 0x20, 0xBu);               // CC1E with CC1P and CC1NP: both edges
+    set(m, tim3 + 0x00, 1u);
+    m.run_until_ns(100000);
+    m.set_pin_input(A, 6, true);
+    CHECK((reg(m, tim3 + 0x10) & 2u) != 0);
+    std::uint32_t captured = reg(m, tim3 + 0x34);
+    CHECK(captured >= 99);
+    CHECK(captured <= 101);
+    set(m, tim3 + 0x10, 0);
+    m.run_until_ns(250000);
+    m.set_pin_input(A, 6, false);
+    CHECK((reg(m, tim3 + 0x10) & 2u) != 0);
+    captured = reg(m, tim3 + 0x34);
+    CHECK(captured >= 249);
+    CHECK(captured <= 251);
+
+    // An encoder on PB6 and PB7 (TIM4, AF2): four counts for a cycle of the two signals.
+    set(m, gpiob + 0x00, 0x00000280u | (2u << 12) | (2u << 14));
+    set(m, gpiob + 0x20, (2u << 24) | (2u << 28));
+    set(m, tim4 + 0x18, 0x0101u);
+    set(m, tim4 + 0x08, 3u); // encoder mode 3
+    set(m, tim4 + 0x00, 1u);
+    m.run_until_ns(300000);
+    CHECK(reg(m, tim4 + 0x24) == 0); // the clock does not count
+    const auto forward = [&] {
+        m.set_pin_input(B, 6, true);
+        m.set_pin_input(B, 7, true);
+        m.set_pin_input(B, 6, false);
+        m.set_pin_input(B, 7, false);
+    };
+    forward();
+    CHECK(reg(m, tim4 + 0x24) == 4);
+    CHECK((reg(m, tim4 + 0x00) & 0x10u) == 0);
+    forward();
+    CHECK(reg(m, tim4 + 0x24) == 8);
+    m.set_pin_input(B, 7, true); // the other way
+    m.set_pin_input(B, 6, true);
+    m.set_pin_input(B, 7, false);
+    m.set_pin_input(B, 6, false);
+    CHECK(reg(m, tim4 + 0x24) == 4);
+    CHECK((reg(m, tim4 + 0x00) & 0x10u) != 0); // DIR: down
+    set(m, tim4 + 0x24, 0);
+    m.set_pin_input(B, 7, true);
+    CHECK(reg(m, tim4 + 0x24) == 0xFFFFu); // under zero: the auto-reload value, with an update event
+    CHECK((reg(m, tim4 + 0x10) & 1u) != 0);
+    // Mode 1 counts on the second input's edges only.
+    m.set_pin_input(B, 7, false);
+    set(m, tim4 + 0x24, 100);
+    set(m, tim4 + 0x08, 1u);
+    forward();
+    CHECK(reg(m, tim4 + 0x24) == 102);
+    CHECK(m.take_diagnostics().empty());
+
+    // TIM9 shares interrupt 24 with TIM1's break, TIM6 has 54 with the DAC.
+    set(m, tim9 + 0x2C, 99);
+    set(m, tim9 + 0x0C, 1u);
+    set(m, tim9 + 0x00, 1u);
+    set(m, tim6 + 0x2C, 99);
+    set(m, tim6 + 0x0C, 1u);
+    set(m, tim6 + 0x00, 1u);
+    CHECK((reg(m, 0xE000E200) & (1u << 24)) == 0);
+    m.run_until_ns(400000);
+    CHECK((reg(m, 0xE000E200) & (1u << 24)) != 0);
+    CHECK((reg(m, 0xE000E204) & (1u << 22)) != 0);
+    CHECK((reg(m, 0xE000E200) & (1u << 25)) == 0);
+}
+
+TEST_CASE("f4: the ADC's resolutions, scan with EOCS, overrun, injected channels and a timer trigger (SN-297)")
+{
+    Stm32F407 m;
+    idle(m);
+    m.set_analog_source([](int port, int pin, std::uint64_t) {
+        return port == A && pin == 1 ? 1.0 : port == C && pin == 0 ? 2.5 : 0.0;
+    });
+    set(m, adc1 + 0x08, 1u);                  // ADON
+    set(m, adc1 + 0x34, 1u);                  // SQ1: channel 1 (PA1)
+    set(m, adc1 + 0x08, 1u | (1u << 30));     // SWSTART
+    CHECK((reg(m, adc1 + 0x00) & 2u) == 0);
+    m.run_until_ns(1600);                     // 15 ADC cycles at 8 MHz are 1875 ns (and `b .` takes 3 cycles)
+    CHECK((reg(m, adc1 + 0x00) & 2u) == 0);
+    m.run_until_ns(2000);
+    CHECK((reg(m, adc1 + 0x00) & 0x12u) == 0x12u); // EOC, STRT
+    CHECK(reg(m, adc1 + 0x4C) == 1241);       // floor(1.0 / 3.3 * 4096), without a side effect
+    std::uint32_t value = 0;
+    REQUIRE(m.bus().read(adc1 + 0x4C, 4, value));
+    CHECK((reg(m, adc1 + 0x00) & 2u) == 0);   // reading DR clears EOC
+    // 8 bits: 3 + 8 cycles, floor(1.0 / 3.3 * 256).
+    set(m, adc1 + 0x04, 2u << 24);
+    set(m, adc1 + 0x08, 1u | (1u << 30));
+    m.run_until_ns(2000 + 1150);
+    CHECK((reg(m, adc1 + 0x00) & 2u) == 0);
+    m.run_until_ns(2000 + 1400);
+    CHECK(reg(m, adc1 + 0x4C) == 77);
+    REQUIRE(m.bus().read(adc1 + 0x4C, 4, value));
+    // Left aligned, 12 bits.
+    set(m, adc1 + 0x04, 0);
+    set(m, adc1 + 0x08, 1u | (1u << 11) | (1u << 30));
+    m.run_until_ns(10000);
+    CHECK(reg(m, adc1 + 0x4C) == 1241u << 4);
+    REQUIRE(m.bus().read(adc1 + 0x4C, 4, value));
+
+    // Scan of two channels with EOC after each conversion.
+    set(m, adc1 + 0x04, 1u << 8);             // SCAN
+    set(m, adc1 + 0x2C, 1u << 20);            // two conversions
+    set(m, adc1 + 0x34, 1u | (10u << 5));     // PA1, then PC0
+    set(m, adc1 + 0x08, 1u | (1u << 10) | (1u << 30)); // EOCS
+    m.run_until_ns(12000);
+    CHECK(reg(m, adc1 + 0x4C) == 1241);
+    REQUIRE(m.bus().read(adc1 + 0x4C, 4, value));
+    m.run_until_ns(14000);
+    CHECK(reg(m, adc1 + 0x4C) == 3103);       // floor(2.5 / 3.3 * 4096)
+    REQUIRE(m.bus().read(adc1 + 0x4C, 4, value));
+    CHECK((reg(m, adc1 + 0x00) & 0x20u) == 0);
+    // Not reading the first result: the second is lost, with the overrun flag.
+    set(m, adc1 + 0x08, 1u | (1u << 10) | (1u << 30));
+    m.run_until_ns(20000);
+    CHECK((reg(m, adc1 + 0x00) & 0x20u) != 0);
+    CHECK(reg(m, adc1 + 0x4C) == 1241);
+    CHECK((reg(m, adc_common + 0x00) & 0x20u) != 0); // CSR mirrors ADC1's flags
+    REQUIRE(m.bus().read(adc1 + 0x4C, 4, value));
+    set(m, adc1 + 0x00, 0);
+
+    // Injected: the temperature sensor, with an offset.
+    set(m, adc_common + 0x04, 1u << 23);      // TSVREFE
+    set(m, adc1 + 0x38, 16u << 15);           // JSQ4: channel 16
+    set(m, adc1 + 0x14, 43);                  // JOFR1
+    set(m, adc1 + 0x08, 1u | (1u << 22));     // JSWSTART
+    m.run_until_ns(24000);
+    CHECK((reg(m, adc1 + 0x00) & 4u) != 0);   // JEOC
+    CHECK(reg(m, adc1 + 0x3C) == 943 - 43);   // floor(0.76 / 3.3 * 4096) less the offset
+    // VREFINT as a regular conversion, with the end-of-conversion interrupt.
+    set(m, adc1 + 0x04, 1u << 5);             // EOCIE
+    set(m, adc1 + 0x34, 17u);
+    set(m, adc1 + 0x08, 1u | (1u << 30));
+    m.run_until_ns(28000);
+    CHECK(reg(m, adc1 + 0x4C) == 1501);       // floor(1.21 / 3.3 * 4096)
+    CHECK((reg(m, 0xE000E200) & (1u << 18)) != 0);
+    REQUIRE(m.bus().read(adc1 + 0x4C, 4, value));
+
+    // TIM3's update event (TRGO) starts the regular group every 100 us.
+    set(m, adc1 + 0x04, 0);
+    set(m, adc1 + 0x34, 1u);
+    set(m, adc1 + 0x08, 1u | (8u << 24) | (1u << 28));
+    set(m, tim3 + 0x04, 2u << 4);             // MMS: update
+    set(m, tim3 + 0x2C, 1599);
+    set(m, tim3 + 0x00, 1u);
+    const std::uint64_t start = m.time_ns();
+    m.run_until_ns(start + 99000);
+    CHECK((reg(m, adc1 + 0x00) & 2u) == 0);
+    m.run_until_ns(start + 100000 + 1600);
+    CHECK((reg(m, adc1 + 0x00) & 2u) == 0);
+    m.run_until_ns(start + 100000 + 2000);
+    CHECK((reg(m, adc1 + 0x00) & 2u) != 0);
+    CHECK(reg(m, adc1 + 0x4C) == 1241);
+    // ADC3 has PC0 as its channel 10, and nothing on the channels of port F.
+    const std::uint32_t adc3 = adc1 + 0x200;
+    set(m, adc3 + 0x08, 1u);
+    set(m, adc3 + 0x34, 10u);
+    set(m, adc3 + 0x08, 1u | (1u << 30));
+    m.run_until_ns(start + 110000);
+    CHECK(reg(m, adc3 + 0x4C) == 3103);
+    CHECK((reg(m, adc_common + 0x00) & (2u << 16)) != 0);
+    // What is not simulated says so.
+    set(m, adc1 + 0x08, 1u | (1u << 8));
+    const auto told = m.take_diagnostics();
+    REQUIRE(told.size() == 1);
+    CHECK(told[0].text.find("ADC: DMA is not simulated yet") != std::string::npos);
+}
+
+TEST_CASE("f4: the DAC drives its pins with its codes, from the data, a timer or the triangle (SN-297)")
+{
+    Stm32F407 m;
+    idle(m);
+    set(m, dac + 0x08, 2048);                 // DHR12R1
+    m.take_pin_events();
+    set(m, dac + 0x00, 1u);                   // EN1
+    auto events = m.take_pin_events();
+    REQUIRE(events.size() == 1);
+    CHECK(events[0].port == A);
+    CHECK(events[0].pin == 4);
+    CHECK(events[0].config.dac);
+    CHECK(events[0].config.dac_buffered);
+    CHECK(events[0].config.dac_code == 2048);
+    CHECK(reg(m, dac + 0x2C) == 2048);
+    set(m, dac + 0x00, 3u);                   // BOFF1: without the buffer
+    CHECK(!m.pin_config(A, 4).dac_buffered);
+    CHECK(!m.pin_config(A, 5).dac);
+    // The alignments, and both channels at once.
+    set(m, dac + 0x10, 0x80);                 // DHR8R1
+    CHECK(m.pin_config(A, 4).dac_code == 0x800);
+    set(m, dac + 0x0C, 0xFFF0);               // DHR12L1
+    CHECK(m.pin_config(A, 4).dac_code == 0xFFF);
+    set(m, dac + 0x00, 1u | (1u << 16));
+    set(m, dac + 0x20, 100u | (200u << 16));  // DHR12RD
+    CHECK(m.pin_config(A, 4).dac_code == 100);
+    CHECK(m.pin_config(A, 5).dac_code == 200);
+    CHECK(reg(m, dac + 0x14) == 200);
+    // The ADC reads the DAC's pin: channel 4 is PA4.
+    set(m, dac + 0x08, 2048);
+    set(m, adc1 + 0x08, 1u);
+    set(m, adc1 + 0x34, 4u);
+    set(m, adc1 + 0x08, 1u | (1u << 30));
+    m.run_until_ns(5000);
+    CHECK(reg(m, adc1 + 0x4C) == 2048);
+
+    // With a trigger the output waits for it: TIM6's update every 10 us.
+    set(m, dac + 0x00, 1u | (1u << 2));       // TEN1, TSEL1 = TIM6
+    set(m, dac + 0x08, 1000);
+    CHECK(reg(m, dac + 0x2C) == 2048);
+    set(m, tim6 + 0x04, 2u << 4);
+    set(m, tim6 + 0x2C, 159);
+    m.take_pin_events();
+    const std::uint64_t start = m.time_ns();
+    set(m, tim6 + 0x00, 1u);
+    m.run_until_ns(start + 25000);
+    CHECK(reg(m, dac + 0x2C) == 1000);
+    events = m.take_pin_events();
+    REQUIRE(events.size() == 1);
+    CHECK(events[0].time_ns - start == 10000u);
+    // The triangle: the data plus a counter that goes up to the amplitude and back.
+    set(m, dac + 0x00, 0);
+    set(m, dac + 0x08, 100);
+    set(m, dac + 0x00, 1u | (1u << 2) | (2u << 6) | (1u << 8)); // amplitude 3
+    m.take_pin_events();
+    m.run_until_ns(m.time_ns() + 200000);
+    std::vector<int> codes;
+    for (const auto& e : m.take_pin_events()) {
+        codes.push_back(e.config.dac_code);
+    }
+    REQUIRE(codes.size() >= 12);
+    const std::vector<int> expected = {101, 102, 103, 102, 101, 100, 101, 102, 103, 102, 101, 100};
+    CHECK(std::vector<int>(codes.begin(), codes.begin() + 12) == expected);
+    // The software trigger.
+    set(m, tim6 + 0x00, 0);
+    set(m, dac + 0x00, 1u | (1u << 2) | (7u << 3));
+    set(m, dac + 0x08, 77);
+    CHECK(reg(m, dac + 0x2C) != 77);
+    set(m, dac + 0x04, 1u);
+    CHECK(reg(m, dac + 0x2C) == 77);
+    // A reset releases the pin.
+    m.reset(ResetKind::Pin);
+    CHECK(!m.pin_config(A, 4).dac);
+    CHECK(m.take_diagnostics().empty());
+}
+
+TEST_CASE("f4: the analog firmware: a timer starts the ADC, its code sets the PWM and the DAC (SN-297)")
+{
+    auto m = machine_with("f4_analog");
+    double volts = 1.0;
+    m->set_analog_source([&](int port, int pin, std::uint64_t) { return port == A && pin == 1 ? volts : 0.0; });
+    Trace t = run(*m, 250 * ms);
+    CHECK(t.diagnostics.empty());
+    REQUIRE(t.text.count(1) == 1);
+    CHECK(t.text.at(1).rfind("f4_analog\r\nadc 1241\r\nadc 1241\r\n", 0) == 0);
+    // PA4 gives the code back; PA8 and PB13 have the duty cycle of 1241 / 4096
+    // (242 of 800 counts) less 8 counts of dead time on each side.
+    CHECK(m->pin_config(A, 4).dac);
+    CHECK(m->pin_config(A, 4).dac_code == 1241);
+    CHECK(m->pin_config(A, 4).dac_buffered);
+    CHECK(m->pin_config(B, 13).mode == 2);
+    CHECK(!m->pin_config(B, 13).af_input);
+    const auto [high, low] = pulses(t.of(A, 8));
+    const auto [high_n, low_n] = pulses(t.of(B, 13));
+    REQUIRE(high.size() > 100);
+    REQUIRE(high_n.size() > 100);
+    CHECK(high.back() == 234u * 1000u / 16u);
+    CHECK(high_n.back() == (800u - 242u - 8u) * 1000u / 16u);
+    // PA5's triangle: one step every 100 us, from 1536 up to 2559 and back.
+    int lowest = 4096, highest = -1;
+    std::size_t steps = 0;
+    for (const auto& e : m->take_pin_events()) {
+        (void)e;
+    }
+    m->run_until_ns(m->time_ns() + 250 * ms);
+    for (const auto& e : m->take_pin_events()) {
+        if (e.port == A && e.pin == 5) {
+            lowest = std::min(lowest, static_cast<int>(e.config.dac_code));
+            highest = std::max(highest, static_cast<int>(e.config.dac_code));
+            ++steps;
+        }
+    }
+    CHECK(lowest == 1536);
+    CHECK(highest == 1536 + 1023);
+    CHECK(steps >= 2490);
+    CHECK(steps <= 2510);
+    // A new voltage: the next conversions follow it.
+    volts = 2.5;
+    t = run(*m, m->time_ns() + 150 * ms);
+    CHECK(t.text.at(1).find("adc 3103\r\n") != std::string::npos);
+    CHECK(m->pin_config(A, 4).dac_code == 3103);
 }
 
 int main(int argc, char** argv)

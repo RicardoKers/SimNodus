@@ -27,10 +27,15 @@ struct PinState {
     // Driven outputs of chips: a fraction of the full drive (a MAX7219's
     // intensity, SN-204); board pins always drive fully.
     double strength = 1.0;
+    // Analog pins driven by a DAC (STM32F407, SN-297): a source of
+    // `analog_volts` behind `analog_resistance` ohms; 0 ohms means not driven.
+    double analog_volts = 0.0;
+    double analog_resistance = 0.0;
 
     bool same_config(const PinState& other) const
     {
-        return mode == other.mode && open_drain == other.open_drain && pull == other.pull;
+        return mode == other.mode && open_drain == other.open_drain && pull == other.pull
+            && analog_volts == other.analog_volts && analog_resistance == other.analog_resistance;
     }
 };
 

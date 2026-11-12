@@ -6,9 +6,10 @@
 // of SRAM, 64 KiB of CCM memory), the clock tree with the HSE frequency of
 // the crystal on the diagram, PWR and the flash interface, GPIO ports with
 // the alternate functions of the datasheet, SYSCFG, EXTI, and the six serial
-// ports (stm32_usart.hpp). The chip's other peripherals are stubs that keep
-// their register values and report once that they are not simulated
-// (timers, ADC, DAC, SPI, I2C, DMA, RTC: SN-297, SN-298).
+// ports (stm32_usart.hpp), the fourteen timers (stm32f1_timer.hpp), ADC1 to
+// ADC3 and the DAC (stm32f4_analog.hpp; SN-297). The chip's other
+// peripherals are stubs that keep their register values and report once
+// that they are not simulated (SPI, I2C, DMA, RTC: SN-298).
 //
 // Experimental: nothing here has been compared with a real chip yet.
 #pragma once
@@ -18,6 +19,8 @@
 #include "elf.hpp"
 #include "stm32_usart.hpp"
 #include "stm32f103.hpp" // UartByte, Diagnostic, ResetKind
+#include "stm32f1_timer.hpp"
+#include "stm32f4_analog.hpp"
 #include "timed_device.hpp"
 
 #include <array>
@@ -38,6 +41,10 @@ struct F4PinConfig {
     std::uint8_t function = 0;  // AFR: the alternate function number
     bool level = false;         // the level on the pin
     bool drive_high = false;    // outputs: the ODR bit, or the peripheral's level for an alternate function
+    bool af_input = false;      // an alternate function no peripheral drives (an input: RX, a capture)
+    bool dac = false;           // PA4, PA5: the DAC channel drives the pin
+    bool dac_buffered = false;  // through its output buffer
+    std::uint16_t dac_code = 0; // 12 bits of VREF+
 };
 
 // A change of a pin's level or configuration, with the configuration at that instant.
@@ -61,10 +68,12 @@ struct F4MachineOptions {
     UsartOptions usart;
 };
 
-class Stm32F407 : private UsartHost {
+class Stm32F407 : private UsartHost, private TimerHost, private F4AnalogHost {
 public:
     static constexpr int num_ports = 9; // A to I in the address map; the LQFP-100 chip has pins on A to E and PH0, PH1
     static constexpr int num_usarts = 6;
+    static constexpr int num_timers = 14;
+    static constexpr double vref = Stm32F4Adc::vref; // VREF+ and VDDA, not read from the circuit
 
     explicit Stm32F407(F4MachineOptions options = {});
     ~Stm32F407() override;
@@ -97,6 +106,10 @@ public:
     // and the log says why.
     void set_boot0(bool high) { boot0_ = high; }
     bool held() const { return reset_low_ || bootloader_; }
+    // The voltage on a pin for the ADC, from the circuit. Without one a pin
+    // reads its DAC channel if that drives it, else 0 V or VREF+ by its level.
+    using AnalogSource = std::function<double(int port, int pin, std::uint64_t time_ns)>;
+    void set_analog_source(AnalogSource source) { analog_source_ = std::move(source); }
     // A byte from a terminal for serial port `usart` (1 to 6).
     void uart_receive(int usart, std::uint8_t value);
     using PinHook = std::function<void(int port, int pin, std::uint64_t time_ns)>;
@@ -111,7 +124,7 @@ public:
     std::vector<UartByte> take_uart_bytes();
     std::vector<Diagnostic> take_diagnostics();
     F4PinConfig pin_config(int port, int pin) const;
-    bool pin_level(int port, int pin) const;
+    bool pin_level(int port, int pin) const override;
 
     Cpu& cpu() { return cpu_; }
     Bus& bus() { return bus_; }
@@ -121,6 +134,7 @@ public:
     // Internal: used by the device models.
     void diagnostic(const std::string& text);
     void set_hclk(std::uint32_t hz);
+    void clocks_changed(); // the bus prescalers changed
     void pin_output_changed(int port, int pin);
     void pin_input_changed(int port, int pin, bool level);
     // Output of a peripheral on a pin: `source` identifies it among the
@@ -168,6 +182,25 @@ private:
     void usart_schedule_changed() override { cpu_.request_stop(); }
     void usart_diagnostic(const std::string& text) override { diagnostic(text); }
 
+    // TimerHost
+    std::uint64_t now_cycles() const override { return cpu_.cycles(); }
+    std::uint32_t hclk_per_kernel_tick(bool apb2) const override;
+    std::pair<int, int> timer_pin(int number, int channel, bool complementary) const override;
+    void timer_irq(int number, int irq, bool level) override;
+    void timer_output(int port, int pin, int source, bool level, std::uint64_t cycle) override;
+    void timer_schedule_changed() override { cpu_.request_stop(); }
+    void timer_diagnostic(const std::string& text) override { diagnostic(text); }
+    void timer_trigger(int number, int signal, std::uint64_t cycle) override;
+
+    // F4AnalogHost
+    std::uint64_t analog_now_cycles() const override { return cpu_.cycles(); }
+    std::uint32_t hclk_per_pclk2() const override;
+    double adc_voltage(int adc, int channel, std::uint64_t cycle) override;
+    void adc_irq(bool level) override { cpu_.set_irq_line(18, level); }
+    void analog_schedule_changed() override { cpu_.request_stop(); }
+    void analog_diagnostic(const std::string& text) override { diagnostic(text); }
+    void dac_output(int channel, bool enabled, bool buffered, std::uint32_t code, std::uint64_t cycle) override;
+
     F4MachineOptions options_;
     Bus bus_;
     Cpu cpu_;
@@ -178,12 +211,23 @@ private:
     std::unique_ptr<Syscfg> syscfg_;
     std::unique_ptr<Exti> exti_;
     std::array<std::unique_ptr<Stm32Usart>, num_usarts> usart_;
+    std::array<std::unique_ptr<Stm32F1Timer>, num_timers> timers_; // TIM1..TIM14
+    std::unique_ptr<Stm32F4Adc> adc_;
+    std::unique_ptr<Stm32F4Dac> dac_;
     std::vector<std::unique_ptr<Stub>> stubs_;
     std::unique_ptr<Dwt> dwt_;
     std::unique_ptr<Dbgmcu> dbgmcu_;
     std::unique_ptr<Zero> debug_zero_;
     std::vector<TimedDevice*> timed_;
     PinHook pin_hook_;
+    AnalogSource analog_source_;
+    std::array<std::uint32_t, 96> irq_sources_{}; // per interrupt line: the timers that request it
+    struct DacPin {
+        bool enabled = false;
+        bool buffered = false;
+        std::uint32_t code = 0;
+    };
+    std::array<DacPin, 2> dac_pins_{}; // PA4, PA5
     std::unique_ptr<ElfImage> image_;
 
     std::uint32_t hclk_ = 16000000;

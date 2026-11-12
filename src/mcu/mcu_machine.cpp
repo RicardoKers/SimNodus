@@ -261,7 +261,18 @@ int f4_pin(const std::string& name)
 PinState f4_state(const emu::F4PinConfig& c)
 {
     PinState s;
-    switch (c.mode) {
+    if (c.dac) {
+        // The DAC (DS8626 table 77): VREF+ * code / 4095; through the buffer
+        // between 0.2 V and VDDA - 0.2 V with a low output resistance (an
+        // approximation), without it rail to rail behind 15 kOhm.
+        s.mode = PinMode::Analog;
+        const double volts = emu::Stm32F4Adc::vref * c.dac_code / 4095.0;
+        s.analog_volts = c.dac_buffered ? std::clamp(volts, 0.2, emu::Stm32F4Adc::vref - 0.2) : volts;
+        s.analog_resistance = c.dac_buffered ? 10.0 : 15000.0;
+        s.level = c.level;
+        return s;
+    }
+    switch (c.af_input ? 0 : c.mode) {
     case 0:
         s.mode = PinMode::Input;
         s.pull = c.pull == 1 ? Pull::Up : c.pull == 2 ? Pull::Down : Pull::None;
@@ -357,7 +368,12 @@ public:
             machine_.set_pin_input(pin / 16, pin % 16, level);
         }
     }
-    void set_analog_source(std::function<double(int, std::uint64_t)>) override {} // no ADC yet (SN-297)
+    void set_analog_source(std::function<double(int, std::uint64_t)> source) override
+    {
+        machine_.set_analog_source([source = std::move(source)](int port, int pin, std::uint64_t time_ns) {
+            return source(port * 16 + pin, time_ns);
+        });
+    }
     void uart_receive(int uart, std::uint8_t byte) override { machine_.uart_receive(uart, byte); }
     std::vector<PinEvent> take_pin_events() override
     {

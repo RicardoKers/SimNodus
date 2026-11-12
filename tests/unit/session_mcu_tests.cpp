@@ -115,6 +115,15 @@ TEST_CASE("session: pin names, Schmitt inputs and pin drives")
     CHECK(std::abs(up.current / up.conductance - 3.3) < 1e-9); // Thevenin: 3.3 V behind 40 kOhm
     pulled.pull = mcu::Pull::None;
     CHECK(mcu::pin_drive(pulled, model).conductance == 0.0);
+    // An analog pin is open unless a DAC drives it: its voltage behind its resistance.
+    mcu::PinState analog;
+    analog.mode = mcu::PinMode::Analog;
+    CHECK(mcu::pin_drive(analog, model).conductance == 0.0);
+    analog.analog_volts = 1.65;
+    analog.analog_resistance = 15000.0;
+    const mcu::PinDrive dac = mcu::pin_drive(analog, model);
+    CHECK(std::abs(dac.conductance - 1.0 / 15000.0) < 1e-15);
+    CHECK(std::abs(dac.current / dac.conductance - 1.65) < 1e-9);
 }
 
 TEST_CASE("session: boards without firmware are explained")
@@ -2189,6 +2198,67 @@ TEST_CASE("the register view writes registers as the firmware would, and shows t
     }
     CHECK(told);
     runner.stop();
+}
+
+TEST_CASE("session: example 68, the STM32F407's ADC reads the circuit and its DAC drives it (E-12, SN-297)")
+{
+    REQUIRE(test::engine() != nullptr);
+    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "68_STM32F407_PWM_ADC_DAC.snx");
+    REQUIRE(loaded.schematic.has_value());
+    model::Id chip = model::no_id;
+    for (const auto& c : loaded.schematic->components()) {
+        chip = c.designator == "U1" ? c.id : chip;
+    }
+    REQUIRE(chip != model::no_id);
+    sim::RunRequest request;
+    request.schematic = *loaded.schematic;
+    auto settings = request.schematic.settings();
+    settings.speed = 0.0;
+    request.schematic.set_settings(settings);
+    request.library = &board_library();
+    request.vectors = {"adc_in", "dac_out", "pwm_avg", "triangle"};
+    std::string error;
+    REQUIRE(sim::build_mcu_requests(request.schematic, board_library(), environment(), request.mcus, error));
+    sim::SimulationSession session;
+    REQUIRE(session.start(request, error));
+    const auto begin = std::chrono::steady_clock::now();
+    std::string text;
+    while (text.find("adc 2867\r\nadc 2867\r\n") == std::string::npos) { // RV1 at 70 %: 2.31 V
+        REQUIRE(session.active());
+        REQUIRE(std::chrono::steady_clock::now() - begin < 180s);
+        std::this_thread::sleep_for(10ms);
+        text.clear();
+        session.mcu_uart_received(chip, "usart1", 0, text);
+    }
+    CHECK(text.rfind("f4_analog\r\n", 0) == 0);
+    // The DAC gives the code back on PA4 through its buffer: the wiper's voltage
+    // within a code. The RC filter averages TIM1's PWM: a little lower, by the
+    // dead time (16 of 800 counts) and the pin driver's drop.
+    for (const char* vector : {"adc_in", "dac_out", "pwm_avg", "triangle"}) {
+        REQUIRE(!session.samples(vector).empty());
+    }
+    const double wiper = session.samples("adc_in").back().value;
+    const double dac = session.samples("dac_out").back().value;
+    const double average = session.samples("pwm_avg").back().value;
+    CHECK(std::abs(wiper - 2.31) < 0.01);
+    CHECK(std::abs(dac - 2867 * 3.3 / 4095) < 0.005);
+    CHECK(average > wiper - 0.1);
+    CHECK(average < wiper);
+    // The triangle on PA5 stays between its codes 1536 and 2559.
+    double lowest = 10, highest = -1;
+    for (const auto& sample : session.samples("triangle")) {
+        if (sample.time > 0.01) {
+            lowest = std::min(lowest, sample.value);
+            highest = std::max(highest, sample.value);
+        }
+    }
+    CHECK(lowest >= 1536 * 3.3 / 4095 - 0.01);
+    CHECK(highest <= 2559 * 3.3 / 4095 + 0.01);
+    CHECK(highest - lowest > 0.3);
+    // PA8 and PB13 switch at 20 kHz.
+    CHECK(session.mcu_pin_log(chip, "PA8", 0).changes.size() > 100);
+    CHECK(session.mcu_pin_log(chip, "PB13", 0).changes.size() > 100);
+    session.stop();
 }
 
 TEST_CASE("session: example 67, the STM32F407 as a bare chip with its crystal on the diagram (E-12, SN-295)")
