@@ -1587,6 +1587,61 @@ private slots:
 #endif
     }
 
+    void stm32f407_chip_runs_in_the_window_with_its_registers()
+    {
+        // SN-295: example 67 in the window: the terminal shows the clock line,
+        // the Register Viewer has the chip's map, LED1 follows PC13.
+#if !defined(SIMNODUS_TEST_NGSPICE_LIBRARY)
+        QSKIP("No ngspice configured for this build.");
+#else
+        QStringList errors;
+        QStringList warnings;
+        QVERIFY(doc().open_copy(
+            QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/67_STM32F407_clock_and_serial.snx"), errors, warnings));
+        QVERIFY2(errors.isEmpty(), qPrintable(errors.join(QLatin1Char('\n'))));
+        model::Id chip = model::no_id;
+        for (const auto& c : doc().schematic().components()) {
+            chip = c.designator == "U1" ? c.id : chip;
+        }
+        QVERIFY(chip != model::no_id);
+        const auto* part = doc().library().find("stm32f407vet6_lqfp100");
+        QVERIFY(part != nullptr);
+        QCOMPARE(part->pins.size(), std::size_t{100});
+        const QString shot = qEnvironmentVariable("SIMNODUS_TEST_SHOT");
+        if (!shot.isEmpty()) {
+            window_->resize(1500, 1000);
+            window_->schematic()->fit_content();
+            QTest::qWait(300);
+            window_->grab().save(shot);
+        }
+        auto* action = window_->findChild<QAction*>(QStringLiteral("registerViewerAction"));
+        action->trigger();
+        auto* viewer = window_->register_viewer();
+        RegisterModel* model = viewer->model();
+        QVERIFY(model->map() != nullptr);
+        QCOMPARE(QString::fromStdString(model->map()->chip), QStringLiteral("stm32f407"));
+        QVERIFY(model->index_of(QStringLiteral("RCC"), QStringLiteral("PLLCFGR"), QStringLiteral("PLLN")).isValid());
+        QVERIFY(model->index_of(QStringLiteral("FPU"), QStringLiteral("FPSCR")).isValid());
+        window_->run();
+        QTRY_VERIFY_WITH_TIMEOUT(window_->run_controller()->active(), 5000);
+        std::uint32_t value = 0;
+        // The PLL becomes the system clock: SWS = 2 in RCC.CFGR, and PLLN is the firmware's 336.
+        QTRY_VERIFY_WITH_TIMEOUT(
+            model->value(QStringLiteral("RCC"), QStringLiteral("CFGR"), value) && ((value >> 2) & 3u) == 2u, 20000);
+        QVERIFY(model->value(QStringLiteral("RCC"), QStringLiteral("PLLCFGR"), value));
+        QCOMPARE((value >> 6) & 0x1FFu, 336u);
+        QVERIFY(model->value(QStringLiteral("GPIOC"), QStringLiteral("MODER"), value));
+        QCOMPARE((value >> 26) & 3u, 1u); // PC13: an output
+        QVERIFY(model->value(QStringLiteral("CORE"), QStringLiteral("PC"), value));
+        QVERIFY(value >= 0x08000000u && value < 0x08080000u);
+        // The live text names the chip's state of work.
+        QVERIFY(window_->run_controller()->mode_description().contains(QStringLiteral("STM32F407 is experimental")));
+        window_->stop();
+        QTRY_VERIFY_WITH_TIMEOUT(!window_->run_controller()->active(), 10000);
+        viewer->close();
+#endif
+    }
+
     void register_viewer_shows_the_registers_of_a_running_board()
     {
         // SN-290: Window > Register Viewer on example 07: PC13 is an output in

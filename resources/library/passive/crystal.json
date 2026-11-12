@@ -3,7 +3,7 @@
   "name": "Crystal",
   "category": "Passive",
   "prefix": "Y",
-  "description": "Quartz crystal or ceramic resonator. Between a microcontroller's XTAL1 and XTAL2 its frequency is the chip's clock when the fuses select an external crystal; the oscillation itself is not simulated (add the usual 22 pF capacitors to ground as on the board)",
+  "description": "Quartz crystal or ceramic resonator. Between a microcontroller's oscillator pins (XTAL1 and XTAL2 of an AVR, PH0 and PH1 of an STM32F407) its frequency is the chip's clock when the chip selects the crystal; the oscillation itself is not simulated (add the usual 22 pF capacitors to ground as on the board)",
   "symbol": {
     "graphics": [
       {
@@ -74,7 +74,7 @@
       "unit": "Hz",
       "default": "16M",
       "min": "32.768k",
-      "max": "20M",
+      "max": "50M",
       "description": "Frequency of the crystal or resonator"
     }
   ],

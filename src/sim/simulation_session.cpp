@@ -1055,6 +1055,52 @@ void attach_devices(const model::Schematic& schematic, const library::ComponentL
     }
 }
 
+// The frequency of a Crystal part between two pins of a chip, as text in Hz.
+// A chip's oscillator is not simulated in the circuit: the crystal's
+// frequency is the clock when the chip selects the crystal.
+std::optional<std::string> crystal_frequency(const model::Schematic& schematic, const library::ComponentLibrary& library,
+    const netlist::Connectivity& connectivity, model::Id chip, const char* pin1, const char* pin2)
+{
+    auto net_of = [&](model::Id id, const std::string& pin) {
+        const auto it = connectivity.pin_net.find({id, pin});
+        return it == connectivity.pin_net.end() ? -1 : it->second;
+    };
+    const int x1 = net_of(chip, pin1);
+    const int x2 = net_of(chip, pin2);
+    for (const auto& other : schematic.components()) {
+        if (other.type != "crystal" || x1 < 0 || x2 < 0) {
+            continue;
+        }
+        const int a = net_of(other.id, "1");
+        const int b = net_of(other.id, "2");
+        if ((a == x1 && b == x2) || (a == x2 && b == x1)) {
+            const auto f = other.parameters.find("frequency");
+            const auto* d = library.find(other.type);
+            const std::string text = f != other.parameters.end() ? f->second
+                                     : d && d->parameter("frequency") ? d->parameter("frequency")->default_value
+                                                                      : std::string();
+            if (const auto hz = model::parse_engineering(text); hz && *hz > 0) {
+                return std::to_string(std::llround(*hz));
+            }
+        }
+    }
+    return std::nullopt;
+}
+
+// The STM32F407's crystals (E-12, SN-295): the HSE's between PH0 (OSC_IN) and
+// PH1 (OSC_OUT), and the 32.768 kHz one between PC14 and PC15.
+void stm32f407_options(const model::Schematic& schematic, const library::ComponentLibrary& library, const model::Component& c,
+    mcu::McuRunOptions& options)
+{
+    const auto connectivity = netlist::build_connectivity(schematic, library);
+    if (const auto hz = crystal_frequency(schematic, library, connectivity, c.id, "PH0", "PH1")) {
+        options.parameters["crystal_hz"] = *hz;
+    }
+    if (const auto hz = crystal_frequency(schematic, library, connectivity, c.id, "PC14", "PC15")) {
+        options.parameters["lse_hz"] = *hz;
+    }
+}
+
 // An AVR chip's settings that are not GPIO (E-10, SN-258): its fuses and lock
 // bits, the EEPROM file the project kept, and the frequency of a Crystal part
 // between XTAL1 and XTAL2 (the chip's oscillator is not simulated in the
@@ -1088,35 +1134,11 @@ void avr_options(const model::Schematic& schematic, const library::ComponentLibr
         options.parameters["eeprom_file"] = std::string(text.begin(), text.end());
     }
     const auto connectivity = netlist::build_connectivity(schematic, library);
-    auto net_of = [&](model::Id id, const std::string& pin) {
-        const auto it = connectivity.pin_net.find({id, pin});
-        return it == connectivity.pin_net.end() ? -1 : it->second;
-    };
     if (options.parameters.count("crystal_hz")) {
         return; // the board's own crystal
     }
-    // A Crystal part between two pins: its frequency.
-    auto crystal_between = [&](const char* pin1, const char* pin2) -> std::optional<std::string> {
-        const int x1 = net_of(c.id, pin1);
-        const int x2 = net_of(c.id, pin2);
-        for (const auto& other : schematic.components()) {
-            if (other.type != "crystal" || x1 < 0 || x2 < 0) {
-                continue;
-            }
-            const int a = net_of(other.id, "1");
-            const int b = net_of(other.id, "2");
-            if ((a == x1 && b == x2) || (a == x2 && b == x1)) {
-                const auto f = other.parameters.find("frequency");
-                const auto* d = library.find(other.type);
-                const std::string text = f != other.parameters.end() ? f->second
-                                         : d && d->parameter("frequency") ? d->parameter("frequency")->default_value
-                                                                          : std::string();
-                if (const auto hz = model::parse_engineering(text); hz && *hz > 0) {
-                    return std::to_string(std::llround(*hz));
-                }
-            }
-        }
-        return std::nullopt;
+    auto crystal_between = [&](const char* pin1, const char* pin2) {
+        return crystal_frequency(schematic, library, connectivity, c.id, pin1, pin2);
     };
     // The ATmega32 (PDIP-40) has XTAL1/XTAL2 pins of their own and Timer2's
     // crystal on TOSC1/TOSC2 (PC6, PC7); the PDIP-28 chips share PB6/PB7.
@@ -1206,6 +1228,9 @@ bool build_mcu_requests(const model::Schematic& schematic, const library::Compon
         }
         if (library::avr_chip(d->mcu->chip)) {
             avr_options(schematic, library, c, environment.project_dir, request.options);
+        }
+        if (d->mcu->chip == "stm32f407") {
+            stm32f407_options(schematic, library, c, request.options);
         }
         for (const auto& pin : d->pins) {
             if (mcu::chip_gpio(d->mcu->chip, pin.name)) {

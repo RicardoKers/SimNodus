@@ -8,6 +8,7 @@
 #include "emu/esp32c3.hpp"
 #include "emu/gdb_server.hpp"
 #include "emu/stm32f103.hpp"
+#include "emu/stm32f407.hpp"
 #include "emu/wifi_air.hpp"
 
 #include <algorithm>
@@ -234,6 +235,245 @@ private:
     std::unique_ptr<emu::Stm32F103> owned_;
     emu::Stm32F103& machine_;
     std::unique_ptr<emu::GdbTarget> gdb_target_;
+};
+
+// ---------------------------------------------------------------------------
+// STM32F407 (experiment E-12, SN-295): the bare chip. Pins "PA0".."PE15",
+// "NRST" and "BOOT0"; serial ports "usart1", "usart2", "usart3", "uart4",
+// "uart5", "usart6". The HSE crystal's frequency (a Crystal part between PH0
+// and PH1) and the 32.768 kHz crystal (PC14, PC15) come in
+// McuRunOptions::parameters as "crystal_hz" and "lse_hz".
+
+constexpr int f4_nrst = 200;
+constexpr int f4_boot0 = 201;
+
+int f4_pin(const std::string& name)
+{
+    if (name == "NRST") {
+        return f4_nrst;
+    }
+    if (name == "BOOT0") {
+        return f4_boot0;
+    }
+    return stm32_pin(name); // PA0..PE15
+}
+
+PinState f4_state(const emu::F4PinConfig& c)
+{
+    PinState s;
+    switch (c.mode) {
+    case 0:
+        s.mode = PinMode::Input;
+        s.pull = c.pull == 1 ? Pull::Up : c.pull == 2 ? Pull::Down : Pull::None;
+        s.level = c.level;
+        return s;
+    case 3:
+        s.mode = PinMode::Analog;
+        s.level = c.level;
+        return s;
+    default:
+        s.mode = c.mode == 2 ? PinMode::Alternate : PinMode::Output;
+        s.open_drain = c.open_drain;
+        // An open-drain output that is released has the pin's pull resistor, if any.
+        s.pull = c.open_drain && c.pull == 1 ? Pull::Up : Pull::None;
+        s.level = c.drive_high;
+        return s;
+    }
+}
+
+class Stm32F407Machine : public McuMachine {
+public:
+    explicit Stm32F407Machine(const McuRunOptions& options) : machine_(machine_options(options)) {}
+
+    int pin_id(const std::string& name) const override { return f4_pin(name); }
+    int uart_id(const std::string& name) const override
+    {
+        const bool named = name.rfind("usart", 0) == 0 || name.rfind("uart", 0) == 0;
+        return named && name.back() >= '1' && name.back() <= '6' ? name.back() - '0' : -1;
+    }
+    bool load(const McuRunOptions& options, std::string& error) override
+    {
+        // Without a firmware file (debugging only) the flash stays empty until
+        // the debugger's `load` writes it.
+        if (!options.firmware.empty() || options.gdb_port < 0) {
+            const auto image = emu::read_elf(options.firmware, error);
+            if (!image || !machine_.load(*image, error)) {
+                return false;
+            }
+        }
+        // The circuit's level on each watched pin starts low and only its
+        // changes come later (see the STM32F103); NRST and BOOT0 start as the
+        // chip's own resistors leave them and follow the circuit's first report.
+        for (const auto& pin : options.pins) {
+            if (const int id = f4_pin(pin); id >= 0 && id < f4_nrst && !options.open_pins.count(pin)) {
+                machine_.set_pin_input(id / 16, id % 16, false);
+            }
+        }
+        return true;
+    }
+    std::uint64_t time_ns() const override { return machine_.time_ns(); }
+    void run_until_ns(std::uint64_t ns) override { machine_.run_until_ns(ns); }
+    void press_reset() override { machine_.reset(emu::ResetKind::Pin); }
+    PinState pin_state(int pin) const override
+    {
+        if (pin >= f4_nrst) {
+            PinState s;
+            s.mode = PinMode::Input;
+            s.pull = pin == f4_nrst ? Pull::Up : Pull::None; // NRST has the chip's pull-up
+            s.level = pin == f4_nrst ? !nrst_low_ : boot0_;
+            return s;
+        }
+        return f4_state(machine_.pin_config(pin / 16, pin % 16));
+    }
+    bool pin_level(int pin) const override
+    {
+        if (pin >= f4_nrst) {
+            return pin == f4_nrst ? !nrst_low_ : boot0_;
+        }
+        return machine_.pin_level(pin / 16, pin % 16);
+    }
+    void set_pin_input(int pin, bool level, std::uint64_t changed_ns) override
+    {
+        if (pin >= f4_nrst) {
+            set_pin_input(pin, level);
+            return;
+        }
+        machine_.set_pin_input(pin / 16, pin % 16, level, changed_ns);
+    }
+    void set_pin_input(int pin, bool level) override
+    {
+        if (pin == f4_nrst) {
+            nrst_low_ = !level;
+            machine_.set_reset_pin(!level);
+        } else if (pin == f4_boot0) {
+            boot0_ = level;
+            machine_.set_boot0(level);
+            // The circuit's first report comes just after the start: the boot
+            // pin as it is then is what the power-on reset saw.
+            if (machine_.time_ns() < 1000000) {
+                machine_.reset(emu::ResetKind::Pin);
+            }
+        } else {
+            machine_.set_pin_input(pin / 16, pin % 16, level);
+        }
+    }
+    void set_analog_source(std::function<double(int, std::uint64_t)>) override {} // no ADC yet (SN-297)
+    void uart_receive(int uart, std::uint8_t byte) override { machine_.uart_receive(uart, byte); }
+    std::vector<PinEvent> take_pin_events() override
+    {
+        std::vector<PinEvent> events;
+        for (const auto& e : machine_.take_pin_events()) {
+            if (e.port < 5) { // ports A to E have pins on this package
+                events.push_back({e.time_ns, e.port * 16 + e.pin, f4_state(e.config), e.config.level});
+            }
+        }
+        return events;
+    }
+    std::vector<UartByte> take_uart_bytes() override
+    {
+        std::vector<UartByte> bytes;
+        for (const auto& b : machine_.take_uart_bytes()) {
+            bytes.push_back({b.time_ns, b.usart, b.value});
+        }
+        return bytes;
+    }
+    std::vector<std::string> take_diagnostics() override
+    {
+        std::vector<std::string> texts;
+        for (auto& d : machine_.take_diagnostics()) {
+            texts.push_back(std::move(d.text));
+        }
+        return texts;
+    }
+    void set_pin_hook(std::function<void(int, std::uint64_t)> hook) override
+    {
+        if (!hook) {
+            machine_.set_pin_hook(nullptr);
+            return;
+        }
+        machine_.set_pin_hook([hook = std::move(hook)](int port, int pin, std::uint64_t time_ns) {
+            if (port < 5) {
+                hook(port * 16 + pin, time_ns);
+            }
+        });
+    }
+    void add_timed(emu::TimedDevice* device) override { machine_.add_timed(device); }
+    void remove_timed(emu::TimedDevice* device) override { machine_.remove_timed(device); }
+    void timed_schedule_changed() override { machine_.timed_schedule_changed(); }
+    std::uint64_t cycles_at(std::uint64_t ns) const override { return machine_.cycles_at(ns); }
+    std::uint64_t ns_at(std::uint64_t cycle) const override { return machine_.ns_at(cycle); }
+    bool peek(std::uint32_t address, std::uint8_t& value) override
+    {
+        std::uint32_t word = 0;
+        if (address >= core_register_base) {
+            if (!gdb_target()->read_register(static_cast<int>((address - core_register_base) / 4), word)) {
+                return false;
+            }
+            value = static_cast<std::uint8_t>(word >> (8 * (address & 3u)));
+            return true;
+        }
+        if (!machine_.bus().peek(address, 1, word)) {
+            return false;
+        }
+        value = static_cast<std::uint8_t>(word);
+        return true;
+    }
+    bool poke(std::uint32_t address, unsigned size, std::uint32_t value) override
+    {
+        if (address >= core_register_base) {
+            // R0 to R15 and xPSR, and the FPU's S0 to S31 and FPSCR (21 to 53).
+            const int n = static_cast<int>((address - core_register_base) / 4);
+            return size == 4 && (address & 3u) == 0 && (n <= 16 || (n >= 21 && n <= 53))
+                && gdb_target()->write_register(n, value);
+        }
+        return (size == 1 || size == 2 || size == 4) && machine_.bus().write(address, size, value);
+    }
+    emu::GdbTarget* gdb_target() override
+    {
+        if (!gdb_target_) {
+            gdb_target_ = emu::make_gdb_target(machine_);
+        }
+        return gdb_target_.get();
+    }
+
+private:
+    static emu::F4MachineOptions machine_options(const McuRunOptions& options)
+    {
+        emu::F4MachineOptions m;
+        auto hz = [&](const char* name) {
+            const auto it = options.parameters.find(name);
+            return it == options.parameters.end() ? 0u
+                                                  : static_cast<std::uint32_t>(std::strtod(it->second.c_str(), nullptr));
+        };
+        m.hse_hz = hz("crystal_hz");
+        m.lse_crystal = hz("lse_hz") != 0;
+        m.cortex_timing = options.cortex_m3_timing;
+        m.usart.rx_lag_ns = options.analog_lag_ns + 2 * std::max<std::uint64_t>(options.chunk_us, 1) * 1000;
+        m.usart.rx_min_bit_ns = options.uart_rx_min_bit_ns;
+        // Pins on a net with a device: the device bus gives their edges at once.
+        for (const auto& net : options.nets) {
+            if (net.device_pins.empty()) {
+                continue;
+            }
+            for (const auto& pin : net.board_pins) {
+                const int id = stm32_pin(pin);
+                if (id >= 0 && id < 64) {
+                    m.usart.exact_input_pins |= std::uint64_t{1} << id;
+                }
+            }
+        }
+        for (const auto& uart : options.uart_rx_byte_links) {
+            if (!uart.empty() && uart.back() >= '1' && uart.back() <= '6') {
+                m.usart.rx_pins &= ~(1u << (uart.back() - '1'));
+            }
+        }
+        return m;
+    }
+
+    emu::Stm32F407 machine_;
+    std::unique_ptr<emu::GdbTarget> gdb_target_;
+    bool nrst_low_ = false;
+    bool boot0_ = false;
 };
 
 // ---------------------------------------------------------------------------
@@ -913,6 +1153,9 @@ std::unique_ptr<McuMachine> make_machine(const McuRunOptions& options, std::stri
     if (options.chip.empty() || options.chip == "stm32f103") {
         return std::make_unique<Stm32Machine>(options);
     }
+    if (options.chip == "stm32f407") {
+        return std::make_unique<Stm32F407Machine>(options);
+    }
     if (options.chip == "esp32c3") {
         return std::make_unique<Esp32C3Machine>();
     }
@@ -932,6 +1175,9 @@ bool chip_gpio(const std::string& chip, const std::string& name)
 {
     if (is_avr_chip(chip)) {
         return avr_pin(name, chip) >= 0;
+    }
+    if (chip == "stm32f407") {
+        return f4_pin(name) >= 0; // with NRST and BOOT0, which the chip reads from the circuit
     }
     return chip == "esp32c3" ? c3_pin(name) >= 0 : stm32_pin(name) >= 0;
 }

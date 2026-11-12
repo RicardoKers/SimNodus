@@ -931,9 +931,29 @@ void Stm32F407::reset(ResetKind kind)
     }
     exti_selection_changed();
     cpu_.reset();
+    // BOOT0 is read as the reset ends (BOOT1, PB2, is not looked at: with
+    // BOOT0 high the chip does not run the flash in either case).
+    bootloader_ = boot0_;
+    if (bootloader_) {
+        if (!reported_bootloader_) {
+            reported_bootloader_ = true;
+            diagnostic("BOOT0 is high at reset: the chip would start the bootloader of its system memory, which is "
+                       "not simulated. Tie BOOT0 to ground to run the firmware in the flash.");
+        }
+        return;
+    }
     if (cpu_.state() == CoreState::Lockup) {
         diagnostic(cpu_.last_fault());
     }
+}
+
+void Stm32F407::set_reset_pin(bool low)
+{
+    if (low == reset_low_) {
+        return;
+    }
+    reset_low_ = low;
+    reset(ResetKind::Pin); // into reset, and out of it from the reset vector
 }
 
 std::uint64_t Stm32F407::time_ns() const
@@ -1014,6 +1034,10 @@ void Stm32F407::run_timers()
 
 void Stm32F407::run_until_ns(std::uint64_t target_ns)
 {
+    if (held()) { // in reset, or waiting in the bootloader that is not there: time passes, nothing runs
+        cpu_.advance_idle(cycles_at_ns(target_ns));
+        return;
+    }
     bool reported_lockup = false;
     while (time_ns() < target_ns) {
         if (reset_requested_) {
@@ -1042,6 +1066,9 @@ void Stm32F407::step_instruction()
 {
     if (reset_requested_) {
         reset(requested_kind_);
+    }
+    if (held()) {
+        return;
     }
     cpu_.step_instruction();
     run_timers();

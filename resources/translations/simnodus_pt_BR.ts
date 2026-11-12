@@ -2914,6 +2914,10 @@ Permitir para este projeto neste computador? Sem isso, a rede das placas fica de
             <translation>; cada instrução do firmware leva um ciclo (mais rápido que um chip real)</translation>
         </message>
         <message>
+            <source>; the STM32F407 is experimental: not yet compared with a real chip; its instructions take the Cortex-M4's cycles without flash wait states (approximate), and its timers, ADC, DAC, SPI, I2C, DMA and RTC are not simulated yet</source>
+            <translation>; o STM32F407 é experimental: ainda não comparado com um chip real; suas instruções levam os ciclos do Cortex-M4 sem os estados de espera da flash (aproximado), e seus timers, ADC, DAC, SPI, I2C, DMA e RTC ainda não são simulados</translation>
+        </message>
+        <message>
             <source>; the ESP32-C3 is experimental: not yet compared with a real board, one instruction per CPU clock cycle (approximate)</source>
             <translation>; o ESP32-C3 é experimental: ainda não comparado com uma placa real, uma instrução por ciclo de clock da CPU (aproximado)</translation>
         </message>
@@ -5256,6 +5260,18 @@ Permitir para este projeto neste computador? Sem isso, a rede das placas fica de
             <translation>Temperatura do chip que o seu sensor de temperatura mede; mude-a durante a simulação para testar o firmware (-40 a 125 °C)</translation>
         </message>
         <message>
+            <source>STM32F407VET6 (LQFP-100, experimental)</source>
+            <translation>STM32F407VET6 (LQFP-100, experimental)</translation>
+        </message>
+        <message>
+            <source>STMicroelectronics STM32F407VET6 in LQFP-100 (experimental until compared with a real chip): a Cortex-M4 with FPU, 512 KB flash, 192 KB RAM, up to 168 MHz. Runs an ELF file from STM32CubeIDE in the SimNodus emulator. So far: clocks, GPIO, external interrupts and the six serial ports; timers, ADC, DAC, SPI, I2C, DMA and RTC are not simulated yet. A Crystal between PH0 and PH1 is the HSE (none: the HSE never starts); tie BOOT0 to ground and wire the VDD and VSS pins (3.3 V)</source>
+            <translation>STMicroelectronics STM32F407VET6 em LQFP-100 (experimental até ser comparado com um chip real): um Cortex-M4 com FPU, 512 KB de flash, 192 KB de RAM, até 168 MHz. Executa um arquivo ELF do STM32CubeIDE no emulador do SimNodus. Por enquanto: clocks, GPIO, interrupções externas e as seis portas seriais; timers, ADC, DAC, SPI, I2C, DMA e RTC ainda não são simulados. Um Cristal entre PH0 e PH1 é o HSE (sem ele o HSE nunca parte); ligue BOOT0 ao terra e alimente os pinos VDD e VSS (3,3 V)</translation>
+        </message>
+        <message>
+            <source>ELF file built for the STM32F407VE (for example with STM32CubeIDE); stored relative to the project</source>
+            <translation>Arquivo ELF compilado para o STM32F407VE (por exemplo com o STM32CubeIDE); guardado em relação ao projeto</translation>
+        </message>
+        <message>
             <source>BLDC motor</source>
             <translation>Motor BLDC</translation>
         </message>
@@ -5488,8 +5504,8 @@ Permitir para este projeto neste computador? Sem isso, a rede das placas fica de
             <translation>Cristal</translation>
         </message>
         <message>
-            <source>Quartz crystal or ceramic resonator. Between a microcontroller's XTAL1 and XTAL2 its frequency is the chip's clock when the fuses select an external crystal; the oscillation itself is not simulated (add the usual 22 pF capacitors to ground as on the board)</source>
-            <translation>Cristal de quartzo ou ressonador cerâmico. Entre o XTAL1 e o XTAL2 de um microcontrolador, a sua frequência é o clock do chip quando os fusíveis escolhem um cristal externo; a oscilação em si não é simulada (coloque os capacitores de 22 pF para o terra de costume, como na placa)</translation>
+            <source>Quartz crystal or ceramic resonator. Between a microcontroller's oscillator pins (XTAL1 and XTAL2 of an AVR, PH0 and PH1 of an STM32F407) its frequency is the chip's clock when the chip selects the crystal; the oscillation itself is not simulated (add the usual 22 pF capacitors to ground as on the board)</source>
+            <translation>Cristal de quartzo ou ressonador cerâmico. Entre os pinos do oscilador de um microcontrolador (XTAL1 e XTAL2 de um AVR, PH0 e PH1 de um STM32F407) sua frequência é o clock do chip quando o chip seleciona o cristal; a oscilação em si não é simulada (acrescente os capacitores usuais de 22 pF ao terra, como na placa)</translation>
         </message>
         <message>
             <source>Frequency</source>

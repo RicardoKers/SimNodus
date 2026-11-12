@@ -5,6 +5,7 @@
 #include "atmega.hpp"
 #include "esp32c3.hpp"
 #include "stm32f103.hpp"
+#include "stm32f407.hpp"
 
 #include <algorithm>
 #include <cstdio>
@@ -47,6 +48,22 @@ const char* const cortex_m_xml =
     "<reg name=\"control\" bitsize=\"32\" regnum=\"20\"/>"
     "</feature>"
     "</target>";
+
+// The Cortex-M4F: the same, and the FPU's single-precision registers and
+// FPSCR in a feature of our own (gdb's org.gnu.gdb.arm.vfp wants 64-bit D
+// registers; these are what the chip's single-precision FPU has).
+const std::string cortex_m4f_xml = [] {
+    std::string xml = cortex_m_xml;
+    const std::string end = "</target>";
+    xml.erase(xml.size() - end.size());
+    xml += "<feature name=\"org.simnodus.fpu\">";
+    for (int n = 0; n < 32; ++n) {
+        xml += "<reg name=\"s" + std::to_string(n) + "\" bitsize=\"32\" type=\"ieee_single\" group=\"float\""
+            + (n == 0 ? std::string(" regnum=\"21\"") : std::string()) + "/>";
+    }
+    xml += "<reg name=\"fpscr\" bitsize=\"32\" group=\"float\" regnum=\"53\"/></feature>" + end;
+    return xml;
+}();
 
 // RISC-V RV32 (the ESP32-C3): x0-x31 and pc (0-32), and the machine CSRs as
 // gdb numbers them (65 + the CSR number).
@@ -189,12 +206,16 @@ bool starts_with(const std::string& text, const char* prefix)
     return text.rfind(prefix, 0) == 0;
 }
 
-// The STM32F103's Cortex-M3.
-class Stm32Target : public GdbTarget {
+// The Cortex-M3 of the STM32F103 and the Cortex-M4F of the STM32F407: the
+// same registers; the FPU's S0 to S31 and FPSCR follow as numbers 21 to 53.
+template <typename Machine> class CortexTarget : public GdbTarget {
 public:
-    explicit Stm32Target(Stm32F103& machine) : machine_(machine) {}
+    explicit CortexTarget(Machine& machine)
+        : machine_(machine), fpu_(machine.cpu().architecture() == Cpu::Architecture::CortexM4F)
+    {
+    }
 
-    const char* target_xml() const override { return cortex_m_xml; }
+    const char* target_xml() const override { return fpu_ ? cortex_m4f_xml.c_str() : cortex_m_xml; }
     int general_registers() const override { return 21; }
     bool read_register(int n, std::uint32_t& value) override
     {
@@ -209,8 +230,17 @@ public:
         case 18: value = cpu.psp(); return true;
         case 19: value = cpu.primask(); return true;
         case 20: value = cpu.control(); return true;
-        default: return false;
+        default: break;
         }
+        if (fpu_ && n >= 21 && n <= 52) {
+            value = cpu.fp_reg(n - 21);
+            return true;
+        }
+        if (fpu_ && n == 53) {
+            value = cpu.fpscr();
+            return true;
+        }
+        return false;
     }
     bool write_register(int n, std::uint32_t value) override
     {
@@ -221,6 +251,14 @@ public:
         }
         if (n == 16) {
             cpu.set_xpsr(value);
+            return true;
+        }
+        if (fpu_ && n >= 21 && n <= 52) {
+            cpu.set_fp_reg(n - 21, value);
+            return true;
+        }
+        if (fpu_ && n == 53) {
+            cpu.set_fpscr(value);
             return true;
         }
         return n < 21; // MSP, PSP, PRIMASK, CONTROL: accepted, not changed
@@ -279,7 +317,8 @@ public:
     void reset() override { machine_.reset(ResetKind::Pin); }
 
 private:
-    Stm32F103& machine_;
+    Machine& machine_;
+    bool fpu_;
 };
 
 // The ESP32-C3's RISC-V core. Its flash is written with esptool or the
@@ -503,7 +542,12 @@ private:
 
 std::unique_ptr<GdbTarget> make_gdb_target(Stm32F103& machine)
 {
-    return std::make_unique<Stm32Target>(machine);
+    return std::make_unique<CortexTarget<Stm32F103>>(machine);
+}
+
+std::unique_ptr<GdbTarget> make_gdb_target(Stm32F407& machine)
+{
+    return std::make_unique<CortexTarget<Stm32F407>>(machine);
 }
 
 std::unique_ptr<GdbTarget> make_gdb_target(Esp32C3& machine)

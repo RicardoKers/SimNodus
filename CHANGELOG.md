@@ -4,6 +4,18 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-11-12, E-12 / SN-295, experimental)
+
+- **STM32F407VET6 (LQFP-100)** in Microcontrollers: the bare chip with its 100 pins, a Cortex-M4 with FPU running the ELF file STM32CubeIDE builds. So far the clocks, GPIO with alternate function numbers, external interrupts and the six serial ports; timers, ADC, DAC, SPI, I2C, DMA and RTC are not simulated yet and say so. Not yet compared with a real chip.
+  - A **Crystal** between PH0 and PH1 is the HSE (none: the HSE never starts, and the Messages panel says why); one between PC14 and PC15 is the 32.768 kHz crystal. The Crystal part takes up to 50 MHz (it stopped at 20 MHz).
+  - **NRST** from the circuit resets the chip (it has the chip's pull-up); **BOOT0** high keeps the chip from starting, with a message.
+  - Debugging with GDB as on the Blue Pill, with the FPU's registers; the Register Viewer has the chip's map with the FPU.
+  - **Example 67**: the chip with a 25 MHz crystal, the PLL at 168 MHz, USART1 at 115200 baud, an LED and a reset button. The guide has a section *STM32F407VET6 (experimental)*.
+
+### Fixed (2026-11-12, SN-295)
+
+- The window's pin list of a chip read past the end of a pin name without a number (an ATmega32's `RESET`).
+
 ### Added (2026-11-12, E-12 / SN-294, experimental, no part yet)
 
 - **STM32F407 machine** (`simnodus-emu --stm32f407 firmware.elf [--crystal 25000000]`): the memory map, the clock tree with the HSE at the crystal's frequency and the PLL up to 168 MHz, GPIO in the F4's form with alternate function numbers, SYSCFG, EXTI and the six serial ports. Without a crystal the HSE never becomes ready and the log says why; the wrong crystal for a firmware gives the wrong baud rate, as on the bench. The other peripherals are stubs that say once that they are not simulated. Not a part on the diagram yet.

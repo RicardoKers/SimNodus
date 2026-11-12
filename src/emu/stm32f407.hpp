@@ -89,6 +89,14 @@ public:
     // now) is when the level changed outside, for receivers that decode edge times.
     void set_pin_input(int port, int pin, bool level);
     void set_pin_input(int port, int pin, bool level, std::uint64_t changed_ns);
+    // The NRST pin: low holds the chip in reset; when it goes high the chip
+    // starts from its reset vector (RCC_CSR records a pin reset).
+    void set_reset_pin(bool low);
+    // The BOOT0 pin, read when a reset ends: high would start the system
+    // memory's bootloader, which is not simulated; the chip then stands still
+    // and the log says why.
+    void set_boot0(bool high) { boot0_ = high; }
+    bool held() const { return reset_low_ || bootloader_; }
     // A byte from a terminal for serial port `usart` (1 to 6).
     void uart_receive(int usart, std::uint8_t value);
     using PinHook = std::function<void(int port, int pin, std::uint64_t time_ns)>;
@@ -187,6 +195,10 @@ private:
     bool stamping_ = false; // pin events take the time of `stamp_cycles_`
     std::uint64_t stamp_cycles_ = 0;
     std::optional<std::uint64_t> input_changed_ns_;
+    bool reset_low_ = false;  // NRST is held low
+    bool boot0_ = false;
+    bool bootloader_ = false; // a reset ended with BOOT0 high: nothing runs
+    bool reported_bootloader_ = false;
 
     std::vector<F4PinEvent> pin_events_;
     std::vector<UartByte> uart_bytes_;

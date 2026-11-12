@@ -1,4 +1,4 @@
-<!-- source: MICROCONTROLLER.md sha256 1dc427bcec19b30462130f310d90f70832d1a9f83222763fc6cf118971f45d49 -->
+<!-- source: MICROCONTROLLER.md sha256 7e511ec412cd57f00aa79c7dc653fc36846764d74ad6ed4f90e4360bc4c1578a -->
 # Microcontrolador: o que é simulado
 
 O SimNodus executa o firmware da **Blue Pill (STM32F103C8)** em seu próprio emulador
@@ -173,8 +173,9 @@ Os registradores são observados de fora do firmware: mostrar `USART1_DR` não
 retira o byte recebido e mostrar `ADC1_DR` não limpa EOC, como faria uma
 leitura feita pelo firmware (ou pela janela de memória de um depurador).
 Registradores só de escrita não são listados. A Blue Pill (STM32F103, com o
-SysTick, o NVIC e o SCB do Cortex-M3), o ATmega8/8A, o ATmega328/328P, o
-ATmega32/32A e o Arduino UNO têm esta visualização; o ESP32-C3 ainda não.
+SysTick, o NVIC e o SCB do Cortex-M3), o STM32F407 (com sua FPU), o
+ATmega8/8A, o ATmega328/328P, o ATmega32/32A e o Arduino UNO têm esta
+visualização; o ESP32-C3 ainda não.
 
 **CORE** tem os registradores da própria CPU: R0 a R12, SP, LR, PC e xPSR com
 seus flags na Blue Pill; o PC num AVR, cujos R0 a R31 ficam em **REGISTERS**
@@ -738,6 +739,58 @@ experimental até ser comparada com uma placa real.
   1 kΩ dela para o D0 e o D1, os LEDs TX e RX, o regulador do VIN.
 - **Exemplo**: 58 (o exemplo serial da seção *ATmega328 e ATmega328P*
   compilado para 16 MHz; `l` inverte o LED L).
+
+## STM32F407VET6 (experimental)
+
+A peça **STM32F407VET6 (LQFP-100)** (Microcontroladores) é o chip isolado
+com seus 100 pinos: um Cortex-M4 com FPU de precisão simples, 512 KB de flash
+e 192 KB de RAM, até 168 MHz. Ele executa o arquivo ELF que o STM32CubeIDE
+gera, incluindo a FPU. É **experimental**: nada nele foi comparado com um
+chip real ainda, e só parte do chip é simulada.
+
+- **O que funciona**: a árvore de clock (HSI, HSE, o PLL), GPIO com os
+  números de função alternativa, interrupções externas em qualquer porta, as
+  seis portas seriais (USART1 a USART3, UART4, UART5, USART6), o SysTick e o
+  controlador de interrupções, as instruções DSP e de ponto flutuante.
+- **Ainda não simulado**: timers, ADC, DAC, SPI, I2C, DMA, RTC, os
+  watchdogs, USB, Ethernet, SDIO, CAN. Seus registradores guardam o que o
+  firmware escreve e o painel Mensagens avisa uma vez que o periférico não
+  faz nada. Um projeto do STM32CubeMX roda até onde usa o que funciona (a
+  base de tempo da HAL é o SysTick).
+- **Alimentação e terra**: ligue os pinos **VDD** e **VSS** (3,3 V); rótulos
+  de rede poupam os fios, como no exemplo 67. Os pinos de um mesmo trilho são
+  unidos dentro do chip. A tensão de alimentação ainda não é lida: o chip
+  roda com qualquer alimentação, e seus pinos trabalham em 3,3 V.
+- **Cristal**: o chip parte com o oscilador interno de 16 MHz. Uma peça
+  **Cristal** entre **PH0** e **PH1** é o HSE; sua frequência é a digitada na
+  peça (4 a 26 MHz no chip real). Sem ela o HSE nunca fica pronto: um
+  firmware que espera por ele para ali, e o painel Mensagens diz por quê. O
+  `HSE_VALUE` do firmware tem de ser a frequência do cristal, como numa
+  placa: com outro cristal o PLL dá outra frequência e os baud rates saem
+  errados.
+- **NRST** tem o pull-up do chip: deixe-o aberto, ou ligue um botão ao terra
+  para reiniciar o chip. **BOOT0** tem de estar no terra (um BOOT0 aberto é
+  lido como baixo; numa placa real ele não pode flutuar). Com BOOT0 alto o
+  chip iniciaria o bootloader da memória de sistema, que não é simulado:
+  nada roda, e o painel Mensagens avisa.
+- **Portas seriais**: uma porta só chega a um pino quando o pino está em
+  modo de função alternativa com o número de função da porta (7 para USART1
+  a USART3, 8 para UART4, UART5 e USART6), como no chip. O Terminal Serial
+  lista as seis portas.
+- **Velocidade**: um firmware que espera em laço ativo a 168 MHz roda abaixo
+  do tempo real (cerca de 0,8 vez); um firmware que dorme entre interrupções
+  (`WFI`, como o `HAL_Delay` não faz, mas a tarefa ociosa de um RTOS faz)
+  roda várias vezes mais rápido que o tempo real.
+- **Tempo das instruções**: as instruções levam os ciclos do Cortex-M4; os
+  estados de espera da flash e seu acelerador ainda não são modelados, então
+  laços contados em instruções são aproximados.
+- **Depuração** com o STM32CubeIDE funciona como na Blue Pill (próxima
+  seção); os registradores da FPU, S0 a S31 e FPSCR, também aparecem. O
+  **Visualizador de registradores** tem os registradores do chip, com os da
+  FPU.
+- **Exemplo**: 67 (um cristal de 25 MHz, o PLL a 168 MHz, a USART1 a 115200
+  baud, um LED em PC13, um botão de reset). O fonte do firmware e mais três
+  firmwares de teste estão em `examples/firmware/f4_*`.
 
 ## Depuração com STM32CubeIDE ou GDB
 

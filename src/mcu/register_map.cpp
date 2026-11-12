@@ -11,6 +11,7 @@ namespace simnodus::mcu {
 
 // The built-in texts (register_map_data.cpp): pieces to join, ended by nullptr.
 extern const char* const stm32f103_registers[];
+extern const char* const stm32f407_registers[];
 extern const char* const atmega8_registers[];
 extern const char* const atmega32_registers[];
 extern const char* const atmega328p_registers[];
@@ -206,6 +207,9 @@ const RegisterMap* register_map(const std::string& chip)
     if (chip.empty() || chip == "stm32f103") {
         key = "stm32f103";
         text = stm32f103_registers;
+    } else if (chip == "stm32f407") {
+        key = "stm32f407";
+        text = stm32f407_registers;
     } else if (chip == "atmega8" || chip == "atmega8a") {
         key = "atmega8";
         text = atmega8_registers;

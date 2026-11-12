@@ -590,7 +590,7 @@ ComponentDefinition parse_definition(const json& j)
         if (m.contains("chip")) {
             board.chip = text(m, "chip", true);
         }
-        if (board.chip != "stm32f103" && board.chip != "esp32c3" && !avr_chip(board.chip)) {
+        if (board.chip != "stm32f103" && board.chip != "stm32f407" && board.chip != "esp32c3" && !avr_chip(board.chip)) {
             invalid("mcu.chip must be stm32f103, esp32c3, atmega8, atmega8a, atmega328, atmega328p, atmega32 or atmega32a");
         }
         if (m.contains("ground_pin")) {

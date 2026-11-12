@@ -48,8 +48,8 @@
         "examples/firmware/f4_common/f4.h"
       ],
       "elf": "examples/firmware/f4_clock/f4_clock.elf",
-      "sha256": "40f26c48d10bd4a0d3227f9d9061eb5e4c2cb965a374d5f62b02566427294b35",
-      "size": 13156
+      "sha256": "2dae920e114d69587e7b32f36efc01f3cdbf8ed5248635aaf81a5901a278998b",
+      "size": 13184
     },
     "f4_float": {
       "sources": [

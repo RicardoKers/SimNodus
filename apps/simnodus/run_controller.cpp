@@ -696,8 +696,10 @@ std::vector<RunController::LogicLane> RunController::logic_lanes() const
         std::vector<std::pair<std::pair<std::string, int>, std::string>> pins; // (prefix, number) -> name
         for (const auto& p : d->pins) {
             if (mcu::chip_gpio(d->mcu->chip, p.name)) {
+                // "PA9" sorts as (PA, 9); a name without a number (NRST) by itself.
                 const auto digits = p.name.find_first_of("0123456789");
-                pins.push_back({{p.name.substr(0, digits), std::atoi(p.name.c_str() + digits)}, p.name});
+                pins.push_back({{p.name.substr(0, digits), digits == std::string::npos ? 0 : std::atoi(p.name.c_str() + digits)},
+                    p.name});
             }
         }
         std::sort(pins.begin(), pins.end()); // PA0, PA1, ..., PB0, ..., PC13; GPIO0, GPIO1, ..., GPIO21
@@ -962,11 +964,13 @@ QString RunController::mode_description() const
     const library::McuBoard* first = nullptr;
     bool stm32 = false;
     bool esp32c3 = false;
+    bool stm32f407 = false;
     for (const auto& c : snapshot_.components()) {
         const auto* d = library.find(c.type);
         if (d && d->mcu) {
             first = first ? first : &*d->mcu;
             stm32 = stm32 || d->mcu->chip == "stm32f103";
+            stm32f407 = stm32f407 || d->mcu->chip == "stm32f407";
             esp32c3 = esp32c3 || d->mcu->chip == "esp32c3";
         }
     }
@@ -986,6 +990,11 @@ QString RunController::mode_description() const
                 ? tr("; firmware instructions take the Cortex-M3 cycles with flash wait states (approximate, within 5 % "
                      "of a real Blue Pill in measured tests)")
                 : tr("; firmware instructions take one cycle each (faster than a real chip)");
+        }
+        if (stm32f407) {
+            text += tr("; the STM32F407 is experimental: not yet compared with a real chip; its instructions take the "
+                       "Cortex-M4's cycles without flash wait states (approximate), and its timers, ADC, DAC, SPI, I2C, "
+                       "DMA and RTC are not simulated yet");
         }
         if (esp32c3) {
             text += tr("; the ESP32-C3 is experimental: not yet compared with a real board, one instruction per CPU "

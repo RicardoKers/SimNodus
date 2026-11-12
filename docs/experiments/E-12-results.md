@@ -5,9 +5,9 @@ work; a gate is marked met only with its numbers here.
 
 Status on 2026-11-12: **G12a (the Cortex-M4F core) met on the host**, with
 the limits listed under it. **The STM32F407 machine (SN-294) runs the first
-four owned firmware from the command line**; it is not a part on the
-diagram yet (SN-295) and nothing was compared with the owner's chip yet
-(SN-296). G12c not started.
+four owned firmware, and the chip is a part on the diagram (SN-295, example
+67)**; nothing was compared with the owner's chip yet (SN-296). G12c not
+started.
 
 ## Prerequisites (SN-292)
 
@@ -146,11 +146,58 @@ Not done in SN-294: GDB for the F407, the Register Viewer's map, the part
 (G12b.7 and the rest of the integration: SN-295), and the board comparison
 (G12b.9: SN-296).
 
+## The part on the diagram (SN-295)
+
+**Built.**
+- The part `stm32f407vet6_lqfp100` (`tools/generate_stm32_parts.py`): the
+  100 pins of the package in two columns in the package's order, with their
+  numbers. The supply pins of a rail are joined inside the chip; NRST has
+  its pull-up; the 80 pins of ports A to E drive the circuit through the pin
+  model. The pinout was written from the datasheet as known and is to be
+  checked against its text.
+- The adapter (`Stm32F407Machine` in `src/mcu/mcu_machine.cpp`): pins
+  "PA0" to "PE15", "NRST" and "BOOT0"; serial ports "usart1" to "usart6"
+  ("uart4", "uart5"); the registers and the FPU's for the Register Viewer.
+- The crystals come from the diagram (`stm32f407_options` in the session):
+  a Crystal part between PH0 and PH1 is the HSE, one between PC14 and PC15
+  the 32.768 kHz crystal. The Crystal part takes up to 50 MHz now (it stopped
+  at 20 MHz).
+- NRST from the circuit holds the chip in reset and starts it again when
+  released; BOOT0 is read when a reset ends, and high keeps the chip from
+  starting with a message (the system bootloader is not simulated).
+- GDB: one Cortex-M target for the F103 and the F407; the F407's
+  description adds S0 to S31 and FPSCR in a feature of its own
+  (`org.simnodus.fpu`), since gdb's `org.gnu.gdb.arm.vfp` wants 64-bit D
+  registers.
+- The Register Viewer's map of the chip (`register_map("stm32f407")`): the
+  core and the FPU, RCC, FLASH, PWR, GPIOA to GPIOE and GPIOH, SYSCFG,
+  EXTI, the six serial ports, SysTick, NVIC, SCB. A test reads every
+  register of the map from the machine.
+- Example 67 (`67_STM32F407_clock_and_serial.snx`): the chip, a 25 MHz
+  crystal with its capacitors, an LED on PC13, a reset button, USART1 at
+  115200 baud. `f4_clock` sleeps between ticks now (WFI).
+- The guide's section *STM32F407VET6 (experimental)*, in English and pt-BR.
+
+**Measured on the host.**
+
+| Criterion of G12b | Result |
+|---|---|
+| G12b.2 | In the circuit: `crystal_hz` is 25000000 from Y1; the terminal shows `SYSCLK 168000000 HCLK 168000000 PCLK1 42000000 PCLK2 84000000` and the ticks; without Y1 the request carries no frequency |
+| G12b.6 | NRST low holds the chip (no instruction runs, time passes) and its release restarts the firmware with PINRSTF; BOOT0 high at a reset: the message, and nothing runs |
+| G12b.7 | The GDB target: registers 0 to 20, S0 to S31 at 21 to 52, FPSCR at 53, memory read and written, the flash written as `load` does. **Not yet tried with STM32CubeIDE itself** (the owner's installation). The Register Viewer shows RCC, GPIO and the core's registers of the running example (GUI test) |
+| G12b.8 | Example 67 in the circuit: 8.4 times real time with the firmware sleeping between ticks; 0.79 times while it waited in a busy loop. `simnodus-emu`: 145 times and 0.85 times |
+
+**Limits of SN-295.**
+- The supply voltage is not read: the chip runs with any supply (the AVR
+  chips read theirs).
+- PH0 and PH1 are the crystal's pins only; as GPIO they are not connected
+  to the circuit.
+- No ADC yet, so no analog pin; 5 V tolerance is not modelled.
+- The timing of instructions still has no flash model (SN-296).
+
 ## Next
 
-SN-295: the `stm32f407vet6_lqfp100` part with its pin model, the crystal
-read from the diagram, NRST and BOOT0, GDB with the FPU registers, the
-Register Viewer's map, examples and guides. Then SN-296: the owner runs
-`f4_float`, `f4_clock` and `f4_blink` on the board
-([how](../../examples/firmware/f4_common/README.md)) and the timing is
-calibrated.
+SN-296: the owner runs `f4_float`, `f4_clock` and `f4_blink` on the board
+([how](../../examples/firmware/f4_common/README.md)), tries STM32CubeIDE's
+debugger against example 67, and the timing is calibrated. Then SN-297 and
+SN-298: timers, ADC, DAC, SPI, I2C, DMA, RTC.

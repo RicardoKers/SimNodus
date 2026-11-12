@@ -1884,7 +1884,7 @@ TEST_CASE("session: a receiver decodes frames from its RX pin through the circui
 
 TEST_CASE("register maps: every register of every map is in its chip")
 {
-    for (const std::string chip : {"stm32f103", "atmega8", "atmega8a", "atmega32", "atmega32a", "atmega328", "atmega328p"}) {
+    for (const std::string chip : {"stm32f103", "stm32f407", "atmega8", "atmega8a", "atmega32", "atmega32a", "atmega328", "atmega328p"}) {
         const mcu::RegisterMap* map = mcu::register_map(chip);
         REQUIRE(map != nullptr);
         REQUIRE(!map->peripherals.empty());
@@ -2189,4 +2189,102 @@ TEST_CASE("the register view writes registers as the firmware would, and shows t
     }
     CHECK(told);
     runner.stop();
+}
+
+TEST_CASE("session: example 67, the STM32F407 as a bare chip with its crystal on the diagram (E-12, SN-295)")
+{
+    REQUIRE(test::engine() != nullptr);
+    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "67_STM32F407_clock_and_serial.snx");
+    REQUIRE(loaded.schematic.has_value());
+    model::Id chip = model::no_id;
+    model::Id crystal = model::no_id;
+    for (const auto& c : loaded.schematic->components()) {
+        chip = c.designator == "U1" ? c.id : chip;
+        crystal = c.designator == "Y1" ? c.id : crystal;
+    }
+    REQUIRE(chip != model::no_id);
+    REQUIRE(crystal != model::no_id);
+    sim::RunRequest request;
+    request.schematic = *loaded.schematic;
+    auto settings = request.schematic.settings();
+    settings.speed = 0.0;
+    request.schematic.set_settings(settings);
+    request.library = &board_library();
+    request.vectors = {"V(U1.PC13)"};
+    std::string error;
+    REQUIRE(sim::build_mcu_requests(request.schematic, board_library(), environment(), request.mcus, error));
+    REQUIRE(request.mcus.size() == 1);
+    const auto& options = request.mcus.front().options;
+    CHECK(options.chip == "stm32f407");
+    CHECK(options.parameters.at("crystal_hz") == "25000000"); // Y1 between PH0 and PH1
+    CHECK(options.parameters.count("lse_hz") == 0);
+    // Ports A to E, NRST and BOOT0 are watched; the supply and oscillator pins are not.
+    CHECK(options.pins.size() == 82);
+    CHECK(std::find(options.pins.begin(), options.pins.end(), "NRST") != options.pins.end());
+    CHECK(std::find(options.pins.begin(), options.pins.end(), "BOOT0") != options.pins.end());
+    CHECK(std::find(options.pins.begin(), options.pins.end(), "PH0") == options.pins.end());
+    CHECK(options.uarts.size() == 6);
+
+    sim::SimulationSession session;
+    REQUIRE(session.start(request, error));
+    const auto begin = std::chrono::steady_clock::now();
+    std::string text;
+    while (text.find("tick 2\r\n") == std::string::npos) {
+        REQUIRE(session.active());
+        REQUIRE(std::chrono::steady_clock::now() - begin < 180s);
+        std::this_thread::sleep_for(10ms);
+        text.clear();
+        session.mcu_uart_received(chip, "usart1", 0, text);
+    }
+    CHECK(text.rfind("SYSCLK 168000000 HCLK 168000000 PCLK1 42000000 PCLK2 84000000\r\ntick 1\r\ntick 2\r\n", 0) == 0);
+    // PC13 drives LED1 through R1: it toggles every 500 ms.
+    const auto log = session.mcu_pin_log(chip, "PC13", 0);
+    CHECK(log.changes.size() >= 3);
+    // The registers reach the Register Viewer: RCC's CFGR says the PLL is the system clock.
+    session.watch_registers(chip, {{0x40023808u, 4u}});
+    std::optional<std::vector<std::uint8_t>> blob;
+    while (!(blob = session.device_memory(sim::Session::registers_memory(chip)))) {
+        REQUIRE(std::chrono::steady_clock::now() - begin < 180s);
+        std::this_thread::sleep_for(10ms);
+    }
+    std::uint32_t cfgr = 0;
+    REQUIRE(mcu::RegisterBytes::parse(*blob).value(0x40023808u, 4, cfgr));
+    CHECK(((cfgr >> 2) & 3u) == 2u);
+    session.stop();
+
+    // Without the crystal the request carries no frequency: the HSE never starts.
+    sim::RunRequest bare;
+    bare.schematic = *loaded.schematic;
+    bare.schematic.erase(crystal);
+    bare.library = &board_library();
+    REQUIRE(sim::build_mcu_requests(bare.schematic, board_library(), environment(), bare.mcus, error));
+    CHECK(bare.mcus.front().options.parameters.count("crystal_hz") == 0);
+
+    // The machine through the adapter: pin names, the serial ports, NRST.
+    mcu::McuRunOptions direct = options;
+    auto machine = mcu::make_machine(direct, error);
+    REQUIRE(machine);
+    CHECK(machine->pin_id("PA0") == 0);
+    CHECK(machine->pin_id("PE15") == 79);
+    CHECK(machine->pin_id("PH0") == -1);
+    CHECK(machine->pin_id("NRST") >= 0);
+    CHECK(machine->pin_id("BOOT0") >= 0);
+    CHECK(machine->uart_id("usart1") == 1);
+    CHECK(machine->uart_id("uart4") == 4);
+    CHECK(machine->uart_id("usart6") == 6);
+    CHECK(machine->uart_id("usart7") == -1);
+    REQUIRE(machine->load(direct, error));
+    machine->set_pin_input(machine->pin_id("NRST"), false);
+    machine->run_until_ns(20000000);
+    CHECK(machine->take_uart_bytes().empty()); // held in reset
+    CHECK(!machine->pin_level(machine->pin_id("NRST")));
+    machine->set_pin_input(machine->pin_id("NRST"), true);
+    machine->run_until_ns(40000000);
+    CHECK(!machine->take_uart_bytes().empty());
+    CHECK(machine->pin_state(machine->pin_id("PA9")).mode == mcu::PinMode::Alternate);
+    CHECK(machine->pin_state(machine->pin_id("PC13")).mode == mcu::PinMode::Output);
+    CHECK(mcu::chip_gpio("stm32f407", "PE2"));
+    CHECK(mcu::chip_gpio("stm32f407", "NRST"));
+    CHECK(!mcu::chip_gpio("stm32f407", "VDD"));
+    CHECK(!mcu::chip_gpio("stm32f103", "NRST"));
 }

@@ -32,6 +32,7 @@ namespace simnodus::emu {
 class Atmega;
 class Esp32C3;
 class Stm32F103;
+class Stm32F407;
 
 // A chip as the debugger sees it.
 class GdbTarget {
@@ -89,6 +90,7 @@ public:
 };
 
 std::unique_ptr<GdbTarget> make_gdb_target(Stm32F103& machine);
+std::unique_ptr<GdbTarget> make_gdb_target(Stm32F407& machine);
 std::unique_ptr<GdbTarget> make_gdb_target(Esp32C3& machine);
 std::unique_ptr<GdbTarget> make_gdb_target(Atmega& machine);
 
