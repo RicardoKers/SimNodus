@@ -66,6 +66,13 @@ add_test(NAME emu-m4-unit COMMAND m4_tests "${PROJECT_SOURCE_DIR}" "m4: ")
 add_test(NAME emu-m4-differential COMMAND m4_tests "${PROJECT_SOURCE_DIR}" "m4-diff: ")
 add_test(NAME emu-m4-benchmark COMMAND m4_tests "${PROJECT_SOURCE_DIR}" "m4-bench: ")
 
+# STM32F407 machine of experiment E-12 (SN-294): the owned firmware of
+# examples/firmware/f4_* and the chip's registers.
+add_executable(f4_tests f4_tests.cpp)
+target_include_directories(f4_tests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
+target_link_libraries(f4_tests PRIVATE simnodus::emu simnodus::warnings)
+add_test(NAME emu-stm32f407 COMMAND f4_tests "${PROJECT_SOURCE_DIR}")
+
 # ESP32-C3 machine of experiment E-08 (SN-244): unmodified ESP-IDF and
 # MicroPython images from tests/experiments/esp32c3/firmware.
 add_executable(esp32c3_tests esp32c3_tests.cpp)

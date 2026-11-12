@@ -6,6 +6,8 @@
 // USART 27.6).
 #include "stm32f103.hpp"
 
+#include "reg_device.hpp"
+
 #include <algorithm>
 #include <cstdio>
 #include <deque>
@@ -27,37 +29,6 @@ std::uint64_t scale(std::uint64_t value, std::uint64_t num, std::uint64_t den, b
     const std::uint64_t part = r * num;
     return q * num + part / den + (round_up && part % den ? 1 : 0);
 }
-
-// A device whose registers are 32-bit words; byte and halfword accesses become
-// partial writes (`mask`) and reads of the containing word, as the APB bridge does.
-class RegDevice : public Device {
-public:
-    bool read(std::uint32_t offset, unsigned size, std::uint32_t& value) override
-    {
-        std::uint32_t word = 0;
-        if (!read32(offset & ~3u, word)) {
-            return false;
-        }
-        const unsigned shift = 8 * (offset & 3u);
-        value = (word >> shift) & (size == 4 ? 0xFFFFFFFFu : ((1u << (8 * size)) - 1u));
-        return true;
-    }
-    bool write(std::uint32_t offset, unsigned size, std::uint32_t value) override
-    {
-        const unsigned shift = 8 * (offset & 3u);
-        const std::uint32_t mask = (size == 4 ? 0xFFFFFFFFu : ((1u << (8 * size)) - 1u)) << shift;
-        return write32(offset & ~3u, (value << shift) & mask, mask);
-    }
-
-protected:
-    virtual bool read32(std::uint32_t offset, std::uint32_t& value) = 0;
-    // `value` is already in position; only bits in `mask` are written.
-    virtual bool write32(std::uint32_t offset, std::uint32_t value, std::uint32_t mask) = 0;
-    static std::uint32_t merge(std::uint32_t old, std::uint32_t value, std::uint32_t mask)
-    {
-        return (old & ~mask) | (value & mask);
-    }
-};
 
 } // namespace
 
@@ -643,432 +614,6 @@ private:
 };
 
 // ---------------------------------------------------------------------------
-// USART (RM0008 27.6) at byte level: a byte written to DR is transmitted at once
-// (the baud rate is not simulated yet); received bytes queue for DR.
-
-// Frames (SN-175): with BRR set, a byte goes out on the TX pin bit by bit at
-// PCLK / BRR (start, 8 or 9 data bits with parity, stop bits); TXE, TC and the
-// byte's time follow the frame. Received bytes from the terminal arrive one
-// frame apart. With BRR 0 bytes move at once, as before.
-
-// RX from the pin (SN-192): the receiver decodes the RX pin's input edges, kept
-// with the times they happened, like the hardware's center sample: a falling
-// edge starts a frame, the start bit must still be low half a bit later, data
-// bits are read at their centers, a low stop bit sets FE, a wrong parity PE.
-// A frame is decided uart_rx_lag_ns after its stop bit's center (inputs reach
-// the chip late); the byte then joins the received bytes like a terminal byte.
-class Stm32F103::Usart : public RegDevice, public TimedDevice {
-public:
-    Usart(Stm32F103& m, int number, int irq) : m_(m), number_(number), irq_(irq)
-    {
-        // DMA1 channels (RM0008 table 78): TX 4, 7, 2; RX 5, 6, 3.
-        static const int tx[3] = {4, 7, 2};
-        static const int rx[3] = {5, 6, 3};
-        dma_tx_ = tx[number - 1];
-        dma_rx_ = rx[number - 1];
-        std::snprintf(name_, sizeof name_, "USART%d", number);
-        reset();
-    }
-    const char* name() const override { return name_; }
-
-    void reset() override
-    {
-        sr_ = 0xC0; // TXE, TC
-        dr_ = 0;
-        brr_ = cr1_ = cr2_ = cr3_ = gtpr_ = 0;
-        rx_.clear();
-        rx_last_ready_ = 0;
-        rx_edges_.clear();
-        rx_base_ = true;
-        rx_scan_ = 0;
-        shifting_ = tdr_full_ = false;
-        line_ = true;
-        update();
-    }
-
-    void receive(std::uint8_t value)
-    {
-        const std::uint64_t now = m_.cpu_.cycles();
-        std::uint64_t ready = now;
-        if (const std::uint64_t frame = frame_cycles(); frame > 0) {
-            ready = std::max(now, rx_last_ready_) + frame; // one frame after the previous byte
-        }
-        rx_last_ready_ = ready;
-        rx_.push_back({value, ready, 0});
-        m_.cpu_.request_stop();
-        update();
-    }
-
-    // A level change on a pin at `cycle` (not after now); only the RX pin counts.
-    void pin_changed(int port, int pin, bool level, std::uint64_t cycle)
-    {
-        if (!(m_.options_.uart_rx_pins & (1u << (number_ - 1))) || rx_pin() != std::pair{port, pin}) {
-            return;
-        }
-        const auto at = std::upper_bound(rx_edges_.begin(), rx_edges_.end(), cycle,
-            [](std::uint64_t c, const std::pair<std::uint64_t, bool>& e) { return c < e.first; });
-        rx_edges_.insert(at, {cycle, level});
-        m_.cpu_.request_stop(); // the run loop asks next_event() again
-    }
-
-    std::uint64_t next_event() const override
-    {
-        std::uint64_t next = shifting_ ? next_edge_ : no_event;
-        if (const auto start = rx_start()) {
-            next = std::min(next, rx_decision(*start));
-        }
-        // A received byte is an event only while the receiver can take it (UE, RE,
-        // DR empty); otherwise it waits without stopping the core again and again.
-        if (!rx_.empty() && !(sr_ & 0x20u) && (cr1_ & (1u << 13)) && (cr1_ & (1u << 2))) {
-            next = std::min(next, rx_.front().ready);
-        }
-        return next;
-    }
-
-    void on_time(std::uint64_t cycle) override
-    {
-        while (shifting_ && next_edge_ <= cycle) {
-            const std::uint64_t at = next_edge_;
-            if (++symbol_ < symbols_.size()) {
-                set_line(symbols_[symbol_].first, at);
-                next_edge_ = at + symbols_[symbol_].second;
-                continue;
-            }
-            shifting_ = false; // the stop bit ended: the byte is on the line
-            m_.uart_transmit(number_, frame_value_, at);
-            if (tdr_full_) {
-                tdr_full_ = false;
-                start_frame(tdr_, at);
-                sr_ |= 0x80u; // TXE: the next byte moved to the shift register
-            } else {
-                sr_ |= 0x40u; // TC
-            }
-        }
-        decode_rx(cycle);
-        update_rx(cycle);
-        update();
-    }
-
-    void update()
-    {
-        const bool enabled = (cr1_ & (1u << 13)) != 0;
-        update_rx(m_.cpu_.cycles());
-        // DMA (CR3.DMAR, CR3.DMAT): the channel moves received bytes out of DR and
-        // writes bytes to send into it; each transfer re-enters update(), hence the guard.
-        if (enabled && !in_dma_ && m_.dma_) {
-            in_dma_ = true;
-            while ((cr3_ & (1u << 6)) && (sr_ & 0x20u) && m_.dma_->request(dma_rx_)) {
-            }
-            while ((cr3_ & (1u << 7)) && (cr1_ & (1u << 3)) && (sr_ & 0x80u) && m_.dma_->request(dma_tx_)) {
-            }
-            in_dma_ = false;
-        }
-        // TX pin: the line rests high while the transmitter is on.
-        const auto [port, pin] = tx_pin();
-        if (port != tx_port_ || pin != tx_pin_) {
-            if (tx_port_ >= 0) {
-                m_.af_output(tx_port_, tx_pin_, number_, false);
-            }
-            tx_port_ = port;
-            tx_pin_ = pin;
-        }
-        if (tx_port_ >= 0) {
-            // The line rests high while the transmitter is on; a frame drives its bits.
-            m_.af_output(tx_port_, tx_pin_, number_, enabled && (cr1_ & (1u << 3)) && line_);
-        }
-        const bool irq = enabled
-            && (((cr1_ & (1u << 7)) && (sr_ & 0x80u)) || ((cr1_ & (1u << 6)) && (sr_ & 0x40u))
-                || ((cr1_ & (1u << 5)) && (sr_ & 0x28u)) || ((cr1_ & (1u << 4)) && (sr_ & 0x10u))
-                || ((cr1_ & (1u << 8)) && (sr_ & 0x01u)));
-        m_.cpu().set_irq_line(irq_, irq);
-    }
-
-protected:
-    bool read32(std::uint32_t offset, std::uint32_t& value) override
-    {
-        on_time(m_.cpu_.cycles());
-        switch (offset) {
-        case 0x00: value = sr_; return true;
-        case 0x04:
-            value = dr_;
-            if (!peeking()) {
-                sr_ &= ~0x2Fu; // reading DR clears RXNE (and PE, FE, NE, ORE after an SR read)
-                update();
-            }
-            return true;
-        case 0x08: value = brr_; return true;
-        case 0x0C: value = cr1_; return true;
-        case 0x10: value = cr2_; return true;
-        case 0x14: value = cr3_; return true;
-        case 0x18: value = gtpr_; return true;
-        default: value = 0; return true;
-        }
-    }
-    bool write32(std::uint32_t offset, std::uint32_t value, std::uint32_t mask) override
-    {
-        on_time(m_.cpu_.cycles());
-        switch (offset) {
-        case 0x00: // rc_w0 bits: CTS, LBD, TC, RXNE
-            sr_ &= ~(~value & mask & 0x360u);
-            break;
-        case 0x04: {
-            const auto byte = static_cast<std::uint16_t>(value & 0x1FFu);
-            const bool sending = (cr1_ & (1u << 13)) && (cr1_ & (1u << 3));
-            if (sending && frame_cycles() > 0) {
-                sr_ &= ~0x40u; // TC: a frame is under way
-                if (!shifting_) {
-                    start_frame(byte, m_.cpu_.cycles()); // straight into the shift register: TXE stays set
-                } else {
-                    tdr_ = byte;
-                    tdr_full_ = true;
-                    sr_ &= ~0x80u; // TXE: the data register holds the next byte
-                }
-            } else {
-                if (sending) {
-                    m_.uart_transmit(number_, static_cast<std::uint8_t>(byte), m_.cpu_.cycles());
-                }
-                sr_ |= 0xC0u; // no baud rate set: transmitted at once
-            }
-            break;
-        }
-        case 0x08: brr_ = merge(brr_, value, mask) & 0xFFFFu; break;
-        case 0x0C: cr1_ = merge(cr1_, value, mask) & 0x3FFFu; break;
-        case 0x10: cr2_ = merge(cr2_, value, mask) & 0x7F7Fu; break;
-        case 0x14: cr3_ = merge(cr3_, value, mask) & 0x7FFu; break;
-        case 0x18: gtpr_ = merge(gtpr_, value, mask) & 0xFFFFu; break;
-        default: break;
-        }
-        update();
-        return true;
-    }
-
-private:
-    // HCLK cycles per bit: BRR is PCLK / baud, and PCLK = HCLK / the APB divider.
-    std::uint64_t bit_cycles() const
-    {
-        return std::uint64_t{brr_} * m_.rcc_->apb_divider(number_ == 1);
-    }
-
-    std::uint64_t frame_cycles() const
-    {
-        if (!m_.options_.uart_frames) {
-            return 0; // bytes move at once
-        }
-        const std::uint64_t bit = bit_cycles();
-        const int data = (cr1_ & (1u << 12)) ? 9 : 8;
-        return bit * static_cast<std::uint64_t>(1 + data) + bit * stop_halves() / 2;
-    }
-
-    int stop_halves() const
-    {
-        static const int halves[4] = {2, 1, 4, 3}; // CR2.STOP: 1, 0.5, 2, 1.5 stop bits
-        return halves[(cr2_ >> 12) & 3u];
-    }
-
-    void start_frame(std::uint16_t value, std::uint64_t at)
-    {
-        const std::uint64_t bit = bit_cycles();
-        const int data = (cr1_ & (1u << 12)) ? 9 : 8;
-        std::uint32_t bits = value & ((1u << data) - 1u);
-        if (cr1_ & (1u << 10)) { // PCE: the last data bit is the parity bit
-            const std::uint32_t payload = bits & ((1u << (data - 1)) - 1u);
-            int ones = 0;
-            for (std::uint32_t v = payload; v; v >>= 1) {
-                ones += static_cast<int>(v & 1u);
-            }
-            const bool odd = (cr1_ & (1u << 9)) != 0;
-            const bool parity = odd ? (ones % 2 == 0) : (ones % 2 == 1);
-            bits = payload | (parity ? 1u << (data - 1) : 0u);
-        }
-        symbols_.clear();
-        symbols_.emplace_back(false, bit); // start bit
-        for (int i = 0; i < data; ++i) {
-            symbols_.emplace_back(((bits >> i) & 1u) != 0, bit); // LSB first
-        }
-        symbols_.emplace_back(true, bit * static_cast<std::uint64_t>(stop_halves()) / 2);
-        frame_value_ = static_cast<std::uint8_t>(value & 0xFFu);
-        symbol_ = 0;
-        shifting_ = true;
-        set_line(false, at);
-        next_edge_ = at + bit;
-        m_.cpu_.request_stop(); // the machine's run loop picks up the next edge
-    }
-
-    void set_line(bool level, std::uint64_t at)
-    {
-        line_ = level;
-        if (tx_port_ >= 0 && (cr1_ & (1u << 13)) && (cr1_ & (1u << 3))) {
-            m_.timer_output(tx_port_, tx_pin_, number_, level, at); // time-stamped at the bit edge
-        }
-    }
-
-    void update_rx(std::uint64_t cycle)
-    {
-        const bool enabled = (cr1_ & (1u << 13)) != 0;
-        if (enabled && (cr1_ & (1u << 2)) && !(sr_ & 0x20u) && !rx_.empty() && rx_.front().ready <= cycle) {
-            dr_ = rx_.front().value;
-            sr_ |= 0x20u | rx_.front().errors; // RXNE, with the byte's FE and PE
-            rx_.pop_front();
-        }
-    }
-
-    // Level of the RX line at `cycle` from the kept edges.
-    bool rx_level_at(std::uint64_t cycle) const
-    {
-        bool level = rx_base_;
-        for (const auto& [at, value] : rx_edges_) {
-            if (at > cycle) {
-                break;
-            }
-            level = value;
-        }
-        return level;
-    }
-
-    // The first falling edge at or after rx_scan_: a frame may start there.
-    std::optional<std::uint64_t> rx_start() const
-    {
-        bool level = rx_base_;
-        for (const auto& [at, value] : rx_edges_) {
-            if (at >= rx_scan_ && level && !value) {
-                return at;
-            }
-            level = value;
-        }
-        return std::nullopt;
-    }
-
-    std::uint64_t rx_stop_sample(std::uint64_t start) const
-    {
-        const std::uint64_t bit = std::max<std::uint64_t>(bit_cycles(), 1);
-        const int data = (cr1_ & (1u << 12)) ? 9 : 8;
-        return start + bit / 2 + bit * static_cast<std::uint64_t>(data + 1);
-    }
-
-    std::uint64_t rx_decision(std::uint64_t start) const
-    {
-        const std::uint64_t lag = m_.options_.uart_rx_lag_ns * m_.hclk_ / 1000000000u;
-        return rx_stop_sample(start) + lag;
-    }
-
-    void decode_rx(std::uint64_t cycle)
-    {
-        while (const auto start = rx_start()) {
-            if (rx_decision(*start) > cycle) {
-                break;
-            }
-            const std::uint64_t bit = bit_cycles();
-            bool on = (cr1_ & (1u << 13)) && (cr1_ & (1u << 2)) && bit > 0 && m_.options_.uart_frames;
-            const auto [rx_port, rx_number] = rx_pin();
-            const bool exact = ((m_.options_.exact_input_pins >> (rx_port * 16 + rx_number)) & 1u) != 0;
-            if (on && !exact && bit * 1000000000u < m_.options_.uart_rx_min_bit_ns * m_.hclk_) {
-                on = false;
-                if (!rx_too_fast_reported_) {
-                    rx_too_fast_reported_ = true;
-                    char text[200];
-                    std::snprintf(text, sizeof text,
-                        "%s: frames on the RX pin are not decoded at %u baud: the circuit's step cannot show bits that "
-                        "short (turn on Exact microcontroller edges or lower the maximum step)",
-                        name_, static_cast<unsigned>(m_.hclk_ / bit));
-                    m_.diagnostic(text);
-                }
-            }
-            if (!on || rx_level_at(*start + bit / 2)) {
-                rx_scan_ = *start + 1; // receiver off, or a glitch rather than a start bit
-            } else {
-                const int data = (cr1_ & (1u << 12)) ? 9 : 8;
-                std::uint32_t bits = 0;
-                for (int i = 0; i < data; ++i) {
-                    if (rx_level_at(*start + bit / 2 + bit * static_cast<std::uint64_t>(i + 1))) {
-                        bits |= 1u << i;
-                    }
-                }
-                const std::uint64_t stop = rx_stop_sample(*start);
-                std::uint8_t errors = rx_level_at(stop) ? 0 : 0x02u; // FE
-                if (cr1_ & (1u << 10)) { // PCE: even (or odd) number of ones with the parity bit
-                    int ones = 0;
-                    for (std::uint32_t v = bits; v; v >>= 1) {
-                        ones += static_cast<int>(v & 1u);
-                    }
-                    const bool odd = (cr1_ & (1u << 9)) != 0;
-                    if ((ones % 2 == 1) != odd) {
-                        errors |= 0x01u; // PE
-                    }
-                    bits &= (1u << (data - 1)) - 1u;
-                }
-                rx_.push_back({static_cast<std::uint8_t>(bits & 0xFFu), cycle, errors});
-                rx_scan_ = stop;
-            }
-            // Edges before the scan point only matter for the level there.
-            while (!rx_edges_.empty() && rx_edges_.front().first < rx_scan_) {
-                rx_base_ = rx_edges_.front().second;
-                rx_edges_.pop_front();
-            }
-        }
-    }
-
-    std::pair<int, int> rx_pin() const
-    {
-        const std::uint32_t mapr = m_.afio_->mapr();
-        switch (number_) {
-        case 1: return (mapr & 4u) ? std::pair{1, 7} : std::pair{0, 10};
-        case 2: return (mapr & 8u) ? std::pair{3, 6} : std::pair{0, 3};
-        default:
-            switch ((mapr >> 4) & 3u) {
-            case 1: return {2, 11};
-            case 3: return {3, 9};
-            default: return {1, 11};
-            }
-        }
-    }
-
-    std::pair<int, int> tx_pin() const
-    {
-        const std::uint32_t mapr = m_.afio_->mapr();
-        switch (number_) {
-        case 1: return (mapr & 4u) ? std::pair{1, 6} : std::pair{0, 9};
-        case 2: return (mapr & 8u) ? std::pair{3, 5} : std::pair{0, 2};
-        default:
-            switch ((mapr >> 4) & 3u) {
-            case 1: return {2, 10};
-            case 3: return {3, 8};
-            default: return {1, 10};
-            }
-        }
-    }
-
-    Stm32F103& m_;
-    int number_;
-    int irq_;
-    char name_[8] = {};
-    std::uint32_t sr_ = 0, dr_ = 0, brr_ = 0, cr1_ = 0, cr2_ = 0, cr3_ = 0, gtpr_ = 0;
-    struct RxByte {
-        std::uint8_t value = 0;
-        std::uint64_t ready = 0; // cycle at which its stop bit ends
-        std::uint8_t errors = 0; // SR flags that come with it (FE, PE)
-    };
-    std::deque<RxByte> rx_;
-    std::uint64_t rx_last_ready_ = 0;
-    std::deque<std::pair<std::uint64_t, bool>> rx_edges_; // RX pin: cycle, new level
-    bool rx_base_ = true;       // RX level before the first kept edge
-    std::uint64_t rx_scan_ = 0; // a start bit is looked for from here
-    bool rx_too_fast_reported_ = false;
-    bool shifting_ = false; // a frame is on the line
-    std::vector<std::pair<bool, std::uint64_t>> symbols_; // level and length in cycles
-    std::size_t symbol_ = 0;
-    std::uint64_t next_edge_ = 0;
-    std::uint8_t frame_value_ = 0;
-    bool line_ = true;      // TX level the frame drives
-    bool tdr_full_ = false; // a byte waits in DR for the shift register
-    std::uint16_t tdr_ = 0;
-    int dma_tx_ = 0;
-    int dma_rx_ = 0;
-    bool in_dma_ = false;
-    int tx_port_ = -1;
-    int tx_pin_ = 0;
-};
-
-// ---------------------------------------------------------------------------
 // Peripherals that are not simulated yet: registers keep what is written.
 
 class Stm32F103::Stub : public RegDevice {
@@ -1220,9 +765,11 @@ Stm32F103::Stm32F103(MachineOptions options) : options_(options), cpu_(bus_)
         gpio_[static_cast<std::size_t>(port)] = std::make_unique<Gpio>(*this, port);
         bus_.add_device(0x40010800u + 0x400u * static_cast<std::uint32_t>(port), 0x400, gpio_[static_cast<std::size_t>(port)].get());
     }
-    usart_[0] = std::make_unique<Usart>(*this, 1, 37);
-    usart_[1] = std::make_unique<Usart>(*this, 2, 38);
-    usart_[2] = std::make_unique<Usart>(*this, 3, 39);
+    usart_options_ = {options_.uart_frames, options_.uart_rx_lag_ns, options_.uart_rx_pins, options_.uart_rx_min_bit_ns,
+        options_.exact_input_pins};
+    usart_[0] = std::make_unique<Stm32Usart>(static_cast<UsartHost&>(*this), usart_options_, 1, 37);
+    usart_[1] = std::make_unique<Stm32Usart>(static_cast<UsartHost&>(*this), usart_options_, 2, 38);
+    usart_[2] = std::make_unique<Stm32Usart>(static_cast<UsartHost&>(*this), usart_options_, 3, 39);
     bus_.add_device(0x40021000u, 0x400, rcc_.get());
     bus_.add_device(0x40022000u, 0x400, flash_.get());
     bus_.add_device(0x40007000u, 0x400, pwr_.get());
@@ -1577,6 +1124,50 @@ void Stm32F103::timer_output(int port, int pin, int source, bool level, std::uin
     stamp_cycles_ = cycle;
     af_output(port, pin, source, level);
     stamping_ = false;
+}
+
+// UsartHost: where the USARTs' pins are (AFIO remaps), their bus clock and
+// their DMA1 channels (RM0008 table 78: TX 4, 7, 2; RX 5, 6, 3).
+std::uint32_t Stm32F103::usart_apb_divider(int number) const
+{
+    return rcc_->apb_divider(number == 1);
+}
+
+std::pair<int, int> Stm32F103::usart_rx_pin(int number) const
+{
+    const std::uint32_t mapr = afio_->mapr();
+    switch (number) {
+    case 1: return (mapr & 4u) ? std::pair{1, 7} : std::pair{0, 10};
+    case 2: return (mapr & 8u) ? std::pair{3, 6} : std::pair{0, 3};
+    default:
+        switch ((mapr >> 4) & 3u) {
+        case 1: return {2, 11};
+        case 3: return {3, 9};
+        default: return {1, 11};
+        }
+    }
+}
+
+std::pair<int, int> Stm32F103::usart_tx_pin(int number) const
+{
+    const std::uint32_t mapr = afio_->mapr();
+    switch (number) {
+    case 1: return (mapr & 4u) ? std::pair{1, 6} : std::pair{0, 9};
+    case 2: return (mapr & 8u) ? std::pair{3, 5} : std::pair{0, 2};
+    default:
+        switch ((mapr >> 4) & 3u) {
+        case 1: return {2, 10};
+        case 3: return {3, 8};
+        default: return {1, 10};
+        }
+    }
+}
+
+bool Stm32F103::usart_dma(int number, bool transmit)
+{
+    static const int tx[3] = {4, 7, 2};
+    static const int rx[3] = {5, 6, 3};
+    return dma_ && dma_->request((transmit ? tx : rx)[number - 1]);
 }
 
 std::uint32_t Stm32F103::hclk_per_kernel_tick(bool apb2) const

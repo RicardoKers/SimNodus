@@ -15,6 +15,12 @@
 // sends text to USART1..3 at a time in milliseconds; --gdb waits for a GDB
 // client on 127.0.0.1:PORT (0: any free port) and runs under its control.
 //
+//   simnodus-emu --stm32f407 firmware.elf [--crystal 25000000] [--ms 1000] [--quiet]
+//                [--input PA0=0@100] [--uart 1:text@50]
+//
+// The STM32F407 as a bare chip (experiment E-12): --crystal is the HSE crystal
+// in Hz (none without it); --uart sends to serial ports 1 to 6.
+//
 //   simnodus-emu --avr atmega8|atmega8a|atmega328|atmega328p firmware.elf|.hex
 //                [--ms 1000] [--quiet] [--fuses 0xE1,0xD9[,0xFF]]
 //                [--crystal 16000000] [--input PD2=0@100]
@@ -25,6 +31,7 @@
 #include "emu/gdb_server.hpp"
 #include "emu/riscv_test_machine.hpp"
 #include "emu/stm32f103.hpp"
+#include "emu/stm32f407.hpp"
 #include "emu/wifi_air.hpp"
 
 #include <algorithm>
@@ -602,6 +609,123 @@ int run_avr(int argc, char** argv)
     return machine.running() ? 0 : 3;
 }
 
+// The STM32F407 (experiment E-12): the bare chip, its HSE from --crystal.
+int run_stm32f407(int argc, char** argv)
+{
+    std::string path;
+    double ms = 1000;
+    bool quiet = false;
+    F4MachineOptions options;
+    std::vector<Stimulus> stimuli;
+    bool bad = false;
+    for (int i = 2; i < argc; ++i) {
+        const std::string arg = argv[i];
+        const bool has_value = i + 1 < argc;
+        if (arg == "--ms" && has_value) {
+            ms = std::strtod(argv[++i], nullptr);
+        } else if (arg == "--crystal" && has_value) {
+            options.hse_hz = static_cast<std::uint32_t>(std::strtoul(argv[++i], nullptr, 0));
+        } else if (arg == "--quiet") {
+            quiet = true;
+        } else if (arg == "--input" && has_value) {
+            const std::string value = argv[++i];
+            const auto eq = value.find('=');
+            const auto at = value.find('@');
+            Stimulus s;
+            if (eq == std::string::npos || at == std::string::npos || !parse_pin(value.substr(0, eq), s.port, s.pin)) {
+                bad = true;
+                break;
+            }
+            s.level = value[eq + 1] == '1';
+            s.time_ns = parse_ms(value.substr(at + 1));
+            stimuli.push_back(s);
+        } else if (arg == "--uart" && has_value) {
+            const std::string value = argv[++i];
+            const auto colon = value.find(':');
+            const auto at = value.rfind('@');
+            Stimulus s;
+            if (colon == std::string::npos || at == std::string::npos || at < colon) {
+                bad = true;
+                break;
+            }
+            s.usart = std::atoi(value.substr(0, colon).c_str());
+            s.text = value.substr(colon + 1, at - colon - 1);
+            s.time_ns = parse_ms(value.substr(at + 1));
+            stimuli.push_back(s);
+        } else if (path.empty() && arg[0] != '-') {
+            path = arg;
+        } else {
+            bad = true;
+            break;
+        }
+    }
+    if (bad || path.empty()) {
+        std::fprintf(stderr, "usage: simnodus-emu --stm32f407 firmware.elf [--crystal 25000000] [--ms 1000] [--quiet] "
+                             "[--input PA0=0@100] [--uart 1:text@50]\n");
+        return 2;
+    }
+    std::string error;
+    const auto image = read_elf(path, error);
+    if (!image) {
+        std::fprintf(stderr, "error: %s\n", error.c_str());
+        return 1;
+    }
+    Stm32F407 machine(options);
+    if (!machine.load(*image, error)) {
+        std::fprintf(stderr, "error: %s\n", error.c_str());
+        return 1;
+    }
+    std::sort(stimuli.begin(), stimuli.end(), [](const Stimulus& a, const Stimulus& b) { return a.time_ns < b.time_ns; });
+    const std::uint64_t end_ns = static_cast<std::uint64_t>(ms * 1e6);
+    std::size_t next = 0;
+    std::string uart_line[Stm32F407::num_usarts + 1];
+    const auto begin = std::chrono::steady_clock::now();
+    const std::uint64_t instructions_before = machine.cpu().instructions();
+    auto flush = [&] {
+        for (const auto& e : machine.take_pin_events()) {
+            if (!quiet) {
+                std::printf("%14.6f ms  P%c%d %d\n", static_cast<double>(e.time_ns) / 1e6, 'A' + e.port, e.pin,
+                    e.config.level ? 1 : 0);
+            }
+        }
+        for (const auto& b : machine.take_uart_bytes()) {
+            const char c = static_cast<char>(b.value);
+            std::string& line = uart_line[b.usart];
+            if (c == '\n' || line.size() > 200) {
+                std::printf("%14.6f ms  USART%d \"%s\"\n", static_cast<double>(b.time_ns) / 1e6, b.usart, line.c_str());
+                line.clear();
+            } else if (c != '\r') {
+                line += (c >= 32 && c < 127) ? c : '.';
+            }
+        }
+        for (const auto& d : machine.take_diagnostics()) {
+            std::printf("%14.6f ms  diagnostic: %s\n", static_cast<double>(d.time_ns) / 1e6, d.text.c_str());
+        }
+    };
+    while (machine.time_ns() < end_ns) {
+        machine.run_until_ns(next < stimuli.size() ? std::min(stimuli[next].time_ns, end_ns) : end_ns);
+        flush();
+        while (next < stimuli.size() && stimuli[next].time_ns <= machine.time_ns()) {
+            const Stimulus& s = stimuli[next++];
+            if (s.port >= 0) {
+                machine.set_pin_input(s.port, s.pin, s.level);
+            } else {
+                for (const char c : s.text) {
+                    machine.uart_receive(s.usart, static_cast<std::uint8_t>(c));
+                }
+            }
+        }
+    }
+    flush();
+    const double seconds = std::chrono::duration<double>(std::chrono::steady_clock::now() - begin).count();
+    const std::uint64_t executed = machine.cpu().instructions() - instructions_before;
+    std::printf("simulated %.3f ms in %.3f s (%.2fx real time); %llu instructions, %.1f MIPS; HCLK %u Hz%s\n",
+        static_cast<double>(machine.time_ns()) / 1e6, seconds, (static_cast<double>(machine.time_ns()) / 1e9) / seconds,
+        static_cast<unsigned long long>(executed), static_cast<double>(executed) / seconds / 1e6,
+        static_cast<unsigned>(machine.hclk_hz()), machine.cpu().state() == CoreState::Lockup ? ", core locked up" : "");
+    return machine.cpu().state() == CoreState::Lockup ? 1 : 0;
+}
+
 void usage()
 {
     std::fprintf(stderr,
@@ -622,6 +746,9 @@ int main(int argc, char** argv)
     }
     if (std::strcmp(argv[1], "--avr") == 0) {
         return run_avr(argc, argv);
+    }
+    if (std::strcmp(argv[1], "--stm32f407") == 0) {
+        return run_stm32f407(argc, argv);
     }
     std::string path;
     double ms = 1000;
