@@ -2265,7 +2265,9 @@ TEST_CASE("session: example 68, the STM32F407's ADC reads the circuit and its DA
 namespace {
 
 // Example `file` with the vectors `vectors`, run at full speed; `ids` gets the parts by designator.
-sim::RunRequest f4_example(const char* file, std::vector<std::string> vectors, std::map<std::string, model::Id>& ids)
+// `firmware`, if given, replaces U1's.
+sim::RunRequest f4_example(const char* file, std::vector<std::string> vectors, std::map<std::string, model::Id>& ids,
+    const char* firmware = nullptr)
 {
     const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / file);
     REQUIRE(loaded.schematic.has_value());
@@ -2274,6 +2276,11 @@ sim::RunRequest f4_example(const char* file, std::vector<std::string> vectors, s
     }
     sim::RunRequest request;
     request.schematic = *loaded.schematic;
+    if (firmware) {
+        model::Component chip = *request.schematic.component_by_designator("U1");
+        chip.parameters["firmware"] = firmware;
+        request.schematic.put(chip);
+    }
     auto settings = request.schematic.settings();
     settings.speed = 0.0;
     request.schematic.set_settings(settings);
@@ -2331,6 +2338,29 @@ TEST_CASE("session: example 69, the STM32F407's SPI to a 74HC595 and a MAX7219, 
     CHECK(changes >= 3);
     // SPI2 sent the MAX7219 its setup, the smiley and the count on PB15.
     CHECK(session.mcu_pin_log(chip, "PB15", 0).changes.size() > 50);
+    session.stop();
+}
+
+TEST_CASE("session: the STM32CubeF4 HAL drives example 69's SPI and I2C chips and its UART through DMA (SN-298)")
+{
+    REQUIRE(test::engine() != nullptr);
+    std::map<std::string, model::Id> ids;
+    sim::RunRequest request
+        = f4_example("69_STM32F407_SPI_I2C_DMA.snx", {"q0"}, ids, "firmware/f4_hal_buses/f4_hal_buses.elf");
+    sim::SimulationSession session;
+    std::string error;
+    REQUIRE(session.start(request, error));
+    const std::string text = f4_wait_text(session, ids.at("U1"), "lm75 23.5\r\n");
+    CHECK(text == "f4_hal_buses\r\neeprom SimNodus\r\nlm75 23.5\r\n");
+    int changes = 0;
+    bool high = false;
+    for (const auto& sample : session.samples("q0")) {
+        if ((sample.value > 1.65) != high) {
+            high = !high;
+            ++changes;
+        }
+    }
+    CHECK(changes >= 3); // HAL_SPI_Transmit counts on the 74HC595
     session.stop();
 }
 

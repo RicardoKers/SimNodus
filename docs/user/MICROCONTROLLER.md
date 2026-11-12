@@ -827,7 +827,8 @@ compared with a real chip yet, and only part of the chip is simulated.
   and the watchdog) and 71 (the station at 168 MHz that sleeps between the
   RTC's seconds: temperature, PWM, DAC and serial output). The firmware
   sources and more test firmware are in `examples/firmware/f4_*`; they use
-  the registers, not the HAL.
+  the registers, except `f4_hal_buses`, example 69's firmware written with
+  the STM32CubeF4 HAL.
 
 ## Debugging with STM32CubeIDE or GDB
 

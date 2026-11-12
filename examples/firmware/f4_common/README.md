@@ -4,7 +4,7 @@ Firmware of the STM32F407VET6 track
 ([plan](../../../docs/experiments/E-12-plan.md),
 [results](../../../docs/experiments/E-12-results.md)): each folder
 `f4_<name>` has one C file and the ELF it was built to. They use no library
-and no HAL: `f4.h` here has the register addresses, the vector table and the
+and no HAL (except `f4_hal_buses`, below): `f4.h` here has the register addresses, the vector table and the
 start-up code; `f4_peripherals.h` adds I2C1 as a master, lines of text sent
 on USART1 through DMA2 and the start of the RTC. `tools/build_f4_firmware.py` builds them with the
 arm-none-eabi-gcc of STM32CubeIDE for the Cortex-M4 with its FPU
@@ -18,6 +18,7 @@ arm-none-eabi-gcc of STM32CubeIDE for the Cortex-M4 with its FPU
 | `f4_button` | HSI 16 MHz | a push button from PA0 to ground: PC13 is high while it is pressed, PB0..PB3 count the presses |
 | `f4_analog` | HSI 16 MHz | TIM2 starts ADC1 on PA1 every millisecond; the code sets the duty cycle of TIM1's 20 kHz PWM on PA8 and its complement on PB13 (0.5 us of dead time) and DAC channel 1 on PA4; DAC channel 2 draws a triangle on PA5 (TIM6, 100 us a step); prints `adc <code>` every 100 ms on USART1 (PA9) at 115200 baud |
 | `f4_buses` | HSI 16 MHz | SPI1 (PA5, PA7; PA4 the latch) counts on a 74HC595 every 250 ms; SPI2 (PB13, PB15, 16-bit frames; PB12 LOAD) draws a smiley on a MAX7219; I2C1 (PB6, PB7) writes `SimNodus` into a 24C02 at 0x50 and reads it back, then reads an LM75 at 0x48 every second; prints `f4_buses`, `eeprom SimNodus`, `lm75 23.5` on USART1 through DMA2 |
+| `f4_hal_buses` | HSI 16 MHz | `f4_buses` written as an STM32CubeIDE project with the STM32CubeF4 HAL (`main.c`, `stm32f4xx_hal_conf.h`, `cube.json`: the package's files it is built with, newlib-nano, `stm32f407ve_cube.ld`); USART1 through `HAL_UART_Transmit_DMA`; prints `f4_hal_buses`, then the same lines. It runs on example 69's circuit with U1's firmware changed |
 | `f4_rtc` | HSI 16 MHz; RTC on the LSE (32.768 kHz on PC14, PC15) or the LSI | sets the calendar to 2026-11-12 12:00:00 on its first start, then prints the time every second (wakeup timer) and `alarm` at second 05; backup register 1 counts the starts; the independent watchdog (2 s) resets the chip while PA0 is high; PC13 toggles every second |
 | `f4_station` | 25 MHz crystal, PLL at 168 MHz; RTC as `f4_rtc` | sleeps until the RTC's second, reads an LM75 on I2C1, sets TIM3's 1 kHz PWM on PA6 (10 counts of 1000 per degree) and the DAC on PA4 (40 codes per degree), prints `12:00:01 2026-11-12 lm75 23.5 pwm 235 dac 940` through DMA2 |
 

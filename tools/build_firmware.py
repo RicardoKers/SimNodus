@@ -54,9 +54,9 @@ def find_compiler(explicit: Path | None) -> Path:
 def find_cube_package(name: str, explicit: Path | None) -> Path:
     candidates = [explicit] if explicit else [Path.home() / "STM32Cube" / "Repository" / name]
     for candidate in candidates:
-        if (candidate / "Drivers" / "STM32F1xx_HAL_Driver").is_dir():
+        if (candidate / "Drivers" / "STM32F1xx_HAL_Driver").is_dir() or (candidate / "Drivers" / "STM32F4xx_HAL_Driver").is_dir():
             return candidate
-    raise SystemExit(f"STM32CubeF1 package {name} not found: pass --cube-package or install it from STM32CubeIDE")
+    raise SystemExit(f"STM32Cube package {name} not found: pass --cube-package or install it from STM32CubeIDE")
 
 
 def build_command(compiler: Path, folder: Path, cube_package: Path | None) -> tuple[list[str], list[str]]:

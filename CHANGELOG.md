@@ -11,6 +11,7 @@ All entries describe actual repository changes, not promised simulator capabilit
   - **Example 70**: the RTC on its crystal, an alarm, a backup register counting the starts, and the watchdog (firmware `f4_rtc`).
   - **Example 71**: the station at 168 MHz that sleeps between the RTC's seconds: temperature over I2C, PWM, DAC and serial output through DMA (firmware `f4_station`, for the board comparison of gate G12c).
   - The Register Viewer has the new peripherals.
+  - Firmware `f4_hal_buses`: example 69's circuit through the STM32CubeF4 HAL (SPI, I2C, UART with DMA), built like an STM32CubeIDE project.
 
 ### Added (2026-11-12, E-12 / SN-297, experimental)
 

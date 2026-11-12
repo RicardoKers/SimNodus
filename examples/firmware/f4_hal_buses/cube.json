@@ -1,0 +1,30 @@
+{
+  "package": "STM32Cube_FW_F4_V1.28.3",
+  "defines": [
+    "USE_HAL_DRIVER",
+    "STM32F407xx"
+  ],
+  "includes": [
+    "Drivers/STM32F4xx_HAL_Driver/Inc",
+    "Drivers/CMSIS/Device/ST/STM32F4xx/Include",
+    "Drivers/CMSIS/Include"
+  ],
+  "sources": [
+    "Drivers/CMSIS/Device/ST/STM32F4xx/Source/Templates/gcc/startup_stm32f407xx.s",
+    "Drivers/CMSIS/Device/ST/STM32F4xx/Source/Templates/system_stm32f4xx.c",
+    "Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.c",
+    "Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_cortex.c",
+    "Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_dma.c",
+    "Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_exti.c",
+    "Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_flash.c",
+    "Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_flash_ex.c",
+    "Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_gpio.c",
+    "Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_i2c.c",
+    "Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pwr.c",
+    "Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pwr_ex.c",
+    "Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc.c",
+    "Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc_ex.c",
+    "Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_spi.c",
+    "Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.c"
+  ]
+}

@@ -1,4 +1,4 @@
-<!-- source: MICROCONTROLLER.md sha256 77de3d0873edc918d3e7cfe1c6c3675134c1f318c2c039424f1ce0c1fe089d10 -->
+<!-- source: MICROCONTROLLER.md sha256 54da9f80d872237e1a9d5c05f753d14b04ee764e7da52505a43cf9b23f7b6d10 -->
 # Microcontrolador: o que é simulado
 
 O SimNodus executa o firmware da **Blue Pill (STM32F103C8)** em seu próprio emulador
@@ -855,7 +855,8 @@ chip real ainda, e só parte do chip é simulada.
   watchdog) e 71 (a estação a 168 MHz que dorme entre os segundos do RTC:
   temperatura, PWM, DAC e saída serial). Os fontes dos firmwares e mais
   firmwares de teste estão em `examples/firmware/f4_*`; eles usam os
-  registradores, não a HAL.
+  registradores, exceto o `f4_hal_buses`, o firmware do exemplo 69 escrito
+  com a HAL do STM32CubeF4.
 
 ## Depuração com STM32CubeIDE ou GDB
 

@@ -314,14 +314,14 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
    SPI1-3 and I2C1-3 (the F103's models, now configured by the chip),
    DMA1/DMA2 (`stm32f4_dma.*`), the RTC and RNG (`stm32f4_system.*`), the
    watchdogs, CRC, the backup SRAM, ADC and DAC DMA, firmware `f4_buses`,
-   `f4_rtc`, `f4_station` (`f4_common/f4_peripherals.h`), examples 69 to 71
+   `f4_rtc`, `f4_station` (`f4_common/f4_peripherals.h`), `f4_hal_buses`
+   (the STM32CubeF4 HAL, `cube.json`), examples 69 to 71
    (SN-298; G12c.1 to G12c.6 on the host). Next: SN-296, the owner runs the
    F4 firmware on the board (`examples/firmware/f4_common/README.md`; the
    station for G12c.7) and tries STM32CubeIDE's debugger on example 67;
    then SN-299, the report. Not done: the supply voltage is not read, PH0/PH1 are
    not GPIO, the pinout and the alternate function table are from memory
-   of the datasheet. The STM32CubeF4 package is not installed here: HAL
-   firmware waits for it.
+   of the datasheet. STM32CubeF4 1.28.3 is in ~/STM32Cube/Repository.
    The owner's bench: ST-LINK V2 and V3, a USB-serial adapter, a logic
    analyzer; a 32.768 kHz crystal can go on the breadboard.
 
