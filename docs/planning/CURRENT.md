@@ -318,7 +318,7 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
    (the STM32CubeF4 HAL, `cube.json`), examples 69 to 71
    (SN-298; G12c.1 to G12c.6 on the host). Board (2026-11-13): examples 67,
    68, 70 and 71 behave as in the simulator; example 69's MAX7219 stayed
-   dark and the 24C08 used for the 24C02 did not work (no firmware error
+   dark (the 24C08 used for the 24C02 worked; no firmware error
    found; `f4_buses` now resends the MAX7219 setup each second; the README
    has the scope and 5 V level notes). Next: the owner repeats example 69,
    records numbers for G12c.7, tries STM32CubeIDE's debugger on example 67;
