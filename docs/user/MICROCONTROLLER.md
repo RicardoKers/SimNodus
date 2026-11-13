@@ -732,7 +732,7 @@ compared with a real chip yet, and only part of the chip is simulated.
 - **Not yet simulated**: USB, Ethernet, SDIO, CAN, I2S, the camera
   interface, the external memory controller; in the timers the
   center-aligned modes, the break input, the input filters, the slave
-  modes other than the encoder and their DMA requests; in the ADCs the
+  modes other than the encoder, the trigger DMA request; in the ADCs the
   discontinuous and multi-ADC modes; the DAC's noise wave; SPI and I2C
   slave modes; the RTC's tamper and time stamp inputs and its calibration.
   Their registers keep what the firmware writes and the Messages panel
@@ -791,8 +791,11 @@ compared with a real chip yet, and only part of the chip is simulated.
   (CHSEL, from RM0090's tables), from peripheral to memory, from memory to
   peripheral and from memory to memory (DMA2 only), in normal, circular
   and double-buffer modes, with the half and complete transfer flags and
-  interrupts. A transfer takes no bus time. The timers' DMA requests are
-  not wired yet.
+  interrupts. A transfer takes no bus time. The timers ask for a transfer
+  at each update event (UDE) and at each channel's compare or capture
+  (CCxDE, or with the update when CCDS is set): a table of duty cycles
+  through CCR, captures into memory, or a wave written into the DAC's data
+  register at a timer's rate.
 - **RTC**: the calendar (BCD time and date, the weekday, 24-hour or AM/PM)
   counts on a **Crystal** part of 32.768 kHz between **PC14** and **PC15**
   (the LSE), on the LSI (32 kHz) or on the HSE divided; alarms A and B,

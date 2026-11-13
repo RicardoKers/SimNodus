@@ -1,4 +1,4 @@
-<!-- source: MICROCONTROLLER.md sha256 54da9f80d872237e1a9d5c05f753d14b04ee764e7da52505a43cf9b23f7b6d10 -->
+<!-- source: MICROCONTROLLER.md sha256 019f70fead20965e99d8818de6c1486787ade867e4adb6d9fb7da7f2a227e7da -->
 # Microcontrolador: o que é simulado
 
 O SimNodus executa o firmware da **Blue Pill (STM32F103C8)** em seu próprio emulador
@@ -758,7 +758,7 @@ chip real ainda, e só parte do chip é simulada.
 - **Ainda não simulado**: USB, Ethernet, SDIO, CAN, I2S, a interface de
   câmera, o controlador de memória externa; nos timers os modos alinhados ao
   centro, a entrada de break, os filtros de entrada, os modos escravo além do
-  encoder e seus pedidos de DMA; nos ADCs os modos descontínuo e multi-ADC; a
+  encoder, o pedido de DMA do gatilho; nos ADCs os modos descontínuo e multi-ADC; a
   onda de ruído do DAC; os modos escravo de SPI e I2C; as entradas de tamper e
   de carimbo de tempo do RTC e sua calibração. Seus registradores
   guardam o que o firmware escreve e o painel Mensagens avisa uma vez o que
@@ -819,7 +819,11 @@ chip real ainda, e só parte do chip é simulada.
   e de memória para memória (só o DMA2), nos modos normal, circular e de
   buffer duplo, com as flags e interrupções de meia transferência e de
   transferência completa. Uma transferência não gasta tempo de barramento.
-  Os pedidos de DMA dos timers ainda não estão ligados.
+  Os timers pedem uma transferência a cada evento de atualização (UDE) e a
+  cada comparação ou captura de um canal (CCxDE, ou junto com a atualização
+  quando CCDS está ligado): uma tabela de ciclos de trabalho pelo CCR,
+  capturas para a memória, ou uma onda escrita no registrador de dados do
+  DAC no ritmo de um timer.
 - **RTC**: o calendário (hora e data em BCD, o dia da semana, 24 horas ou
   AM/PM) conta com uma peça **Cristal** de 32,768 kHz entre **PC14** e
   **PC15** (o LSE), com o LSI (32 kHz) ou com o HSE dividido; alarmes A e B,

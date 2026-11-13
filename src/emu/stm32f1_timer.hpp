@@ -14,10 +14,12 @@
 // dead time), input capture (rising, falling or both edges, capture
 // prescaler, overcapture), the encoder interface (modes 1 to 3), the trigger
 // output (TRGO on update, on the first channel's match or on a reference
-// rising), status flags, interrupts and the channel pins.
+// rising), status flags, interrupts and the channel pins, and DMA
+// requests on the update event and on each channel's event (UDE, CCxDE,
+// CCDS) where the chip wires them (TimerHost::timer_dma; SN-298 for the F4).
 // Not simulated yet (reported once): center-aligned counting, the other slave
 // modes (reset, gated, trigger, external clock), input filters, the break
-// input, DMA requests.
+// input, the trigger and commutation DMA requests, and DMA on the STM32F103.
 #pragma once
 
 #include "bus.hpp"
@@ -55,6 +57,16 @@ public:
         (void)signal;
         (void)cycle;
     }
+    // A DMA request of timer `number`: 0 the update event, 1 to 4 a
+    // channel's event. True if a transfer was made. Chips without timer DMA
+    // keep the default, and the timer reports UDE and CCxDE as not simulated.
+    virtual bool timer_dma(int number, int request)
+    {
+        (void)number;
+        (void)request;
+        return false;
+    }
+    virtual bool timer_dma_wired() const { return false; }
 };
 
 // What the chip gives a timer.
@@ -162,6 +174,10 @@ private:
     std::uint64_t kernel_ = 1;        // HCLK cycles per kernel clock tick
     std::uint64_t output_cycle_ = 0;  // time stamp of output changes
     std::uint32_t reported_ = 0; // features already reported as not simulated
+    std::uint32_t dma_pending_ = 0; // requests raised during an event: bit 0 update, 1 to 4 the channels
+    bool in_dma_ = false;
+    void request_dma(int request);
+    void flush_dma(); // after an event: the DMA may write the timer's own registers
 };
 
 } // namespace simnodus::emu

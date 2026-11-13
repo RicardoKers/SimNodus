@@ -40,6 +40,23 @@ constexpr R dma2_map[8][8] = {
     {N, N, N, N, N, N, N, N},
 };
 
+// The timers' requests (the same tables): controller, stream, channel, timer, event
+// (0 update, 1 to 4 the channels). The trigger and commutation requests are not simulated.
+struct TimerSlot {
+    std::uint8_t controller, stream, channel, timer, kind;
+};
+constexpr TimerSlot timer_slots[] = {
+    {1, 0, 2, 4, 1}, {1, 3, 2, 4, 2}, {1, 6, 2, 4, 0}, {1, 7, 2, 4, 3},
+    {1, 1, 3, 2, 0}, {1, 1, 3, 2, 3}, {1, 5, 3, 2, 1}, {1, 6, 3, 2, 2}, {1, 6, 3, 2, 4}, {1, 7, 3, 2, 0}, {1, 7, 3, 2, 4},
+    {1, 2, 5, 3, 4}, {1, 2, 5, 3, 0}, {1, 4, 5, 3, 1}, {1, 5, 5, 3, 2}, {1, 7, 5, 3, 3},
+    {1, 0, 6, 5, 3}, {1, 0, 6, 5, 0}, {1, 1, 6, 5, 4}, {1, 2, 6, 5, 1}, {1, 3, 6, 5, 4}, {1, 4, 6, 5, 2}, {1, 6, 6, 5, 0},
+    {1, 1, 7, 6, 0}, {1, 2, 1, 7, 0}, {1, 4, 1, 7, 0},
+    {2, 6, 0, 1, 1}, {2, 6, 0, 1, 2}, {2, 6, 0, 1, 3}, {2, 1, 6, 1, 1}, {2, 2, 6, 1, 2}, {2, 3, 6, 1, 1},
+    {2, 4, 6, 1, 4}, {2, 5, 6, 1, 0}, {2, 6, 6, 1, 3},
+    {2, 2, 0, 8, 1}, {2, 2, 0, 8, 2}, {2, 2, 0, 8, 3}, {2, 1, 7, 8, 0}, {2, 2, 7, 8, 1}, {2, 3, 7, 8, 2},
+    {2, 4, 7, 8, 3}, {2, 7, 7, 8, 4},
+};
+
 // Interrupt lines of the streams.
 constexpr int dma1_irq[8] = {11, 12, 13, 14, 15, 16, 17, 47};
 constexpr int dma2_irq[8] = {56, 57, 58, 59, 60, 68, 69, 70};
@@ -65,6 +82,23 @@ F4DmaRequest f4_dma_request(int controller, int stream, int channel)
         return R::None;
     }
     return controller == 1 ? dma1_map[channel][stream] : dma2_map[channel][stream];
+}
+
+bool f4_dma_serves(int controller, int stream, int channel, F4DmaRequest request)
+{
+    if (request == R::None) {
+        return false;
+    }
+    if (f4_dma_request(controller, stream, channel) == request) {
+        return true;
+    }
+    for (const TimerSlot& slot : timer_slots) {
+        if (slot.controller == controller && slot.stream == stream && slot.channel == channel
+            && f4_timer_request(slot.timer, slot.kind) == request) {
+            return true;
+        }
+    }
+    return false;
 }
 
 Stm32F4Dma::Stm32F4Dma(DmaHost& host, int controller) : host_(host), controller_(controller) {}
@@ -115,7 +149,7 @@ bool Stm32F4Dma::request(F4DmaRequest request)
         if (!(s.cr & CR_EN) || s.ndtr == 0 || ((s.cr >> 6) & 3u) == 2u) {
             continue;
         }
-        if (f4_dma_request(controller_, i, static_cast<int>((s.cr >> 25) & 7u)) != request) {
+        if (!f4_dma_serves(controller_, i, static_cast<int>((s.cr >> 25) & 7u), request)) {
             continue;
         }
         const std::uint32_t pl = (s.cr >> 16) & 3u;
