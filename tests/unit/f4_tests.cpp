@@ -1298,6 +1298,84 @@ TEST_CASE("f4: the watchdogs reset the chip; CRC and the RNG (SN-298)")
     CHECK(t.told("fixed pseudo-random sequence"));
 }
 
+TEST_CASE("f4: the timers' DMA requests: a PWM table, captures into memory, a DAC wave (SN-298)")
+{
+    Stm32F407 m;
+    idle(m);
+    // TIM3's update event (DMA1 stream 2, channel 5) loads CCR1 from a table: the duty cycle follows it.
+    write_words(m, 0x20001000, {20u | (50u << 16), 80u});
+    alternate(m, gpioa, {6}, 2);
+    std::uint32_t s = stream(dma1, 2);
+    set(m, s + 0x04, 3);
+    set(m, s + 0x08, tim3 + 0x34);
+    set(m, s + 0x0C, 0x20001000);
+    set(m, s + 0x00, (5u << 25) | (1u << 6) | (1u << 8) | (1u << 10) | (1u << 11) | (1u << 13) | 1u);
+    set(m, tim3 + 0x2C, 99);                     // 100 cycles a period
+    set(m, tim3 + 0x18, (6u << 4) | (1u << 3));  // PWM 1 with preload
+    set(m, tim3 + 0x20, 1u);
+    set(m, tim3 + 0x0C, 1u << 8);                // UDE
+    set(m, tim3 + 0x00, 1u);
+    Trace t = run(m, m.time_ns() + 100000);
+    const auto [high, low] = pulses(t.of(A, 6));
+    REQUIRE(high.size() >= 9);
+    std::vector<std::uint64_t> widths(high.begin() + 3, high.begin() + 9);
+    std::sort(widths.begin(), widths.end());
+    CHECK(widths.front() == 20u * 1000u / 16u);
+    CHECK(widths.back() == 80u * 1000u / 16u);
+    for (std::size_t i = 3; i + 1 < 9; ++i) {
+        CHECK(high[i] != high[i + 1]); // the table changes the duty every period
+    }
+    set(m, tim3 + 0x00, 0);
+
+    // TIM2 channel 1 captures PA0's rising edges; each capture goes to memory (DMA1 stream 5, channel 3).
+    alternate(m, gpioa, {0}, 1);
+    s = stream(dma1, 5);
+    set(m, s + 0x04, 3);
+    set(m, s + 0x08, tim2 + 0x34);
+    set(m, s + 0x0C, 0x20002000);
+    set(m, s + 0x00, (3u << 25) | (1u << 10) | (2u << 11) | (2u << 13) | 1u);
+    set(m, tim2 + 0x18, 1u);        // CC1S: input on TI1
+    set(m, tim2 + 0x20, 1u);        // CC1E, rising edges
+    set(m, tim2 + 0x0C, 1u << 9);   // CC1DE
+    set(m, tim2 + 0x2C, 0xFFFFFFFFu);
+    m.set_pin_input(A, 0, false);
+    set(m, tim2 + 0x00, 1u);
+    const std::uint64_t start = m.time_ns();
+    for (int k = 1; k <= 3; ++k) {
+        m.run_until_ns(start + 10000u * static_cast<std::uint64_t>(k));
+        m.set_pin_input(A, 0, true);
+        m.run_until_ns(start + 10000u * static_cast<std::uint64_t>(k) + 5000);
+        m.set_pin_input(A, 0, false);
+    }
+    const std::uint32_t first = reg(m, 0x20002000), second = reg(m, 0x20002004), third = reg(m, 0x20002008);
+    CHECK(second - first == 160u); // 10 us at 16 MHz
+    CHECK(third - second == 160u);
+    CHECK((reg(m, dma1 + 0x04) & (1u << 11)) != 0); // TCIF5
+
+    // TIM6's update event (DMA1 stream 1, channel 7) writes the DAC's data: a wave of four codes, one every 10 us.
+    write_words(m, 0x20003000, {500, 1500, 2500, 3500});
+    s = stream(dma1, 1);
+    set(m, s + 0x04, 4);
+    set(m, s + 0x08, dac + 0x08);
+    set(m, s + 0x0C, 0x20003000);
+    set(m, s + 0x00, (7u << 25) | (1u << 6) | (1u << 8) | (1u << 10) | (2u << 11) | (2u << 13) | 1u);
+    set(m, dac + 0x00, 1u);         // EN1, no trigger: the output follows the data
+    set(m, tim6 + 0x2C, 159);
+    set(m, tim6 + 0x0C, 1u << 8);   // UDE
+    m.take_pin_events();
+    set(m, tim6 + 0x00, 1u);
+    m.run_until_ns(m.time_ns() + 55000);
+    std::vector<int> codes;
+    for (const auto& e : m.take_pin_events()) {
+        if (e.port == A && e.pin == 4) {
+            codes.push_back(e.config.dac_code);
+        }
+    }
+    CHECK(codes == std::vector<int>({500, 1500, 2500, 3500, 500}));
+    t.take(m);
+    CHECK(!t.told("DMA requests is not simulated"));
+}
+
 int main(int argc, char** argv)
 {
     if (argc < 2) {

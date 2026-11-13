@@ -206,6 +206,8 @@ private:
     void timer_schedule_changed() override { cpu_.request_stop(); }
     void timer_diagnostic(const std::string& text) override { diagnostic(text); }
     void timer_trigger(int number, int signal, std::uint64_t cycle) override;
+    bool timer_dma(int number, int request) override { return dma_request(f4_timer_request(number, request)); }
+    bool timer_dma_wired() const override { return true; }
 
     // F4AnalogHost
     std::uint64_t analog_now_cycles() const override { return cpu_.cycles(); }

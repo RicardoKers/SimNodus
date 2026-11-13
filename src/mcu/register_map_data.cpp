@@ -1306,8 +1306,8 @@ f JEXTEN 20 2 | Injected trigger edge
 f JEXTSEL 16 4 | Injected trigger (RM0090 table 70)
 f ALIGN 11 1 | Alignment: 0 right, 1 left
 f EOCS 10 1 | EOC after each conversion instead of after the sequence
-f DDS 9 1 | DMA requests continue (not simulated)
-f DMA 8 1 | DMA mode (not simulated)
+f DDS 9 1 | DMA requests continue after the stream's last transfer
+f DMA 8 1 | DMA mode: each regular result asks the DMA for a transfer
 f CONT 1 1 | Continuous conversion
 f ADON 0 1 | Converter on
 reg SMPR1 0x0C 4 | Sample time of channels 10 to 18

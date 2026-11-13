@@ -14,7 +14,8 @@
 // same bytes; FIFO thresholds, bursts and the FIFO and direct-mode error
 // flags are not simulated, nor is the peripheral flow controller (reported
 // once). Requests come from the serial ports, SPI1 to SPI3, I2C1 to I2C3, the
-// ADCs and the DAC; the timers' requests are not wired yet.
+// ADCs, the DAC and the timers (update and channel events; a stream slot
+// that RM0090 shares between two of a timer's requests serves both).
 #pragma once
 
 #include "bus.hpp"
@@ -38,6 +39,15 @@ enum class F4DmaRequest : std::uint8_t {
 
 // The request that stream `stream` (0 to 7) of DMA `controller` (1 or 2) serves on channel `channel` (0 to 7).
 F4DmaRequest f4_dma_request(int controller, int stream, int channel);
+
+// A timer's request: `kind` 0 the update event, 1 to 4 channel 1 to 4's event.
+constexpr F4DmaRequest f4_timer_request(int timer, int kind)
+{
+    return static_cast<F4DmaRequest>(64 + 8 * timer + kind);
+}
+
+// Whether that stream and channel serve `request` (a peripheral's or a timer's).
+bool f4_dma_serves(int controller, int stream, int channel, F4DmaRequest request);
 
 class Stm32F4Dma : public Device {
 public:

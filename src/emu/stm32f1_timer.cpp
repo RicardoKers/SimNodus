@@ -3,6 +3,7 @@
 #include "stm32f1_timer.hpp"
 
 #include <algorithm>
+#include <bit>
 #include <cstdio>
 #include <limits>
 
@@ -238,6 +239,7 @@ void Stm32F1Timer::on_time(std::uint64_t cycle)
             evaluate_refs();
             update_outputs();
             update_irqs();
+            flush_dma();
         }
     }
     output_cycle_ = 0;
@@ -262,6 +264,16 @@ void Stm32F1Timer::update_event(bool from_counter)
         }
         if (from_counter || !(cr1_ & CR1_URS)) {
             sr_ |= 1u; // UIF
+            if (dier_ & (1u << 8)) { // UDE
+                request_dma(0);
+            }
+            if (cr2_ & (1u << 3)) { // CCDS: the channels' requests come with the update event
+                for (int c = 0; c < channels_; ++c) {
+                    if (dier_ & (1u << (9 + c))) {
+                        request_dma(c + 1);
+                    }
+                }
+            }
         }
         if (from_counter && (cr1_ & CR1_OPM)) {
             cr1_ &= ~CR1_CEN; // one-pulse mode stops at the update event
@@ -279,12 +291,16 @@ void Stm32F1Timer::update_event(bool from_counter)
     update_outputs();
     update_irqs();
     host_.timer_schedule_changed();
+    flush_dma();
 }
 
 void Stm32F1Timer::match(int channel)
 {
     auto& c = ch_[static_cast<std::size_t>(channel)];
     sr_ |= 1u << (channel + 1); // CCxIF
+    if ((dier_ & (1u << (9 + channel))) && !(cr2_ & (1u << 3))) { // CCxDE without CCDS
+        request_dma(channel + 1);
+    }
     switch (mode(channel)) {
     case 1: c.ref = true; break;  // active on match
     case 2: c.ref = false; break; // inactive on match
@@ -566,8 +582,33 @@ void Stm32F1Timer::pin_changed(int port, int pin, bool level)
         }
         channel.ccr = channel.ccr_preload = counter_at(host_.now_cycles());
         sr_ |= 1u << (c + 1);
+        if ((dier_ & (1u << (9 + c))) && !(cr2_ & (1u << 3))) {
+            request_dma(c + 1); // the DMA takes the captured value
+        }
         update_irqs();
     }
+    flush_dma();
+}
+
+void Stm32F1Timer::request_dma(int request)
+{
+    if (host_.timer_dma_wired()) {
+        dma_pending_ |= 1u << request;
+    }
+}
+
+void Stm32F1Timer::flush_dma()
+{
+    if (in_dma_) {
+        return;
+    }
+    in_dma_ = true;
+    while (dma_pending_ != 0) {
+        const int request = std::countr_zero(dma_pending_);
+        dma_pending_ &= dma_pending_ - 1;
+        host_.timer_dma(number_, request);
+    }
+    in_dma_ = false;
 }
 
 void Stm32F1Timer::report(std::uint32_t feature, const char* text)
@@ -593,6 +634,7 @@ bool Stm32F1Timer::write(std::uint32_t offset, unsigned size, std::uint32_t valu
     const unsigned shift = 8 * (offset & 3u);
     const std::uint32_t mask = (size == 4 ? 0xFFFFFFFFu : ((1u << (8 * size)) - 1u)) << shift;
     write32(offset & ~3u, (value << shift) & mask, mask);
+    flush_dma();
     return true;
 }
 
@@ -663,8 +705,8 @@ void Stm32F1Timer::write32(std::uint32_t offset, std::uint32_t value, std::uint3
     }
     case DIER:
         dier_ = merge(dier_) & 0x7FFFu;
-        if (dier_ & 0x5F00u) {
-            report(F_DMA, "timer DMA requests");
+        if ((dier_ & (host_.timer_dma_wired() ? 0x6000u : 0x7F00u)) != 0) {
+            report(F_DMA, host_.timer_dma_wired() ? "the trigger and commutation DMA requests" : "timer DMA requests");
         }
         break;
     case SR: sr_ &= (value | ~mask) | ~0x1EFFu; break; // rc_w0
@@ -681,6 +723,9 @@ void Stm32F1Timer::write32(std::uint32_t offset, std::uint32_t value, std::uint3
                     ch_[static_cast<std::size_t>(c)].ccr = counter_at(now);
                 }
                 sr_ |= 1u << (c + 1);
+                if (dier_ & (1u << (9 + c))) {
+                    request_dma(c + 1);
+                }
             }
         }
         if (v & (1u << 6)) {
