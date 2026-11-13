@@ -8,7 +8,8 @@
 //   SPI1 (PA5 SCK, PA7 MOSI) with PA4 as the latch: a 74HC595 counts every
 //     250 ms (HAL_SPI_Transmit).
 //   SPI2 (PB13 SCK, PB15 MOSI, 16-bit frames) with PB12 as LOAD: a MAX7219
-//     shows a smiley on its 8x8 matrix; the last row counts.
+//     shows a smiley on its 8x8 matrix; the last row counts. The setup goes
+//     out again every second, so a MAX7219 that missed it recovers.
 //   I2C1 (PB6 SCL, PB7 SDA, 100 kHz): writes "SimNodus" into a 24C02 at 0x50
 //     (HAL_I2C_Mem_Write), waits for its write cycle (HAL_I2C_IsDeviceReady),
 //     reads it back (HAL_I2C_Mem_Read); reads the LM75 at 0x48 every second.
@@ -77,6 +78,21 @@ static void max7219(uint8_t reg, uint8_t value)
     HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, GPIO_PIN_RESET);
     HAL_SPI_Transmit(&hspi2, (uint8_t*)&word, 1, 10);
     HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, GPIO_PIN_SET);
+}
+
+static const uint8_t smiley[8] = {0x3C, 0x42, 0xA5, 0x81, 0xA5, 0x99, 0x42, 0x3C};
+
+static void max7219_setup(uint8_t last_row)
+{
+    max7219(0x0F, 0); // display test off
+    max7219(0x09, 0); // no decoding
+    max7219(0x0B, 7); // scan all eight digits
+    max7219(0x0A, 8); // intensity
+    for (uint8_t row = 0; row < 7u; ++row) {
+        max7219((uint8_t)(row + 1u), smiley[row]);
+    }
+    max7219(8, last_row);
+    max7219(0x0C, 1); // normal operation
 }
 
 static void MX_GPIO_Init(void)
@@ -164,15 +180,7 @@ int main(void)
 
     print("f4_hal_buses\r\n");
     shift_register(0);
-    static const uint8_t smiley[8] = {0x3C, 0x42, 0xA5, 0x81, 0xA5, 0x99, 0x42, 0x3C};
-    max7219(0x0F, 0);
-    max7219(0x09, 0);
-    max7219(0x0B, 7);
-    max7219(0x0A, 8);
-    for (uint8_t row = 0; row < 8u; ++row) {
-        max7219((uint8_t)(row + 1u), smiley[row]);
-    }
-    max7219(0x0C, 1);
+    max7219_setup(smiley[7]);
 
     static const char text[8] = {'S', 'i', 'm', 'N', 'o', 'd', 'u', 's'};
     char out[48];
@@ -202,6 +210,7 @@ int main(void)
         }
         if (now - measured >= 1000u) {
             measured += 1000u;
+            max7219_setup((uint8_t)count);
             uint8_t raw[2];
             p = out;
             if (HAL_I2C_Mem_Read(&hi2c1, LM75, 0x00, I2C_MEMADD_SIZE_8BIT, raw, 2, 50) != HAL_OK) {

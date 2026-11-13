@@ -6,6 +6,8 @@
 //     binary count, one step every 250 ms.
 //   SPI2 (PB13 SCK, PB15 MOSI, 16-bit frames) with PB12 as LOAD: a MAX7219
 //     shows a smiley on an 8x8 LED matrix; its last row shows the count.
+//     The whole setup goes out again every second, so a MAX7219 that missed
+//     it (powered up after the STM32, a glitch on its 5 V) recovers.
 //   I2C1 (PB6 SCL, PB7 SDA, 100 kHz): writes "SimNodus" into a 24C02 at
 //     0x50 (address 0x10), waits for its write cycle by acknowledge polling,
 //     reads it back; reads the LM75 at 0x48 every second.
@@ -57,6 +59,21 @@ static void max7219(uint32_t reg, uint32_t value)
     GPIO_BSRR(PORT_B) = 1u << 12; // LOAD rising: the word takes effect
 }
 
+static const uint8_t smiley[8] = {0x3C, 0x42, 0xA5, 0x81, 0xA5, 0x99, 0x42, 0x3C};
+
+static void max7219_setup(uint32_t count)
+{
+    max7219(0x0F, 0);    // display test off
+    max7219(0x09, 0);    // no decoding
+    max7219(0x0B, 7);    // scan all eight digits
+    max7219(0x0A, 8);    // intensity
+    for (uint32_t row = 0; row < 7u; ++row) {
+        max7219(row + 1u, smiley[row]);
+    }
+    max7219(8, count & 0xFFu); // the last row: the count (the smiley's chin at first)
+    max7219(0x0C, 1);    // normal operation
+}
+
 static void print_temperature(void)
 {
     struct line l;
@@ -96,15 +113,7 @@ int main(void)
     SPI_CR1(SPI2_BASE) = (1u << 2) | (2u << 3) | (1u << 8) | (1u << 9) | (1u << 11) | (1u << 6);
 
     shift_register(0);
-    static const uint8_t smiley[8] = {0x3C, 0x42, 0xA5, 0x81, 0xA5, 0x99, 0x42, 0x3C};
-    max7219(0x0F, 0);    // display test off
-    max7219(0x09, 0);    // no decoding
-    max7219(0x0B, 7);    // scan all eight digits
-    max7219(0x0A, 8);    // intensity
-    for (uint32_t row = 0; row < 8u; ++row) {
-        max7219(row + 1u, smiley[row]);
-    }
-    max7219(0x0C, 1);    // normal operation
+    max7219_setup(smiley[7]);
 
     struct line l;
     l.length = 0; // no initializer: without a C library there is no memset
@@ -149,6 +158,7 @@ int main(void)
         }
         if (now - measured >= 1000u) {
             measured += 1000u;
+            max7219_setup(count);
             print_temperature();
         }
     }

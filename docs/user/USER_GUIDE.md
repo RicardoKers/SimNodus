@@ -375,7 +375,8 @@ While running:
   the wheel for the DHT22's humidity) or an HC-SR04 (distance); the value
   shows next to the symbol.
 - A click on a part's name or value text, or Ctrl+click, selects it
-  instead of working its control, to see its properties and live values.
+  instead of working its control, to see its properties and live values. A
+  potentiometer or a sensor is also selected by a click without dragging.
 - LEDs, lamps and display segments glow with their current, averaged over
   the last 20 ms as the eye sees a multiplexed display, and as bright as the
   eye would see them (an LED at a few milliamperes looks clearly lit); meters show

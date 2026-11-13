@@ -756,8 +756,8 @@ compared with a real chip yet, and only part of the chip is simulated.
   simulated: nothing runs, and the Messages panel says so.
 - **Serial ports**: a port reaches a pin only when the pin is in alternate
   function mode with the port's function number (7 for USART1 to USART3,
-  8 for UART4, UART5 and USART6), as on the chip. The Serial Terminal
-  lists the six ports.
+  8 for UART4, UART5 and USART6), as on the chip. The Signal Analyzer's
+  UART tab lists the six ports.
 - **Timers**: PWM and the other output compare modes, the complementary
   outputs of TIM1 and TIM8 with their dead time, input capture on one or
   both edges, the encoder interface (modes 1 to 3), one-pulse mode, the

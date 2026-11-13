@@ -685,6 +685,7 @@ bool SchematicView::handle_control_press(model::Id id, const QPointF& scene_poin
         break;
     case library::Interactive::Kind::Potentiometer: {
         pot_drag_ = id;
+        pot_turned_ = false;
         pot_start_value_ = value;
         pot_start_point_ = mapFromScene(scene_point);
         // Dragging along the wiper's track on screen (0 % towards 100 %) turns it
@@ -990,6 +991,11 @@ void SchematicView::mouseMoveEvent(QMouseEvent* event)
     if (pot_drag_) {
         // Moving along the track (pot_direction_) turns the wiper the same way; 200 px is the full range.
         const QPointF moved = position - pot_start_point_;
+        if (!pot_turned_ && moved.manhattanLength() <QApplication::startDragDistance()) {
+            event->accept(); // not yet a drag: a click without moving selects the part
+            return;
+        }
+        pot_turned_ = true;
         const double change = (moved.x() * pot_direction_.x() + moved.y() * pot_direction_.y()) / 200.0;
         emit control_changed(pot_drag_, std::clamp(pot_start_value_ + change, 0.0, 1.0));
         event->accept();
@@ -1102,7 +1108,11 @@ void SchematicView::mouseReleaseEvent(QMouseEvent* event)
         return;
     }
     if (pot_drag_) {
-        pot_drag_ = model::no_id;
+        const model::Id clicked = std::exchange(pot_drag_, model::no_id);
+        if (!pot_turned_ && scene_) {
+            // A click without dragging selects the part (its properties and live values).
+            scene_->select_ids({clicked});
+        }
         event->accept();
         return;
     }

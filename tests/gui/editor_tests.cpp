@@ -316,6 +316,23 @@ private slots:
         (void)rv;
     }
 
+    void clicking_a_sensor_while_running_selects_it()
+    {
+        // Owner's report of 2026-11-13: an LM75 could not be selected while
+        // running, every click went to its temperature. A click without
+        // dragging selects the part and leaves its value alone.
+        const model::Id u = place("lm75", {0, 0});
+        bool changed = false;
+        connect(view(), &SchematicView::control_changed, this, [&changed](model::Id, double) { changed = true; });
+        view()->set_running(true);
+        window_->scene()->clearSelection();
+        QTest::mousePress(view()->viewport(), Qt::LeftButton, Qt::NoModifier, at({0, 0}));
+        QTest::mouseRelease(view()->viewport(), Qt::LeftButton, Qt::NoModifier, at({0, 0}));
+        view()->set_running(false);
+        QVERIFY(!changed);
+        QCOMPARE(window_->scene()->selected_ids(), (std::set<model::Id>{u}));
+    }
+
     void dragging_a_joystick_moves_both_axes_and_springs_back()
     {
         // SN-273: the stick follows the mouse on both axes and returns to the

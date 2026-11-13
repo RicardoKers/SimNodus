@@ -311,7 +311,7 @@
         -50
       ],
       "id": 40,
-      "text": "STM32F407VET6 (experimental): the bare chip with a 25 MHz crystal.\nThe firmware turns the HSE on, runs the PLL at 168 MHz and prints the\nclocks on USART1 (PA9, 115200 baud): open Simulate > Serial Terminal.\nLED1 on PC13 blinks at 1 Hz. SW1 resets the chip.\nTry: change Y1 to 8M (the baud rate is wrong, as on the bench), or\ndelete Y1 (the firmware waits for the HSE; see the Messages panel).\nA busy firmware at 168 MHz runs below real time."
+      "text": "STM32F407VET6 (experimental): the bare chip with a 25 MHz crystal.\nThe firmware turns the HSE on, runs the PLL at 168 MHz and prints the\nclocks on USART1 (PA9, 115200 baud): Window > Signal Analyzer, UART tab.\nLED1 on PC13 blinks at 1 Hz. SW1 resets the chip.\nTry: change Y1 to 8M (the baud rate is wrong, as on the bench), or\ndelete Y1 (the firmware waits for the HSE; see the Messages panel).\nA busy firmware at 168 MHz runs below real time."
     }
   ],
   "probes": [

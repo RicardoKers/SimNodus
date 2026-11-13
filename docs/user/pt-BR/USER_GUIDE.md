@@ -1,4 +1,4 @@
-<!-- source: USER_GUIDE.md sha256 014a8d4cbf2365bd9aca23adf14dede0aac6e12a1dcf10b4c56ceb838446a4bb -->
+<!-- source: USER_GUIDE.md sha256 04b04080a84d202f6d4ff1826b163f2922f21bed25401277ad1ae904f8fe7db1 -->
 # Guia do usuário do SimNodus
 
 O SimNodus é um simulador para sala de aula: você desenha um circuito, aperta
@@ -400,7 +400,8 @@ Durante a execução:
   aparece ao lado do símbolo.
 - Um clique no nome ou no valor de uma peça, ou Ctrl+clique, seleciona a
   peça em vez de acionar o seu controle, para ver as suas propriedades e os
-  valores ao vivo.
+  valores ao vivo. Um potenciômetro ou um sensor também é selecionado por um
+  clique sem arrastar.
 - LEDs, lâmpadas e segmentos de displays acendem conforme a corrente, com a
   média dos últimos 20 ms, como o olho vê um display multiplexado, e com o
   brilho que o olho perceberia (um LED com poucos miliamperes parece

@@ -1,4 +1,4 @@
-<!-- source: MICROCONTROLLER.md sha256 019f70fead20965e99d8818de6c1486787ade867e4adb6d9fb7da7f2a227e7da -->
+<!-- source: MICROCONTROLLER.md sha256 cc8c46d9f72f129a653287a392ed3a6d71691737d3e3ea94b5e5f26e52bc7b9b -->
 # Microcontrolador: o que é simulado
 
 O SimNodus executa o firmware da **Blue Pill (STM32F103C8)** em seu próprio emulador
@@ -782,8 +782,8 @@ chip real ainda, e só parte do chip é simulada.
   nada roda, e o painel Mensagens avisa.
 - **Portas seriais**: uma porta só chega a um pino quando o pino está em
   modo de função alternativa com o número de função da porta (7 para USART1
-  a USART3, 8 para UART4, UART5 e USART6), como no chip. O Terminal Serial
-  lista as seis portas.
+  a USART3, 8 para UART4, UART5 e USART6), como no chip. A aba UART do Analisador
+  de sinais lista as seis portas.
 - **Timers**: PWM e os outros modos de comparação de saída, as saídas
   complementares do TIM1 e do TIM8 com seu tempo morto, captura de entrada
   numa ou nas duas bordas, a interface de encoder (modos 1 a 3), o modo de

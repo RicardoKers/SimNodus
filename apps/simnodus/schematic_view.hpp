@@ -185,6 +185,7 @@ private:
     model::Id pot_drag_ = model::no_id;
     double pot_start_value_ = 0.0;
     QPoint pot_start_point_;
+    bool pot_turned_ = false; // the drag went past the drag distance; a click alone selects the part
     QPointF pot_direction_{0, 1}; // screen direction of the wiper's track, 0 % to 100 %
 
     int next_probe_color_ = 0;

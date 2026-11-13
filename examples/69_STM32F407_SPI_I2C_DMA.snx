@@ -1383,7 +1383,7 @@
         -64
       ],
       "id": 176,
-      "text": "STM32F407VET6 (experimental): SPI, I2C and DMA, at 16 MHz (HSI).\nSPI1 (PA5, PA7) shifts a count into the 74HC595 (PA4 latches it): the LEDs count every 250 ms.\nSPI2 (PB13, PB15, 16-bit frames; PB12 is LOAD) draws a smiley on the MAX7219's matrix; its last row counts.\nI2C1 (PB6, PB7, 4k7 pull-ups) writes \"SimNodus\" into the 24C02 and reads it back, then reads the LM75.\nUSART1 (PA9, 115200 baud) prints through DMA2: open Simulate > Serial Terminal.\nTry: change U5's temperature while running, or delete R10 (the bus stops; see the Messages panel)."
+      "text": "STM32F407VET6 (experimental): SPI, I2C and DMA, at 16 MHz (HSI).\nSPI1 (PA5, PA7) shifts a count into the 74HC595 (PA4 latches it): the LEDs count every 250 ms.\nSPI2 (PB13, PB15, 16-bit frames; PB12 is LOAD) draws a smiley on the MAX7219's matrix; its last row counts.\nI2C1 (PB6, PB7, 4k7 pull-ups) writes \"SimNodus\" into the 24C02 and reads it back, then reads the LM75.\nUSART1 (PA9, 115200 baud) prints through DMA2: Window > Signal Analyzer, UART tab.\nThe SPI clocks (1 and 2 MHz) are faster than the circuit's 0.1 ms step: the scope shows their average,\nthe Signal Analyzer's logic lanes (or SPI decoder) show the frames.\nTry: change U5's temperature while running, or delete R10 (the bus stops; see the Messages panel)."
     }
   ],
   "probes": [
