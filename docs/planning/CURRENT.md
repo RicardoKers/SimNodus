@@ -320,7 +320,7 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
    68, 69, 70 and 71 behave as in the simulator (69 after a breadboard
    wiring fix; its MAX7219 on 5 V takes the 3.3 V levels; a 24C08 works for
    the 24C02); a run now warns about 5 V chips below their datasheet's high
-   input level (`input_high_ratio`). Next: the owner records numbers for G12c.7, tries STM32CubeIDE's debugger on example 67;
+   input level (`input_high_ratio`); example 71's time and voltages are similar on the board (G12c.7). Next: the owner tries STM32CubeIDE's debugger on example 67;
    then SN-299, the report. Not done: the supply voltage is not read, PH0/PH1 are
    not GPIO, the pinout and the alternate function table are from memory
    of the datasheet. STM32CubeF4 1.28.3 is in ~/STM32Cube/Repository.
