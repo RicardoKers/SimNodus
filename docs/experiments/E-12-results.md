@@ -3,14 +3,12 @@
 Plan and gates: [E-12-plan.md](E-12-plan.md). This report grows with the
 work; a gate is marked met only with its numbers here.
 
-Status on 2026-11-12: **G12a (the Cortex-M4F core) met on the host**, with
-the limits listed under it. **The STM32F407 machine (SN-294) runs the first
-four owned firmware, and the chip is a part on the diagram (SN-295, example
-67)**; the timers, the ADCs and the DAC are simulated (SN-297, example 68),
-and SPI, I2C, DMA, the RTC, the watchdogs, CRC and the RNG (SN-298,
-examples 69 to 71): **G12c.1 to G12c.6 met on the host** with the limits
-listed under them. Nothing was compared
-with the owner's chip yet (SN-296, G12c.7).
+Status on 2026-11-13: **G12a met on the host; G12c met on the host, and
+G12c.7 by the owner's comparison on the board; G12b met on the host except
+what only the board answers** (G12b.5 `f4_float`'s checksum, G12b.7
+STM32CubeIDE's debugger, G12b.9 the blink period and the timing
+calibration with `f4_timing`). The review of every criterion is in
+[Gate review (SN-299)](#gate-review-sn-299) below.
 
 ## Prerequisites (SN-292)
 
@@ -304,10 +302,73 @@ I2C are masters only, without I2S, CRC, TI mode or the I2C noise filters;
 the LSI is exactly 32 kHz (a chip's varies from 17 to 47 kHz); the RNG's
 numbers are a fixed sequence.
 
+## Gate review (SN-299)
+
+Prepared on 2026-11-13 for the review with the owner. "Host" means measured
+by the tests on the owner's laptop; "board" means on the owner's STM32F407VET6
+board (25 MHz crystal) with the owner's instruments.
+
+**`f4_timing`** (new, `examples/firmware/f4_timing`): the five loops of the
+plan grew to 27, as `cycle_loops` did for the Blue Pill: integer, loads and
+stores (from SRAM and from the flash), multiply and divide, branches and
+calls, `LDM` and `PUSH`/`POP`, `SMLAD`, the FPU's add, multiply, fused
+multiply-add, divide, square root, `VLDR` and `VMOV`, a 2 KiB loop (twice
+the ART accelerator's instruction cache), three C functions (sort, CRC-32,
+a float filter) and SysTick entries with and without lazy stacking. They run
+at 16 MHz with no wait state, then at 168 MHz with 5 wait states in three
+setups: prefetch and both caches (STM32CubeMX's), the caches without
+prefetch, and the accelerator off. In the simulator the 16 MHz block has
+the Cortex-M4 manual's counts (`alu 11002`, `vadd 11003`, `vfma 27002`,
+`vdiv 115003`: one, one, three and fourteen cycles); the 168 MHz blocks are
+the provisional model (no wait state with any of the accelerator on, every
+flash access paying the latency with it off), which the board's report will
+replace. Test: `f4: the timing firmware reports its loops in four flash
+setups`.
+
+| Criterion | Host | Board | Verdict |
+|---|---|---|---|
+| G12a.1 instructions against the pseudocode | met by test | `f4_float` (G12b.5) is the check | **met on the host**; the documents' text not read |
+| G12a.2 random differential | met (6 000 000 results, 0 differences) | — | **met** |
+| G12a.3 lazy stacking | met (seven scenarios) | — | **met**; a PendSV context switch with an RTOS not tested |
+| G12a.4 speed of the core | 133 vs 135 MIPS; 70-78 MIPS with FPU | — | **met** |
+| G12a.5 decoding robustness | met | — | **met** |
+| G12a.6 the Cortex-M3 unchanged | met (-0.8 to -1.7 %) | — | **met** |
+| G12b.1 `f4_blink` period in cycles | 501.254 ms for the busy loop | PB0's period not measured yet | **open: board** |
+| G12b.2 clock tree from the crystal | met | example 67 printed the `SYSCLK` line and the ticks at 115200 baud | **met** |
+| G12b.3 GPIO and alternate functions | met | examples 67-71 drove their pins as simulated | **met**; 5 V tolerance not modelled |
+| G12b.4 the six serial ports | met for USART1 and USART2 | USART1 | **met for two ports**; the other four share the model |
+| G12b.5 `f4_float`'s checksum | the five lines | not run yet | **open: board** |
+| G12b.6 resets | met | example 70 behaved as simulated (the watchdog's reset not reported separately) | **met on the host** |
+| G12b.7 debugging with STM32CubeIDE | the GDB target and the Register Viewer by test | not tried yet | **open: board** |
+| G12b.8 speed in the circuit | `f4_blink` 7.7x; examples 70, 71 5-6x; busy loop at 168 MHz 0.79-0.85x, stated in the guide | — | **met** |
+| G12b.9 board comparison and calibration | `f4_timing` ready | `f4_clock` matched (example 67); `f4_float`, the blink period and `f4_timing` not run | **open: board** |
+| G12b.10 repeatable runs | met | — | **met** |
+| G12b.11 the other chips unchanged | ctest, `examples_pass.py`, `examples_gui_pass.py` | — | **met** |
+| G12c.1 timers | met (limits in SN-297) | example 71's PWM | **met on the host** |
+| G12c.2 ADC | met | example 68 as simulated | **met on the host**, labeled approximate |
+| G12c.3 DAC | met | example 71's PA4 similar | **met on the host** |
+| G12c.4 SPI and I2C with the parts and the HAL | met | example 69 (after a wiring fix), a 24C08 for the 24C02 | **met** |
+| G12c.5 DMA streams | met | examples 69, 71 print through DMA | **met on the host** |
+| G12c.6 RTC | met | example 70 as simulated | **met on the host** |
+| G12c.7 `f4_station` on the board | the trace | similar time, PWM_AVG and PA4 (by eye, values not written down) | **met by the owner's comparison**, not to the plan's tolerances |
+
+**Reading of DE12.** By the plan's outcomes, G12a passes and G12b passes
+except the three board items; the part stays **experimental** until
+G12b.9. Nothing measured asks for a stop or a speed week. What closes
+E-12 is one session on the bench, about half an hour:
+
+1. `f4_float`: the five checksum lines and `done` (G12b.5).
+2. `f4_timing`: one whole report from `f4_timing v1` to `end` (G12b.9);
+   the timing model is then calibrated from it, as SN-181 did for the
+   Blue Pill, with a test holding the numbers within 2 %.
+3. `f4_blink` with the logic analyzer: PB0's half period (G12b.1, G12b.9).
+4. STM32CubeIDE's debugger against example 67 (G12b.7): a breakpoint,
+   stepping, the FPU registers, a peripheral register.
+
+Then the ADR for the STM32F4 on the own emulator, and the owner's
+decision on dropping the experimental label.
+
 ## Next
 
-SN-296: the owner runs `f4_float`, `f4_clock` and `f4_blink` on the board
-([how](../../examples/firmware/f4_common/README.md)), tries STM32CubeIDE's
-debugger against example 67, and the timing is calibrated; `f4_analog`,
-`f4_buses`, `f4_rtc` and `f4_station` (G12c.7) can be compared too. Then
-SN-299: the report and the review of the gates with the owner.
+The owner's bench session above (SN-296); then the calibration, the ADR and
+DE12 (SN-299).

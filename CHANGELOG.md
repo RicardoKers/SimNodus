@@ -4,6 +4,10 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-11-13, E-12 / SN-299)
+
+- Firmware `f4_timing` for the STM32F407's timing calibration: it counts the core cycles of 27 loops (integer, memory, divides, DSP, FPU, a loop larger than the flash cache, C code, interrupts) at 16 MHz and at 168 MHz in three ART accelerator setups and prints them on USART1, to be run on a real board as `cycle_loops` was for the Blue Pill. The E-12 report has the review of every gate.
+
 ### Added (2026-11-13, the owner's board tests of E-12)
 
 - **A warning for 5 V chips on 3.3 V boards.** A 74HC595, MAX7219, 24C02, LM75 or WS2812B on 5 V wants 3.5 V as a high input (0.7 of its supply, from its datasheet); when a 3.3 V board drives its inputs directly, the Messages panel says so when the run starts. The simulator still reads those levels as high, as many real chips do. Examples 26, 40, 48 and 69 show it. Library parts declare the level with `input_high_ratio`.

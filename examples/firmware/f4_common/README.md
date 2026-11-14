@@ -21,6 +21,7 @@ arm-none-eabi-gcc of STM32CubeIDE for the Cortex-M4 with its FPU
 | `f4_hal_buses` | HSI 16 MHz | `f4_buses` written as an STM32CubeIDE project with the STM32CubeF4 HAL (`main.c`, `stm32f4xx_hal_conf.h`, `cube.json`: the package's files it is built with, newlib-nano, `stm32f407ve_cube.ld`); USART1 through `HAL_UART_Transmit_DMA`; prints `f4_hal_buses`, then the same lines. It runs on example 69's circuit with U1's firmware changed |
 | `f4_rtc` | HSI 16 MHz; RTC on the LSE (32.768 kHz on PC14, PC15) or the LSI | sets the calendar to 2026-11-12 12:00:00 on its first start, then prints the time every second (wakeup timer) and `alarm` at second 05; backup register 1 counts the starts; the independent watchdog (2 s) resets the chip while PA0 is high; PC13 toggles every second |
 | `f4_station` | 25 MHz crystal, PLL at 168 MHz; RTC as `f4_rtc` | sleeps until the RTC's second, reads an LM75 on I2C1, sets TIM3's 1 kHz PWM on PA6 (10 counts of 1000 per degree) and the DAC on PA4 (40 codes per degree), prints `12:00:01 2026-11-12 lm75 23.5 pwm 235 dac 940` through DMA2 |
+| `f4_timing` | HSI 16 MHz, then the 25 MHz crystal and the PLL at 168 MHz | counts the core cycles of 27 loops (integer, loads and stores, divides, DSP, FPU, a 2 KiB loop, C code, interrupts) with DWT CYCCNT at 16 MHz and at 168 MHz with 5 wait states in three ART accelerator setups; prints them every 3 s |
 
 ## In the simulator
 
@@ -33,6 +34,7 @@ simnodus-emu --stm32f407 examples/firmware/f4_float/f4_float.elf --ms 300 --quie
 simnodus-emu --stm32f407 examples/firmware/f4_clock/f4_clock.elf --crystal 25000000 --ms 2100 --quiet
 simnodus-emu --stm32f407 examples/firmware/f4_blink/f4_blink.elf --ms 1100
 simnodus-emu --stm32f407 examples/firmware/f4_button/f4_button.elf --input PA0=0@100 --input PA0=1@200
+simnodus-emu --stm32f407 examples/firmware/f4_timing/f4_timing.elf --crystal 25000000 --ms 400 --quiet
 ```
 
 ## On a real chip (the comparison of gate G12b)
@@ -65,6 +67,13 @@ What the simulator prints, to compare:
   501.25 ms a half period, 8.02 cycles a turn; the real number is what the
   timing model of SN-296 will be calibrated with).
 - `f4_button`: a wire from PA0 to ground as the button.
+- `f4_timing` (the calibration of the timing model, G12b.9): the 25 MHz
+  crystal. It prints four blocks of `name cycles` lines, `f4_timing v1` to
+  `end`, again every 3 s; copy one whole report from the terminal. The
+  simulator's first block (16 MHz, no wait state) has the Cortex-M4's
+  manual counts, for example `alu 11002`, `vadd 11003`, `vdiv 115003`; its
+  168 MHz blocks are still a guess (no wait state with the accelerator on,
+  all five with it off) that the board's numbers will replace.
 - `f4_analog`: a potentiometer between 3.3 V and ground with its wiper on
   PA1. At 1.00 V the simulator prints `adc 1241`; with the logic analyzer
   on PA8 and PB13 each edge comes 0.5 us after the other's, and PA8 is high
