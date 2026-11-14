@@ -2022,8 +2022,8 @@ Permitir para este projeto neste computador? Sem isso, a rede das placas fica de
             <translation>Clique</translation>
         </message>
         <message>
-            <source>Toggle a switch; hold a push button or a key of a keypad</source>
-            <translation>Alternar uma chave; segurar um botão ou uma tecla de um teclado</translation>
+            <source>Toggle a switch; hold a push button or a key of a keypad; select a potentiometer or a sensor</source>
+            <translation>Alternar uma chave; segurar um botão ou uma tecla de um teclado; selecionar um potenciômetro ou um sensor</translation>
         </message>
         <message>
             <source>Turn a potentiometer or an adjustable source</source>

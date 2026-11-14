@@ -75,7 +75,15 @@ What the simulator prints, to compare:
   PB7 with 4.7 kΩ pull-ups; a 74HC595 on PA4, PA5, PA7 and a MAX7219 on
   PB12, PB13, PB15 as in example 69. The lines `eeprom SimNodus` and
   `lm75 <temperature>`; with the logic analyzer, SPI1's clock at 1 MHz and
-  SPI2's at 2 MHz.
+  SPI2's at 2 MHz. The SPI pins are busy only in short bursts (about 10 us
+  every 250 ms, plus the MAX7219's setup every second): on a scope use
+  normal or single trigger on the rising edge of PA5 or PB13 at 2-5 us per
+  division; in auto mode the line looks idle. A MAX7219 or a 74HC595 on
+  5 V needs 3.5 V (MAX7219) or 3.15 V (74HC at 4.5 V) as a high input, at
+  or above the STM32's 3.3 V: power the 74HC595 from 3.3 V (or use a
+  74HCT595) and, if the matrix stays dark, check the MAX7219's input levels.
+  A 24C08 answers at 0x50 to 0x53 (A2 to ground, WP to ground for writes);
+  0x50 is its first block, so it works as the 24C02 here.
 - `f4_rtc`: with the board's 32.768 kHz crystal the first line after
   `start 1` comes one second after the calendar is set; the seconds of the
   board and of the simulator must not drift apart by more than the

@@ -1,4 +1,4 @@
-<!-- source: MICROCONTROLLER.md sha256 019f70fead20965e99d8818de6c1486787ade867e4adb6d9fb7da7f2a227e7da -->
+<!-- source: MICROCONTROLLER.md sha256 544a836e29d3d11680d5997bb8c8bba2efd8b6cb584c8e6f98f7eab89a623d65 -->
 # Microcontrolador: o que é simulado
 
 O SimNodus executa o firmware da **Blue Pill (STM32F103C8)** em seu próprio emulador
@@ -55,6 +55,13 @@ faixas `U2.Q0`).
 
 - Ligue o pino de alimentação do chip (VCC) a uma fonte CC ou ao 3V3 da placa e
   o GND ao terra; sem eles o chip não faz nada e o painel Mensagens avisa.
+- Um chip em 5 V ligado a uma placa de 3,3 V lê os níveis altos dela: o
+  SimNodus não modela o limiar de entrada. Quando o datasheet pede mais do que
+  a placa dá (0,7 da alimentação: 3,5 V para o 74HC595, o MAX7219, o 24C02, o
+  LM75 e o WS2812B em 5 V), o painel Mensagens avisa ao iniciar a simulação.
+  Muitos chips funcionam assim mesmo, como o MAX7219 do exemplo 69 numa placa
+  de teste; um buffer 74HCT em 5 V entre eles é o caminho seguro. Entradas
+  com resistor de pull-up não são verificadas.
 - Um chip que compartilha uma rede com um pino da placa, diretamente ou através
   de outro chip, roda com essa placa. Um chip sem ligação a pino de placa roda
   sozinho (uma ROM endereçada por um contador, um 74HC595 com clock dado por um
@@ -782,8 +789,8 @@ chip real ainda, e só parte do chip é simulada.
   nada roda, e o painel Mensagens avisa.
 - **Portas seriais**: uma porta só chega a um pino quando o pino está em
   modo de função alternativa com o número de função da porta (7 para USART1
-  a USART3, 8 para UART4, UART5 e USART6), como no chip. O Terminal Serial
-  lista as seis portas.
+  a USART3, 8 para UART4, UART5 e USART6), como no chip. A aba UART do Analisador
+  de sinais lista as seis portas.
 - **Timers**: PWM e os outros modos de comparação de saída, as saídas
   complementares do TIM1 e do TIM8 com seu tempo morto, captura de entrada
   numa ou nas duas bordas, a interface de encoder (modos 1 a 3), o modo de

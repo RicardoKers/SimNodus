@@ -1,6 +1,6 @@
 # Current state
 
-Updated: 2026-11-12 (the Register Viewer SN-290 and SN-291 on main after 0.18.0; the STM32F407VET6 track E-12: the Cortex-M4F core (G12a on the host), the machine SN-294, the part SN-295 (example 67), the timers, ADC and DAC SN-297 (example 68) and SPI, I2C, DMA, RTC SN-298 (examples 69 to 71) done, the board comparison SN-296 waits for the owner; release 0.18.0 published: the chart recorder SN-281, the review and speed passes SN-282 to SN-284, the owner's requests SN-285, the protocol decoders SN-286 and SN-288, the chart fix SN-287 and the Memory Viewer's editing SN-289, tested by the owner on the 2026-11-11 previews; DE9 waits for the owner). Keep this file short: present state, last results, next
+Updated: 2026-11-13 (the owner's first F4 board results; the Register Viewer SN-290 and SN-291 on main after 0.18.0; the STM32F407VET6 track E-12: the Cortex-M4F core (G12a on the host), the machine SN-294, the part SN-295 (example 67), the timers, ADC and DAC SN-297 (example 68) and SPI, I2C, DMA, RTC SN-298 (examples 69 to 71) done, the board comparison SN-296 waits for the owner; release 0.18.0 published: the chart recorder SN-281, the review and speed passes SN-282 to SN-284, the owner's requests SN-285, the protocol decoders SN-286 and SN-288, the chart fix SN-287 and the Memory Viewer's editing SN-289, tested by the owner on the 2026-11-11 previews; DE9 waits for the owner). Keep this file short: present state, last results, next
 steps. Replace it, do not append. History of the first development line
 (2026-08-31 → 2026-10-06) is in
 [archive/2026-10-legacy/CURRENT.md](../archive/2026-10-legacy/CURRENT.md);
@@ -316,9 +316,11 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
    watchdogs, CRC, the backup SRAM, ADC and DAC DMA, firmware `f4_buses`,
    `f4_rtc`, `f4_station` (`f4_common/f4_peripherals.h`), `f4_hal_buses`
    (the STM32CubeF4 HAL, `cube.json`), examples 69 to 71
-   (SN-298; G12c.1 to G12c.6 on the host). Next: SN-296, the owner runs the
-   F4 firmware on the board (`examples/firmware/f4_common/README.md`; the
-   station for G12c.7) and tries STM32CubeIDE's debugger on example 67;
+   (SN-298; G12c.1 to G12c.6 on the host). Board (2026-11-13): examples 67,
+   68, 69, 70 and 71 behave as in the simulator (69 after a breadboard
+   wiring fix; its MAX7219 on 5 V takes the 3.3 V levels; a 24C08 works for
+   the 24C02); a run now warns about 5 V chips below their datasheet's high
+   input level (`input_high_ratio`); example 71's time and voltages are similar on the board (G12c.7). Next: the owner tries STM32CubeIDE's debugger on example 67;
    then SN-299, the report. Not done: the supply voltage is not read, PH0/PH1 are
    not GPIO, the pinout and the alternate function table are from memory
    of the datasheet. STM32CubeF4 1.28.3 is in ~/STM32Cube/Repository.

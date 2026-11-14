@@ -128,6 +128,7 @@
     "supply_pin": "VDD",
     "ground_pin": "GND",
     "output_resistance": 50,
+    "input_high_ratio": 0.7,
     "driven_pins": [
       "DOUT"
     ]

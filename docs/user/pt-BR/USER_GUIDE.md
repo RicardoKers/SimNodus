@@ -1,4 +1,4 @@
-<!-- source: USER_GUIDE.md sha256 014a8d4cbf2365bd9aca23adf14dede0aac6e12a1dcf10b4c56ceb838446a4bb -->
+<!-- source: USER_GUIDE.md sha256 0489421d1b71061f769fd27462434725d93f3406793ea0b114ccb925ad6ee92a -->
 # Guia do usuário do SimNodus
 
 O SimNodus é um simulador para sala de aula: você desenha um circuito, aperta
@@ -400,7 +400,8 @@ Durante a execução:
   aparece ao lado do símbolo.
 - Um clique no nome ou no valor de uma peça, ou Ctrl+clique, seleciona a
   peça em vez de acionar o seu controle, para ver as suas propriedades e os
-  valores ao vivo.
+  valores ao vivo. Um potenciômetro ou um sensor também é selecionado por um
+  clique sem arrastar.
 - LEDs, lâmpadas e segmentos de displays acendem conforme a corrente, com a
   média dos últimos 20 ms, como o olho vê um display multiplexado, e com o
   brilho que o olho perceberia (um LED com poucos miliamperes parece
@@ -762,7 +763,9 @@ declarados para que os resultados sejam lidos corretamente.
   byte recebido chega ao firmware cerca de 0,4 ms depois do seu stop bit.
 - O modo transitório não executa microcontroladores: use o modo interativo.
 - Chips para microcontroladores só funcionam junto com uma placa e leem os
-  níveis digitalmente (um chip de 5 V aceita níveis altos de 3,3 V); os seus
+  níveis digitalmente (um chip de 5 V aceita níveis altos de 3,3 V; o painel
+  Mensagens avisa quando o datasheet pede mais, como os 3,5 V do MAX7219 e do
+  WS2812B em 5 V); os seus
   pinos em redes sem pino de placa leem o circuito com até 0,1 ms de atraso.
 
 ### Aplicativo

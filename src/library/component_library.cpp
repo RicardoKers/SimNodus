@@ -747,6 +747,12 @@ ComponentDefinition parse_definition(const json& j)
         if (m.contains("output_resistance")) {
             device.output_resistance = number(m["output_resistance"], "device.output_resistance");
         }
+        if (m.contains("input_high_ratio")) {
+            device.input_high_ratio = number(m["input_high_ratio"], "device.input_high_ratio");
+            if (device.input_high_ratio < 0 || device.input_high_ratio > 1) {
+                invalid("device.input_high_ratio must be between 0 and 1");
+            }
+        }
         device.driven_pins = strings(m, "driven_pins");
         device.analog_pins = strings(m, "analog_pins");
         device.internal_pins = strings(m, "internal_pins");

@@ -4,6 +4,16 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-11-13, the owner's board tests of E-12)
+
+- **A warning for 5 V chips on 3.3 V boards.** A 74HC595, MAX7219, 24C02, LM75 or WS2812B on 5 V wants 3.5 V as a high input (0.7 of its supply, from its datasheet); when a 3.3 V board drives its inputs directly, the Messages panel says so when the run starts. The simulator still reads those levels as high, as many real chips do. Examples 26, 40, 48 and 69 show it. Library parts declare the level with `input_high_ratio`.
+
+### Fixed (2026-11-13, the owner's board tests of E-12)
+
+- While running, an LM75, a potentiometer or another part turned by dragging could not be selected by clicking its symbol: every click went to its value. A click without dragging now selects the part; dragging and the wheel still turn it.
+- Examples 67 and 69 sent you to "Simulate > Serial Terminal", which does not exist: the serial output is in Window > Signal Analyzer, UART tab. Example 69 also says that its SPI clocks are faster than the circuit's step, so the scope shows their average and the logic lanes show the frames.
+- Firmware `f4_buses` and `f4_hal_buses` send the MAX7219's setup again every second, so a matrix that missed it at power-up recovers; the bench notes say how to catch the SPI bursts on a scope and which input levels 5 V chips need.
+
 ### Added (2026-11-12, E-12 / SN-298, experimental)
 
 - **STM32F407VET6: SPI, I2C, DMA, the RTC and the system peripherals.** SPI1 to SPI3 and I2C1 to I2C3 as masters on the pins of their alternate function, talking to the chips on the diagram (the Blue Pill's models, now shared). DMA1 and DMA2: eight streams each, serving the serial ports, the SPIs, the I2Cs, the ADCs and the DAC and the timers (update and channel events) on the channel the firmware selects, in normal, circular and double-buffer modes, and memory to memory. The RTC: a BCD calendar on a 32.768 kHz crystal between PC14 and PC15, on the LSI or on the HSE, with alarms, the wakeup timer and twenty backup registers that keep their values through a reset; the backup SRAM. The independent and window watchdogs, the CRC unit, and the random number generator (a fixed sequence, the same on every run). The ADCs and the DAC use DMA (a DAC underrun is flagged). Not simulated, and said once: I2S, slave modes, the RTC's tamper and calibration, the timers' trigger DMA request. Not yet compared with a real chip.

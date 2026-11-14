@@ -49,8 +49,8 @@
         "examples/firmware/f4_common/f4_peripherals.h"
       ],
       "elf": "examples/firmware/f4_buses/f4_buses.elf",
-      "sha256": "a0e244e0c00aebeae6c7c29e0dc038b7cc5c0576898214849c425ac61de0690a",
-      "size": 23416
+      "sha256": "1e211fd0b8f254419af866c9e00086189e1bb5dd0ab0199fd5889da916fd6330",
+      "size": 25416
     },
     "f4_button": {
       "sources": [
@@ -85,8 +85,8 @@
         "examples/firmware/f4_hal_buses/stm32f4xx_hal_conf.h"
       ],
       "elf": "examples/firmware/f4_hal_buses/f4_hal_buses.elf",
-      "sha256": "a04b7f09128ef44d6602fc37411082aa825350519dd1a043a3ccd9d89ed10754",
-      "size": 217084,
+      "sha256": "39db7d2704856ce37ed5bd5d8096311b0866ed874e9e1e94fbe53a857ec9c32c",
+      "size": 217400,
       "flags": [
         "-mcpu=cortex-m4",
         "-mthumb",

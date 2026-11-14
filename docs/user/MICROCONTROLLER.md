@@ -54,6 +54,13 @@ edge at once, and the chip's outputs drive the circuit like the board's pins
 
 - Wire the chip's supply pin (VCC) to a DC source or the board's 3V3 and its
   GND to ground; without them it does nothing and the Messages panel says so.
+- A chip on 5 V wired to a 3.3 V board reads its highs: SimNodus does not
+  model the input threshold. When the datasheet asks for more than the board
+  gives (0.7 of the supply: 3.5 V for the 74HC595, the MAX7219, the 24C02,
+  the LM75 and the WS2812B on 5 V), the Messages panel warns when the run
+  starts. Many chips still work like this, as the MAX7219 of example 69 did on
+  a test board; a 74HCT buffer on 5 V between them is the safe way.
+  Inputs with a pull-up resistor are not checked.
 - A chip that shares a net with a board pin, directly or through another
   chip, runs with that board. A chip on no board pin runs on its own (a ROM
   addressed by a counter, a 74HC595 clocked by a push button): its inputs come
@@ -756,8 +763,8 @@ compared with a real chip yet, and only part of the chip is simulated.
   simulated: nothing runs, and the Messages panel says so.
 - **Serial ports**: a port reaches a pin only when the pin is in alternate
   function mode with the port's function number (7 for USART1 to USART3,
-  8 for UART4, UART5 and USART6), as on the chip. The Serial Terminal
-  lists the six ports.
+  8 for UART4, UART5 and USART6), as on the chip. The Signal Analyzer's
+  UART tab lists the six ports.
 - **Timers**: PWM and the other output compare modes, the complementary
   outputs of TIM1 and TIM8 with their dead time, input capture on one or
   both edges, the encoder interface (modes 1 to 3), one-pulse mode, the
