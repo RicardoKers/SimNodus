@@ -1,6 +1,6 @@
 # Current state
 
-Updated: 2026-11-13 (the owner's first F4 board results; the Register Viewer SN-290 and SN-291 on main after 0.18.0; the STM32F407VET6 track E-12: the Cortex-M4F core (G12a on the host), the machine SN-294, the part SN-295 (example 67), the timers, ADC and DAC SN-297 (example 68) and SPI, I2C, DMA, RTC SN-298 (examples 69 to 71) done, the board comparison SN-296 waits for the owner; release 0.18.0 published: the chart recorder SN-281, the review and speed passes SN-282 to SN-284, the owner's requests SN-285, the protocol decoders SN-286 and SN-288, the chart fix SN-287 and the Memory Viewer's editing SN-289, tested by the owner on the 2026-11-11 previews; DE9 waits for the owner). Keep this file short: present state, last results, next
+Updated: 2026-11-13 (the owner's first F4 board results; the Register Viewer SN-290 and SN-291 on main after 0.18.0; the STM32F407VET6 track E-12: the Cortex-M4F core (G12a on the host), the machine SN-294, the part SN-295 (example 67), the timers, ADC and DAC SN-297 (example 68) and SPI, I2C, DMA, RTC SN-298 (examples 69 to 71) done, the board comparison SN-296 and the gate review SN-299 wait for the owner's bench session; release 0.18.0 published: the chart recorder SN-281, the review and speed passes SN-282 to SN-284, the owner's requests SN-285, the protocol decoders SN-286 and SN-288, the chart fix SN-287 and the Memory Viewer's editing SN-289, tested by the owner on the 2026-11-11 previews; DE9 waits for the owner). Keep this file short: present state, last results, next
 steps. Replace it, do not append. History of the first development line
 (2026-08-31 → 2026-10-06) is in
 [archive/2026-10-legacy/CURRENT.md](../archive/2026-10-legacy/CURRENT.md);
@@ -320,8 +320,14 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
    68, 69, 70 and 71 behave as in the simulator (69 after a breadboard
    wiring fix; its MAX7219 on 5 V takes the 3.3 V levels; a 24C08 works for
    the 24C02); a run now warns about 5 V chips below their datasheet's high
-   input level (`input_high_ratio`); example 71's time and voltages are similar on the board (G12c.7). Next: the owner tries STM32CubeIDE's debugger on example 67;
-   then SN-299, the report. Not done: the supply voltage is not read, PH0/PH1 are
+   input level (`input_high_ratio`); example 71's time and voltages are
+   similar on the board (G12c.7). SN-299 prepared: firmware `f4_timing`
+   (27 loops in four flash setups, the calibration's input) and the gate
+   review in the results: G12a met, G12c met (G12c.7 by the owner's
+   comparison), G12b met except G12b.1/.5/.7/.9. Next: the owner's bench
+   session (`f4_float`'s checksum, one `f4_timing` report, `f4_blink`'s
+   PB0 on the analyzer, STM32CubeIDE's debugger on example 67); then the
+   calibration, the ADR and DE12. Not done: the supply voltage is not read, PH0/PH1 are
    not GPIO, the pinout and the alternate function table are from memory
    of the datasheet. STM32CubeF4 1.28.3 is in ~/STM32Cube/Repository.
    The owner's bench: ST-LINK V2 and V3, a USB-serial adapter, a logic

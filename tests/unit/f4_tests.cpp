@@ -17,6 +17,7 @@
 #include <algorithm>
 #include <cstdint>
 #include <cstdio>
+#include <cstring>
 #include <filesystem>
 #include <initializer_list>
 #include <map>
@@ -248,6 +249,43 @@ TEST_CASE("f4: floating point and DSP firmware prints its checksums, the same on
         CHECK(t.text.at(1) == expected);
         CHECK((reg(*m, 0xE000ED88) & 0x00F00000u) == 0x00F00000u); // CPACR: the start-up turned the FPU on
     }
+}
+
+TEST_CASE("f4: the timing firmware reports its loops in four flash setups")
+{
+    // f4_timing is what the timing model will be calibrated with on the
+    // owner's chip (SN-296, G12b.9). Until then: the TRM's counts with no
+    // wait state, the accelerator hiding the five wait states, and every
+    // flash access paying them with the accelerator off.
+    F4MachineOptions options;
+    options.hse_hz = 25000000;
+    auto m = machine_with("f4_timing", options);
+    const Trace t = run(*m, 400 * ms);
+    CHECK(t.diagnostics.empty());
+    REQUIRE(t.text.count(1) == 1);
+    const std::string& text = t.text.at(1);
+    const auto from = text.find("f4_timing v1");
+    REQUIRE(from != std::string::npos);
+    REQUIRE(text.find("end\r\n", from) != std::string::npos);
+    const auto cycles = [&](const char* setup, const char* name) {
+        const auto section = text.find(setup, from);
+        REQUIRE(section != std::string::npos);
+        const auto at = text.find("\n" + std::string(name) + " ", section);
+        REQUIRE(at != std::string::npos);
+        return std::stoul(text.substr(at + std::strlen(name) + 2));
+    };
+    const char* const slow = "# 16 MHz";
+    const char* const art = "# 168 MHz, 5 wait states, prefetch and caches";
+    const char* const off = "# 168 MHz, 5 wait states, ART off";
+    CHECK(cycles(slow, "alu") == 11002);   // 8 ADDS and SUBS: one cycle each, BNE two, 1000 times
+    CHECK(cycles(slow, "vadd") == 11003);  // VADD.F32: one cycle
+    CHECK(cycles(slow, "vfma") == 27002);  // VFMA.F32: three
+    CHECK(cycles(slow, "vdiv") == 115003); // VDIV.F32: fourteen
+    CHECK(cycles(slow, "smlad") == 11002);
+    CHECK(cycles(art, "alu") == cycles(slow, "alu"));
+    CHECK(cycles(art, "c_filter") == cycles(slow, "c_filter"));
+    CHECK(cycles(off, "alu") > cycles(art, "alu"));
+    CHECK(cycles(off, "ldr_flash") > cycles(off, "ldr"));
 }
 
 TEST_CASE("f4: a push button on PA0 runs the EXTI0 handler on both edges")

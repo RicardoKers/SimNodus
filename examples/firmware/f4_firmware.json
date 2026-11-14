@@ -144,6 +144,15 @@
       "elf": "examples/firmware/f4_station/f4_station.elf",
       "sha256": "601e38850b9449f74171ba9bdd38162317676f300ff7782ba34aa95904cb287d",
       "size": 22604
+    },
+    "f4_timing": {
+      "sources": [
+        "examples/firmware/f4_timing/f4_timing.c",
+        "examples/firmware/f4_common/f4.h"
+      ],
+      "elf": "examples/firmware/f4_timing/f4_timing.elf",
+      "sha256": "ed3f701b4a0d5c5e215f80543204206842be13773f0672ab1494e6e4fdd65c20",
+      "size": 26096
     }
   }
 }
