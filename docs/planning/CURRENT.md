@@ -317,11 +317,10 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
    `f4_rtc`, `f4_station` (`f4_common/f4_peripherals.h`), `f4_hal_buses`
    (the STM32CubeF4 HAL, `cube.json`), examples 69 to 71
    (SN-298; G12c.1 to G12c.6 on the host). Board (2026-11-13): examples 67,
-   68, 70 and 71 behave as in the simulator; example 69's MAX7219 stayed
-   dark (the 24C08 used for the 24C02 worked; no firmware error
-   found; `f4_buses` now resends the MAX7219 setup each second; the README
-   has the scope and 5 V level notes). Next: the owner repeats example 69,
-   records numbers for G12c.7, tries STM32CubeIDE's debugger on example 67;
+   68, 69, 70 and 71 behave as in the simulator (69 after a breadboard
+   wiring fix; its MAX7219 on 5 V takes the 3.3 V levels; a 24C08 works for
+   the 24C02); a run now warns about 5 V chips below their datasheet's high
+   input level (`input_high_ratio`). Next: the owner records numbers for G12c.7, tries STM32CubeIDE's debugger on example 67;
    then SN-299, the report. Not done: the supply voltage is not read, PH0/PH1 are
    not GPIO, the pinout and the alternate function table are from memory
    of the datasheet. STM32CubeF4 1.28.3 is in ~/STM32Cube/Repository.

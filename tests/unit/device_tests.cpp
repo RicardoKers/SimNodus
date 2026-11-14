@@ -219,6 +219,7 @@ TEST_CASE("devices: a 74HC595 joins the board it is wired to, with its supply, p
     CHECK(!has("not connected to a microcontroller pin"));
     CHECK(has("has no supply"));
     CHECK(has(".STCP is not connected")); // the chip without supply leaves STCP open
+    CHECK(!has("as a high input")); // a chip on the board's 3.3 V reads its levels
     (void)board;
 }
 
@@ -448,7 +449,7 @@ TEST_CASE("devices: an STM32CubeIDE HAL project draws a heart on a MAX7219 over 
     CHECK(m.take_diagnostics().empty());
 }
 
-TEST_CASE("devices: example 26 wires its MAX7219 to SPI1 and a 5 V supply without warnings")
+TEST_CASE("devices: example 26 wires its MAX7219 to SPI1 and a 5 V supply, with the input level warning")
 {
     const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "26_LED_matrix_MAX7219_SPI.snx");
     REQUIRE(loaded.schematic.has_value());
@@ -461,7 +462,11 @@ TEST_CASE("devices: example 26 wires its MAX7219 to SPI1 and a 5 V supply withou
     for (const auto& w : warnings) {
         std::printf("  warning: %s\n", w.c_str());
     }
-    CHECK(warnings.empty());
+    // The owner's bench of 2026-11-13: the MAX7219 on 5 V wants 3.5 V as a high
+    // input; the Blue Pill gives 3.3 V. It often works, so it is a warning only.
+    REQUIRE(warnings.size() == 1);
+    CHECK(warnings[0].find("U2 runs on 5 V and needs 3.5 V as a high input") != std::string::npos);
+    CHECK(warnings[0].find("DIN, CLK, LOAD with 3.3 V") != std::string::npos);
     REQUIRE(requests.size() == 1);
     REQUIRE(requests[0].options.devices.size() == 1);
     CHECK(requests[0].options.devices[0].supply == 5.0);
@@ -2271,7 +2276,10 @@ TEST_CASE("devices: example 40 reads a DS18B20, a DHT22 and an HC-SR04 and light
     sim::McuEnvironment environment;
     environment.project_dir = SIMNODUS_TEST_EXAMPLES_DIR;
     REQUIRE(sim::build_mcu_requests(request.schematic, device_library(), environment, request.mcus, error, &warnings));
-    CHECK(warnings.empty());
+    // The WS2812B on 5 V wants 3.5 V on DIN; the Blue Pill gives 3.3 V (a warning only).
+    REQUIRE(warnings.size() == 1);
+    CHECK(warnings[0].find("needs 3.5 V as a high input") != std::string::npos);
+    CHECK(warnings[0].find("drives DIN with 3.3 V") != std::string::npos);
     sim::SimulationSession session;
     REQUIRE(session.start(request, error));
     const auto begin = std::chrono::steady_clock::now();

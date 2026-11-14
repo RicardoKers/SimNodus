@@ -995,6 +995,16 @@ void attach_devices(const model::Schematic& schematic, const library::ComponentL
             request.pin_model.input_high = 0.7 * request.supply;
             request.pin_model.input_low = 0.3 * request.supply;
             const std::size_t index = options.devices.size();
+            // The board's high output level: a chip on a higher supply may need more as a
+            // high input (CMOS: 0.7 of its supply, 3.5 V at 5 V) than a 3.3 V board gives.
+            const double needed_high = device.input_high_ratio * request.supply;
+            double board_high = 0.0;
+            if (const auto* board = schematic.component(requests[b].component)) {
+                if (const auto* d = library.find(board->type); d && d->mcu) {
+                    board_high = d->mcu->pin_model.supply;
+                }
+            }
+            std::vector<std::string> short_of_high; // input pins the board drives below the chip's high level
             for (const auto& pin : candidate.signals) {
                 const int n = net_of(request.component, pin);
                 if (n < 0 || constant(n)) {
@@ -1049,6 +1059,25 @@ void attach_devices(const model::Schematic& schematic, const library::ComponentL
                     options.nets.push_back(std::move(net));
                 }
                 options.nets[it->second].device_pins.emplace_back(index, pin);
+                // A pull-up decides the high level itself; outputs need no check.
+                const auto& net = options.nets[it->second];
+                const auto& driven = device.driven_pins;
+                if (!net.board_pins.empty() && net.pull <= 0 && board_high > 0 && needed_high > board_high + 1e-9
+                    && std::find(driven.begin(), driven.end(), pin) == driven.end()) {
+                    short_of_high.push_back(pin);
+                }
+            }
+            if (!short_of_high.empty()) {
+                std::string pins;
+                for (const auto& pin : short_of_high) {
+                    pins += (pins.empty() ? "" : ", ") + pin;
+                }
+                warn(request.designator + " runs on " + (model::format_engineering(request.supply, 3) + " V")
+                    + " and needs " + (model::format_engineering(needed_high, 3) + " V")
+                    + " as a high input; the board drives " + pins + " with "
+                    + (model::format_engineering(board_high, 3) + " V")
+                    + ". Many chips still work like this, but it is outside their datasheet; SimNodus reads the "
+                      "pins as high. A level shifter (a 74HCT buffer on the chip's supply) makes it safe.");
             }
             options.devices.push_back(std::move(request));
         }

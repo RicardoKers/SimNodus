@@ -1310,7 +1310,9 @@ TEST_CASE("session: example 48 runs a light along a WS2812B strip from the ESP32
     std::string error;
     std::vector<std::string> warnings;
     REQUIRE(sim::build_mcu_requests(request.schematic, board_library(), environment(), request.mcus, error, &warnings));
-    CHECK(warnings.empty());
+    // The WS2812B on 5 V wants 3.5 V on DIN; the ESP32-C3 gives 3.3 V (a warning only).
+    REQUIRE(warnings.size() == 1);
+    CHECK(warnings[0].find("needs 3.5 V as a high input") != std::string::npos);
     sim::SimulationSession session;
     REQUIRE(session.start(request, error));
     const auto begin = std::chrono::steady_clock::now();

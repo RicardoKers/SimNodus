@@ -1,4 +1,4 @@
-<!-- source: USER_GUIDE.md sha256 04b04080a84d202f6d4ff1826b163f2922f21bed25401277ad1ae904f8fe7db1 -->
+<!-- source: USER_GUIDE.md sha256 0489421d1b71061f769fd27462434725d93f3406793ea0b114ccb925ad6ee92a -->
 # Guia do usuário do SimNodus
 
 O SimNodus é um simulador para sala de aula: você desenha um circuito, aperta
@@ -763,7 +763,9 @@ declarados para que os resultados sejam lidos corretamente.
   byte recebido chega ao firmware cerca de 0,4 ms depois do seu stop bit.
 - O modo transitório não executa microcontroladores: use o modo interativo.
 - Chips para microcontroladores só funcionam junto com uma placa e leem os
-  níveis digitalmente (um chip de 5 V aceita níveis altos de 3,3 V); os seus
+  níveis digitalmente (um chip de 5 V aceita níveis altos de 3,3 V; o painel
+  Mensagens avisa quando o datasheet pede mais, como os 3,5 V do MAX7219 e do
+  WS2812B em 5 V); os seus
   pinos em redes sem pino de placa leem o circuito com até 0,1 ms de atraso.
 
 ### Aplicativo

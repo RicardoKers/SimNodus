@@ -706,7 +706,9 @@ results are read correctly.
   about 0.4 ms after its stop bit.
 - Transient mode does not run microcontrollers: use interactive mode.
 - Chips for microcontrollers work only together with a board and read levels
-  digitally (a 5 V chip accepts 3.3 V highs); their pins on nets without a
+  digitally (a 5 V chip accepts 3.3 V highs; the Messages panel warns when
+  the datasheet asks for more, as the MAX7219's and the WS2812B's 3.5 V at
+  5 V); their pins on nets without a
   board pin read the circuit up to 0.1 ms late.
 
 ### Application

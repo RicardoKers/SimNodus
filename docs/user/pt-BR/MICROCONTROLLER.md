@@ -1,4 +1,4 @@
-<!-- source: MICROCONTROLLER.md sha256 cc8c46d9f72f129a653287a392ed3a6d71691737d3e3ea94b5e5f26e52bc7b9b -->
+<!-- source: MICROCONTROLLER.md sha256 544a836e29d3d11680d5997bb8c8bba2efd8b6cb584c8e6f98f7eab89a623d65 -->
 # Microcontrolador: o que é simulado
 
 O SimNodus executa o firmware da **Blue Pill (STM32F103C8)** em seu próprio emulador
@@ -55,6 +55,13 @@ faixas `U2.Q0`).
 
 - Ligue o pino de alimentação do chip (VCC) a uma fonte CC ou ao 3V3 da placa e
   o GND ao terra; sem eles o chip não faz nada e o painel Mensagens avisa.
+- Um chip em 5 V ligado a uma placa de 3,3 V lê os níveis altos dela: o
+  SimNodus não modela o limiar de entrada. Quando o datasheet pede mais do que
+  a placa dá (0,7 da alimentação: 3,5 V para o 74HC595, o MAX7219, o 24C02, o
+  LM75 e o WS2812B em 5 V), o painel Mensagens avisa ao iniciar a simulação.
+  Muitos chips funcionam assim mesmo, como o MAX7219 do exemplo 69 numa placa
+  de teste; um buffer 74HCT em 5 V entre eles é o caminho seguro. Entradas
+  com resistor de pull-up não são verificadas.
 - Um chip que compartilha uma rede com um pino da placa, diretamente ou através
   de outro chip, roda com essa placa. Um chip sem ligação a pino de placa roda
   sozinho (uma ROM endereçada por um contador, um 74HC595 com clock dado por um

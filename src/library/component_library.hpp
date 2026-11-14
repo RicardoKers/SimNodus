@@ -187,6 +187,10 @@ struct DigitalDevice {
     std::string supply_parameter;
     std::string ground_pin = "GND";
     double output_resistance = 50.0; // Ohm, of driven outputs
+    // The lowest high input as a fraction of the supply when the datasheet
+    // gives one (CMOS inputs: 0.7); a board whose outputs give less gets a
+    // warning when the run starts. 0: not checked (TTL-like inputs, servos).
+    double input_high_ratio = 0.0;
     // Push-pull outputs that always drive: a net with one of them never needs
     // the circuit's view (SN-206).
     std::vector<std::string> driven_pins;

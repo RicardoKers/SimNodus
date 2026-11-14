@@ -4,6 +4,10 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-11-13, the owner's board tests of E-12)
+
+- **A warning for 5 V chips on 3.3 V boards.** A 74HC595, MAX7219, 24C02, LM75 or WS2812B on 5 V wants 3.5 V as a high input (0.7 of its supply, from its datasheet); when a 3.3 V board drives its inputs directly, the Messages panel says so when the run starts. The simulator still reads those levels as high, as many real chips do. Examples 26, 40, 48 and 69 show it. Library parts declare the level with `input_high_ratio`.
+
 ### Fixed (2026-11-13, the owner's board tests of E-12)
 
 - While running, an LM75, a potentiometer or another part turned by dragging could not be selected by clicking its symbol: every click went to its value. A click without dragging now selects the part; dragging and the wheel still turn it.

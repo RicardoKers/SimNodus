@@ -1086,7 +1086,8 @@ private slots:
         QTRY_VERIFY_WITH_TIMEOUT(heart_shown(), 40000); // CI runners are slower than real time here
         // Already in the first picture, at the lowest intensity (rows went missing there before 2026-10-20).
         QVERIFY(window_->run_controller()->status().sim_time < 1.0);
-        QCOMPARE(window_->messages()->warning_count(), before);
+        // One warning: the MAX7219 on 5 V wants 3.5 V as a high input, the Blue Pill gives 3.3 V.
+        QCOMPARE(window_->messages()->warning_count(), before + 1);
         window_->stop();
 #endif
     }

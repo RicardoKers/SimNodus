@@ -87,7 +87,7 @@ def device_spice(signals, outputs, supply="VCC", ground="GND"):
 
 
 def part(type_, name, description, symbol, upper, kind, spice, output_resistance=50, parameters=None, driven=(),
-         category=CATEGORY):
+         category=CATEGORY, input_high=0.0):
     result = {
         "type": type_,
         "name": name,
@@ -100,6 +100,10 @@ def part(type_, name, description, symbol, upper, kind, spice, output_resistance
         "device": {"kind": kind, "supply_pin": "VCC", "ground_pin": "GND", "output_resistance": output_resistance},
         "spice": spice,
     }
+    if input_high:
+        # CMOS inputs: the lowest high level as a fraction of the supply (a 3.3 V board
+        # driving the chip on 5 V gets a warning when the run starts).
+        result["device"]["input_high_ratio"] = input_high
     if driven:
         result["device"]["driven_pins"] = list(driven)  # push-pull outputs that always drive
     if parameters:
@@ -119,7 +123,8 @@ def hc595():
                 "clears the shift register, OE high turns Q0-Q7 off (high impedance); Q7S, the last stage, feeds the "
                 "DS of a second 74HC595. Tie MR to VCC and OE to GND for normal use; supply 2-6 V on VCC and GND. "
                 "Works together with a microcontroller board.",
-                symbol, upper, "74hc595", device_spice(inputs + outputs, outputs), driven=["Q7S"])
+                symbol, upper, "74hc595", device_spice(inputs + outputs, outputs), driven=["Q7S"],
+                input_high=0.7)
 
 
 I2C_NOTE = ("SDA is open drain: SCL and SDA need pull-up resistors (4.7 kOhm to the supply), as on a real board; "
@@ -135,7 +140,7 @@ def eeprom_24c02():
              "meanwhile); reads start at the word address and continue through the memory; WP high protects it. "
              "Starts erased (0xFF) or with its contents file. " + I2C_NOTE + " Supply 1.8-5.5 V. Works together with "
              "a microcontroller board.",
-             symbol, upper, "24c02", device_spice(inputs + ["SDA"], ["SDA"]),
+             symbol, upper, "24c02", device_spice(inputs + ["SDA"], ["SDA"]), input_high=0.7,
              parameters=[{"name": "contents", "label": "Contents file", "kind": "file", "filter": "*.bin *.hex",
                           "default": "", "description": "Contents the EEPROM starts each run with (.bin or Intel "
                                                         ".hex, stored relative to the project); empty: erased"}])
@@ -152,7 +157,7 @@ def lm75():
                 "two bytes (whole degrees, then bit 7 for half a degree), 1 is the configuration, 2 and 3 are THYST "
                 "(75 C) and TOS (80 C); the open-drain OS output goes low above TOS and is released again below THYST. "
                 + I2C_NOTE + " Supply 2.8-5.5 V. Works together with a microcontroller board.",
-                symbol, upper, "lm75", device_spice(inputs + ["SDA", "OS"], ["SDA", "OS"]),
+                symbol, upper, "lm75", device_spice(inputs + ["SDA", "OS"], ["SDA", "OS"]), input_high=0.7,
                 parameters=[{"name": "temperature", "label": "Temperature", "unit": "°C", "default": "25",
                              "min": "-55", "max": "125", "live": True,
                              "description": "Temperature the sensor measures; change it while running to test the "
@@ -229,7 +234,7 @@ def max7219():
                 "Starts in shutdown: write 1 to register 12. Supply 4-5.5 V on VCC and GND. Works together with a "
                 "microcontroller board.",
                 symbol, upper, "max7219", device_spice(inputs + outputs, outputs), output_resistance=75,
-                driven=outputs)
+                driven=outputs, input_high=0.7)
 
 
 def live(name, label, unit, default, minimum, maximum, description):
@@ -552,7 +557,7 @@ def ws2812():
              "LEDs is simulated). Works together with a microcontroller board, whose firmware makes the 0.4/0.8 us "
              "pulses.",
              {"graphics": graphics, "pins": pins}, -3, "ws2812", device_spice(["DIN", "DOUT"], ["DOUT"], supply="VDD"),
-             driven=["DOUT"],
+             driven=["DOUT"], input_high=0.7,
              parameters=[{"name": "count", "label": "LEDs", "unit": "", "default": "8",
                           "choices": ["1", "8", "12", "16", "24", "30", "60"], "description": "Number of LEDs"}])
     p["device"]["supply_pin"] = "VDD"
