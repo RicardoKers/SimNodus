@@ -385,8 +385,10 @@ public:
         m_.flash_access_changed();
     }
     std::uint32_t latency() const { return acr_ & 7u; }
-    // The ART accelerator: prefetch, or the instruction cache.
-    bool accelerated() const { return (acr_ & 0x300u) != 0; }
+    // The ART accelerator: PRFTEN, ICEN, DCEN.
+    bool prefetch() const { return (acr_ & 0x100u) != 0; }
+    bool instruction_cache() const { return (acr_ & 0x200u) != 0; }
+    bool data_cache() const { return (acr_ & 0x400u) != 0; }
 
 protected:
     bool read32(std::uint32_t offset, std::uint32_t& value) override
@@ -1220,10 +1222,9 @@ std::uint32_t Stm32F407::flash_latency() const
 
 void Stm32F407::flash_access_changed()
 {
-    // Until the flash and the ART accelerator are modelled from measurements
-    // (SN-296): no wait state with the accelerator on, the latency without it.
+    // The wait states behind the ART accelerator, as measured with f4_timing (SN-296).
     if (flash_) {
-        cpu_.set_flash_access(flash_->accelerated() ? 0 : flash_->latency(), true);
+        cpu_.set_art_flash(flash_->latency(), flash_->prefetch(), flash_->instruction_cache(), flash_->data_cache());
     }
 }
 

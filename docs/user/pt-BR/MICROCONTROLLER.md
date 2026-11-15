@@ -1,4 +1,4 @@
-<!-- source: MICROCONTROLLER.md sha256 544a836e29d3d11680d5997bb8c8bba2efd8b6cb584c8e6f98f7eab89a623d65 -->
+<!-- source: MICROCONTROLLER.md sha256 b695b98a31c9811f010f2294cbfeb5e1592e257ecbbe9acc0da1cd78f15a3b97 -->
 # Microcontrolador: o que é simulado
 
 O SimNodus executa o firmware da **Blue Pill (STM32F103C8)** em seu próprio emulador
@@ -752,8 +752,9 @@ experimental até ser comparada com uma placa real.
 A peça **STM32F407VET6 (LQFP-100)** (Microcontroladores) é o chip isolado
 com seus 100 pinos: um Cortex-M4 com FPU de precisão simples, 512 KB de flash
 e 192 KB de RAM, até 168 MHz. Ele executa o arquivo ELF que o STM32CubeIDE
-gera, incluindo a FPU. É **experimental**: nada nele foi comparado com um
-chip real ainda, e só parte do chip é simulada.
+gera, incluindo a FPU. É **experimental**: só parte do chip é simulada.
+Os exemplos 67 a 71, os resultados de ponto flutuante e o tempo que as
+instruções levam foram comparados com um chip real em 2026-11.
 
 - **O que funciona**: a árvore de clock (HSI, HSE, o PLL), GPIO com os
   números de função alternativa, interrupções externas em qualquer porta, as
@@ -850,13 +851,23 @@ chip real ainda, e só parte do chip é simulada.
   roda várias vezes mais rápido que o tempo real (exemplo 71: cerca de 6
   vezes). Um MAX7219 que varre sua matriz 800 vezes por segundo deixa
   qualquer simulação mais lenta (exemplo 69: cerca de 0,4 vez o tempo real).
-- **Tempo das instruções**: as instruções levam os ciclos do Cortex-M4; os
-  estados de espera da flash e seu acelerador ainda não são modelados, então
-  laços contados em instruções são aproximados.
+- **Tempo das instruções**: as instruções levam os ciclos medidos em um
+  STM32F407 real (firmware `f4_timing`, 27 laços): dentro de 0,3 % em
+  qualquer clock quando a flash não precisa de estados de espera ou seu
+  acelerador ART está ligado (prefetch, como o STM32CubeMX e a HAL
+  configuram; ou só os caches, para laços de até 1 KB). Com estados de
+  espera e o acelerador desligado, uma aproximação: dentro de 15 % nos laços
+  medidos. Um laço `for` com contador `volatile` leva 12 ciclos por volta,
+  como no chip.
 - **Depuração** com o STM32CubeIDE funciona como na Blue Pill (próxima
   seção); os registradores da FPU, S0 a S31 e FPSCR, também aparecem. O
   **Visualizador de registradores** tem os registradores do chip, com os da
-  FPU.
+  FPU. Testado com um projeto do STM32CubeMX a 168 MHz e uma configuração
+  *GDB Hardware Debugging* (Run > Debug Configurations...): na aba
+  **Debugger**, o comando do GDB é o `arm-none-eabi-gdb` do STM32CubeIDE,
+  *Use remote target* fica marcado, com *Generic TCP/IP*, protocolo *remote*
+  e conexão `localhost:3333`. A sessão para em `Reset_Handler`, no arquivo de
+  partida; coloque um breakpoint em `main` e continue.
 - **Exemplos**: 67 (um cristal de 25 MHz, o PLL a 168 MHz, a USART1 a 115200
   baud, um LED em PC13, um botão de reset), 68 (timers, ADC e DAC: um
   potenciômetro em PA1 define o ciclo de trabalho do PWM do TIM1 em PA8 e

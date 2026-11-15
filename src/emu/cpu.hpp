@@ -58,6 +58,7 @@ public:
     void set_architecture(Architecture architecture)
     {
         dsp_ = fpu_ = architecture == Architecture::CortexM4F;
+        m4_timing_ = m3_timing_ && dsp_;
     }
     Architecture architecture() const { return fpu_ ? Architecture::CortexM4F : Architecture::CortexM3; }
 
@@ -76,7 +77,11 @@ public:
     // STM32F1 flash wait states and prefetch buffer, an approximation
     // calibrated on a Blue Pill with DWT CYCCNT.
     enum class Timing { OneCyclePerInstruction, CortexM3 };
-    void set_timing(Timing timing) { m3_timing_ = timing == Timing::CortexM3; }
+    void set_timing(Timing timing)
+    {
+        m3_timing_ = timing == Timing::CortexM3;
+        m4_timing_ = m3_timing_ && dsp_;
+    }
     Timing timing() const { return m3_timing_ ? Timing::CortexM3 : Timing::OneCyclePerInstruction; }
     // FLASH_ACR as the flash interface has it (the Cortex-M3 timing uses it).
     void set_flash_access(unsigned wait_states, bool prefetch)
@@ -84,6 +89,10 @@ public:
         wait_states_ = wait_states;
         prefetch_ = prefetch;
     }
+    // STM32F4 flash: wait states behind the ART accelerator (prefetch, a
+    // 64-line instruction cache, a data cache; 128-bit lines), calibrated on
+    // an STM32F407 with examples/firmware/f4_timing. Replaces set_flash_access.
+    void set_art_flash(unsigned wait_states, bool prefetch, bool instruction_cache, bool data_cache);
     // Moves time forward while the core sleeps (no instructions execute).
     void advance_idle(std::uint64_t to);
     CoreState state() const { return state_; }
@@ -293,6 +302,41 @@ private:
     bool tail_chain_ = false;   // ... into a pending one (tail-chaining)
     std::uint32_t stream_line_ = 0;
     std::uint64_t stream_ready_ = 0;
+
+    // Cortex-M4 timing on top of it (experiment E-12, measured on an
+    // STM32F407): what the previous instruction left for the next one, and
+    // the FPU working while the core goes on.
+    struct M4Link {
+        bool store = false;         // it ended with a store to the SRAM
+        bool single_store = false;  // ... a single one, whose write the next instruction hides
+        bool base_update_load = false;
+        bool access = false;        // a single load or store: the next one pipelines
+        std::uint8_t result = 0xFF; // the register a data-processing instruction wrote
+        std::uint64_t fpu_free = 0;   // when the FPU takes the next operation
+        std::uint64_t fpu_result = 0; // when its last result can be read
+        std::uint8_t fpu_register = 0xFF;
+    };
+    unsigned m4_cost(const Insn& in, unsigned cost, std::uint64_t start);
+    void m4_forget();
+    M4Link m4_;       // after the previous instruction
+    M4Link m4_next_;  // after the current one, kept by account()
+    bool m4_pending_ = false;
+    bool m4_timing_ = false; // Cortex-M4 with the cycle counts on
+    unsigned fp_return_cycles_ = 0; // an exception return with a floating-point frame takes these more
+    // The ART accelerator.
+    std::uint64_t art_fetch(std::uint32_t target);
+    std::uint64_t art_branch(std::uint32_t pc, std::uint32_t target, bool conditional);
+    bool art_line_hit(std::uint32_t line);
+    bool art_ = false;
+    unsigned art_ws_ = 0;
+    bool art_prefetch_ = false;
+    bool art_icache_ = false;
+    bool art_dcache_ = false;
+    std::uint32_t art_line_ = ~0u;      // the 128-bit line the flash holds for code
+    std::uint32_t art_data_line_ = ~0u; // ... and for data
+    std::array<std::uint32_t, 64> art_cache_{};
+    std::array<std::uint64_t, 64> art_used_{};
+    std::uint64_t art_tick_ = 0;
 
     // Run state.
     std::uint64_t cycles_ = 0;

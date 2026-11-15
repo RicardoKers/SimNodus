@@ -63,17 +63,17 @@ What the simulator prints, to compare:
   but the baud rate is not 115200 (the firmware assumes 25 MHz): the
   terminal shows garbage, and so does the simulator's pin.
 - `f4_blink`: with a logic analyzer, PC13 at 1 Hz and PA0 at 2 Hz; the
-  period of PB0 is the busy loop's cycle count (the simulator gives
-  501.25 ms a half period, 8.02 cycles a turn; the real number is what the
-  timing model of SN-296 will be calibrated with).
+  period of PB0 is the busy loop's cycle count (751.8 ms a half period in
+  the simulator, 12 cycles a turn; 754 ms on the owner's board, whose HSI
+  is 0.3 % slow).
 - `f4_button`: a wire from PA0 to ground as the button.
 - `f4_timing` (the calibration of the timing model, G12b.9): the 25 MHz
   crystal. It prints four blocks of `name cycles` lines, `f4_timing v1` to
   `end`, again every 3 s; copy one whole report from the terminal. The
-  simulator's first block (16 MHz, no wait state) has the Cortex-M4's
-  manual counts, for example `alu 11002`, `vadd 11003`, `vdiv 115003`; its
-  168 MHz blocks are still a guess (no wait state with the accelerator on,
-  all five with it off) that the board's numbers will replace.
+  owner's chip printed the numbers in
+  [the results](../../../docs/experiments/E-12-results.md#the-bench-session-of-2026-11-15),
+  and the simulator's timing was calibrated with them: the first three
+  blocks within 0.3 %, the accelerator-off block within 15 %.
 - `f4_analog`: a potentiometer between 3.3 V and ground with its wiper on
   PA1. At 1.00 V the simulator prints `adc 1241`; with the logic analyzer
   on PA8 and PB13 each edge comes 0.5 us after the other's, and PA8 is high
@@ -105,5 +105,6 @@ What the simulator prints, to compare:
   board's temperature); PA6's duty cycle within one count of 1000; PA4
   within 1 % of 3.3 V of 3.3 × code / 4095.
 
-The simulator's numbers are not confirmed by a chip yet: a difference is a
-finding to report, not a mistake of the bench.
+`f4_float`, `f4_timing`, `f4_blink` and examples 67 to 71 were compared
+with the owner's chip (2026-11-13 and 2026-11-15); a difference on another
+board is a finding to report.

@@ -1092,6 +1092,12 @@ void Cpu::reset()
     after_access_ = returned_ = tail_chain_ = false;
     stream_line_ = 0;
     stream_ready_ = 0;
+    m4_ = m4_next_ = M4Link{};
+    m4_pending_ = false;
+    art_line_ = art_data_line_ = ~0u;
+    art_cache_.fill(~0u);
+    art_used_.fill(0);
+    art_tick_ = 0;
     std::fill(flash_cache_.begin(), flash_cache_.end(), Insn{});
     for (int irq = 0; irq < irqs_; ++irq) {
         if (irq_line_[static_cast<unsigned>(irq)]) {
@@ -1237,7 +1243,10 @@ inline bool Cpu::fast(const Insn& in)
     const std::uint32_t pc = pc_;
     std::uint32_t next = pc + in.size;
     bool taken = false; // a branch, even to the next instruction, refills the pipeline
-    const unsigned cost = m3_timing_ ? cycle_cost(in) : 1; // from the operands, before the effects
+    unsigned cost = m3_timing_ ? cycle_cost(in) : 1; // from the operands, before the effects
+    if (m4_timing_) {
+        cost = m4_cost(in, cost, cycles_);
+    }
     ++cycles_; // counted before the effects, as in step(): device events see the same time
     switch (in.op) {
     case OP_ADD_I:
@@ -1606,6 +1615,40 @@ void Cpu::account(unsigned cost, std::uint32_t pc, std::uint32_t next, bool take
 {
     const std::uint64_t start = cycles_ - 1; // run() counted the first cycle before the effects
     std::uint64_t end = start + cost;
+    if (m4_timing_) {
+        // What this instruction leaves for the next one; an instruction that
+        // m4_cost() did not see (skipped in an IT block) leaves nothing.
+        if (m4_pending_) {
+            m4_ = m4_next_;
+            m4_pending_ = false;
+        } else {
+            m4_forget();
+        }
+    }
+    if (art_) {
+        // The STM32F4's flash. With prefetch on, or without wait states, code
+        // arrives in time; otherwise a new 128-bit line is waited for unless
+        // the instruction cache has it.
+        if (taken) {
+            end += 1 + art_branch(pc, next, op == OP_BCOND || op == OP_CBZ || op == OP_CBNZ); // the pipeline refills
+        } else if (art_ws_ > 0 && !art_prefetch_ && next < flash_code_end) {
+            const std::uint32_t line = (next + 3) >> 4; // the word the fetch unit asks for next
+            if (line != art_line_) {
+                if (!art_line_hit(line)) {
+                    // The fetch runs while the instructions already in the core
+                    // execute: three cycles of 16-bit ones, and this one's own.
+                    const unsigned hidden = (next - pc == 2 ? 3u : 0u) + (cost > 0 ? cost - 1 : 0);
+                    end += art_ws_ > hidden ? art_ws_ - hidden : 0;
+                }
+                art_line_ = line;
+            }
+        }
+        cycles_ = end;
+        after_access_ = m4_timing_ ? m4_.access
+                                   : op == OP_LDR || op == OP_STR || op == OP_LDR_W || op == OP_STR_W;
+        tail_chain_ = false;
+        return;
+    }
     if (taken) {
         // A taken branch: the pipeline refills. The target of B, BL, CBZ and
         // B<cond> is fetched as they execute; a target from a register or
@@ -1617,7 +1660,302 @@ void Cpu::account(unsigned cost, std::uint32_t pc, std::uint32_t next, bool take
     }
     cycles_ = end;
     after_access_ = op == OP_LDR || op == OP_STR || op == OP_LDR_W || op == OP_STR_W || op == OP_LDREX || op == OP_STREX;
+    if (m4_timing_) {
+        after_access_ = m4_.access;
+    }
     tail_chain_ = false;
+}
+
+// ---------------------------------------------------------------------------
+// Cortex-M4 timing (experiment E-12). The rules below are the ones that
+// reproduce examples/firmware/f4_timing on an STM32F407VET6 (2026-11-15,
+// docs/experiments/E-12-results.md); the first two are in the Cortex-M4 TRM's
+// notes on load and store timing, the others were measured:
+// - a load or store whose address comes from the data-processing instruction
+//   right before it waits one cycle;
+// - a load with base update followed by a compare or test gives its cycle back;
+// - a load from the SRAM right after a store to it waits two cycles and does
+//   not pipeline, and a single store before it is not hidden;
+// - VLDR and VSTR pipeline as LDR and STR do;
+// - the FPU works on while the core goes on: one cycle for the core, and the
+//   next floating-point instruction waits until the FPU is free (three cycles
+//   after a multiply-accumulate, fourteen after a divide or a square root)
+//   and one cycle more for the result of an add, subtract, multiply or
+//   conversion right before it.
+
+namespace {
+
+constexpr bool in_sram(std::uint32_t address) { return (address >> 29) == 1u; }
+
+} // namespace
+
+void Cpu::m4_forget()
+{
+    M4Link fresh;
+    fresh.fpu_free = m4_.fpu_free;
+    fresh.fpu_result = m4_.fpu_result;
+    fresh.fpu_register = m4_.fpu_register;
+    m4_ = fresh;
+    m4_pending_ = false;
+}
+
+unsigned Cpu::m4_cost(const Insn& in, unsigned cost, std::uint64_t start)
+{
+    using namespace m4;
+    M4Link next;
+    next.fpu_free = m4_.fpu_free;
+    next.fpu_result = m4_.fpu_result;
+    next.fpu_register = m4_.fpu_register;
+    const auto base_in_sram = [&](unsigned rn) { return rn != 15 && in_sram(r_[rn]); };
+    // The address registers of a load or store: the base, and the index of a register offset.
+    const auto address_stall = [&](unsigned rn, bool indexed, unsigned rm) {
+        return m4_.result != 0xFF && (m4_.result == rn || (indexed && m4_.result == rm)) ? 1u : 0u;
+    };
+    const auto load = [&](unsigned rn, bool indexed, unsigned rm, bool single) {
+        if (m4_.store && base_in_sram(rn)) {
+            cost = (single ? 2u : cost) + 2u + (m4_.single_store ? 1u : 0u);
+        }
+        cost += address_stall(rn, indexed, rm);
+        next.access = single;
+    };
+    const auto store = [&](unsigned rn, bool indexed, unsigned rm, bool single) {
+        cost += address_stall(rn, indexed, rm);
+        next.store = base_in_sram(rn);
+        next.single_store = single;
+        next.access = single;
+    };
+    switch (in.op) {
+    case OP_LDR:
+        load(in.rn, (in.mode & M_REG) != 0, in.rm, true);
+        next.base_update_load = (in.mode & M_W) != 0 || (in.mode & M_P) == 0;
+        break;
+    case OP_LDR_W:
+    case OP_LDREX:
+        load(in.rn, false, 0, true);
+        break;
+    case OP_LDRD:
+    case OP_LDM:
+        load(in.rn, false, 0, false);
+        break;
+    case OP_STR:
+        store(in.rn, (in.mode & M_REG) != 0, in.rm, true);
+        break;
+    case OP_STR_W:
+    case OP_STREX:
+        store(in.rn, false, 0, true);
+        break;
+    case OP_STRD:
+    case OP_STM:
+        store(in.rn, false, 0, false);
+        break;
+    case OP_CMP_I:
+    case OP_CMP_R:
+        if (m4_.base_update_load) {
+            cost = 0;
+        }
+        break;
+    case OP_DP_IMM:
+    case OP_DP_REG:
+    case OP_DP_RSR:
+        if (in.alu == TST || in.alu == TEQ || in.alu == CMP || in.alu == CMN) {
+            if (m4_.base_update_load) {
+                cost = 0;
+            }
+        } else {
+            next.result = in.rd;
+        }
+        break;
+    case OP_ADD_I: case OP_SUB_I: case OP_MOV_I: case OP_ADD_R: case OP_SUB_R: case OP_MOV_R:
+    case OP_ADR: case OP_MOVW: case OP_MOVT: case OP_MUL: case OP_MLA: case OP_MLS: case OP_SDIV: case OP_UDIV:
+    case OP_CLZ: case OP_RBIT: case OP_REV: case OP_REV16: case OP_REVSH:
+    case OP_SXTB: case OP_SXTH: case OP_UXTB: case OP_UXTH:
+    case OP_SSAT: case OP_USAT: case OP_SBFX: case OP_UBFX: case OP_BFI: case OP_BFC:
+        next.result = in.rd;
+        break;
+    case OP_VFP: {
+        // Which single registers the instruction reads, and what the FPU does with it.
+        bool reads_n = false, reads_m = false, reads_d = false;
+        unsigned busy = 0, ready = 0; // cycles the FPU is taken, and until the result
+        switch (in.alu) {
+        case V_MLA: case V_MLS: case V_NMLS: case V_NMLA: case V_FNMS: case V_FNMA: case V_FMA: case V_FMS:
+            reads_n = reads_m = reads_d = true;
+            busy = ready = 3;
+            break;
+        case V_DIV:
+            reads_n = reads_m = true;
+            busy = ready = 14;
+            break;
+        case V_SQRT:
+            reads_m = true;
+            busy = ready = 14;
+            break;
+        case V_MUL: case V_NMUL: case V_ADD: case V_SUB:
+            reads_n = reads_m = true;
+            busy = 1;
+            ready = 2;
+            break;
+        case V_CVT_FROM_HALF: case V_CVT_TO_HALF: case V_CVT_FROM_INT: case V_CVT_TO_INT:
+            reads_m = true;
+            busy = 1;
+            ready = 2;
+            break;
+        case V_CVT_FIXED:
+            reads_d = true;
+            busy = 1;
+            ready = 2;
+            break;
+        case V_MOV: case V_ABS: case V_NEG:
+            reads_m = true;
+            busy = ready = 1;
+            break;
+        case V_MOV_IMM:
+            busy = ready = 1;
+            break;
+        case V_CMP:
+            reads_d = reads_m = true;
+            busy = ready = 1;
+            break;
+        case V_MOV_CORE:
+            reads_n = (in.mode & 1u) != 0;
+            busy = ready = 1;
+            break;
+        case V_STR:
+            reads_d = true;
+            break;
+        default:
+            break;
+        }
+        std::uint64_t begin = std::max(start, m4_.fpu_free);
+        const std::uint8_t waiting = m4_.fpu_register;
+        if (waiting != 0xFF
+            && ((reads_n && in.rn == waiting) || (reads_m && in.rm == waiting) || (reads_d && in.rd == waiting))) {
+            begin = std::max(begin, m4_.fpu_result);
+        }
+        const unsigned wait = static_cast<unsigned>(begin - start);
+        if (busy != 0) {
+            cost = wait + 1; // the core goes on after a cycle
+            next.fpu_free = begin + busy;
+            next.fpu_result = begin + ready;
+            const bool to_core = in.alu == V_CMP || (in.alu == V_MOV_CORE && (in.mode & 1u));
+            next.fpu_register = to_core ? std::uint8_t{0xFF} : (in.alu == V_MOV_CORE ? in.rn : in.rd);
+        } else if (in.alu == V_LDR) {
+            cost = after_access_ ? 1 : 2;
+            load(in.rn, false, 0, true);
+            cost += wait;
+        } else if (in.alu == V_STR) {
+            cost = 1 + wait;
+            store(in.rn, false, 0, true);
+        } else if (in.alu == V_LDM) {
+            load(in.rn, false, 0, false);
+            cost += wait;
+        } else if (in.alu == V_STM) {
+            store(in.rn, false, 0, false);
+            cost += wait;
+        } else {
+            cost += wait;
+        }
+        break;
+    }
+    default:
+        break;
+    }
+    if (art_ && art_ws_ > 0 && !art_dcache_ && (in.op == OP_LDR || in.op == OP_LDR_W) && !(in.mode & M_REG)) {
+        // Data from the flash (a literal): the line the flash holds for data is free.
+        const std::uint32_t base = in.rn == 15 ? ((pc_ + 4) & ~3u) : r_[in.rn];
+        if (base < flash_code_end) {
+            const std::uint32_t line = (base + in.imm) >> 4;
+            if (line != art_data_line_) {
+                cost += art_ws_;
+            }
+            art_data_line_ = line;
+        }
+    }
+    m4_next_ = next;
+    m4_pending_ = true;
+    return cost;
+}
+
+// ---------------------------------------------------------------------------
+// The STM32F4's flash interface with the ART accelerator (RM0090 3.5).
+
+void Cpu::set_art_flash(unsigned wait_states, bool prefetch, bool instruction_cache, bool data_cache)
+{
+    art_ = true;
+    wait_states_ = 0; // the STM32F1 rules stay out
+    prefetch_ = true;
+    if (!instruction_cache && art_icache_) {
+        art_cache_.fill(~0u);
+    }
+    art_ws_ = wait_states;
+    art_prefetch_ = prefetch;
+    art_icache_ = instruction_cache;
+    art_dcache_ = data_cache;
+}
+
+// Whether the instruction cache has the line; a missing line takes the place
+// of the one unused for the longest time.
+bool Cpu::art_line_hit(std::uint32_t line)
+{
+    if (!art_icache_) {
+        return false;
+    }
+    ++art_tick_;
+    std::size_t oldest = 0;
+    for (std::size_t i = 0; i < art_cache_.size(); ++i) {
+        if (art_cache_[i] == line) {
+            art_used_[i] = art_tick_;
+            return true;
+        }
+        if (art_used_[i] < art_used_[oldest]) {
+            oldest = i;
+        }
+    }
+    art_cache_[oldest] = line;
+    art_used_[oldest] = art_tick_;
+    return false;
+}
+
+// Extra cycles for the code of a handler or of the instruction an exception
+// returns to: a read of the flash unless the instruction cache has the line.
+std::uint64_t Cpu::art_fetch(std::uint32_t target)
+{
+    if (art_ws_ == 0 || art_prefetch_ || target >= flash_code_end) {
+        return 0;
+    }
+    const std::uint32_t line = target >> 4;
+    const bool held = art_icache_ && (line == art_line_ || art_line_hit(line));
+    art_line_ = line;
+    return held ? 0 : art_ws_ + 1;
+}
+
+// Extra cycles for the target of a taken branch at `pc`. With the
+// instruction cache a line it has, or the line the flash holds, is free.
+// With the accelerator off every branch reads the flash again, except into
+// the word the branch is in; the word after it was already asked for, and a
+// conditional branch at the end of its line waits for the read of the next
+// line that the core had started. An approximation: see the measured errors in
+// docs/experiments/E-12-results.md.
+std::uint64_t Cpu::art_branch(std::uint32_t pc, std::uint32_t target, bool conditional)
+{
+    if (art_ws_ == 0 || art_prefetch_ || target >= flash_code_end) {
+        return 0;
+    }
+    const std::uint32_t line = target >> 4;
+    if (art_icache_) {
+        const bool held = line == art_line_ || art_line_hit(line);
+        art_line_ = line;
+        return held ? 0 : art_ws_ + 1;
+    }
+    art_line_ = line;
+    const std::uint32_t word = pc & ~3u;
+    if ((target & ~3u) == word) {
+        return 0;
+    }
+    std::uint64_t extra = (target & ~3u) == word + 4 ? art_ws_ - 1 : art_ws_ + 1;
+    if (conditional && ((word + 4) >> 4) != (pc >> 4) && ((word + 4) >> 4) != line) {
+        extra += 3;
+    }
+    return extra;
 }
 
 void Cpu::step()
@@ -1667,7 +2005,10 @@ void Cpu::step()
     if (count_ops_) {
         ++op_hits_[in.op];
     }
-    const unsigned cost = m3_timing_ ? cycle_cost(in) : 1;
+    unsigned cost = m3_timing_ ? cycle_cost(in) : 1;
+    if (m4_timing_) {
+        cost = m4_cost(in, cost, cycles_ - 1);
+    }
     branched_ = false;
     execute(in);
     if (faulted_) {
@@ -1688,6 +2029,10 @@ void Cpu::step()
         const std::uint64_t start = cycles_ - 1;
         cycles_ = tail_chain_ ? start + cost : refill(pc, pc_, start + cost + 4, start + cost + 9, false);
         after_access_ = false;
+        if (m4_timing_) {
+            cycles_ += fp_return_cycles_ + (tail_chain_ ? 0 : art_fetch(pc_));
+            m4_forget();
+        }
         return;
     }
     account(cost, pc, pc_, branched_, in.op);
@@ -2516,6 +2861,13 @@ void Cpu::take_exception(int number, std::uint32_t return_address)
                               : refill(return_address, pc_, now + 6, now + 11, false);
         tail_chain_ = false;
         after_access_ = false;
+        if (m4_timing_) {
+            // Measured on an STM32F407 (f4_timing): one cycle more with a
+            // floating-point frame.
+            cycles_ += fp_frame ? 1 : 0; // (the handler's code arrives while the registers are stacked)
+            art_line_ = pc_ >> 4;
+            m4_forget();
+        }
     }
 }
 
@@ -2555,6 +2907,9 @@ void Cpu::exception_return(std::uint32_t exc_return)
     r_[12] = values[4];
     r_[14] = values[5];
     const std::uint32_t psr = values[7];
+    // Measured on an STM32F407: one cycle more for a floating-point frame
+    // whose registers were never saved, nineteen to read them back.
+    fp_return_cycles_ = !fp_frame ? 0 : (fpccr_ & 1u) ? 1 : 19;
     if (fp_frame && !pop_fp_frame(frame)) {
         lockup("the stack pointer is outside RAM during exception return");
         return;

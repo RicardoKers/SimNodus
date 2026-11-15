@@ -1288,8 +1288,10 @@ TEST_CASE("m4: every encoding decodes and random code runs without crashing the 
 
 TEST_CASE("m4: cycle counts of the Cortex-M4's multiplier, DSP and FPU instructions")
 {
-    // The Cortex-M4 Technical Reference Manual's counts; code in RAM, where no flash wait state is added.
-    auto cost = [](const std::vector<std::uint16_t>& instruction, Cpu::Architecture architecture) {
+    // The Cortex-M4 Technical Reference Manual's counts as an STM32F407 shows them (f4_timing, E-12): the
+    // core goes on one cycle after an FPU operation starts, and the next FPU instruction waits for the
+    // FPU. Code in RAM, where no flash wait state is added. `count`: the instructions timed.
+    auto cost = [](const std::vector<std::uint16_t>& instruction, Cpu::Architecture architecture, int count = 1) {
         std::vector<std::uint16_t> code = {0xBF00, 0xBF00, 0xBF00, 0xBF00};
         code.insert(code.end(), instruction.begin(), instruction.end());
         code.insert(code.end(), {0xBF00, 0xBF00, 0xE7FE});
@@ -1306,7 +1308,7 @@ TEST_CASE("m4: cycle counts of the Cortex-M4's multiplier, DSP and FPU instructi
         c.cpu.set_fp_reg(2, f32(7.0f));
         c.steps(4);
         const std::uint64_t before = c.cpu.cycles();
-        c.steps(1);
+        c.steps(count);
         return static_cast<int>(c.cpu.cycles() - before);
     };
     const auto m4 = Cpu::Architecture::CortexM4F;
@@ -1321,12 +1323,17 @@ TEST_CASE("m4: cycle counts of the Cortex-M4's multiplier, DSP and FPU instructi
     CHECK(cost({0xFBA2, 0x0103}, m3) >= 3);
     CHECK(cost({0xEE30, 0x0A81}, m4) == 1);  // vadd
     CHECK(cost({0xEE20, 0x0A81}, m4) == 1);  // vmul
-    CHECK(cost({0xEE00, 0x0A81}, m4) == 3);  // vmla
-    CHECK(cost({0xEEA0, 0x0A81}, m4) == 3);  // vfma
-    CHECK(cost({0xEE80, 0x0A81}, m4) == 14); // vdiv
-    CHECK(cost({0xEEB1, 0x0AC1}, m4) == 14); // vsqrt
+    CHECK(cost({0xEE00, 0x0A81}, m4) == 1);  // vmla: the core goes on
+    CHECK(cost({0xEE00, 0x0A81, 0xEE30, 0x1A81}, m4, 2) == 4);  // ... and a vadd after it waits for the FPU: 3 + 1
+    CHECK(cost({0xEEA0, 0x0A81, 0xEE30, 0x1A81}, m4, 2) == 4);  // vfma
+    CHECK(cost({0xEE80, 0x0A81, 0xEE30, 0x1A81}, m4, 2) == 15); // vdiv: 14 + 1
+    CHECK(cost({0xEEB1, 0x0AC1, 0xEE30, 0x1A81}, m4, 2) == 15); // vsqrt
+    CHECK(cost({0xEE80, 0x0A81, 0xBF00}, m4, 2) == 2);          // an integer instruction does not wait
+    CHECK(cost({0xEE30, 0x1A81, 0xEE30, 0x2A82}, m4, 2) == 2);  // two vadd that do not depend on each other
+    CHECK(cost({0xEE30, 0x0A81, 0xEE30, 0x1A01}, m4, 2) == 3);  // s0 = s1 + s2; s2 = s0 + s2: a cycle for the result
     CHECK(cost({0xEDD1, 0x2A02}, m4) == 2);  // vldr
-    CHECK(cost({0xEDC1, 0x2A02}, m4) == 2);  // vstr
+    CHECK(cost({0xEDD1, 0x2A02, 0xEDD1, 0x3A02}, m4, 2) == 3);  // ... and the next one pipelines
+    CHECK(cost({0xEDC1, 0x2A02}, m4) == 1);  // vstr: its write is hidden, as a str's
     CHECK(cost({0xED2D, 0x8A04}, m4) == 5);  // vpush of four registers
     CHECK(cost({0xEEF4, 0x0A41}, m4) == 1);  // vcmp
     CHECK(cost({0xEC51, 0x0A12}, m4) == 2);  // vmov r0, r1, s4, s5
