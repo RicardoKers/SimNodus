@@ -617,6 +617,9 @@ void Cpu::preserve_fp_state()
     }
     bus_.write(fpcar_ + 0x40, 4, fpscr_);
     fpccr_ &= ~FPCCR_LSPACT;
+    if (m4_timing_) {
+        cycles_ += 20; // seventeen words written, as measured on an STM32F407 (f4_timing)
+    }
 }
 
 // ExecuteFPCheck (B1.5.7); false after a fault.

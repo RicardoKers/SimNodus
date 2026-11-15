@@ -721,13 +721,15 @@ experimental until it is compared with a real board.
 - **Example**: 58 (the serial example of section *ATmega328 and
   ATmega328P* built for 16 MHz; `l` toggles the L LED).
 
-## STM32F407VET6 (experimental)
+## STM32F407VET6
 
 The **STM32F407VET6 (LQFP-100)** part (Microcontrollers) is the bare chip
 with its 100 pins: a Cortex-M4 with a single-precision FPU, 512 KB of flash
 and 192 KB of RAM, up to 168 MHz. It runs the ELF file that STM32CubeIDE
-builds, FPU included. It is **experimental**: nothing in it has been
-compared with a real chip yet, and only part of the chip is simulated.
+builds, FPU included. Examples 67 to 71, the floating-point results and
+the time instructions take were compared with a real chip in 2026-11.
+Only part of the chip is simulated (see *Not yet simulated* below), and the
+ADC is approximate: it has not been compared with a measured voltage.
 
 - **What works**: the clock tree (HSI, HSE, the PLL), GPIO with the
   alternate function numbers, external interrupts on any port, the six
@@ -822,12 +824,22 @@ compared with a real chip yet, and only part of the chip is simulated.
   times faster than real time (example 71: about 6 times). A MAX7219 that
   scans its matrix 800 times a second slows any run (example 69: about
   0.4 times real time).
-- **Timing**: instructions take the Cortex-M4's cycles; the flash's wait
-  states and its accelerator are not modelled yet, so loops counted in
-  instructions are approximate.
+- **Timing**: instructions take the cycles measured on a real STM32F407
+  (firmware `f4_timing`, 27 loops): within 0.3 % at any clock when the
+  flash needs no wait state or its ART accelerator is on (prefetch, as
+  STM32CubeMX and the HAL set it; or the caches alone for loops up to
+  1 KB). With wait states and the accelerator off, an approximation:
+  within 15 % on the measured loops. A `for` loop over a `volatile`
+  counter takes 12 cycles a turn, as on the chip.
 - **Debugging** with STM32CubeIDE works as on the Blue Pill (next
   section); the FPU's registers S0 to S31 and FPSCR are shown too. The
-  **Register Viewer** has the chip's registers, with the FPU's.
+  **Register Viewer** has the chip's registers, with the FPU's. Tested
+  with a STM32CubeMX project at 168 MHz and a *GDB Hardware Debugging*
+  configuration (Run > Debug Configurations...): on its **Debugger** tab
+  the GDB command is STM32CubeIDE's `arm-none-eabi-gdb`, *Use remote
+  target* is checked, with *Generic TCP/IP*, protocol *remote* and
+  connection `localhost:3333`. The session stops at `Reset_Handler`, in
+  the start-up file; set a breakpoint in `main` and resume.
 - **Examples**: 67 (a 25 MHz crystal, the PLL at 168 MHz, USART1 at 115200
   baud, an LED on PC13, a reset button), 68 (timers, ADC and DAC: a
   potentiometer on PA1 sets the duty cycle of TIM1's PWM on PA8 and PB13,

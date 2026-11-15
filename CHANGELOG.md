@@ -4,6 +4,12 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Changed (2026-11-15, E-12 / SN-296, the timing of the STM32F407)
+
+- **The STM32F407's instruction timing is calibrated on a real chip.** The owner ran `f4_timing` on an STM32F407VET6; the simulator now gives its cycle counts within 0.24 % on all 27 loops when the flash needs no wait state or its ART accelerator is on (as STM32CubeMX sets it), and within 14 % with wait states and the accelerator off. What changed, for the Cortex-M4 only: the FPU works on while the core goes on (a divide's 14 cycles overlap the instructions after it; dependent add and multiply chains take two cycles each), `VLDR`/`VSTR` pipeline, a load right after a store to the SRAM waits two cycles (a `for` loop over a `volatile` counter takes 12 cycles a turn, not 8: `f4_blink`'s loop is 751.8 ms, 751.7 ms on the board), exceptions with a floating-point frame take their measured cycles (lazy save 20, restore 19), and the flash has a model of the accelerator (prefetch, a 64-line instruction cache, the line the flash holds). Firmware that times itself with busy loops runs slower than before, as on the chip. The Blue Pill's timing is unchanged.
+- On the chip, `f4_float` prints the simulator's five checksums (the FPU, the DSP instructions and lazy stacking), and STM32CubeIDE debugs a CubeMX project at 168 MHz in the circuit; the guide describes the *GDB Hardware Debugging* configuration that was used.
+- **The STM32F407VET6 is no longer experimental** (decision DE12, ADR 0110): every gate of experiment E-12 is met. The part, examples 67 to 71, the run's status text and the guides lost the label; the part's description and the status text now list what is simulated. The ADC stays labeled approximate.
+
 ### Added (2026-11-13, E-12 / SN-299)
 
 - Firmware `f4_timing` for the STM32F407's timing calibration: it counts the core cycles of 27 loops (integer, memory, divides, DSP, FPU, a loop larger than the flash cache, C code, interrupts) at 16 MHz and at 168 MHz in three ART accelerator setups and prints them on USART1, to be run on a real board as `cycle_loops` was for the Blue Pill. The E-12 report has the review of every gate.

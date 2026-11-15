@@ -1653,7 +1653,7 @@ private slots:
         QVERIFY(model->value(QStringLiteral("CORE"), QStringLiteral("PC"), value));
         QVERIFY(value >= 0x08000000u && value < 0x08080000u);
         // The live text names the chip's state of work.
-        QVERIFY(window_->run_controller()->mode_description().contains(QStringLiteral("STM32F407 is experimental")));
+        QVERIFY(window_->run_controller()->mode_description().contains(QStringLiteral("cycles measured on a real chip")));
         window_->stop();
         QTRY_VERIFY_WITH_TIMEOUT(!window_->run_controller()->active(), 10000);
         viewer->close();

@@ -194,6 +194,15 @@ handler then does not run); SCR.SEVONPEND makes pending interrupts wake WFE.
      row at 72 MHz 7 % fast. Not modeled: bus contention with DMA, unaligned
      accesses, the Cortex-M3's own fetch queue. The status bar's assumptions
      say which timing a run uses.
+     The Cortex-M4 of the STM32F407 has rules of its own on top
+     (`Cpu::m4_cost`, `Cpu::set_art_flash`), from
+     `examples/firmware/f4_timing` on the owner's STM32F407VET6
+     (2026-11-15, [E-12 results](../experiments/E-12-results.md#the-bench-session-of-2026-11-15)):
+     the FPU working while the core goes on, the wait of a load right after
+     a store, two notes of the Cortex-M4 manual on loads, the cycles of
+     exceptions with a floating-point frame, and the flash behind the ART
+     accelerator. 27 loops within 0.24 % with no wait state or the
+     accelerator on; within 14 % with wait states and the accelerator off.
 - Determinism: no host time enters the emulator. Inputs carry the cycle (or
   nanosecond) at which they apply.
 - Clock changes (RCC prescalers, PLL switch) reschedule the events already in

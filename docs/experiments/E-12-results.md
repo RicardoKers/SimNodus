@@ -3,12 +3,16 @@
 Plan and gates: [E-12-plan.md](E-12-plan.md). This report grows with the
 work; a gate is marked met only with its numbers here.
 
-Status on 2026-11-13: **G12a met on the host; G12c met on the host, and
-G12c.7 by the owner's comparison on the board; G12b met on the host except
-what only the board answers** (G12b.5 `f4_float`'s checksum, G12b.7
-STM32CubeIDE's debugger, G12b.9 the blink period and the timing
-calibration with `f4_timing`). The review of every criterion is in
-[Gate review (SN-299)](#gate-review-sn-299) below.
+Status on 2026-11-15: **G12a, G12b and G12c are met.** The owner's bench
+session of 2026-11-15 gave the last board items: `f4_float`'s checksums
+equal the simulator's (G12b.5), the instruction timing was calibrated with
+`f4_timing` (G12b.9: within 0.3 % with no wait state or the ART
+accelerator on), `f4_blink`'s busy loop takes 12 cycles a turn on both
+(G12b.1), and STM32CubeIDE debugs the chip in the circuit (G12b.7). The
+review of every criterion is in [Gate review (SN-299)](#gate-review-sn-299)
+below. **Decision DE12 (owner, 2026-11-15): the STM32F407 runs on the own
+emulator and is no longer experimental**
+([ADR 0110](../decisions/0110-stm32f4-on-the-own-emulator.md)).
 
 ## Prerequisites (SN-292)
 
@@ -302,47 +306,150 @@ I2C are masters only, without I2S, CRC, TI mode or the I2C noise filters;
 the LSI is exactly 32 kHz (a chip's varies from 17 to 47 kHz); the RNG's
 numbers are a fixed sequence.
 
+## The bench session of 2026-11-15
+
+The owner's STM32F407VET6 board (25 MHz crystal), an ST-LINK, a USB-serial
+adapter on PA9 and a logic analyzer at 8 MHz.
+
+**`f4_float` (G12b.5).** The board printed `A 1A3EE223`, `B 183ECD01`,
+`C 596EC23A`, `I 46B57D98`, `x 40182DAE`, `done`: the simulator's lines,
+byte for byte. This is the check G12a.1 waited for: the FPU's arithmetic,
+the DSP instructions and the lazy stacking under an interrupt give the
+chip's results.
+
+**`f4_timing` (G12b.9).** New firmware (`examples/firmware/f4_timing`):
+27 loops counted with DWT CYCCNT, 1000 iterations each (10 of `long`, a
+2 KiB loop, twice the ART accelerator's instruction cache), at 16 MHz
+with no wait state, then at 168 MHz with 5 wait states in three setups:
+prefetch and both caches (STM32CubeMX's), the caches without prefetch,
+and the accelerator off. The board's seven reports were identical. Its
+first two setups printed the same numbers, and the third differs only in
+`long`: with the accelerator on, the wait states are not seen.
+
+| Loop | Board, 16 MHz and ART on | Simulator before | Simulator now | Board, ART off | Simulator now |
+|---|---|---|---|---|---|
+| `empty` | 3002 | 3002 | 3002 | 3005 | 3007 |
+| `alu` | 11001 | 11002 | 11002 | 18997 | 18997 |
+| `ldr` | 12003 | 12002 | 12002 | 20000 | 20001 |
+| `ldr_alu` | 15002 | 15002 | 15002 | 21999 | 22001 |
+| `ldr_flash` | 12002 | 12002 | 12002 | 20004 | 20006 |
+| `str` | 11002 | 11002 | 11002 | 19999 | 19001 (-5.0 %) |
+| `mul` | 11001 | 11002 | 11002 | 18997 | 18997 |
+| `udiv_small` | 51001 | 51002 | 51002 | 56997 | 56997 |
+| `udiv_large` | 99001 | 99001 | 99001 | 104996 | 104995 |
+| `branch` | 19002 | 19002 | 19002 | 39999 | 41001 (+2.5 %) |
+| `call` | 35002 | 35002 | 35002 | 130999 | 137001 (+4.6 %) |
+| `ldm` | 43003 | 43002 | 43002 | 49000 | 51001 (+4.1 %) |
+| `push_pop` | 51002 | **43002** | 51002 | 56999 | 57001 |
+| `smlad` | 11001 | 11002 | 11002 | 26997 | 26997 |
+| `vadd` | 18002 | **11003** | 18003 | 32992 | 29997 (-9.1 %) |
+| `vmul` | 18002 | **11003** | 18003 | 32992 | 29997 (-9.1 %) |
+| `vfma` | 25001 | **27002** | 25002 | 35991 | 32996 (-8.3 %) |
+| `vdiv` | 111992 | **115003** | 111993 | 111992 | 111993 |
+| `vsqrt` | 111991 | **115002** | 111992 | 111994 | 111993 |
+| `vldr` | 12003 | **19002** | 12002 | 26999 | 28001 (+3.7 %) |
+| `vmov` | 11001 | 11002 | 11002 | 26998 | 26997 |
+| `long` | 10271 (12922 without prefetch) | 10272 | 10272 (12891) | 12922 | 12891 |
+| `c_sort` | 48715 | **53363** | 48713 | 107943 | 92789 (-14.0 %) |
+| `c_crc` | 54013 | 54011 | 54011 | 138017 | 127017 (-8.0 %) |
+| `c_filter` | 14017 | 14018 | 14013 | 35033 | 35026 |
+| `irq` | 4108 | **3507** | 4107 | 6220 | 6314 (+1.5 %) |
+| `irq_fpu` | 8510 | **4209** | 8509 | 9733 | 10514 (+8.0 %) |
+
+With no wait state, or with them behind the accelerator, the simulator is
+now within **0.24 %** of the chip on every loop (the gate asked for 2 %);
+with the accelerator off it is an approximation, within **14 %**. Test:
+`f4: the timing firmware gives the cycles of the owner's STM32F407`.
+
+What the numbers changed in the core, for the Cortex-M4 only
+(`Cpu::m4_cost`, `src/emu/cpu.cpp`):
+- **The FPU works on while the core goes on.** A floating-point
+  operation costs the core one cycle; the next floating-point instruction
+  waits until the FPU is free: 3 cycles after a multiply-accumulate, 14
+  after a divide or a square root (eight divides and the loop's `SUBS` and
+  `BNE` take 112 cycles, not 115). An add, subtract, multiply or
+  conversion gives its result a cycle later to the instruction right
+  after it (a chain of dependent `VADD` takes two cycles each; in
+  `c_filter`, where they are not back to back, one).
+- **`VLDR` and `VSTR` pipeline** as `LDR` and `STR` do.
+- **A load from the SRAM right after a store to it** waits two cycles and
+  does not pipeline, and a single store before it is not hidden
+  (`PUSH` then `POP` of four registers: 12 cycles, not 10; `f4_blink`'s
+  `volatile` loop: 12 cycles a turn, not 8). The Blue Pill's Cortex-M3
+  does not show this (its `push_pop` is 43001).
+- Two notes of the Cortex-M4 manual on load and store timing, which
+  `c_sort` shows: a load or store whose address comes from the
+  data-processing instruction right before it waits a cycle, and a load
+  with base update followed by a compare gives its cycle back.
+- **Exceptions with a floating-point frame**: one cycle more to enter and
+  one to return while the registers were not saved; 20 cycles for the
+  lazy save when the handler first uses the FPU and 19 to read the
+  registers back (`irq_fpu`: 85 cycles an interrupt against 41).
+- **The flash** (`Cpu::set_art_flash`): no wait is seen with prefetch on;
+  with the caches alone, a 64-line instruction cache of 128-bit lines
+  (least recently used), a missing line costing the wait states less the
+  cycles the core has work for; with the accelerator off, every taken
+  branch reads the flash again.
+
+**Limits of the calibration.**
+- The rules are the simplest that give the 27 loops; each was seen in one
+  or two forms. The store-then-load wait was measured with the same
+  address (the stack) and is applied to any two SRAM addresses; the split
+  of the exception's extra cycles between entry and return was not
+  measured apart, only their sum.
+- Prefetch without the caches was not measured: it counts as the
+  accelerator on.
+- The accelerator off is approximate (table above); firmware that sets
+  the latency and leaves `FLASH_ACR`'s other bits at zero runs up to 14 %
+  off on these loops.
+- The Cortex-M3 keeps its model (the manual's two notes would apply to
+  it too, but its measurements do not show them).
+
+**`f4_blink` (G12b.1).** On the analyzer PB0 is 754 ms high and 754 ms
+low, PC13's period 1003 ms and PA0's 501 ms: the board's HSI is 0.3 %
+slow, so the busy loop of 1 000 000 turns takes 751.7 ms of an exact
+16 MHz, 12.03 cycles a turn. The simulator gave 501.25 ms (8.02 cycles)
+before the calibration and gives **751.82 ms** now. This loop was not
+used to fit the rules: it confirms the store-then-load wait.
+
+**STM32CubeIDE's debugger (G12b.7).** The owner debugged an STM32CubeMX
+project (an LED on PC13, the HAL, 168 MHz from the 25 MHz crystal) in the
+circuit with a *GDB Hardware Debugging* configuration: STM32CubeIDE's
+`arm-none-eabi-gdb`, *Use remote target*, Generic TCP/IP, protocol
+`remote`, `localhost:3333`. The session stops at `Reset_Handler`;
+breakpoints and stepping work; the Registers view shows r0 to r15, the
+special registers, S0 to S31 and FPSCR (0x10, the inexact flag, after a
+float operation); after the debugger ends the firmware goes on, and a new
+session connects. The LED blinked at the same rate in the simulation and
+on the board. Not done: the import of `f4_clock.elf` as an *STM32 Cortex-M
+Executable* did not work for the owner (not investigated; the guide now
+describes the configuration that worked), and the SFRs view was not
+reported.
+
 ## Gate review (SN-299)
 
-Prepared on 2026-11-13 for the review with the owner. "Host" means measured
-by the tests on the owner's laptop; "board" means on the owner's STM32F407VET6
-board (25 MHz crystal) with the owner's instruments.
-
-**`f4_timing`** (new, `examples/firmware/f4_timing`): the five loops of the
-plan grew to 27, as `cycle_loops` did for the Blue Pill: integer, loads and
-stores (from SRAM and from the flash), multiply and divide, branches and
-calls, `LDM` and `PUSH`/`POP`, `SMLAD`, the FPU's add, multiply, fused
-multiply-add, divide, square root, `VLDR` and `VMOV`, a 2 KiB loop (twice
-the ART accelerator's instruction cache), three C functions (sort, CRC-32,
-a float filter) and SysTick entries with and without lazy stacking. They run
-at 16 MHz with no wait state, then at 168 MHz with 5 wait states in three
-setups: prefetch and both caches (STM32CubeMX's), the caches without
-prefetch, and the accelerator off. In the simulator the 16 MHz block has
-the Cortex-M4 manual's counts (`alu 11002`, `vadd 11003`, `vfma 27002`,
-`vdiv 115003`: one, one, three and fourteen cycles); the 168 MHz blocks are
-the provisional model (no wait state with any of the accelerator on, every
-flash access paying the latency with it off), which the board's report will
-replace. Test: `f4: the timing firmware reports its loops in four flash
-setups`.
+"Host" means measured by the tests on the owner's laptop; "board" means on
+the owner's STM32F407VET6 board (25 MHz crystal) with the owner's
+instruments, on 2026-11-13 and 2026-11-15.
 
 | Criterion | Host | Board | Verdict |
 |---|---|---|---|
-| G12a.1 instructions against the pseudocode | met by test | `f4_float` (G12b.5) is the check | **met on the host**; the documents' text not read |
+| G12a.1 instructions against the pseudocode | met by test | `f4_float`'s checksums equal | **met**; the documents' text not read |
 | G12a.2 random differential | met (6 000 000 results, 0 differences) | — | **met** |
-| G12a.3 lazy stacking | met (seven scenarios) | — | **met**; a PendSV context switch with an RTOS not tested |
-| G12a.4 speed of the core | 133 vs 135 MIPS; 70-78 MIPS with FPU | — | **met** |
+| G12a.3 lazy stacking | met (seven scenarios) | `f4_float`'s interrupt, `irq_fpu`'s cycles | **met**; a PendSV context switch with an RTOS not tested |
+| G12a.4 speed of the core | 143 vs 144 MIPS; 85 MIPS with FPU (2026-11-15) | — | **met** |
 | G12a.5 decoding robustness | met | — | **met** |
-| G12a.6 the Cortex-M3 unchanged | met (-0.8 to -1.7 %) | — | **met** |
-| G12b.1 `f4_blink` period in cycles | 501.254 ms for the busy loop | PB0's period not measured yet | **open: board** |
+| G12a.6 the Cortex-M3 unchanged | met; its timing tests unchanged by the calibration | — | **met** |
+| G12b.1 `f4_blink` period in cycles | 751.82 ms for the busy loop | 754 ms with an HSI 0.3 % slow: 751.7 ms | **met** |
 | G12b.2 clock tree from the crystal | met | example 67 printed the `SYSCLK` line and the ticks at 115200 baud | **met** |
 | G12b.3 GPIO and alternate functions | met | examples 67-71 drove their pins as simulated | **met**; 5 V tolerance not modelled |
 | G12b.4 the six serial ports | met for USART1 and USART2 | USART1 | **met for two ports**; the other four share the model |
-| G12b.5 `f4_float`'s checksum | the five lines | not run yet | **open: board** |
+| G12b.5 `f4_float`'s checksum | the five lines | the same five lines | **met** |
 | G12b.6 resets | met | example 70 behaved as simulated (the watchdog's reset not reported separately) | **met on the host** |
-| G12b.7 debugging with STM32CubeIDE | the GDB target and the Register Viewer by test | not tried yet | **open: board** |
+| G12b.7 debugging with STM32CubeIDE | the GDB target and the Register Viewer by test | breakpoints, stepping, the core's and the FPU's registers, reconnecting | **met**; the SFRs view not reported |
 | G12b.8 speed in the circuit | `f4_blink` 7.7x; examples 70, 71 5-6x; busy loop at 168 MHz 0.79-0.85x, stated in the guide | — | **met** |
-| G12b.9 board comparison and calibration | `f4_timing` ready | `f4_clock` matched (example 67); `f4_float`, the blink period and `f4_timing` not run | **open: board** |
-| G12b.10 repeatable runs | met | — | **met** |
+| G12b.9 board comparison and calibration | 27 loops within 0.24 % (ART on or no wait state) | `f4_clock`, `f4_float`, `f4_timing`, `f4_blink` | **met**; the baud rate seen on the terminal, not on the analyzer; the accelerator off within 14 % |
+| G12b.10 repeatable runs | met | the board's seven `f4_timing` reports identical | **met** |
 | G12b.11 the other chips unchanged | ctest, `examples_pass.py`, `examples_gui_pass.py` | — | **met** |
 | G12c.1 timers | met (limits in SN-297) | example 71's PWM | **met on the host** |
 | G12c.2 ADC | met | example 68 as simulated | **met on the host**, labeled approximate |
@@ -352,23 +459,17 @@ setups`.
 | G12c.6 RTC | met | example 70 as simulated | **met on the host** |
 | G12c.7 `f4_station` on the board | the trace | similar time, PWM_AVG and PA4 (by eye, values not written down) | **met by the owner's comparison**, not to the plan's tolerances |
 
-**Reading of DE12.** By the plan's outcomes, G12a passes and G12b passes
-except the three board items; the part stays **experimental** until
-G12b.9. Nothing measured asks for a stop or a speed week. What closes
-E-12 is one session on the bench, about half an hour:
-
-1. `f4_float`: the five checksum lines and `done` (G12b.5).
-2. `f4_timing`: one whole report from `f4_timing v1` to `end` (G12b.9);
-   the timing model is then calibrated from it, as SN-181 did for the
-   Blue Pill, with a test holding the numbers within 2 %.
-3. `f4_blink` with the logic analyzer: PB0's half period (G12b.1, G12b.9).
-4. STM32CubeIDE's debugger against example 67 (G12b.7): a breakpoint,
-   stepping, the FPU registers, a peripheral register.
-
-Then the ADR for the STM32F4 on the own emulator, and the owner's
-decision on dropping the experimental label.
+**Reading of DE12.** G12a and G12b pass, and G12b.9 with them; G12c
+passes on the host with the owner's comparison of its examples. By the
+plan's outcomes this asks for the ADR and lets the part stop being
+experimental. The owner decided so on 2026-11-15
+([ADR 0110](../decisions/0110-stm32f4-on-the-own-emulator.md)), with the
+ADC labeled approximate and the limits above in the guide. The part, the
+examples, the status text and the guides lost the experimental label.
 
 ## Next
 
-The owner's bench session above (SN-296); then the calibration, the ADR and
-DE12 (SN-299).
+E-12 is closed. Left for a later bench session, none blocking: the ADC
+against a measured voltage, `f4_station`'s PWM and DAC to the plan's
+tolerances, the baud rate on the analyzer, the SFRs view and the import of
+an ELF alone in STM32CubeIDE.

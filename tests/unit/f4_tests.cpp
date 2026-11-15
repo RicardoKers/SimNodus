@@ -15,6 +15,7 @@
 #include "emu/stm32f407.hpp"
 
 #include <algorithm>
+#include <cmath>
 #include <cstdint>
 #include <cstdio>
 #include <cstring>
@@ -129,7 +130,9 @@ TEST_CASE("f4: the blink firmware toggles its pins with the SysTick's exact peri
     const auto& led = t.of(C, 13);
     REQUIRE(led.size() >= 5);
     for (std::size_t i = 2; i < led.size(); ++i) { // the first entry is the pin becoming an output
-        CHECK(led[i].first - led[i - 1].first == 500 * ms);
+        // To the microsecond: the handler starts a few cycles later after some instructions.
+        const std::uint64_t step = led[i].first - led[i - 1].first;
+        CHECK(step > 500 * ms - 1000 && step < 500 * ms + 1000);
         CHECK(led[i].second != led[i - 1].second);
     }
     CHECK(led[1].first > 500 * ms);
@@ -150,8 +153,10 @@ TEST_CASE("f4: the blink firmware toggles its pins with the SysTick's exact peri
     const std::uint64_t period = loop[2].first - loop[1].first;
     std::printf("  busy loop of 1 000 000 turns: %.3f ms (%.2f cycles a turn)\n", static_cast<double>(period) / 1e6,
         static_cast<double>(period) * 16e6 / 1e9 / 1e6);
-    CHECK(period > 300 * ms);
-    CHECK(period < 800 * ms);
+    // The owner's board (2026-11-15): 754 ms high and 754 ms low, with PC13's period at 1003 ms
+    // (its HSI is 0.3 % slow): 751.7 ms of an exact 16 MHz, 12 cycles a turn (gates G12b.1, G12b.9).
+    CHECK(period > 750 * ms);
+    CHECK(period < 753 * ms);
     for (std::size_t i = 3; i < loop.size(); ++i) {
         const std::uint64_t other = loop[i].first - loop[i - 1].first;
         CHECK(other > period - ms / 100 && other < period + ms / 100);
@@ -251,12 +256,30 @@ TEST_CASE("f4: floating point and DSP firmware prints its checksums, the same on
     }
 }
 
-TEST_CASE("f4: the timing firmware reports its loops in four flash setups")
+TEST_CASE("f4: the timing firmware gives the cycles of the owner's STM32F407")
 {
-    // f4_timing is what the timing model will be calibrated with on the
-    // owner's chip (SN-296, G12b.9). Until then: the TRM's counts with no
-    // wait state, the accelerator hiding the five wait states, and every
-    // flash access paying them with the accelerator off.
+    // f4_timing on the owner's STM32F407VET6 (2026-11-15, SN-296, G12b.9):
+    // 1000 iterations of each loop (10 of `long`) at 16 MHz with no wait
+    // state, then at 168 MHz with 5 wait states with prefetch and the caches,
+    // with the caches alone (only `long`, twice the instruction cache, differs)
+    // and with the ART accelerator off.
+    struct BoardCycles {
+        const char* name;
+        double no_wait; // the first two setups printed the same numbers
+        double off;
+    };
+    static constexpr BoardCycles board[] = {
+        {"empty", 3002, 3005},        {"alu", 11001, 18997},        {"ldr", 12003, 20000},
+        {"ldr_alu", 15002, 21999},    {"ldr_flash", 12002, 20004},  {"str", 11002, 19999},
+        {"mul", 11001, 18997},        {"udiv_small", 51001, 56997}, {"udiv_large", 99001, 104996},
+        {"branch", 19002, 39999},     {"call", 35002, 130999},      {"ldm", 43003, 49000},
+        {"push_pop", 51002, 56999},   {"smlad", 11001, 26997},      {"vadd", 18002, 32992},
+        {"vmul", 18002, 32992},       {"vfma", 25001, 35991},       {"vdiv", 111992, 111992},
+        {"vsqrt", 111991, 111994},    {"vldr", 12003, 26999},       {"vmov", 11001, 26998},
+        {"long", 10271, 12922},       {"c_sort", 48715, 107943},    {"c_crc", 54013, 138017},
+        {"c_filter", 14017, 35033},   {"irq", 4108, 6220},          {"irq_fpu", 8510, 9733},
+    };
+    constexpr double long_without_prefetch = 12922;
     F4MachineOptions options;
     options.hse_hz = 25000000;
     auto m = machine_with("f4_timing", options);
@@ -272,20 +295,32 @@ TEST_CASE("f4: the timing firmware reports its loops in four flash setups")
         REQUIRE(section != std::string::npos);
         const auto at = text.find("\n" + std::string(name) + " ", section);
         REQUIRE(at != std::string::npos);
-        return std::stoul(text.substr(at + std::strlen(name) + 2));
+        return std::stod(text.substr(at + std::strlen(name) + 2));
     };
     const char* const slow = "# 16 MHz";
     const char* const art = "# 168 MHz, 5 wait states, prefetch and caches";
+    const char* const caches = "# 168 MHz, 5 wait states, caches without prefetch";
     const char* const off = "# 168 MHz, 5 wait states, ART off";
-    CHECK(cycles(slow, "alu") == 11002);   // 8 ADDS and SUBS: one cycle each, BNE two, 1000 times
-    CHECK(cycles(slow, "vadd") == 11003);  // VADD.F32: one cycle
-    CHECK(cycles(slow, "vfma") == 27002);  // VFMA.F32: three
-    CHECK(cycles(slow, "vdiv") == 115003); // VDIV.F32: fourteen
-    CHECK(cycles(slow, "smlad") == 11002);
-    CHECK(cycles(art, "alu") == cycles(slow, "alu"));
-    CHECK(cycles(art, "c_filter") == cycles(slow, "c_filter"));
-    CHECK(cycles(off, "alu") > cycles(art, "alu"));
-    CHECK(cycles(off, "ldr_flash") > cycles(off, "ldr"));
+    double worst = 0, worst_off = 0;
+    for (const auto& b : board) {
+        const double at_16 = cycles(slow, b.name);
+        const double with_art = cycles(art, b.name);
+        const double with_caches = cycles(caches, b.name);
+        const double without = cycles(off, b.name);
+        const double board_caches = std::string(b.name) == "long" ? long_without_prefetch : b.no_wait;
+        std::printf("  %-10s 16 MHz %6.0f board %6.0f (%+5.2f %%)  caches %6.0f board %6.0f (%+5.2f %%)  ART off %6.0f board %6.0f (%+5.1f %%)\n",
+                    b.name, at_16, b.no_wait, 100.0 * (at_16 / b.no_wait - 1.0), with_caches, board_caches,
+                    100.0 * (with_caches / board_caches - 1.0), without, b.off, 100.0 * (without / b.off - 1.0));
+        // Gate G12b.9: within 2 % (they are within 0.3 %).
+        CHECK(std::abs(at_16 / b.no_wait - 1.0) <= 0.003);
+        CHECK(with_art == at_16);
+        CHECK(std::abs(with_caches / board_caches - 1.0) <= 0.003);
+        // The accelerator off is an approximation: within 15 %.
+        CHECK(std::abs(without / b.off - 1.0) <= 0.15);
+        worst = std::max({worst, std::abs(at_16 / b.no_wait - 1.0), std::abs(with_caches / board_caches - 1.0)});
+        worst_off = std::max(worst_off, std::abs(without / b.off - 1.0));
+    }
+    std::printf("  worst: %.2f %% with no wait state or the accelerator on, %.1f %% with it off\n", 100.0 * worst, 100.0 * worst_off);
 }
 
 TEST_CASE("f4: a push button on PA0 runs the EXTI0 handler on both edges")
