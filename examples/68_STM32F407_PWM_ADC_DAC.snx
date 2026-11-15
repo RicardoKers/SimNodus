@@ -375,7 +375,7 @@
         -50
       ],
       "id": 60,
-      "text": "STM32F407VET6 (experimental): timers, the ADC and the DAC, at 16 MHz (HSI).\nTIM2 starts ADC1 every millisecond on PA1 (RV1's wiper); the result sets\nthe duty cycle of TIM1's 20 kHz PWM on PA8 and its complement on PB13\n(0.5 us of dead time), and DAC channel 1 gives it back on PA4.\nR1 and C3 average the PWM: about the same voltage as PA1.\nDAC channel 2 on PA5 draws a triangle (1.24 V to 2.06 V, about 5 Hz) on TIM6.\nUSART1 (PA9, 115200 baud) prints the code every 100 ms.\nTry: turn RV1 while running and watch the probes in the Signal Analyzer."
+      "text": "STM32F407VET6: timers, the ADC and the DAC, at 16 MHz (HSI).\nTIM2 starts ADC1 every millisecond on PA1 (RV1's wiper); the result sets\nthe duty cycle of TIM1's 20 kHz PWM on PA8 and its complement on PB13\n(0.5 us of dead time), and DAC channel 1 gives it back on PA4.\nR1 and C3 average the PWM: about the same voltage as PA1.\nDAC channel 2 on PA5 draws a triangle (1.24 V to 2.06 V, about 5 Hz) on TIM6.\nUSART1 (PA9, 115200 baud) prints the code every 100 ms.\nTry: turn RV1 while running and watch the probes in the Signal Analyzer."
     }
   ],
   "probes": [

@@ -1,6 +1,6 @@
 # ADR 0110: The STM32F407 on SimNodus's own emulator
 
-Date: 2026-11-15. Status: **proposed** (decision DE12 waits for the owner).
+Date: 2026-11-15. Status: **accepted** (decision DE12, owner, 2026-11-15).
 
 ## Context
 
@@ -33,7 +33,7 @@ code and compared the result with the owner's board:
 - Instruction timing is calibrated on a real chip with a counting
   firmware, as for the Blue Pill (SN-181): the Cortex-M4's rules are
   apart from the Cortex-M3's and apply to the Cortex-M4 only.
-- **Proposed: the `stm32f407vet6_lqfp100` part is no longer marked
+- **The `stm32f407vet6_lqfp100` part is no longer marked
   experimental.** These stay labeled in the guide: the ADC is approximate
   until compared with a measured voltage; timing with wait states and the
   accelerator off is an approximation (within 14 % on the measured
@@ -46,7 +46,7 @@ code and compared the result with the owner's board:
 ## Alternatives
 
 - **Keep the part experimental** until every G12c item is measured on the
-  board to the plan's tolerances. Not chosen in this proposal: the plan
+  board to the plan's tolerances. Not chosen: the plan
   ties the label to G12b.9, which passed, and the owner's comparison of
   the five examples found one difference, a breadboard wire.
 - **Another emulator for the Cortex-M4** (Renode, QEMU). Not chosen: the

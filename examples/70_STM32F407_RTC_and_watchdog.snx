@@ -457,7 +457,7 @@
         -64
       ],
       "id": 57,
-      "text": "STM32F407VET6 (experimental): the RTC, its backup registers and the watchdog, at 16 MHz (HSI).\nThe RTC counts on Y2 (32.768 kHz, PC14 and PC15). The first start sets 2026-11-12 12:00:00;\nthe wakeup timer prints the time every second on USART1 (PA9, 115200 baud) and toggles LED1 (PC13);\nalarm A prints \"alarm\" when the seconds are 05.\nHold SW2 (PA0) for 2 s: the firmware stops reloading the watchdog, which resets the chip.\nThe calendar and the start count (a backup register) go on; SW1 (NRST) resets it too.\nTry: delete Y2: the firmware waits for the LSE, then runs the RTC on the LSI (32 kHz)."
+      "text": "STM32F407VET6: the RTC, its backup registers and the watchdog, at 16 MHz (HSI).\nThe RTC counts on Y2 (32.768 kHz, PC14 and PC15). The first start sets 2026-11-12 12:00:00;\nthe wakeup timer prints the time every second on USART1 (PA9, 115200 baud) and toggles LED1 (PC13);\nalarm A prints \"alarm\" when the seconds are 05.\nHold SW2 (PA0) for 2 s: the firmware stops reloading the watchdog, which resets the chip.\nThe calendar and the start count (a backup register) go on; SW1 (NRST) resets it too.\nTry: delete Y2: the firmware waits for the LSE, then runs the RTC on the LSI (32 kHz)."
     }
   ],
   "probes": [

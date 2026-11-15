@@ -10,9 +10,9 @@ equal the simulator's (G12b.5), the instruction timing was calibrated with
 accelerator on), `f4_blink`'s busy loop takes 12 cycles a turn on both
 (G12b.1), and STM32CubeIDE debugs the chip in the circuit (G12b.7). The
 review of every criterion is in [Gate review (SN-299)](#gate-review-sn-299)
-below; decision DE12 is proposed in
-[ADR 0110](../decisions/0110-stm32f4-on-the-own-emulator.md) and waits for
-the owner.
+below. **Decision DE12 (owner, 2026-11-15): the STM32F407 runs on the own
+emulator and is no longer experimental**
+([ADR 0110](../decisions/0110-stm32f4-on-the-own-emulator.md)).
 
 ## Prerequisites (SN-292)
 
@@ -462,11 +462,14 @@ instruments, on 2026-11-13 and 2026-11-15.
 **Reading of DE12.** G12a and G12b pass, and G12b.9 with them; G12c
 passes on the host with the owner's comparison of its examples. By the
 plan's outcomes this asks for the ADR and lets the part stop being
-experimental. [ADR 0110](../decisions/0110-stm32f4-on-the-own-emulator.md)
-proposes that, with the ADC labeled approximate and the limits above in
-the guide. The decision is the owner's.
+experimental. The owner decided so on 2026-11-15
+([ADR 0110](../decisions/0110-stm32f4-on-the-own-emulator.md)), with the
+ADC labeled approximate and the limits above in the guide. The part, the
+examples, the status text and the guides lost the experimental label.
 
 ## Next
 
-The owner's decision DE12. If accepted: the part, the examples and the
-guides lose the experimental label.
+E-12 is closed. Left for a later bench session, none blocking: the ADC
+against a measured voltage, `f4_station`'s PWM and DAC to the plan's
+tolerances, the baud rate on the analyzer, the SFRs view and the import of
+an ELF alone in STM32CubeIDE.

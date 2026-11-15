@@ -721,14 +721,15 @@ experimental until it is compared with a real board.
 - **Example**: 58 (the serial example of section *ATmega328 and
   ATmega328P* built for 16 MHz; `l` toggles the L LED).
 
-## STM32F407VET6 (experimental)
+## STM32F407VET6
 
 The **STM32F407VET6 (LQFP-100)** part (Microcontrollers) is the bare chip
 with its 100 pins: a Cortex-M4 with a single-precision FPU, 512 KB of flash
 and 192 KB of RAM, up to 168 MHz. It runs the ELF file that STM32CubeIDE
-builds, FPU included. It is **experimental**: only part of the chip is
-simulated. Examples 67 to 71, the floating-point results and the time
-instructions take were compared with a real chip in 2026-11.
+builds, FPU included. Examples 67 to 71, the floating-point results and
+the time instructions take were compared with a real chip in 2026-11.
+Only part of the chip is simulated (see *Not yet simulated* below), and the
+ADC is approximate: it has not been compared with a measured voltage.
 
 - **What works**: the clock tree (HSI, HSE, the PLL), GPIO with the
   alternate function numbers, external interrupts on any port, the six

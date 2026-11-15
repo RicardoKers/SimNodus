@@ -1,9 +1,9 @@
 {
   "type": "stm32f407vet6_lqfp100",
-  "name": "STM32F407VET6 (LQFP-100, experimental)",
+  "name": "STM32F407VET6 (LQFP-100)",
   "category": "Microcontrollers",
   "prefix": "U",
-  "description": "STMicroelectronics STM32F407VET6 in LQFP-100 (experimental until compared with a real chip): a Cortex-M4 with FPU, 512 KB flash, 192 KB RAM, up to 168 MHz. Runs an ELF file from STM32CubeIDE in the SimNodus emulator. So far: clocks, GPIO, external interrupts and the six serial ports; timers, ADC, DAC, SPI, I2C, DMA and RTC are not simulated yet. A Crystal between PH0 and PH1 is the HSE (none: the HSE never starts); tie BOOT0 to ground and wire the VDD and VSS pins (3.3 V)",
+  "description": "STMicroelectronics STM32F407VET6 in LQFP-100: a Cortex-M4 with FPU, 512 KB flash, 192 KB RAM, up to 168 MHz. Runs an ELF file from STM32CubeIDE in the SimNodus emulator: clocks, GPIO, external interrupts, the six serial ports, timers, ADC, DAC, SPI, I2C, DMA and the RTC. A Crystal between PH0 and PH1 is the HSE (none: the HSE never starts); tie BOOT0 to ground and wire the VDD and VSS pins (3.3 V)",
   "symbol": {
     "graphics": [
       {

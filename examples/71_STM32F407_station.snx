@@ -606,7 +606,7 @@
         -64
       ],
       "id": 80,
-      "text": "STM32F407VET6 (experimental): the station of the board comparison, at 168 MHz (PLL from Y1, 25 MHz).\nThe RTC (Y2, 32.768 kHz) wakes the core every second; it sleeps in between. Each second the LM75 on\nI2C1 gives the temperature: TIM3's 1 kHz PWM on PA6 gets 10 counts of 1000 per degree (R1 and C5\naverage it), the DAC on PA4 40 codes per degree, and USART1 (PA9, 115200 baud) prints a line\nthrough DMA2, such as \"12:00:01 2026-11-12 lm75 23.5 pwm 235 dac 940\".\nTry: change U5's temperature while running and watch PA4 and PWM_AVG."
+      "text": "STM32F407VET6: the station of the board comparison, at 168 MHz (PLL from Y1, 25 MHz).\nThe RTC (Y2, 32.768 kHz) wakes the core every second; it sleeps in between. Each second the LM75 on\nI2C1 gives the temperature: TIM3's 1 kHz PWM on PA6 gets 10 counts of 1000 per degree (R1 and C5\naverage it), the DAC on PA4 40 codes per degree, and USART1 (PA9, 115200 baud) prints a line\nthrough DMA2, such as \"12:00:01 2026-11-12 lm75 23.5 pwm 235 dac 940\".\nTry: change U5's temperature while running and watch PA4 and PWM_AVG."
     }
   ],
   "probes": [

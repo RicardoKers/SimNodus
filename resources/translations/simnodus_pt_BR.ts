@@ -2914,8 +2914,8 @@ Permitir para este projeto neste computador? Sem isso, a rede das placas fica de
             <translation>; cada instrução do firmware leva um ciclo (mais rápido que um chip real)</translation>
         </message>
         <message>
-            <source>; the STM32F407 is experimental: not yet compared with a real chip; its instructions take the Cortex-M4's cycles without flash wait states (approximate), and its timers, ADC, DAC, SPI, I2C, DMA and RTC are not simulated yet</source>
-            <translation>; o STM32F407 é experimental: ainda não comparado com um chip real; suas instruções levam os ciclos do Cortex-M4 sem os estados de espera da flash (aproximado), e seus timers, ADC, DAC, SPI, I2C, DMA e RTC ainda não são simulados</translation>
+            <source>; the STM32F407's instructions take the cycles measured on a real chip (within 0.3 % with the flash's accelerator on or no wait state, approximate with it off)</source>
+            <translation>; as instruções do STM32F407 levam os ciclos medidos em um chip real (dentro de 0,3 % com o acelerador da flash ligado ou sem estados de espera, aproximado com ele desligado)</translation>
         </message>
         <message>
             <source>; the ESP32-C3 is experimental: not yet compared with a real board, one instruction per CPU clock cycle (approximate)</source>
@@ -5260,12 +5260,12 @@ Permitir para este projeto neste computador? Sem isso, a rede das placas fica de
             <translation>Temperatura do chip que o seu sensor de temperatura mede; mude-a durante a simulação para testar o firmware (-40 a 125 °C)</translation>
         </message>
         <message>
-            <source>STM32F407VET6 (LQFP-100, experimental)</source>
-            <translation>STM32F407VET6 (LQFP-100, experimental)</translation>
+            <source>STM32F407VET6 (LQFP-100)</source>
+            <translation>STM32F407VET6 (LQFP-100)</translation>
         </message>
         <message>
-            <source>STMicroelectronics STM32F407VET6 in LQFP-100 (experimental until compared with a real chip): a Cortex-M4 with FPU, 512 KB flash, 192 KB RAM, up to 168 MHz. Runs an ELF file from STM32CubeIDE in the SimNodus emulator. So far: clocks, GPIO, external interrupts and the six serial ports; timers, ADC, DAC, SPI, I2C, DMA and RTC are not simulated yet. A Crystal between PH0 and PH1 is the HSE (none: the HSE never starts); tie BOOT0 to ground and wire the VDD and VSS pins (3.3 V)</source>
-            <translation>STMicroelectronics STM32F407VET6 em LQFP-100 (experimental até ser comparado com um chip real): um Cortex-M4 com FPU, 512 KB de flash, 192 KB de RAM, até 168 MHz. Executa um arquivo ELF do STM32CubeIDE no emulador do SimNodus. Por enquanto: clocks, GPIO, interrupções externas e as seis portas seriais; timers, ADC, DAC, SPI, I2C, DMA e RTC ainda não são simulados. Um Cristal entre PH0 e PH1 é o HSE (sem ele o HSE nunca parte); ligue BOOT0 ao terra e alimente os pinos VDD e VSS (3,3 V)</translation>
+            <source>STMicroelectronics STM32F407VET6 in LQFP-100: a Cortex-M4 with FPU, 512 KB flash, 192 KB RAM, up to 168 MHz. Runs an ELF file from STM32CubeIDE in the SimNodus emulator: clocks, GPIO, external interrupts, the six serial ports, timers, ADC, DAC, SPI, I2C, DMA and the RTC. A Crystal between PH0 and PH1 is the HSE (none: the HSE never starts); tie BOOT0 to ground and wire the VDD and VSS pins (3.3 V)</source>
+            <translation>STMicroelectronics STM32F407VET6 em LQFP-100: um Cortex-M4 com FPU, 512 KB de flash, 192 KB de RAM, até 168 MHz. Executa um arquivo ELF do STM32CubeIDE no emulador do SimNodus: clocks, GPIO, interrupções externas, as seis portas seriais, timers, ADC, DAC, SPI, I2C, DMA e o RTC. Um Cristal entre PH0 e PH1 é o HSE (sem ele o HSE nunca parte); ligue BOOT0 ao terra e alimente os pinos VDD e VSS (3,3 V)</translation>
         </message>
         <message>
             <source>ELF file built for the STM32F407VE (for example with STM32CubeIDE); stored relative to the project</source>

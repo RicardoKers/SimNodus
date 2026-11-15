@@ -1,6 +1,6 @@
 # Current state
 
-Updated: 2026-11-15 (the owner's F4 bench session; the Register Viewer SN-290 and SN-291 on main after 0.18.0; the STM32F407VET6 track E-12: the Cortex-M4F core (G12a on the host), the machine SN-294, the part SN-295 (example 67), the timers, ADC and DAC SN-297 (example 68) and SPI, I2C, DMA, RTC SN-298 (examples 69 to 71) done, the board comparison SN-296 done on 2026-11-15 with the timing calibrated on the chip, every gate met, decision DE12 (ADR 0110, proposed) waits for the owner; release 0.18.0 published: the chart recorder SN-281, the review and speed passes SN-282 to SN-284, the owner's requests SN-285, the protocol decoders SN-286 and SN-288, the chart fix SN-287 and the Memory Viewer's editing SN-289, tested by the owner on the 2026-11-11 previews; DE9 waits for the owner). Keep this file short: present state, last results, next
+Updated: 2026-11-15 (the owner's F4 bench session; the Register Viewer SN-290 and SN-291 on main after 0.18.0; the STM32F407VET6 track E-12: the Cortex-M4F core (G12a on the host), the machine SN-294, the part SN-295 (example 67), the timers, ADC and DAC SN-297 (example 68) and SPI, I2C, DMA, RTC SN-298 (examples 69 to 71) done, the board comparison SN-296 done on 2026-11-15 with the timing calibrated on the chip, every gate met, decision DE12 taken (ADR 0110): the STM32F407 is no longer experimental; release 0.18.0 published: the chart recorder SN-281, the review and speed passes SN-282 to SN-284, the owner's requests SN-285, the protocol decoders SN-286 and SN-288, the chart fix SN-287 and the Memory Viewer's editing SN-289, tested by the owner on the 2026-11-11 previews; DE9 waits for the owner). Keep this file short: present state, last results, next
 steps. Replace it, do not append. History of the first development line
 (2026-08-31 → 2026-10-06) is in
 [archive/2026-10-legacy/CURRENT.md](../archive/2026-10-legacy/CURRENT.md);
@@ -329,10 +329,10 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
    `f4_blink`'s loop 751.8 ms against the board's 751.7 ms; STM32CubeIDE
    debugs a CubeMX project at 168 MHz in the circuit (a *GDB Hardware
    Debugging* configuration). Every gate of E-12 is met (the review in the
-   results). Next: the owner's decision DE12
-   ([ADR 0110](../decisions/0110-stm32f4-on-the-own-emulator.md),
-   proposed: the part no longer experimental); then the labels in the
-   part, examples and guides. Not done: the supply voltage is not read, PH0/PH1 are
+   results). **Decision DE12 (owner, 2026-11-15,
+   [ADR 0110](../decisions/0110-stm32f4-on-the-own-emulator.md)): the
+   STM32F407 is no longer experimental**; the part, examples 67 to 71, the
+   status text and the guides lost the label. E-12 is closed. Not done: the supply voltage is not read, PH0/PH1 are
    not GPIO, the pinout and the alternate function table are from memory
    of the datasheet. STM32CubeF4 1.28.3 is in ~/STM32Cube/Repository.
    The owner's bench: ST-LINK V2 and V3, a USB-serial adapter, a logic

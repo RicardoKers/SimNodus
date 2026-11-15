@@ -1,4 +1,4 @@
-<!-- source: MICROCONTROLLER.md sha256 b695b98a31c9811f010f2294cbfeb5e1592e257ecbbe9acc0da1cd78f15a3b97 -->
+<!-- source: MICROCONTROLLER.md sha256 1db339f23ad87cd97be0fd2dba2246025252b6d5d8d4593c3a0ebd1987261a8a -->
 # Microcontrolador: o que é simulado
 
 O SimNodus executa o firmware da **Blue Pill (STM32F103C8)** em seu próprio emulador
@@ -747,14 +747,15 @@ experimental até ser comparada com uma placa real.
 - **Exemplo**: 58 (o exemplo serial da seção *ATmega328 e ATmega328P*
   compilado para 16 MHz; `l` inverte o LED L).
 
-## STM32F407VET6 (experimental)
+## STM32F407VET6
 
 A peça **STM32F407VET6 (LQFP-100)** (Microcontroladores) é o chip isolado
 com seus 100 pinos: um Cortex-M4 com FPU de precisão simples, 512 KB de flash
 e 192 KB de RAM, até 168 MHz. Ele executa o arquivo ELF que o STM32CubeIDE
-gera, incluindo a FPU. É **experimental**: só parte do chip é simulada.
-Os exemplos 67 a 71, os resultados de ponto flutuante e o tempo que as
-instruções levam foram comparados com um chip real em 2026-11.
+gera, incluindo a FPU. Os exemplos 67 a 71, os resultados de ponto
+flutuante e o tempo que as instruções levam foram comparados com um chip
+real em 2026-11. Só parte do chip é simulada (veja *Ainda não simulado* abaixo),
+e o ADC é aproximado: ainda não foi comparado com uma tensão medida.
 
 - **O que funciona**: a árvore de clock (HSI, HSE, o PLL), GPIO com os
   números de função alternativa, interrupções externas em qualquer porta, as
