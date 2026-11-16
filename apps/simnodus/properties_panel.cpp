@@ -54,7 +54,9 @@ QString validate(const library::Parameter& p, const QString& text)
         return {};
     }
     if (p.kind == library::Parameter::Kind::Text) {
-        return text.trimmed().isEmpty() ? QCoreApplication::translate("PropertiesPanel", "Enter a name.") : QString();
+        // A text that starts empty may be emptied again (a switch's keyboard key).
+        return text.trimmed().isEmpty() && !p.default_value.empty()
+            ? QCoreApplication::translate("PropertiesPanel", "Enter a name.") : QString();
     }
     const auto value = model::parse_engineering(text.toStdString(), p.unit);
     if (!value) {
@@ -440,7 +442,8 @@ void PropertiesPanel::rebuild()
             connect(edit, &QLineEdit::textEdited, this,
                 [edit, parameter](const QString& text) { mark(edit, validate(parameter, text)); });
             connect(edit, &QLineEdit::editingFinished, this, [this, edit, parameter] {
-                if (rebuilding_ || edit->text().isEmpty()) {
+                const bool may_be_empty = parameter.kind == library::Parameter::Kind::Text && parameter.default_value.empty();
+                if (rebuilding_ || (edit->text().isEmpty() && !may_be_empty)) {
                     return;
                 }
                 const QString problem = validate(parameter, edit->text());

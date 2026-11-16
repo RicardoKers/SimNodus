@@ -428,6 +428,42 @@ private slots:
         disconnect(watch); // `seen` ends with this function
     }
 
+    void a_keyboard_key_is_given_and_removed_in_the_properties_panel()
+    {
+        // Owner's report of 2026-11-16: the field did not take an empty text, so a
+        // key once given could not be removed.
+        const model::Id sw = place("spst", {0, 0});
+        window_->scene()->select_ids({sw});
+        const auto field = [&] {
+            auto* edit = window_->properties()->findChild<QLineEdit*>(QStringLiteral("parameter_key"));
+            edit->setFocus();
+            edit->selectAll();
+            return edit;
+        };
+        QVERIFY(window_->properties()->findChild<QLineEdit*>(QStringLiteral("parameter_key")));
+        auto* edit = field();
+        QTest::keyClicks(edit, QStringLiteral("k"));
+        QTest::keyClick(edit, Qt::Key_Return); // to the field itself: a window that is not active has no focus widget
+        QCOMPARE(doc().schematic().component(sw)->parameters.at("key"), std::string("k"));
+        edit = field();
+        QTest::keyClick(edit, Qt::Key_Delete);
+        QVERIFY(edit->text().isEmpty());
+        QVERIFY(edit->toolTip().isEmpty()); // not marked as a mistake
+        QTest::keyClick(edit, Qt::Key_Return);
+        QCOMPARE(doc().schematic().component(sw)->parameters.at("key"), std::string());
+        // No key again: nothing answers the keyboard.
+        bool changed = false;
+        const auto watch = connect(view(), &SchematicView::control_changed, this, [&changed] { changed = true; });
+        view()->set_running(true);
+        QTest::keyClick(view(), Qt::Key_K);
+        view()->set_running(false);
+        disconnect(watch);
+        QVERIFY(!changed);
+        // A text that has a default (a block port's name) still cannot be emptied.
+        const auto* port = window_->library().find("io_bit_in");
+        QVERIFY(port && !port->parameter("address")->default_value.empty());
+    }
+
     void the_digital_input_drives_its_level_and_follows_a_click()
     {
         if (!engine_available()) {
