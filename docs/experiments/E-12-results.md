@@ -463,7 +463,10 @@ of full scale, inside the plan's 1 %; the simulator's 0.757 V is of its
 3.3 V); PA6's period 1 ms with 230 us high. The plan asks for one count
 (1 us) of the 235 printed: 230 us is the duty cycle of 23.0 C, one step of
 the LM75 away, and the line and the analyzer's capture were not taken at
-the same moment. Not confirmed either way.
+the same moment. Not confirmed either way then. Taken again with the
+serial line and PA6 on the analyzer together: the line `12:02:50
+2026-11-12 lm75 23.0 pwm 230 dac 920` with 230 us high in a period of
+1 ms, the simulator's values. Confirmed.
 
 **The baud rate (G12b.9).** One byte of `f4_clock` on PA9 takes 87 us on
 the analyzer; the simulator's is 86.8 us (115226 baud).
@@ -476,8 +479,12 @@ domain had kept "the RTC runs on the LSE" through the resets, and the
 firmware went on waiting for a clock that was gone. That is the chip's
 behaviour, and the firmware's fault: `rtc_open` now waits a second for the
 LSE it remembers and starts again on the LSI if it does not come
-(`f4_rtc` and `f4_station` rebuilt). The LSI run was not repeated on the
-board.
+(`f4_rtc` and `f4_station` rebuilt). With that firmware and no crystal
+the board's calendar runs on the LSI: it counted a minute in 56 s of real
+time, which is an LSI of about 34.3 kHz for the 32 kHz the prescaler
+assumes (the datasheet allows 17 to 47 kHz). The simulator's LSI is
+exactly 32 kHz, so its minute takes 60 s: a difference of the chip's
+oscillator, stated in the guide.
 
 **STM32CubeIDE's SFRs view (G12b.7).** RCC's CFGR reads 0x940A with SWS at
 the PLL, and GPIOC's ODR changes as the LED blinks. The import of an ELF
@@ -513,8 +520,8 @@ instruments, on 2026-11-13, 2026-11-15 and 2026-11-16.
 | G12c.3 DAC | met | within 13 mV of the code's voltage at five points | **met** |
 | G12c.4 SPI and I2C with the parts and the HAL | met | example 69 (after a wiring fix), a 24C08 for the 24C02 | **met** |
 | G12c.5 DMA streams | met | examples 69, 71 print through DMA | **met on the host** |
-| G12c.6 RTC | met | the calendar, the alarm and the backup count on the 32.768 kHz crystal | **met**; the LSI not run on the board |
-| G12c.7 `f4_station` on the board | the trace | the serial line; PA4 within 10 mV; PA6 230 us high against 235 printed, at different moments | **met for the serial line and the DAC**; the PWM's one count not confirmed |
+| G12c.6 RTC | met | the calendar, the alarm and the backup count on the 32.768 kHz crystal | **met**; on the LSI the board's minute takes 56 s (an LSI of 34.3 kHz; the simulator's is 32 kHz exactly) |
+| G12c.7 `f4_station` on the board | the trace | the serial line; PA4 within 10 mV; PA6 230 us high in 1 ms with `pwm 230` printed in the same capture | **met** |
 
 **Reading of DE12.** G12a and G12b pass, and G12b.9 with them; G12c
 passes on the host with the owner's comparison of its examples. By the
@@ -527,6 +534,4 @@ examples, the status text and the guides lost the experimental label.
 ## Next
 
 E-12 is closed. What the last session left:
-- `f4_station`'s PWM with the serial line and the capture taken together.
-- `f4_rtc` on the LSI on the board, with the firmware that falls back.
 - The import of an ELF alone in STM32CubeIDE.

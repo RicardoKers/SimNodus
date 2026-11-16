@@ -822,7 +822,10 @@ and the Messages panel says that a real chip would not convert.
   Messages panel says why.
 - **Watchdogs, CRC, RNG**: the independent watchdog runs on the LSI
   (32 kHz) and the window watchdog on PCLK1; either resets the chip, and
-  `RCC_CSR` says which. The random number generator gives a fixed
+  `RCC_CSR` says which. The LSI is exactly 32 kHz here; a real chip's is
+  anywhere from 17 to 47 kHz (34.3 kHz on the board measured, whose RTC
+  on the LSI counted a minute in 56 s), so watchdog timeouts and an RTC
+  on the LSI differ on a board. The random number generator gives a fixed
   pseudo-random sequence, the same on every run, so that runs repeat.
 - **Speed**: firmware that waits in a busy loop at 168 MHz runs below real
   time (about 0.8 times); firmware that sleeps between interrupts (`WFI`,
