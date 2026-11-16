@@ -8,8 +8,9 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 
 ## Where we are
 
-- **Release 0.19.0 being published on 2026-11-16** (asked by the owner
-  after the E-12 bench sessions and his test of SN-300):
+- **Release 0.19.0 published on 2026-11-16** (tag `v0.19.0`, GitHub release with
+  `SimNodus-0.19.0-windows-x64.zip` and `-setup.exe`), asked by the owner
+  after the E-12 bench sessions and his test of SN-300:
   - E-12: the STM32F407VET6 on the own emulator (Cortex-M4F, examples 67 to
     71), compared with a real chip and no longer experimental (ADR 0110);
     the ADCs and the DAC take their reference from VREF+ on the diagram.
