@@ -1,11 +1,11 @@
-<!-- source: USER_GUIDE.md sha256 bd559aca514fa0d114703a81ccf3c45d2be29af551a274f0ae447c188bed0c25 -->
+<!-- source: USER_GUIDE.md sha256 eb36d79cca5a97aaea975f4b6e7db7ce076f5ce770ec991c45fdb14bdbdff400 -->
 # Guia do usuário do SimNodus
 
 O SimNodus é um simulador para sala de aula: você desenha um circuito, aperta
 F5 e ele continua rodando enquanto você pressiona botões, gira
 potenciômetros e observa LEDs, medidores e o Analisador de sinais. Uma placa
 Blue Pill (STM32F103C8) pode executar o seu próprio firmware dentro do
-circuito. Este guia descreve a versão 0.18. Para
+circuito. Este guia descreve a versão 0.19. Para
 montar um primeiro circuito em cinco minutos, veja o
 [início rápido](QUICK_START.md); para todos os detalhes do microcontrolador
 simulado, veja [MICROCONTROLLER.md](MICROCONTROLLER.md).
