@@ -66,7 +66,6 @@
 #include <QStatusBar>
 #include <QTemporaryDir>
 #include <QTest>
-#include <cstdio> // CI-DEBUG
 #include <QTimer>
 #include <QTranslator>
 #include <QTreeWidget>
@@ -369,98 +368,64 @@ private slots:
         // A part's Keyboard key works it while running: a switch and a digital
         // input change over at each press, a button stays closed while held.
         const model::Id sw = place("spst", {0, 0});
-        std::fprintf(stderr, "KEYDBG 1\n"); std::fflush(stderr); // CI-DEBUG
         const model::Id button = place("button_no", {20, 0});
-        std::fprintf(stderr, "KEYDBG 2\n"); std::fflush(stderr); // CI-DEBUG
         const model::Id input = place("digital_input", {40, 0});
-        std::fprintf(stderr, "KEYDBG 3\n"); std::fflush(stderr); // CI-DEBUG
         const model::Id other = place("button_no", {60, 0}); // no key
         doc().apply(editing::set_parameter(doc().schematic(), sw, "key", "a"));
-        std::fprintf(stderr, "KEYDBG 4\n"); std::fflush(stderr); // CI-DEBUG
         doc().apply(editing::set_parameter(doc().schematic(), button, "key", "B"));
-        std::fprintf(stderr, "KEYDBG 5\n"); std::fflush(stderr); // CI-DEBUG
         doc().apply(editing::set_parameter(doc().schematic(), input, "key", " up "));
-        std::fprintf(stderr, "KEYDBG 6\n"); std::fflush(stderr); // CI-DEBUG
         std::vector<std::pair<model::Id, double>> seen;
-        std::fprintf(stderr, "KEYDBG 7\n"); std::fflush(stderr); // CI-DEBUG
-        connect(view(), &SchematicView::control_changed, this, [&](model::Id id, double value, int slot) {
-            QCOMPARE(slot, 0);
-            seen.emplace_back(id, value);
-        });
-        std::fprintf(stderr, "KEYDBG 8\n"); std::fflush(stderr); // CI-DEBUG
+        const auto watch = connect(view(), &SchematicView::control_changed, this,
+            [&](model::Id id, double value, int slot) {
+                QCOMPARE(slot, 0);
+                seen.emplace_back(id, value);
+            });
         view()->setFocus();
-        std::fprintf(stderr, "KEYDBG 9\n"); std::fflush(stderr); // CI-DEBUG
         // Not running: the keys are the editor's.
         QTest::keyClick(view(), Qt::Key_A);
-        std::fprintf(stderr, "KEYDBG 10\n"); std::fflush(stderr); // CI-DEBUG
         QVERIFY(seen.empty());
-        std::fprintf(stderr, "KEYDBG 11\n"); std::fflush(stderr); // CI-DEBUG
         view()->set_running(true);
-        std::fprintf(stderr, "KEYDBG 12\n"); std::fflush(stderr); // CI-DEBUG
         QTest::keyClick(view(), Qt::Key_A);
-        std::fprintf(stderr, "KEYDBG 13\n"); std::fflush(stderr); // CI-DEBUG
         QCOMPARE(seen.size(), std::size_t{1});
-        std::fprintf(stderr, "KEYDBG 14\n"); std::fflush(stderr); // CI-DEBUG
         QVERIFY(seen.back() == std::make_pair(sw, 1.0));
-        std::fprintf(stderr, "KEYDBG 15\n"); std::fflush(stderr); // CI-DEBUG
         QTest::keyClick(view(), Qt::Key_A, Qt::ShiftModifier); // "A" and "a" are the same key
         QCOMPARE(seen.size(), std::size_t{2});
-        std::fprintf(stderr, "KEYDBG 16\n"); std::fflush(stderr); // CI-DEBUG
-        QTest::keyClick(view(), Qt::Key_A, Qt::ControlModifier); // Ctrl+A is not the key A
+        QKeyEvent with_ctrl(QEvent::KeyPress, Qt::Key_A, Qt::ControlModifier, QString());
+        QApplication::sendEvent(view(), &with_ctrl); // Ctrl+A is not the key A
         QCOMPARE(seen.size(), std::size_t{2});
-        std::fprintf(stderr, "KEYDBG 17\n"); std::fflush(stderr); // CI-DEBUG
         QTest::keyPress(view(), Qt::Key_B);
-        std::fprintf(stderr, "KEYDBG 18\n"); std::fflush(stderr); // CI-DEBUG
         QVERIFY(seen.back() == std::make_pair(button, 1.0));
-        std::fprintf(stderr, "KEYDBG 19\n"); std::fflush(stderr); // CI-DEBUG
         QKeyEvent repeat(QEvent::KeyPress, Qt::Key_B, Qt::NoModifier, QStringLiteral("b"), true);
-        std::fprintf(stderr, "KEYDBG 20\n"); std::fflush(stderr); // CI-DEBUG
         QApplication::sendEvent(view(), &repeat); // held: no second press
         QCOMPARE(seen.size(), std::size_t{3});
-        std::fprintf(stderr, "KEYDBG 21\n"); std::fflush(stderr); // CI-DEBUG
         QTest::keyRelease(view(), Qt::Key_B);
-        std::fprintf(stderr, "KEYDBG 22\n"); std::fflush(stderr); // CI-DEBUG
         QVERIFY(seen.back() == std::make_pair(button, 0.0));
-        std::fprintf(stderr, "KEYDBG 23\n"); std::fflush(stderr); // CI-DEBUG
         QTest::keyClick(view(), Qt::Key_Up);
-        std::fprintf(stderr, "KEYDBG 24\n"); std::fflush(stderr); // CI-DEBUG
         QVERIFY(seen.back() == std::make_pair(input, 1.0));
-        std::fprintf(stderr, "KEYDBG 25\n"); std::fflush(stderr); // CI-DEBUG
         QCOMPARE(seen.size(), std::size_t{5});
-        std::fprintf(stderr, "KEYDBG 26\n"); std::fflush(stderr); // CI-DEBUG
         // A key given to a part is not a menu's shortcut while running.
         QKeyEvent override(QEvent::ShortcutOverride, Qt::Key_B, Qt::NoModifier, QStringLiteral("b"));
-        std::fprintf(stderr, "KEYDBG 27\n"); std::fflush(stderr); // CI-DEBUG
         override.ignore();
-        std::fprintf(stderr, "KEYDBG 28\n"); std::fflush(stderr); // CI-DEBUG
         QApplication::sendEvent(view(), &override);
-        std::fprintf(stderr, "KEYDBG 29\n"); std::fflush(stderr); // CI-DEBUG
         QVERIFY(override.isAccepted());
-        std::fprintf(stderr, "KEYDBG 30\n"); std::fflush(stderr); // CI-DEBUG
         QKeyEvent free_key(QEvent::ShortcutOverride, Qt::Key_C, Qt::NoModifier, QStringLiteral("c"));
-        std::fprintf(stderr, "KEYDBG 31\n"); std::fflush(stderr); // CI-DEBUG
         free_key.ignore();
-        std::fprintf(stderr, "KEYDBG 32\n"); std::fflush(stderr); // CI-DEBUG
         QApplication::sendEvent(view(), &free_key);
-        std::fprintf(stderr, "KEYDBG 33\n"); std::fflush(stderr); // CI-DEBUG
         QVERIFY(!free_key.isAccepted());
-        std::fprintf(stderr, "KEYDBG 34\n"); std::fflush(stderr); // CI-DEBUG
         // A button held when the diagram loses the keyboard is released.
         QTest::keyPress(view(), Qt::Key_B);
-        std::fprintf(stderr, "KEYDBG 35\n"); std::fflush(stderr); // CI-DEBUG
         QVERIFY(seen.back() == std::make_pair(button, 1.0));
-        std::fprintf(stderr, "KEYDBG 36\n"); std::fflush(stderr); // CI-DEBUG
-        QFocusEvent out(QEvent::FocusOut);
-        std::fprintf(stderr, "KEYDBG 37\n"); std::fflush(stderr); // CI-DEBUG
-        QApplication::sendEvent(view(), &out);
-        std::fprintf(stderr, "KEYDBG 38\n"); std::fflush(stderr); // CI-DEBUG
+        if (view()->hasFocus()) {
+            view()->clearFocus();
+        } else {
+            QTest::keyRelease(view(), Qt::Key_B); // a window that is not active has no focus to lose
+        }
         QVERIFY(seen.back() == std::make_pair(button, 0.0));
-        std::fprintf(stderr, "KEYDBG 39\n"); std::fflush(stderr); // CI-DEBUG
         for (const auto& [id, value] : seen) {
             QVERIFY(id != other);
         }
         view()->set_running(false);
-        std::fprintf(stderr, "KEYDBG 40\n"); std::fflush(stderr); // CI-DEBUG
+        disconnect(watch); // `seen` ends with this function
     }
 
     void the_digital_input_drives_its_level_and_follows_a_click()
