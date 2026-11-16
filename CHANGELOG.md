@@ -4,6 +4,11 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Changed (2026-11-16, the last bench session of E-12)
+
+- The STM32F407's ADC and DAC were compared with measured voltages: the chip gives the ideal code for its reference within 0.5 % (with up to 15 codes of noise) and the DAC its voltage within 13 mV. The guide no longer calls the ADC approximate; it says instead that the simulator's reference is 3.3 V whatever the circuit's supply is (the board measured runs on 3.25 V).
+- Firmware `f4_rtc` and `f4_station`: when the 32.768 kHz crystal the backup domain remembers is gone, the RTC starts again on the LSI after a second instead of waiting for ever (seen on the board).
+
 ### Changed (2026-11-15, E-12 / SN-296, the timing of the STM32F407)
 
 - **The STM32F407's instruction timing is calibrated on a real chip.** The owner ran `f4_timing` on an STM32F407VET6; the simulator now gives its cycle counts within 0.24 % on all 27 loops when the flash needs no wait state or its ART accelerator is on (as STM32CubeMX sets it), and within 14 % with wait states and the accelerator off. What changed, for the Cortex-M4 only: the FPU works on while the core goes on (a divide's 14 cycles overlap the instructions after it; dependent add and multiply chains take two cycles each), `VLDR`/`VSTR` pipeline, a load right after a store to the SRAM waits two cycles (a `for` loop over a `volatile` counter takes 12 cycles a turn, not 8: `f4_blink`'s loop is 751.8 ms, 751.7 ms on the board), exceptions with a floating-point frame take their measured cycles (lazy save 20, restore 19), and the flash has a model of the accelerator (prefetch, a 64-line instruction cache, the line the flash holds). Firmware that times itself with busy loops runs slower than before, as on the chip. The Blue Pill's timing is unchanged.

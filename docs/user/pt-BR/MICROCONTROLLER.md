@@ -1,4 +1,4 @@
-<!-- source: MICROCONTROLLER.md sha256 1db339f23ad87cd97be0fd2dba2246025252b6d5d8d4593c3a0ebd1987261a8a -->
+<!-- source: MICROCONTROLLER.md sha256 0cc8db533632d0fd23c611524d42fe17c1acb24016f9c9001a3c045cfddf86e7 -->
 # Microcontrolador: o que é simulado
 
 O SimNodus executa o firmware da **Blue Pill (STM32F103C8)** em seu próprio emulador
@@ -754,8 +754,11 @@ com seus 100 pinos: um Cortex-M4 com FPU de precisão simples, 512 KB de flash
 e 192 KB de RAM, até 168 MHz. Ele executa o arquivo ELF que o STM32CubeIDE
 gera, incluindo a FPU. Os exemplos 67 a 71, os resultados de ponto
 flutuante e o tempo que as instruções levam foram comparados com um chip
-real em 2026-11. Só parte do chip é simulada (veja *Ainda não simulado* abaixo),
-e o ADC é aproximado: ainda não foi comparado com uma tensão medida.
+real em 2026-11. Só parte do chip é simulada (veja *Ainda não simulado* abaixo).
+O ADC e o DAC usam uma referência de 3,3 V qualquer que seja a alimentação do
+circuito: uma placa real em 3,25 V dá códigos 1,5 % maiores. Com a sua própria
+referência, o chip medido deu os códigos do simulador dentro de 0,5 %, com até
+15 códigos de ruído que o simulador não tem.
 
 - **O que funciona**: a árvore de clock (HSI, HSE, o PLL), GPIO com os
   números de função alternativa, interrupções externas em qualquer porta, as

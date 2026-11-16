@@ -132,8 +132,8 @@
         "examples/firmware/f4_common/f4_peripherals.h"
       ],
       "elf": "examples/firmware/f4_rtc/f4_rtc.elf",
-      "sha256": "fbbcaf9431956ad84cecd0589eb7cc3754cfb0b2af438d1f3882758297b6e536",
-      "size": 16440
+      "sha256": "9e934653d4c4c55f247efeb8b2863758c44dd368b22261d96fa29d0dd420b860",
+      "size": 16628
     },
     "f4_station": {
       "sources": [
@@ -142,8 +142,8 @@
         "examples/firmware/f4_common/f4_peripherals.h"
       ],
       "elf": "examples/firmware/f4_station/f4_station.elf",
-      "sha256": "601e38850b9449f74171ba9bdd38162317676f300ff7782ba34aa95904cb287d",
-      "size": 22604
+      "sha256": "bd351178801e48496d5d39da6dd0fafaf58a8762e0c4657dcbc2138bd2e6e882",
+      "size": 22744
     },
     "f4_timing": {
       "sources": [

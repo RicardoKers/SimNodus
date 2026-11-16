@@ -728,8 +728,11 @@ with its 100 pins: a Cortex-M4 with a single-precision FPU, 512 KB of flash
 and 192 KB of RAM, up to 168 MHz. It runs the ELF file that STM32CubeIDE
 builds, FPU included. Examples 67 to 71, the floating-point results and
 the time instructions take were compared with a real chip in 2026-11.
-Only part of the chip is simulated (see *Not yet simulated* below), and the
-ADC is approximate: it has not been compared with a measured voltage.
+Only part of the chip is simulated (see *Not yet simulated* below). The
+ADC and the DAC use a 3.3 V reference whatever the circuit's supply is: a
+real board on 3.25 V gives codes 1.5 % higher. With its own reference, the
+chip measured gave the simulator's codes within 0.5 %, with up to 15 codes
+of noise that the simulator does not have.
 
 - **What works**: the clock tree (HSI, HSE, the PLL), GPIO with the
   alternate function numbers, external interrupts on any port, the six

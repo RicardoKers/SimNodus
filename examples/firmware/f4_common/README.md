@@ -99,6 +99,8 @@ What the simulator prints, to compare:
   crystal's tolerance (20 ppm: 0.07 s an hour). Without the crystal the
   firmware says `(LSI)`, whose frequency varies from chip to chip (17 to
   47 kHz in DS8626): a measured drift is the chip's, not the simulator's.
+  The backup domain remembers the crystal through resets; if it is taken
+  away the firmware waits a second for it and starts again on the LSI.
   A wire from 3.3 V to PA0 for 2 s: `reset by the watchdog` and `start 2`.
 - `f4_station` (gate G12c.7): the 25 MHz crystal, an LM75 on PB6 and PB7.
   The serial lines must match the simulator's byte for byte (with the
