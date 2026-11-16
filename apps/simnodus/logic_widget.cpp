@@ -84,6 +84,40 @@ std::vector<std::pair<double, bool>> LogicWidget::visible_transitions(int lane) 
     return result;
 }
 
+std::vector<std::pair<int, QString>> LogicWidget::axis_ticks() const
+{
+    const QRectF plot = plot_rect();
+    const QFontMetricsF metrics(font());
+    // Every second grid line; every fifth, or only the ends, when the texts need
+    // more room. A label resolves a tenth of the time between labels, so a short
+    // window late in a run does not read "2s 2s 2s".
+    std::vector<std::pair<int, QString>> ticks;
+    for (const int stride : {2, 5, 10}) {
+        const double step = (end_ - start_) * stride / divisions;
+        ticks.clear();
+        double widest = 0.0;
+        for (int i = 0; i <= divisions; i += stride) {
+            const double t = start_ + (end_ - start_) * i / divisions;
+            QString text = QString::fromStdString(model::format_engineering_tick(t, step)) + QStringLiteral("s");
+            widest = std::max(widest, metrics.horizontalAdvance(text));
+            ticks.emplace_back(i, std::move(text));
+        }
+        if (widest + 12 <= plot.width() * stride / divisions) {
+            break;
+        }
+    }
+    return ticks;
+}
+
+QStringList LogicWidget::axis_labels() const
+{
+    QStringList labels;
+    for (const auto& tick : axis_ticks()) {
+        labels << tick.second;
+    }
+    return labels;
+}
+
 QRectF LogicWidget::plot_rect() const
 {
     return QRectF(label_width, 4, std::max(10.0, width() - label_width - 8), std::max(10.0, height() - axis_height - 8));
@@ -159,11 +193,13 @@ void LogicWidget::paintEvent(QPaintEvent*)
         painter.drawPolyline(wave);
     }
     painter.setPen(theme::muted_text);
-    for (int i = 0; i <= divisions; i += 2) {
-        const double t = start_ + (end_ - start_) * i / divisions;
+    const QFontMetricsF metrics(font());
+    for (const auto& [i, text] : axis_ticks()) {
         const double x = plot.left() + plot.width() * i / divisions;
-        painter.drawText(QRectF(x - 50, plot.bottom() + 2, 100, axis_height), Qt::AlignHCenter | Qt::AlignTop,
-            QString::fromStdString(model::format_engineering(t, 4)) + QStringLiteral("s"));
+        const double w = metrics.horizontalAdvance(text) + 4;
+        // Centred on its grid line, but kept inside the widget (the last one too).
+        const double left = std::clamp(x - w / 2, 0.0, std::max(0.0, width() - w));
+        painter.drawText(QRectF(left, plot.bottom() + 2, w, axis_height), Qt::AlignHCenter | Qt::AlignTop, text);
     }
     if (cursors_) {
         int index = 0;

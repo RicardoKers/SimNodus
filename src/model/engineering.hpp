@@ -27,6 +27,12 @@ std::optional<double> parse_engineering(std::string_view text, std::string_view 
 // for example 4700 -> "4.7k", 1e-7 -> "100n", 0 -> "0". No unit is added.
 std::string format_engineering(double value, int digits = 4);
 
+// Formats a tick of an axis whose ticks are `step` apart: enough significant
+// digits (at least `min_digits`) to resolve a tenth of the step, so that
+// neighbouring ticks never read the same (2.00012 and 2.00032, not 2 and 2).
+// A value within a millionth of a step of zero reads "0".
+std::string format_engineering_tick(double value, double step, int min_digits = 4);
+
 // Plain number for a SPICE netlist ("4700", "1e-07").
 std::string spice_number(double value);
 

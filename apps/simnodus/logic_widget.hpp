@@ -11,6 +11,7 @@
 #include <QColor>
 #include <QRectF>
 #include <QString>
+#include <QStringList>
 #include <QWidget>
 
 #include <optional>
@@ -53,6 +54,8 @@ public:
     void set_navigation_enabled(bool enabled) { navigation_ = enabled; }
     // Transitions of a lane inside the window (for the list under the lanes).
     std::vector<std::pair<double, bool>> visible_transitions(int lane) const;
+    // The time axis's labels, left to right, as painted.
+    QStringList axis_labels() const;
 
     QSize minimumSizeHint() const override { return {320, 120}; }
 
@@ -77,6 +80,8 @@ private:
     int lane_at(double y) const;
     int cursor_near(double x) const; // -1, 0 (A) or 1 (B)
     void paint_items(QPainter& painter, const LogicLaneView& lane, const QRectF& plot, double top) const;
+    // Labelled grid lines: their division and text.
+    std::vector<std::pair<int, QString>> axis_ticks() const;
 
     std::vector<LogicLaneView> lanes_;
     double start_ = 0.0;
