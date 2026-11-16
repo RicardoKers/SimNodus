@@ -289,6 +289,10 @@ MainWindow::MainWindow(QSettings& settings, QWidget* parent) : QMainWindow(paren
 
 MainWindow::~MainWindow()
 {
+    // The scene is deleted with the child widgets, after this window's own
+    // members (the library, the document): an item deleted while selected
+    // must not bring the Properties panel back to them.
+    scene_->blockSignals(true);
     run_->stop();
     if (engine_thread_) {
         engine_thread_->wait();
