@@ -424,6 +424,29 @@ TEST_CASE("sensor chips are worked with the mouse; the encoder turns through its
     CHECK(library.find("inductor")->parameter("I0") != nullptr);
 }
 
+TEST_CASE("switches, buttons and the digital input take a key of the keyboard")
+{
+    ComponentLibrary library;
+    library.load_directory(SIMNODUS_TEST_LIBRARY_DIR);
+    for (const char* type : {"spst", "spdt", "button_no", "button_nc", "digital_input"}) {
+        const auto* d = library.find(type);
+        REQUIRE(d != nullptr && d->interactive.has_value());
+        CHECK(d->interactive->key_parameter == "key");
+        const auto* key = d->parameter("key");
+        REQUIRE(key != nullptr);
+        CHECK(key->kind == library::Parameter::Kind::Text);
+        CHECK(key->default_value.empty());
+        CHECK(d->value_parameter == "key"); // shown next to the symbol when one is given
+    }
+    const auto* input = library.find("digital_input");
+    CHECK(input->interactive->kind == library::Interactive::Kind::Toggle);
+    CHECK(input->interactive->parameter == "state");
+    CHECK((input->parameter("Vhigh")->choices == std::vector<std::string>{"3.3", "5"}));
+    CHECK(input->state_graphics.count("0") == 1);
+    CHECK(input->state_graphics.count("1") == 1);
+    CHECK(input->pins.size() == 1);
+}
+
 TEST_CASE("the potentiometer's wiper moves along its track")
 {
     ComponentLibrary library;

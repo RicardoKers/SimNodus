@@ -420,6 +420,16 @@ ComponentDefinition parse_definition(const json& j)
             }
         };
         check_parameter(interactive.kind, interactive.parameter, interactive.logarithmic);
+        interactive.key_parameter = text(i, "key_parameter");
+        if (!interactive.key_parameter.empty()) {
+            const auto* key = d.parameter(interactive.key_parameter);
+            if (!key || key->kind != Parameter::Kind::Text) {
+                invalid("interactive.key_parameter must be a text parameter");
+            }
+            if (interactive.kind != Interactive::Kind::Toggle && interactive.kind != Interactive::Kind::Button) {
+                invalid("interactive.key_parameter is for a toggle or a button");
+            }
+        }
         const auto rect = [](const json& value, const std::string& what) {
             const auto r = numbers(value, 4, what.c_str());
             if (r.size() != 4 || r[2] <= 0 || r[3] <= 0) {

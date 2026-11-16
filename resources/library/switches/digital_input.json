@@ -1,0 +1,108 @@
+{
+  "type": "digital_input",
+  "name": "Digital input",
+  "category": "Switches & Controls",
+  "prefix": "IN",
+  "description": "A logic level, 0 or 1; click it (or press its key) to change it while running",
+  "designator_offset": [
+    -3,
+    -3
+  ],
+  "value_offset": [
+    -3,
+    2
+  ],
+  "value_parameter": "key",
+  "symbol": {
+    "graphics": [
+      {
+        "rect": [
+          -3,
+          -1.5,
+          3,
+          3
+        ]
+      },
+      {
+        "line": [
+          0,
+          0,
+          2,
+          0
+        ]
+      }
+    ],
+    "states": {
+      "0": [
+        {
+          "text": "0",
+          "at": [
+            -1.5,
+            0
+          ],
+          "size": 1.4
+        }
+      ],
+      "1": [
+        {
+          "text": "1",
+          "at": [
+            -1.5,
+            0
+          ],
+          "size": 1.4
+        }
+      ]
+    },
+    "pins": [
+      {
+        "name": "1",
+        "at": [
+          2,
+          0
+        ],
+        "dir": "right"
+      }
+    ]
+  },
+  "parameters": [
+    {
+      "name": "Vhigh",
+      "label": "High level",
+      "unit": "V",
+      "default": "5",
+      "choices": [
+        "3.3",
+        "5"
+      ],
+      "description": "Voltage of the level 1; the level 0 is 0 V"
+    },
+    {
+      "name": "state",
+      "label": "Initial state",
+      "unit": "",
+      "default": "0",
+      "choices": [
+        "0",
+        "1"
+      ],
+      "description": "Level at the start of a run"
+    },
+    {
+      "name": "key",
+      "label": "Keyboard key",
+      "kind": "text",
+      "default": "",
+      "description": "A key that works it while running: a letter, a digit, Up, Down, Left, Right or Space; empty for none. Click the diagram first so that it gets the keys"
+    }
+  ],
+  "interactive": {
+    "kind": "toggle",
+    "parameter": "state",
+    "key_parameter": "key"
+  },
+  "spice": [
+    "B_{ref} o_{ref} 0 V={Vhigh}*V({control})",
+    "R_{ref} o_{ref} {node:1} 50"
+  ]
+}

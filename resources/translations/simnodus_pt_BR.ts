@@ -6540,12 +6540,40 @@ Permitir para este projeto neste computador? Sem isso, a rede das placas fica de
             <translation>sim</translation>
         </message>
         <message>
+            <source>Keyboard key</source>
+            <translation>Tecla do teclado</translation>
+        </message>
+        <message>
+            <source>A key that works it while running: a letter, a digit, Up, Down, Left, Right or Space; empty for none. Click the diagram first so that it gets the keys</source>
+            <translation>Uma tecla que o opera durante a simulação: uma letra, um dígito, Up, Down, Left, Right ou Space; vazio para nenhuma. Clique antes no diagrama para que ele receba as teclas</translation>
+        </message>
+        <message>
             <source>Push button (NO)</source>
             <translation>Botão (NA)</translation>
         </message>
         <message>
             <source>Closed while pressed; hold the mouse button on it while running</source>
             <translation>Fechado enquanto pressionado; segure o botão do mouse sobre ele durante a execução</translation>
+        </message>
+        <message>
+            <source>Digital input</source>
+            <translation>Entrada digital</translation>
+        </message>
+        <message>
+            <source>A logic level, 0 or 1; click it (or press its key) to change it while running</source>
+            <translation>Um nível lógico, 0 ou 1; clique nela (ou pressione a tecla dela) para trocá-lo durante a simulação</translation>
+        </message>
+        <message>
+            <source>Voltage of the level 1; the level 0 is 0 V</source>
+            <translation>Tensão do nível 1; o nível 0 é 0 V</translation>
+        </message>
+        <message>
+            <source>3.3</source>
+            <translation>3.3</translation>
+        </message>
+        <message>
+            <source>Level at the start of a run</source>
+            <translation>Nível no início da simulação</translation>
         </message>
         <message>
             <source>Joystick module</source>
