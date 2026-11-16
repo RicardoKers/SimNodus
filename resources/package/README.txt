@@ -1,7 +1,7 @@
 SimNodus - interactive circuit and STM32 simulator for teaching
 ================================================================
 
-Release 0.18 (analog and digital circuits, the Blue Pill / STM32F103
+Release 0.19 (analog and digital circuits, the Blue Pill / STM32F103
 microcontroller, AVR chips and the Arduino UNO, and an experimental
 ESP32-C3 board with Wi-Fi).
 Run simnodus.exe; no installation, account or network access is needed.
@@ -19,6 +19,18 @@ from STM32CubeIDE) in SimNodus's own STM32 emulator: GPIO, EXTI, USART
 watchdogs and CRC. Simulate >
 Debug Firmware with GDB lets STM32CubeIDE debug the firmware while it drives
 the circuit.
+
+New in 0.19: the STM32F407VET6 and quicker digital circuits. A bare
+STM32F407VET6 (Cortex-M4F with its FPU, up to 168 MHz) runs firmware from
+STM32CubeIDE: GPIO, the serial ports, timers with PWM, the ADCs and the DAC
+(their reference is the VREF+ pin on the diagram), SPI, I2C, DMA, the RTC
+and the watchdogs (examples 67 to 71). It was compared with a real chip on
+the bench, and its instruction timing was calibrated there. STM32CubeIDE
+debugs it in the circuit, and the Register Viewer shows its registers. A
+Digital input part gives a logic level, 0 or 1, with a click, without a
+supply, a switch and a resistor; switches, push buttons and digital inputs
+take a key of the keyboard that works them while running (example 72).
+The Register Viewer shows and edits the registers of a running chip.
 
 New in 0.18: speed and instruments. Runs with a microcontroller are up to
 about three times faster (drivers only for the pins that are wired) and

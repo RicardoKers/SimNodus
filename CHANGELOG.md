@@ -4,6 +4,8 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+## 0.19.0 — 2026-11-16
+
 ### Added (2026-11-16, SN-300: digital input and keyboard keys)
 
 - **Digital input** part (Switches & Controls): one pin at 0 V or at its high level (3.3 V or 5 V, 50 Ω inside), changed over with a click while running, with a settable initial state. It shows its level, 0 or 1. A logic level for a gate or a chip's pin without a supply, a switch and a resistor.
