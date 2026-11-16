@@ -5260,6 +5260,18 @@ Permitir para este projeto neste computador? Sem isso, a rede das placas fica de
             <translation>Temperatura do chip que o seu sensor de temperatura mede; mude-a durante a simulação para testar o firmware (-40 a 125 °C)</translation>
         </message>
         <message>
+            <source>ESP32-C3 SuperMini (experimental)</source>
+            <translation>ESP32-C3 SuperMini (experimental)</translation>
+        </message>
+        <message>
+            <source>ESP32-C3 SuperMini board running your firmware (flash image, .bin: ESP-IDF, Arduino or MicroPython) in the SimNodus emulator; its LED is on GPIO8 and lights while the pin is low; experimental until compared with a real board</source>
+            <translation>Placa ESP32-C3 SuperMini executando o seu firmware (imagem da flash, .bin: ESP-IDF, Arduino ou MicroPython) no emulador do SimNodus; o LED dela fica no GPIO8 e acende enquanto o pino está em nível baixo; experimental até ser comparada com uma placa real</translation>
+        </message>
+        <message>
+            <source>The board's USB connector (the chip's own USB Serial/JTAG) linked to the computer: a serial port (one end of a virtual port pair such as com0com), tcp:4001 for programs that speak RFC 2217 (esptool, mpremote), or empty for none. DTR and RTS reset the chip and select download mode as the USB Serial/JTAG does</source>
+            <translation>O conector USB da placa (o USB Serial/JTAG do próprio chip) ligado ao computador: uma porta serial (uma ponta de um par de portas virtuais como o com0com), tcp:4001 para programas que falam RFC 2217 (esptool, mpremote), ou vazio para nenhuma. DTR e RTS reiniciam o chip e escolhem o modo de download como o USB Serial/JTAG faz</translation>
+        </message>
+        <message>
             <source>STM32F407VET6 (LQFP-100)</source>
             <translation>STM32F407VET6 (LQFP-100)</translation>
         </message>

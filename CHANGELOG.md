@@ -4,6 +4,11 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-11-16, SN-301: ESP32-C3 SuperMini)
+
+- **ESP32-C3 SuperMini** board in Microcontrollers, **experimental** like the DevKitM-1 (the same chip and emulator): its 16 pins (GPIO0 to GPIO10, GPIO20, GPIO21, 5V, G, 3V3) drawn with the USB connector at the top, its LED on GPIO8 drawn on the symbol (lit while the pin is low), RESET on the symbol, and the chip's USB Serial/JTAG as the board's only USB (UART0 on GPIO21 and GPIO20). The 10 kΩ pull-ups of GPIO9 and GPIO8 are from the board's published schematic, not yet measured. `tools/generate_esp32c3_supermini.py` writes the part.
+- **Example 73**: the SuperMini alone blinking its own LED with ESP-IDF's blink example.
+
 ## 0.19.0 — 2026-11-16
 
 ### Added (2026-11-16, SN-300: digital input and keyboard keys)

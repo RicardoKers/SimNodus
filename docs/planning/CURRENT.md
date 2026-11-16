@@ -8,6 +8,11 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 
 ## Where we are
 
+- **On main after 0.19.0:** SN-301 (2026-11-16), the **ESP32-C3 SuperMini**
+  part (experimental; `tools/generate_esp32c3_supermini.py`, example 73).
+  The owner has a DevKitM-1 and a SuperMini in hand: next is the bench
+  comparison of both (G8b.1 ROM and consoles; G9b.2, G9b.3 Wi-Fi against a
+  real access point) and decision DE9.
 - **Release 0.19.0 published on 2026-11-16** (tag `v0.19.0`, GitHub release with
   `SimNodus-0.19.0-windows-x64.zip` and `-setup.exe`), asked by the owner
   after the E-12 bench sessions and his test of SN-300:

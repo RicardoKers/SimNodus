@@ -187,6 +187,53 @@ TEST_CASE("the ESP32-C3-DevKitM-1 board loads with its headers and chip")
     CHECK(refused->find("mcu.chip") != std::string::npos);
 }
 
+TEST_CASE("the ESP32-C3 SuperMini board loads with its 16 pins, its LED and the chip's USB")
+{
+    // SN-301: the owner's board. Seen from above with the USB connector at the
+    // top: GPIO5 to GPIO21 down the left, 5V, G, 3V3, GPIO4 to GPIO0 down the right.
+    ComponentLibrary library;
+    library.load_directory(SIMNODUS_TEST_LIBRARY_DIR);
+    const auto* d = library.find("esp32c3_supermini");
+    REQUIRE(d != nullptr);
+    REQUIRE(d->pins.size() == 16);
+    const char* left[] = {"GPIO5", "GPIO6", "GPIO7", "GPIO8", "GPIO9", "GPIO10", "GPIO20", "GPIO21"};
+    const char* right[] = {"5V", "G1", "3V3", "GPIO4", "GPIO3", "GPIO2", "GPIO1", "GPIO0"};
+    for (int i = 0; i < 8; ++i) {
+        const auto* l = d->pin(left[i]);
+        const auto* r = d->pin(right[i]);
+        REQUIRE(l != nullptr);
+        REQUIRE(r != nullptr);
+        CHECK(l->at.x < 0);
+        CHECK(r->at.x > 0);
+        CHECK(l->at.y == -6 + 2 * i);
+        CHECK(r->at.y == -6 + 2 * i);
+    }
+    for (const char* absent : {"EN", "GPIO18", "GPIO19", "GPIO11"}) {
+        CHECK(d->pin(absent) == nullptr);
+    }
+    REQUIRE(d->mcu.has_value());
+    CHECK(d->mcu->chip == "esp32c3");
+    REQUIRE(d->mcu->led.has_value());
+    CHECK(d->mcu->led->pin == "GPIO8");
+    CHECK(d->mcu->led->active_low);
+    CHECK(d->mcu->reset_button.has_value());
+    // The connector is the chip's USB Serial/JTAG; UART0 is on the pins alone.
+    REQUIRE(d->mcu->uarts.size() == 2);
+    CHECK(d->mcu->uarts[0].name == "usb");
+    CHECK(d->mcu->uarts[0].link_parameter == "usb_link");
+    CHECK(d->mcu->uarts[0].reset_circuit == "usb_jtag");
+    CHECK(d->mcu->uarts[1].name == "uart0");
+    CHECK(d->mcu->uarts[1].tx_pin == "GPIO21");
+    CHECK(d->mcu->uarts[1].rx_pin == "GPIO20");
+    CHECK(d->mcu->uarts[1].link_parameter.empty());
+    CHECK(d->parameter("uart0_link") == nullptr);
+    // The same pin model as the DevKitM-1: it is the same chip.
+    const auto* devkit = library.find("esp32c3_devkitm1");
+    REQUIRE(devkit != nullptr);
+    CHECK(d->mcu->pin_model.output_resistance == devkit->mcu->pin_model.output_resistance);
+    CHECK(d->mcu->pin_model.input_high == devkit->mcu->pin_model.input_high);
+}
+
 TEST_CASE("the Blue Pill board loads with its real pins and board profile")
 {
     ComponentLibrary library;

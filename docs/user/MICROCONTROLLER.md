@@ -286,6 +286,26 @@ firmware has run unmodified (ESP-IDF examples, an Arduino sketch, the official
 MicroPython image), but it has not yet been compared with a real board, so
 small differences may remain.
 
+The **ESP32-C3 SuperMini** part is the same chip on the small board with
+16 pins, also experimental. It differs from the DevKitM-1 in what is on
+the board:
+
+- **Pins**: GPIO5, GPIO6, GPIO7, GPIO8, GPIO9, GPIO10, GPIO20 and GPIO21 on
+  one side; 5V, G, 3V3, GPIO4, GPIO3, GPIO2, GPIO1 and GPIO0 on the other,
+  drawn with the USB connector at the top as in the board's pinout
+  drawings. There is no EN pin; click RESET on the symbol.
+- **LED**: the board's LED is on GPIO8 and lights while the pin is **low**.
+  It is drawn on the symbol (example 73).
+- **USB**: the connector is the chip's own USB Serial/JTAG (**USB
+  Serial/JTAG to the computer** in the properties); there is no USB-serial
+  bridge. UART0 is on the pins GPIO21 (TX) and GPIO20 (RX) only, and the
+  terminal shows it too.
+- GPIO9 (BOOT) and GPIO8 have 10 kΩ pull-ups to 3.3 V, taken from the
+  board's published schematic and not yet measured on a board. The BOOT
+  button is not drawn: wire a push button from GPIO9 to G for one.
+
+What follows is the same for both boards.
+
 - **Firmware**: a flash image (`.bin`) written from address 0, the way
   `esptool write-flash 0x0` writes it: ESP-IDF's `idf.py merge-bin` output,
   the Arduino IDE's `.merged.bin` (Sketch > Export Compiled Binary), or
