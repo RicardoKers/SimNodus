@@ -18,6 +18,7 @@
 #include <QVariantAnimation>
 
 #include <functional>
+#include <map>
 #include <optional>
 #include <set>
 #include <vector>
@@ -114,6 +115,8 @@ protected:
     void mouseDoubleClickEvent(QMouseEvent* event) override;
     void keyPressEvent(QKeyEvent* event) override;
     void keyReleaseEvent(QKeyEvent* event) override;
+    void focusOutEvent(QFocusEvent* event) override;
+    bool event(QEvent* event) override;
     void resizeEvent(QResizeEvent* event) override;
     void leaveEvent(QEvent* event) override;
     void dragEnterEvent(QDragEnterEvent* event) override;
@@ -181,6 +184,13 @@ private:
     // Interactive controls while running.
     model::Id held_button_ = model::no_id;
     int held_slot_ = 0;                  // the held button's control (SN-272)
+    // Keys of the keyboard that work a switch or a button while running: the
+    // parts whose key parameter names `key`, and the buttons each held key holds.
+    std::vector<model::Id> controls_of_key(int key) const;
+    bool press_control_key(QKeyEvent* event);
+    bool release_control_key(QKeyEvent* event);
+    void release_held_keys();
+    std::map<int, std::vector<model::Id>> held_keys_;
     model::Id stick_drag_ = model::no_id; // a joystick's stick being moved (SN-273)
     model::Id pot_drag_ = model::no_id;
     double pot_start_value_ = 0.0;

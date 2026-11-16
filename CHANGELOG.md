@@ -4,6 +4,13 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-11-16, SN-300: digital input and keyboard keys)
+
+- **Digital input** part (Switches & Controls): one pin at 0 V or at its high level (3.3 V or 5 V, 50 Ω inside), changed over with a click while running, with a settable initial state. It shows its level, 0 or 1. A logic level for a gate or a chip's pin without a supply, a switch and a resistor.
+- **Keyboard keys for switches, push buttons and digital inputs**: the new **Keyboard key** property (a letter, a digit, Up, Down, Left, Right or Space) works the part while running, as the mouse does: a press changes a switch or an input over, a push button stays pressed while the key is held. The key is shown next to the symbol; the diagram must have the keyboard (click it once). A library part declares it with `interactive.key_parameter`.
+- **Example 72**: the half adder with two digital inputs on the keys A and B.
+- Fixed: closing the window with a part selected could crash (seen on Linux): the Properties panel was refreshed while the window was being destroyed, after the component library was gone.
+
 ### Changed (2026-11-16, the last bench session of E-12)
 
 - The STM32F407's ADC and DAC were compared with measured voltages: the chip gives the ideal code for its reference within 0.5 % (with up to 15 codes of noise) and the DAC its voltage within 13 mV. The guide no longer calls the ADC approximate.

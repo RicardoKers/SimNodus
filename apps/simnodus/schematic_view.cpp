@@ -14,6 +14,7 @@
 #include <QGraphicsItem>
 #include <QGraphicsScene>
 #include <QKeyEvent>
+#include <QKeySequence>
 #include <QMimeData>
 #include <QMouseEvent>
 #include <QPainter>
@@ -256,6 +257,107 @@ void SchematicView::set_running(bool running)
     pot_drag_ = model::no_id;
     stick_drag_ = model::no_id;
     held_slot_ = 0;
+    held_keys_.clear();
+}
+
+std::vector<model::Id> SchematicView::controls_of_key(int key) const
+{
+    std::vector<model::Id> ids;
+    if (!scene_ || key == 0 || key == Qt::Key_unknown) {
+        return ids;
+    }
+    // "A", "1", "Up", "Space": the key's name without modifiers.
+    const QString name = QKeySequence(key).toString(QKeySequence::PortableText);
+    if (name.isEmpty()) {
+        return ids;
+    }
+    for (const auto& c : scene_->document().schematic().components()) {
+        const auto* d = scene_->library().find(c.type);
+        if (!d || !d->interactive || d->interactive->key_parameter.empty()) {
+            continue;
+        }
+        const auto it = c.parameters.find(d->interactive->key_parameter);
+        if (it != c.parameters.end()
+            && QString::fromStdString(it->second).trimmed().compare(name, Qt::CaseInsensitive) == 0) {
+            ids.push_back(c.id);
+        }
+    }
+    return ids;
+}
+
+bool SchematicView::press_control_key(QKeyEvent* event)
+{
+    const auto blocked = Qt::ControlModifier | Qt::AltModifier | Qt::MetaModifier;
+    if (!running_ || (event->modifiers() & blocked)) {
+        return false;
+    }
+    const auto ids = controls_of_key(event->key());
+    if (ids.empty()) {
+        return false;
+    }
+    if (event->isAutoRepeat()) {
+        return true; // a held key presses once
+    }
+    for (const model::Id id : ids) {
+        const auto* c = scene_->document().schematic().component(id);
+        const auto* d = scene_->library().find(c->type);
+        if (d->interactive->kind == library::Interactive::Kind::Button) {
+            held_keys_[event->key()].push_back(id);
+            emit control_changed(id, 1.0);
+        } else {
+            const auto& live = scene_->live();
+            const auto now = live.controls.find(id);
+            emit control_changed(id, now != live.controls.end() && now->second >= 0.5 ? 0.0 : 1.0);
+        }
+    }
+    return true;
+}
+
+bool SchematicView::release_control_key(QKeyEvent* event)
+{
+    if (event->isAutoRepeat()) {
+        return held_keys_.count(event->key()) > 0;
+    }
+    const auto held = held_keys_.find(event->key());
+    if (held == held_keys_.end()) {
+        return false;
+    }
+    for (const model::Id id : held->second) {
+        emit control_changed(id, 0.0);
+    }
+    held_keys_.erase(held);
+    return true;
+}
+
+void SchematicView::release_held_keys()
+{
+    for (const auto& [key, ids] : held_keys_) {
+        for (const model::Id id : ids) {
+            emit control_changed(id, 0.0);
+        }
+    }
+    held_keys_.clear();
+}
+
+void SchematicView::focusOutEvent(QFocusEvent* event)
+{
+    // The key's release goes to another window: a button does not stay pressed.
+    release_held_keys();
+    QGraphicsView::focusOutEvent(event);
+}
+
+bool SchematicView::event(QEvent* event)
+{
+    if (event->type() == QEvent::ShortcutOverride && running_) {
+        // A key given to a switch or a button works it instead of a menu's shortcut.
+        auto* key = static_cast<QKeyEvent*>(event);
+        const auto blocked = Qt::ControlModifier | Qt::AltModifier | Qt::MetaModifier;
+        if (!(key->modifiers() & blocked) && !controls_of_key(key->key()).empty()) {
+            event->accept();
+            return true;
+        }
+    }
+    return QGraphicsView::event(event);
 }
 
 void SchematicView::set_tool(Tool tool)
@@ -1189,6 +1291,10 @@ void SchematicView::mouseDoubleClickEvent(QMouseEvent* event)
 
 void SchematicView::keyPressEvent(QKeyEvent* event)
 {
+    if (press_control_key(event)) {
+        event->accept();
+        return;
+    }
     if (event->key() == Qt::Key_Space && !event->isAutoRepeat()) {
         if (drawing_line()) {
             horizontal_first_ = !horizontal_first_;
@@ -1239,6 +1345,10 @@ void SchematicView::keyPressEvent(QKeyEvent* event)
 
 void SchematicView::keyReleaseEvent(QKeyEvent* event)
 {
+    if (release_control_key(event)) {
+        event->accept();
+        return;
+    }
     if (event->key() == Qt::Key_Space && !event->isAutoRepeat()) {
         space_held_ = false;
         panning_ = false;

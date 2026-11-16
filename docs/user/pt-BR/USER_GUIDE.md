@@ -1,4 +1,4 @@
-<!-- source: USER_GUIDE.md sha256 0489421d1b71061f769fd27462434725d93f3406793ea0b114ccb925ad6ee92a -->
+<!-- source: USER_GUIDE.md sha256 bd559aca514fa0d114703a81ccf3c45d2be29af551a274f0ae447c188bed0c25 -->
 # Guia do usuário do SimNodus
 
 O SimNodus é um simulador para sala de aula: você desenha um circuito, aperta
@@ -103,7 +103,7 @@ aplicar. Um valor inválido fica contornado em vermelho e não é aplicado.
 |---|---|
 | **Passivos** | Resistor, capacitor, indutor (ideais); potenciômetro; transformador (primário P1-P2, secundário S1-S2) |
 | **Fontes** | Fonte de tensão CC, bateria (com resistência interna), fonte de corrente CC (saindo pelo +), fontes de tensão e de corrente ajustáveis (giradas durante a execução entre um limite inferior e um superior), fontes de tensão e de corrente controladas por tensão e por corrente (VCVS, VCCS, CCVS, CCCS), gerador de pulsos, gerador senoidal, painéis solares de 1 W, 5 W, 10 W e 20 W, baterias de íon-lítio e LiFePO4 (com ou sem proteção), terra |
-| **Chaves e controles** | Chave SPST, chave reversível SPDT, botões NA (fechado enquanto pressionado) e NF (aberto enquanto pressionado) com repique dos contatos opcional; teclado matricial 4x4; módulo joystick de dois eixos |
+| **Chaves e controles** | Chave SPST, chave reversível SPDT, botões NA (fechado enquanto pressionado) e NF (aberto enquanto pressionado) com repique dos contatos opcional; entrada digital (um pino em 0 V ou em 3,3 V ou 5 V, trocado com um clique: um nível lógico sem fonte, chave e resistor); uma tecla do teclado para cada um deles; teclado matricial 4x4; módulo joystick de dois eixos |
 | **Instrumentos** | Voltímetro (entrada de 1 GΩ), amperímetro (ideal; corrente entrando pelo +), registrador gráfico (dois canais traçados no esquemático durante toda a execução, veja [Registrador gráfico](#registrador-gráfico)) |
 | **Semicondutores** | Diodo (silício), Schottky, germânio, Zener, LED (acende conforme a corrente, cor selecionável), transistores NPN e PNP, MOSFETs canal N e canal P (corpo ligado à fonte) |
 | **Modelos simplificados** | Modelos didáticos: diodo com tensão direta fixa; NPN e PNP com Vbe fixo, um beta mostrado no símbolo e uma tensão de saturação |
@@ -393,7 +393,17 @@ desligados, valores inválidos) e lista os problemas no painel Mensagens.
 
 Durante a execução:
 
-- Clique numa **chave** para alterná-la; segure o mouse sobre um **botão**;
+- **Teclas do teclado.** Chaves, botões e entradas digitais têm a
+  propriedade **Tecla do teclado**: uma letra, um dígito, ou `Up`, `Down`,
+  `Left`, `Right`, `Space`. Durante a execução, a tecla opera a peça como o
+  mouse: cada toque alterna uma chave ou uma entrada digital, e um botão
+  fica pressionado enquanto a tecla está segurada. A tecla aparece ao lado
+  do símbolo, e várias peças podem usar a mesma. O diagrama precisa estar
+  com o teclado: clique nele uma vez depois de iniciar. Uma tecla dada a
+  uma peça deixa de fazer o que faz no editor enquanto a simulação roda
+  (exemplo 72).
+- Clique numa **chave** ou numa **entrada digital** para alterná-la; segure
+  o mouse sobre um **botão**;
   arraste ou use a roda num **potenciômetro**. Os sensores funcionam do mesmo
   jeito: arraste ou gire a roda sobre um LM75, DS18B20 ou DHT22 (temperatura;
   Shift com a roda para a umidade do DHT22) ou um HC-SR04 (distância); o valor

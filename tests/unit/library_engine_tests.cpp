@@ -143,6 +143,21 @@ TEST_CASE("library: potentiometer, switches and buttons")
     CHECK(close_to(switched("spdt", {{"C", "VCC"}, {"A", "OUT"}, {"B", "B"}}, {{"closed", "closed"}}, "b"), 5.0, 1e-3));
 }
 
+TEST_CASE("library: the digital input gives 0 V or its high level")
+{
+    REQUIRE(test::engine() != nullptr);
+    const auto level = [&](const std::map<std::string, std::string>& parameters) {
+        test::CircuitBuilder b(components());
+        b.add("digital_input", {{"1", "OUT"}}, parameters);
+        b.add("resistor", {{"1", "OUT"}, {"2", "0"}}, {{"R", "100k"}});
+        return op(b, "out");
+    };
+    CHECK(close_to(level({}), 0.0, 1e-6));
+    CHECK(close_to(level({{"state", "1"}}), 5.0 * 100e3 / (100e3 + 50), 1e-6)); // 50 Ohm inside
+    CHECK(close_to(level({{"state", "1"}, {"Vhigh", "3.3"}}), 3.3 * 100e3 / (100e3 + 50), 1e-6));
+    CHECK(close_to(level({{"state", "0"}, {"Vhigh", "3.3"}}), 0.0, 1e-6));
+}
+
 TEST_CASE("library: adjustable and controlled sources (SN-209)")
 {
     REQUIRE(test::engine() != nullptr);

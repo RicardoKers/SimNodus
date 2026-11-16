@@ -363,6 +363,96 @@ private slots:
         view()->set_running(false);
     }
 
+    void keys_of_the_keyboard_work_switches_buttons_and_inputs()
+    {
+        // A part's Keyboard key works it while running: a switch and a digital
+        // input change over at each press, a button stays closed while held.
+        const model::Id sw = place("spst", {0, 0});
+        const model::Id button = place("button_no", {20, 0});
+        const model::Id input = place("digital_input", {40, 0});
+        const model::Id other = place("button_no", {60, 0}); // no key
+        doc().apply(editing::set_parameter(doc().schematic(), sw, "key", "a"));
+        doc().apply(editing::set_parameter(doc().schematic(), button, "key", "B"));
+        doc().apply(editing::set_parameter(doc().schematic(), input, "key", " up "));
+        std::vector<std::pair<model::Id, double>> seen;
+        const auto watch = connect(view(), &SchematicView::control_changed, this,
+            [&](model::Id id, double value, int slot) {
+                QCOMPARE(slot, 0);
+                seen.emplace_back(id, value);
+            });
+        view()->setFocus();
+        // Not running: the keys are the editor's.
+        QTest::keyClick(view(), Qt::Key_A);
+        QVERIFY(seen.empty());
+        view()->set_running(true);
+        QTest::keyClick(view(), Qt::Key_A);
+        QCOMPARE(seen.size(), std::size_t{1});
+        QVERIFY(seen.back() == std::make_pair(sw, 1.0));
+        QTest::keyClick(view(), Qt::Key_A, Qt::ShiftModifier); // "A" and "a" are the same key
+        QCOMPARE(seen.size(), std::size_t{2});
+        QKeyEvent with_ctrl(QEvent::KeyPress, Qt::Key_A, Qt::ControlModifier, QString());
+        QApplication::sendEvent(view(), &with_ctrl); // Ctrl+A is not the key A
+        QCOMPARE(seen.size(), std::size_t{2});
+        QTest::keyPress(view(), Qt::Key_B);
+        QVERIFY(seen.back() == std::make_pair(button, 1.0));
+        QKeyEvent repeat(QEvent::KeyPress, Qt::Key_B, Qt::NoModifier, QStringLiteral("b"), true);
+        QApplication::sendEvent(view(), &repeat); // held: no second press
+        QCOMPARE(seen.size(), std::size_t{3});
+        QTest::keyRelease(view(), Qt::Key_B);
+        QVERIFY(seen.back() == std::make_pair(button, 0.0));
+        QTest::keyClick(view(), Qt::Key_Up);
+        QVERIFY(seen.back() == std::make_pair(input, 1.0));
+        QCOMPARE(seen.size(), std::size_t{5});
+        // A key given to a part is not a menu's shortcut while running.
+        QKeyEvent override(QEvent::ShortcutOverride, Qt::Key_B, Qt::NoModifier, QStringLiteral("b"));
+        override.ignore();
+        QApplication::sendEvent(view(), &override);
+        QVERIFY(override.isAccepted());
+        QKeyEvent free_key(QEvent::ShortcutOverride, Qt::Key_C, Qt::NoModifier, QStringLiteral("c"));
+        free_key.ignore();
+        QApplication::sendEvent(view(), &free_key);
+        QVERIFY(!free_key.isAccepted());
+        // A button held when the diagram loses the keyboard is released.
+        QTest::keyPress(view(), Qt::Key_B);
+        QVERIFY(seen.back() == std::make_pair(button, 1.0));
+        if (view()->hasFocus()) {
+            view()->clearFocus();
+        } else {
+            QTest::keyRelease(view(), Qt::Key_B); // a window that is not active has no focus to lose
+        }
+        QVERIFY(seen.back() == std::make_pair(button, 0.0));
+        for (const auto& [id, value] : seen) {
+            QVERIFY(id != other);
+        }
+        view()->set_running(false);
+        disconnect(watch); // `seen` ends with this function
+    }
+
+    void the_digital_input_drives_its_level_and_follows_a_click()
+    {
+        if (!engine_available()) {
+            QSKIP("No ngspice library configured for this build.");
+        }
+        const model::Id input = place("digital_input", {0, 0});
+        doc().apply(editing::set_parameter(doc().schematic(), input, "Vhigh", "3.3"));
+        label(input, "1", "A");
+        const model::Id r = place("resistor", {20, 0});
+        doc().apply(editing::set_parameter(doc().schematic(), r, "R", "330"));
+        label(r, "1", "A");
+        label(r, "2", "K");
+        const model::Id led = place("led", {40, 0});
+        label(led, "A", "K");
+        label(led, "K", "0");
+        window_->run();
+        QTRY_VERIFY_WITH_TIMEOUT(window_->run_controller()->active(), 5000);
+        QTRY_VERIFY_WITH_TIMEOUT(window_->scene()->live().glow.count(led) > 0, 5000);
+        QVERIFY(window_->scene()->live().glow.at(led).level < 1e-4); // level 0: dark
+        QTest::mouseClick(view()->viewport(), Qt::LeftButton, Qt::NoModifier, at({-1, 0}));
+        QTRY_VERIFY_WITH_TIMEOUT(window_->scene()->live().glow.at(led).level > 0.1, 5000);
+        QTRY_COMPARE_WITH_TIMEOUT(window_->scene()->live().controls.at(input), 1.0, 5000);
+        window_->stop();
+    }
+
     void dragging_an_adjustable_source_up_raises_it()
     {
         // Owner's report of 2026-10-25: up lowered the value, against the wheel.

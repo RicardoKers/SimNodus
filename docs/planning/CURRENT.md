@@ -8,6 +8,14 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 
 ## Where we are
 
+- **On main after 0.18.0, for 0.19 (the owner asks for the release):** the
+  STM32F407VET6 (E-12, not experimental; see Next steps) and SN-300
+  (2026-11-16): the **Digital input** part (0 V or 3.3 V / 5 V, changed
+  with a click) and a **Keyboard key** for switches, push buttons and
+  digital inputs (`interactive.key_parameter`; handled in
+  `schematic_view.cpp`, which takes the key before a menu's shortcut while
+  running), example 72. The owner has more ergonomic changes in mind before
+  0.19.
 - **Release 0.18.0 published on 2026-11-11** (tag `v0.18.0`, GitHub release with
   `SimNodus-0.18.0-windows-x64.zip` and `-setup.exe`), after the owner's
   tests of the 2026-11-10 and 2026-11-11 previews:

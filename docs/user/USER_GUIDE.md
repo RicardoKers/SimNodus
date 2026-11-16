@@ -99,7 +99,7 @@ invalid value is outlined in red and not applied.
 |---|---|
 | **Passive** | Resistor, capacitor, inductor (ideal); potentiometer; transformer (primary P1-P2, secondary S1-S2) |
 | **Sources** | DC voltage source, battery (with internal resistance), DC current source (out of +), adjustable voltage and current sources (turned while running between a lower and an upper limit), voltage- and current-controlled voltage and current sources (VCVS, VCCS, CCVS, CCCS), pulse generator, sine generator, solar panels of 1 W, 5 W, 10 W and 20 W, lithium-ion and LiFePO4 batteries (with or without protection), ground |
-| **Switches & Controls** | SPST switch, SPDT changeover switch, push buttons NO (closed while pressed) and NC (open while pressed) with optional contact bounce; 4x4 matrix keypad; two-axis joystick module |
+| **Switches & Controls** | SPST switch, SPDT changeover switch, push buttons NO (closed while pressed) and NC (open while pressed) with optional contact bounce; digital input (one pin at 0 V or at 3.3 V or 5 V, changed with a click: a logic level without a supply, a switch and a resistor); a keyboard key for each of them; 4x4 matrix keypad; two-axis joystick module |
 | **Instruments** | Voltmeter (1 GΩ input), ammeter (ideal; current into +), chart recorder (two channels plotted on the schematic over the whole run, see [Chart recorder](#chart-recorder)) |
 | **Semiconductors** | Diode (silicon), Schottky, germanium, Zener, LED (glows with its current, color selectable), NPN and PNP transistors, N- and P-channel MOSFETs (body tied to source) |
 | **Simplified models** | Teaching models: diode with a fixed forward voltage; NPN and PNP with fixed Vbe, a beta shown on the symbol and a saturation voltage |
@@ -369,7 +369,16 @@ values) and lists problems in the Messages panel.
 
 While running:
 
-- Click a **switch** to toggle it; hold the mouse on a **push button**; drag
+- **Keys of the keyboard.** Switches, push buttons and digital inputs have
+  a **Keyboard key** property: a letter, a digit, or `Up`, `Down`, `Left`,
+  `Right`, `Space`. While running, the key works the part as the mouse
+  does: a press changes a switch or a digital input over, and a push button
+  stays pressed while the key is held. The key is shown next to the symbol,
+  and several parts may share one. The diagram must have the keyboard:
+  click it once after starting. A key given to a part does not do what it
+  does in the editor while the simulation runs (example 72).
+- Click a **switch** or a **digital input** to change it over; hold the
+  mouse on a **push button**; drag
   or use the wheel on a **potentiometer**. Sensors work the same way: drag
   or turn the wheel over an LM75, DS18B20 or DHT22 (temperature; Shift with
   the wheel for the DHT22's humidity) or an HC-SR04 (distance); the value

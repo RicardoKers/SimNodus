@@ -119,7 +119,8 @@
     ]
   },
   "interactive": {
-    "kind": "button"
+    "kind": "button",
+    "key_parameter": "key"
   },
   "spice": [
     "S_{ref} {node:1} {node:2} 0 {control} SWI_SN"
@@ -139,6 +140,14 @@
         "yes"
       ],
       "description": "Contacts bounce for about 3 ms after each press and release, like a real push button"
+    },
+    {
+      "name": "key",
+      "label": "Keyboard key",
+      "kind": "text",
+      "default": "",
+      "description": "A key that works it while running: a letter, a digit, Up, Down, Left, Right or Space; empty for none. Click the diagram first so that it gets the keys"
     }
-  ]
+  ],
+  "value_parameter": "key"
 }

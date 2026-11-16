@@ -76,6 +76,7 @@ REQUIRED = [
     "examples/30_Keypad_4x4_scanned_by_Blue_Pill.snx", "examples/firmware/hal_keypad/hal_keypad.elf",
     "examples/22_Regulators_and_reference.snx",
     "examples/21_Counter_with_push_button.snx", "examples/20_Blocks_two_RC_stages.snx",
+    "examples/72_Digital_inputs_and_keys.snx", "library/switches/digital_input.json",
     "examples/blocks/RC_lowpass.snx", "examples/17_Logic_gates_half_adder.snx", "examples/08_Blue_Pill_button_interrupt.snx", "examples/firmware/button_irq/button_irq.elf",
     "examples/09_Blue_Pill_serial_terminal.snx", "examples/firmware/uart_echo/uart_echo.elf",
     "examples/10_Lesson1_GPIO_output.snx", "examples/firmware/lesson1_gpio/lesson1_gpio.elf",

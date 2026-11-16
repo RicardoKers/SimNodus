@@ -120,11 +120,19 @@
         "open",
         "closed"
       ]
+    },
+    {
+      "name": "key",
+      "label": "Keyboard key",
+      "kind": "text",
+      "default": "",
+      "description": "A key that works it while running: a letter, a digit, Up, Down, Left, Right or Space; empty for none. Click the diagram first so that it gets the keys"
     }
   ],
   "interactive": {
     "kind": "toggle",
-    "parameter": "closed"
+    "parameter": "closed",
+    "key_parameter": "key"
   },
   "spice": [
     "S_a_{ref} {node:C} {node:A} 0 {control} SWI_SN",
@@ -133,5 +141,6 @@
   "models": [
     ".model SW_SN SW(VT=0.5 VH=0.1 RON=0.01 ROFF=1e15)",
     ".model SWI_SN SW(VT=-0.5 VH=0.1 RON=0.01 ROFF=1e15)"
-  ]
+  ],
+  "value_parameter": "key"
 }

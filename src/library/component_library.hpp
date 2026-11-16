@@ -222,6 +222,9 @@ struct Interactive {
     enum class Kind { Toggle, Button, Potentiometer, Keypad };
     Kind kind = Kind::Toggle;
     std::string parameter; // parameter holding the initial state ("closed", "position")
+    // Toggle and button: a Text parameter naming a key of the keyboard ("A",
+    // "1", "Up", "Space") that works the control while running; empty: none.
+    std::string key_parameter;
     // Potentiometer (UI-18): the wiper arrow's tip moves along this track, from
     // the first point (0 %) to the second (100 %), and joins the wiper pin.
     struct Wiper {
