@@ -849,6 +849,15 @@ and the Messages panel says that a real chip would not convert.
   target* is checked, with *Generic TCP/IP*, protocol *remote* and
   connection `localhost:3333`. The session stops at `Reset_Handler`, in
   the start-up file; set a breakpoint in `main` and resume.
+  An ELF without its project (one of the examples' firmware, say) is
+  debugged with the same kind of configuration, kept in any open project:
+  on the **Main** tab choose the ELF as *C/C++ Application* and check
+  *Disable auto build*; on the **Startup** tab choose *Use file* with the
+  same ELF for *Load image* and *Load symbols*, and set a breakpoint at
+  `main` with *Resume*; on the **Source** tab add a *Path Mapping* from
+  the compilation path to the folder of the sources (for the firmware in
+  `examples/firmware`, from `.` to the folder that holds `examples`).
+  Without that mapping the debugger works but cannot show the C file.
 - **Examples**: 67 (a 25 MHz crystal, the PLL at 168 MHz, USART1 at 115200
   baud, an LED on PC13, a reset button), 68 (timers, ADC and DAC: a
   potentiometer on PA1 sets the duty cycle of TIM1's PWM on PA8 and PB13,

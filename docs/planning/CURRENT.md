@@ -346,7 +346,9 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
    not GPIO, the pinout and the alternate function table are from memory
    of the datasheet. STM32CubeF4 1.28.3 is in ~/STM32Cube/Repository.
    The owner's bench: ST-LINK V2 and V3, a USB-serial adapter, a logic
-   analyzer; a 32.768 kHz crystal can go on the breadboard.
+   analyzer; a 32.768 kHz crystal can go on the breadboard. An ELF alone
+   (`f4_clock.elf`) debugs in STM32CubeIDE with a path mapping for its
+   sources (steps in the guide); nothing of E-12's bench work is open.
 
 ## Known constraints
 

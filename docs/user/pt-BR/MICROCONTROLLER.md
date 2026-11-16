@@ -1,4 +1,4 @@
-<!-- source: MICROCONTROLLER.md sha256 f23e44681b4488bab07fe8f63ffa8551603746c590170a57da5e71af5f7673f8 -->
+<!-- source: MICROCONTROLLER.md sha256 e7597a2efcc669c71515fc8d09d96a0a0b34860327f86a8750f3adea4721291e -->
 # Microcontrolador: o que é simulado
 
 O SimNodus executa o firmware da **Blue Pill (STM32F103C8)** em seu próprio emulador
@@ -877,6 +877,15 @@ um chip real não converteria.
   *Use remote target* fica marcado, com *Generic TCP/IP*, protocolo *remote*
   e conexão `localhost:3333`. A sessão para em `Reset_Handler`, no arquivo de
   partida; coloque um breakpoint em `main` e continue.
+  Um ELF sem o seu projeto (o firmware de um dos exemplos, por exemplo) é
+  depurado com o mesmo tipo de configuração, guardada em qualquer projeto
+  aberto: na aba **Main** escolha o ELF em *C/C++ Application* e marque
+  *Disable auto build*; na aba **Startup** escolha *Use file* com o mesmo ELF
+  em *Load image* e em *Load symbols*, e coloque um breakpoint em `main` com
+  *Resume*; na aba **Source** adicione um *Path Mapping* do caminho de
+  compilação para a pasta dos fontes (para o firmware de `examples/firmware`,
+  de `.` para a pasta que contém `examples`). Sem esse mapeamento o debugger
+  funciona, mas não consegue mostrar o arquivo C.
 - **Exemplos**: 67 (um cristal de 25 MHz, o PLL a 168 MHz, a USART1 a 115200
   baud, um LED em PC13, um botão de reset), 68 (timers, ADC e DAC: um
   potenciômetro em PA1 define o ciclo de trabalho do PWM do TIM1 em PA8 e
