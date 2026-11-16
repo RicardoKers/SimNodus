@@ -1,4 +1,4 @@
-<!-- source: MICROCONTROLLER.md sha256 e67c7a90d18eeca6987b3d202d6597619eb4696b3338a665f3edfcf2f8e94236 -->
+<!-- source: MICROCONTROLLER.md sha256 f23e44681b4488bab07fe8f63ffa8551603746c590170a57da5e71af5f7673f8 -->
 # Microcontrolador: o que é simulado
 
 O SimNodus executa o firmware da **Blue Pill (STM32F103C8)** em seu próprio emulador
@@ -848,7 +848,10 @@ um chip real não converteria.
   modo de inicialização nunca começa, e o painel Mensagens diz por quê.
 - **Watchdogs, CRC, RNG**: o watchdog independente roda com o LSI (32 kHz) e
   o watchdog de janela com o PCLK1; qualquer um reinicia o chip, e o
-  `RCC_CSR` diz qual. O gerador de números aleatórios dá uma sequência
+  `RCC_CSR` diz qual. O LSI tem exatos 32 kHz aqui; o de um chip real fica
+  entre 17 e 47 kHz (34,3 kHz na placa medida, cujo RTC no LSI contou um
+  minuto em 56 s), então os timeouts do watchdog e um RTC no LSI diferem
+  numa placa. O gerador de números aleatórios dá uma sequência
   pseudoaleatória fixa, a mesma em toda simulação, para que as simulações se
   repitam.
 - **Velocidade**: um firmware que espera em laço ativo a 168 MHz roda abaixo

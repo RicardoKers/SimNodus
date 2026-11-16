@@ -337,7 +337,9 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
    3.25 V reference within 0.5 % and the DAC its voltage within 13 mV; a
    byte at 115200 baud takes 87 us; the RTC, its alarm and the watchdog's
    reset as simulated; the SFRs view works; `rtc_open` falls back to the
-   LSI when the crystal the backup domain remembers is gone. The ADCs
+   LSI when the crystal the backup domain remembers is gone (the board's
+   LSI is 34.3 kHz: its minute takes 56 s); example 71's PWM is 230 us
+   high with `pwm 230` printed in the same capture. The ADCs
    and the DAC take their reference from VREF+ on the diagram (it was a
    fixed 3.3 V); nets named like a number ("3V3") reach a chip's pins
    (they were saved under a name ngspice does not give back). Not done: the supply voltage (VDD) is not read, PH0/PH1 are
