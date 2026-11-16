@@ -246,6 +246,7 @@ private:
 
 constexpr int f4_nrst = 200;
 constexpr int f4_boot0 = 201;
+constexpr int f4_vref = 202; // VREF+: only its voltage is read
 
 int f4_pin(const std::string& name)
 {
@@ -254,6 +255,9 @@ int f4_pin(const std::string& name)
     }
     if (name == "BOOT0") {
         return f4_boot0;
+    }
+    if (name == "VREF") {
+        return f4_vref;
     }
     return stm32_pin(name); // PA0..PE15
 }
@@ -266,8 +270,8 @@ PinState f4_state(const emu::F4PinConfig& c)
         // between 0.2 V and VDDA - 0.2 V with a low output resistance (an
         // approximation), without it rail to rail behind 15 kOhm.
         s.mode = PinMode::Analog;
-        const double volts = emu::Stm32F4Adc::vref * c.dac_code / 4095.0;
-        s.analog_volts = c.dac_buffered ? std::clamp(volts, 0.2, emu::Stm32F4Adc::vref - 0.2) : volts;
+        const double volts = c.dac_reference * c.dac_code / 4095.0;
+        s.analog_volts = c.dac_buffered ? std::clamp(volts, 0.2, c.dac_reference - 0.2) : volts;
         s.analog_resistance = c.dac_buffered ? 10.0 : 15000.0;
         s.level = c.level;
         return s;
@@ -319,6 +323,7 @@ public:
             if (const int id = f4_pin(pin); id >= 0 && id < f4_nrst && !options.open_pins.count(pin)) {
                 machine_.set_pin_input(id / 16, id % 16, false);
             }
+            reference_watched_ = reference_watched_ || pin == "VREF";
         }
         return true;
     }
@@ -331,7 +336,7 @@ public:
             PinState s;
             s.mode = PinMode::Input;
             s.pull = pin == f4_nrst ? Pull::Up : Pull::None; // NRST has the chip's pull-up
-            s.level = pin == f4_nrst ? !nrst_low_ : boot0_;
+            s.level = pin == f4_nrst ? !nrst_low_ : pin == f4_boot0 && boot0_;
             return s;
         }
         return f4_state(machine_.pin_config(pin / 16, pin % 16));
@@ -339,7 +344,7 @@ public:
     bool pin_level(int pin) const override
     {
         if (pin >= f4_nrst) {
-            return pin == f4_nrst ? !nrst_low_ : boot0_;
+            return pin == f4_nrst ? !nrst_low_ : pin == f4_boot0 && boot0_;
         }
         return machine_.pin_level(pin / 16, pin % 16);
     }
@@ -364,12 +369,16 @@ public:
             if (machine_.time_ns() < 1000000) {
                 machine_.reset(emu::ResetKind::Pin);
             }
-        } else {
+        } else if (pin < f4_nrst) { // (VREF+ has no level: only its voltage is read)
             machine_.set_pin_input(pin / 16, pin % 16, level);
         }
     }
     void set_analog_source(std::function<double(int, std::uint64_t)> source) override
     {
+        if (reference_watched_) {
+            // VREF+ on the diagram: the ADCs' and the DAC's reference.
+            machine_.set_reference_source([source](std::uint64_t time_ns) { return source(f4_vref, time_ns); });
+        }
         machine_.set_analog_source([source = std::move(source)](int port, int pin, std::uint64_t time_ns) {
             return source(port * 16 + pin, time_ns);
         });
@@ -490,6 +499,7 @@ private:
     std::unique_ptr<emu::GdbTarget> gdb_target_;
     bool nrst_low_ = false;
     bool boot0_ = false;
+    bool reference_watched_ = false; // VREF+ is a pin on the diagram
 };
 
 // ---------------------------------------------------------------------------

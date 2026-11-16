@@ -667,7 +667,10 @@ std::vector<std::string> SimulationSession::segment_deck(double t0, double lengt
     for (std::size_t i = 0; i < save_vectors_.size(); i += 16) {
         std::string save = ".save";
         for (std::size_t j = i; j < std::min(save_vectors_.size(), i + 16); ++j) {
-            save += " " + save_vectors_[j];
+            // A net named like a number ("3V3") is a node only inside v().
+            const std::string& name = save_vectors_[j];
+            const bool digit = !name.empty() && name[0] >= '0' && name[0] <= '9' && name.find('(') == std::string::npos;
+            save += digit ? " v(" + name + ")" : " " + name;
         }
         extra.push_back(save);
     }
@@ -1693,8 +1696,13 @@ void SimulationSession::run_interactive()
             const auto names = engine->vector_names();
             index_.assign(names.size(), -1);
             for (std::size_t i = 0; i < names.size(); ++i) {
-                const auto key = lower(names[i]);
-                const auto it = std::find(save_vectors_.begin(), save_vectors_.end(), key);
+                auto key = lower(names[i]);
+                auto it = std::find(save_vectors_.begin(), save_vectors_.end(), key);
+                if (it == save_vectors_.end() && key.size() > 3 && key.rfind("v(", 0) == 0 && key.back() == ')') {
+                    // A net named like a number ("3V3") was saved as v(3v3) and comes back so.
+                    key = key.substr(2, key.size() - 3);
+                    it = std::find(save_vectors_.begin(), save_vectors_.end(), key);
+                }
                 if (it != save_vectors_.end()) {
                     index_[i] = static_cast<int>(it - save_vectors_.begin());
                 }

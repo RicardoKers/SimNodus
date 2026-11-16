@@ -1345,6 +1345,7 @@ F4PinConfig Stm32F407::pin_config(int port, int pin) const
         config.dac = dac.enabled;
         config.dac_buffered = dac.buffered;
         config.dac_code = static_cast<std::uint16_t>(dac.code);
+        config.dac_reference = dac.reference;
     }
     return config;
 }
@@ -1569,6 +1570,35 @@ std::uint32_t Stm32F407::hclk_per_pclk2() const
     return rcc_->apb_divider(true);
 }
 
+double Stm32F407::reference_volts(std::uint64_t time_ns)
+{
+    if (!reference_source_) {
+        return vref;
+    }
+    const double volts = reference_source_(time_ns);
+    // DS8626: VREF+ from 1.8 V to VDDA. The first millisecond is left out:
+    // the circuit may not have reported its voltages yet.
+    if ((volts < 1.8 || volts > 3.6) && !reference_told_ && time_ns > 1000000) {
+        reference_told_ = true;
+        char text[220];
+        if (volts < 0.5) {
+            std::snprintf(text, sizeof text,
+                "VREF+ has %.2f V: the ADC and the DAC need 1.8 V to VDDA on it (wire VREF+ to the analog "
+                "supply). They work as with 3.3 V here; on a real chip they would not.", volts);
+        } else {
+            std::snprintf(text, sizeof text,
+                "VREF+ has %.2f V, outside the chip's 1.8 V to 3.6 V: the ADC and the DAC use it as it is.", volts);
+        }
+        diagnostic(text);
+    }
+    return volts < 0.5 ? vref : volts;
+}
+
+double Stm32F407::adc_reference(std::uint64_t cycle)
+{
+    return reference_volts(ns_at_cycles(cycle));
+}
+
 double Stm32F407::adc_voltage(int adc, int channel, std::uint64_t cycle)
 {
     // IN0..IN7: PA0..PA7, IN8, IN9: PB0, PB1, IN10..IN15: PC0..PC5. ADC3 has
@@ -1606,7 +1636,7 @@ bool Stm32F407::dac_dma(int channel)
 
 void Stm32F407::dac_output(int channel, bool enabled, bool buffered, std::uint32_t code, std::uint64_t cycle)
 {
-    dac_pins_[static_cast<std::size_t>(channel)] = {enabled, buffered, code};
+    dac_pins_[static_cast<std::size_t>(channel)] = {enabled, buffered, code, reference_volts(ns_at_cycles(cycle))};
     const bool nested = stamping_;
     const std::uint64_t outer = stamp_cycles_;
     stamping_ = true;

@@ -1,4 +1,4 @@
-<!-- source: MICROCONTROLLER.md sha256 1db339f23ad87cd97be0fd2dba2246025252b6d5d8d4593c3a0ebd1987261a8a -->
+<!-- source: MICROCONTROLLER.md sha256 e67c7a90d18eeca6987b3d202d6597619eb4696b3338a665f3edfcf2f8e94236 -->
 # Microcontrolador: o que é simulado
 
 O SimNodus executa o firmware da **Blue Pill (STM32F103C8)** em seu próprio emulador
@@ -754,8 +754,13 @@ com seus 100 pinos: um Cortex-M4 com FPU de precisão simples, 512 KB de flash
 e 192 KB de RAM, até 168 MHz. Ele executa o arquivo ELF que o STM32CubeIDE
 gera, incluindo a FPU. Os exemplos 67 a 71, os resultados de ponto
 flutuante e o tempo que as instruções levam foram comparados com um chip
-real em 2026-11. Só parte do chip é simulada (veja *Ainda não simulado* abaixo),
-e o ADC é aproximado: ainda não foi comparado com uma tensão medida.
+real em 2026-11. Só parte do chip é simulada (veja *Ainda não simulado* abaixo).
+O ADC e o DAC usam como referência o pino **VREF+** do diagrama (ligue-o à
+alimentação analógica; de 1,8 V até VDDA): com 3,25 V nele, como na placa
+medida, o código de fundo de escala vale 3,25 V. O chip medido deu os códigos
+do simulador dentro de 0,5 %, com até 15 códigos de ruído que o simulador não
+tem. Com o VREF+ desligado a referência é 3,3 V, e o painel Mensagens avisa que
+um chip real não converteria.
 
 - **O que funciona**: a árvore de clock (HSI, HSE, o PLL), GPIO com os
   números de função alternativa, interrupções externas em qualquer porta, as
@@ -807,11 +812,11 @@ e o ADC é aproximado: ainda não foi comparado com uma tensão medida.
   encapsulamento), disparados por software ou por um timer, em conversão
   única, contínua ou de varredura, com canais injetados, as resoluções de 12
   a 6 bits e o tempo de conversão do tempo de amostragem mais a resolução em
-  ciclos do clock do ADC. O VREF+ é tomado como 3,3 V (o pino VREF não é
-  lido): o código de 12 bits é V × 4096 / 3,3. No ADC1 o sensor de
+  ciclos do clock do ADC. A referência é a tensão do pino VREF+: o código
+  de 12 bits é V × 4096 / VREF+ (3,3 V nos exemplos). No ADC1 o sensor de
   temperatura dá 0,76 V (25 °C, um valor fixo), o VREFINT 1,21 V e o VBAT a
-  metade de 3,3 V.
-- **DAC**: o canal 1 aciona PA4 e o canal 2 PA5 com 3,3 V × código / 4095,
+  metade de VREF+.
+- **DAC**: o canal 1 aciona PA4 e o canal 2 PA5 com VREF+ × código / 4095,
   definido pelo firmware, pelo gatilho de um timer ou pela onda triangular.
   Com seu buffer de saída (o padrão) a tensão fica entre 0,2 V e 3,1 V atrás
   de uma resistência pequena (uma aproximação do buffer); sem ele, de 0 a

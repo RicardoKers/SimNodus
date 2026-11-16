@@ -242,8 +242,17 @@ static inline int rtc_open(uint32_t time, uint32_t date)
             RCC_CSR |= 1u; // the LSI stops at every reset; the RTC needs it again
             while (!(RCC_CSR & 2u)) {
             }
+            return 0;
         }
-        return 0;
+        // The backup domain outlives resets (and power, on a battery): if the
+        // crystal it was started with is gone, the calendar stands still.
+        // Start again from the beginning then, on the LSI.
+        uint32_t ready = 0;
+        while (!(RCC_BDCR & 2u) && ++ready < 4000000u) { // LSERDY
+        }
+        if (RCC_BDCR & 2u) {
+            return 0;
+        }
     }
     RCC_BDCR = 1u << 16; // BDRST: a clean backup domain
     RCC_BDCR = 0;

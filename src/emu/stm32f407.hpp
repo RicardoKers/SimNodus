@@ -54,6 +54,7 @@ struct F4PinConfig {
     bool dac = false;           // PA4, PA5: the DAC channel drives the pin
     bool dac_buffered = false;  // through its output buffer
     std::uint16_t dac_code = 0; // 12 bits of VREF+
+    double dac_reference = 3.3; // VREF+ when the channel last changed
 };
 
 // A change of a pin's level or configuration, with the configuration at that instant.
@@ -86,7 +87,7 @@ public:
     static constexpr int num_spis = 3;
     static constexpr int num_i2cs = 3;
     static constexpr std::uint32_t lsi_hz = 32000; // the LSI's typical frequency (DS8626)
-    static constexpr double vref = Stm32F4Adc::vref; // VREF+ and VDDA, not read from the circuit
+    static constexpr double vref = Stm32F4Adc::vref; // VREF+ when the circuit does not give one
 
     explicit Stm32F407(F4MachineOptions options = {});
     ~Stm32F407() override;
@@ -123,6 +124,12 @@ public:
     // reads its DAC channel if that drives it, else 0 V or VREF+ by its level.
     using AnalogSource = std::function<double(int port, int pin, std::uint64_t time_ns)>;
     void set_analog_source(AnalogSource source) { analog_source_ = std::move(source); }
+    // The voltage on the VREF+ pin, from the circuit: the ADCs' and the DAC's
+    // reference. Without one, or while it is below 0.5 V (not wired, or the
+    // circuit has not reported yet), the reference is 3.3 V.
+    using ReferenceSource = std::function<double(std::uint64_t time_ns)>;
+    void set_reference_source(ReferenceSource source) { reference_source_ = std::move(source); }
+    double reference_volts(std::uint64_t time_ns);
     // A byte from a terminal for serial port `usart` (1 to 6).
     void uart_receive(int usart, std::uint8_t value);
     using PinHook = std::function<void(int port, int pin, std::uint64_t time_ns)>;
@@ -213,6 +220,7 @@ private:
     std::uint64_t analog_now_cycles() const override { return cpu_.cycles(); }
     std::uint32_t hclk_per_pclk2() const override;
     double adc_voltage(int adc, int channel, std::uint64_t cycle) override;
+    double adc_reference(std::uint64_t cycle) override;
     void adc_irq(bool level) override { cpu_.set_irq_line(18, level); }
     void analog_schedule_changed() override { cpu_.request_stop(); }
     void analog_diagnostic(const std::string& text) override { diagnostic(text); }
@@ -289,11 +297,14 @@ private:
     std::vector<TimedDevice*> timed_;
     PinHook pin_hook_;
     AnalogSource analog_source_;
+    ReferenceSource reference_source_;
+    bool reference_told_ = false;
     std::array<std::uint32_t, 96> irq_sources_{}; // per interrupt line: the timers that request it
     struct DacPin {
         bool enabled = false;
         bool buffered = false;
         std::uint32_t code = 0;
+        double reference = vref; // VREF+ when the channel last changed
     };
     std::array<DacPin, 2> dac_pins_{}; // PA4, PA5
     std::unique_ptr<ElfImage> image_;

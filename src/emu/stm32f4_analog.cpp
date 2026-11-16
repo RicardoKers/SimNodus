@@ -91,10 +91,10 @@ void Stm32F4Adc::reset()
     ccr_ = 0;
 }
 
-std::uint32_t Stm32F4Adc::code_of(double volts, int bits)
+std::uint32_t Stm32F4Adc::code_of(double volts, int bits, double reference)
 {
     const double full = static_cast<double>(1u << bits);
-    return static_cast<std::uint32_t>(std::clamp(std::floor(volts / vref * full), 0.0, full - 1.0));
+    return static_cast<std::uint32_t>(std::clamp(std::floor(volts / reference * full), 0.0, full - 1.0));
 }
 
 int Stm32F4Adc::bits(const Unit& u) const
@@ -198,7 +198,7 @@ void Stm32F4Adc::finish_step(int index)
         volts = host_.adc_voltage(index + 1, u.channel, u.sample_at);
     } else if (index == 0) { // the internal channels are on ADC1
         if (u.channel == 18 && (ccr_ & CCR_VBATE)) {
-            volts = vref / 2.0; // VBAT / 2, with VBAT at the supply
+            volts = host_.adc_reference(u.sample_at) / 2.0; // VBAT / 2, with VBAT at the reference's voltage
         } else if (u.channel == 16 && (ccr_ & CCR_TSVREFE)) {
             volts = temperature_volts;
         } else if (u.channel == 17 && (ccr_ & CCR_TSVREFE)) {
@@ -206,7 +206,7 @@ void Stm32F4Adc::finish_step(int index)
         }
     }
     const int n = bits(u);
-    const std::uint32_t code = code_of(volts, n);
+    const std::uint32_t code = code_of(volts, n, host_.adc_reference(u.sample_at));
     const bool left = (u.cr2 & CR2_ALIGN) != 0;
     if (u.busy == Busy::Regular) {
         check_watchdog(u, u.channel, code, false);

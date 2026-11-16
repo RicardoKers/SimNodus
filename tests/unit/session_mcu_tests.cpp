@@ -2203,6 +2203,50 @@ TEST_CASE("the register view writes registers as the firmware would, and shows t
     runner.stop();
 }
 
+TEST_CASE("session: the STM32F407's ADC and DAC take their reference from VREF+ on the diagram")
+{
+    // The owner's board runs on 3.25 V (2026-11-16): example 68 with its supply
+    // at 3.25 V. The potentiometer divides the same rail, so the code is the
+    // same as at 3.3 V (2867 at 70 %), and the DAC gives 2867 / 4095 of 3.25 V.
+    REQUIRE(test::engine() != nullptr);
+    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "68_STM32F407_PWM_ADC_DAC.snx");
+    REQUIRE(loaded.schematic.has_value());
+    sim::RunRequest request;
+    request.schematic = *loaded.schematic;
+    model::Id chip = model::no_id;
+    for (model::Component c : loaded.schematic->components()) {
+        chip = c.designator == "U1" ? c.id : chip;
+        if (c.designator == "V1") {
+            c.parameters["V"] = "3.25";
+            request.schematic.put(c);
+        }
+    }
+    REQUIRE(chip != model::no_id);
+    auto settings = request.schematic.settings();
+    settings.speed = 0.0;
+    request.schematic.set_settings(settings);
+    request.library = &board_library();
+    request.vectors = {"adc_in", "dac_out"};
+    std::string error;
+    REQUIRE(sim::build_mcu_requests(request.schematic, board_library(), environment(), request.mcus, error));
+    sim::SimulationSession session;
+    REQUIRE(session.start(request, error));
+    const auto begin = std::chrono::steady_clock::now();
+    std::string text;
+    while (text.find("adc 2867\r\nadc 2867\r\n") == std::string::npos) {
+        REQUIRE(session.active());
+        REQUIRE(std::chrono::steady_clock::now() - begin < 180s);
+        std::this_thread::sleep_for(10ms);
+        text.clear();
+        session.mcu_uart_received(chip, "usart1", 0, text);
+    }
+    const double wiper = session.samples("adc_in").back().value;
+    const double dac = session.samples("dac_out").back().value;
+    CHECK(std::abs(wiper - 0.7 * 3.25) < 0.01);
+    CHECK(std::abs(dac - 2867 * 3.25 / 4095) < 0.005);
+    session.stop();
+}
+
 TEST_CASE("session: example 68, the STM32F407's ADC reads the circuit and its DAC drives it (E-12, SN-297)")
 {
     REQUIRE(test::engine() != nullptr);
@@ -2441,8 +2485,9 @@ TEST_CASE("session: example 67, the STM32F407 as a bare chip with its crystal on
     CHECK(options.chip == "stm32f407");
     CHECK(options.parameters.at("crystal_hz") == "25000000"); // Y1 between PH0 and PH1
     CHECK(options.parameters.count("lse_hz") == 0);
-    // Ports A to E, NRST and BOOT0 are watched; the supply and oscillator pins are not.
-    CHECK(options.pins.size() == 82);
+    // Ports A to E, NRST, BOOT0 and VREF+ (the ADC's reference) are watched; the supply and oscillator pins are not.
+    CHECK(options.pins.size() == 83);
+    CHECK(std::find(options.pins.begin(), options.pins.end(), "VREF") != options.pins.end());
     CHECK(std::find(options.pins.begin(), options.pins.end(), "NRST") != options.pins.end());
     CHECK(std::find(options.pins.begin(), options.pins.end(), "BOOT0") != options.pins.end());
     CHECK(std::find(options.pins.begin(), options.pins.end(), "PH0") == options.pins.end());

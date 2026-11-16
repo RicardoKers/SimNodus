@@ -240,7 +240,7 @@ Example 68 runs at about 1.6 times real time (16 MHz, the firmware sleeping
 between conversions, the PWM at 20 kHz and the triangle's 10 000 steps a
 second).
 
-**Limits of SN-297.** The VREF pin is not read (VREF+ is 3.3 V); the
+**Limits of SN-297.** The VREF pin was not read (VREF+ was 3.3 V; read since 2026-11-16); the
 temperature sensor gives a fixed 0.76 V; a DAC output is not limited by its
 load current; the ADC's sampling capacitor is not modelled (a high source
 impedance reads as a low one).
@@ -426,11 +426,68 @@ Executable* did not work for the owner (not investigated; the guide now
 describes the configuration that worked), and the SFRs view was not
 reported.
 
+## The bench session of 2026-11-16
+
+The same board; its 3.3 V rail (VDDA and VREF+) measured 3.25 V.
+
+**ADC and DAC (`f4_analog`, G12c.2, G12c.3).** A potentiometer on PA1, a
+multimeter on PA1 and on PA4, six to eight `adc` lines at each position:
+
+| PA1 | Codes printed (mean) | V x 4096 / 3.25 | Difference | PA4 (the DAC) |
+|---|---|---|---|---|
+| 0.522 V | 646 to 664 (656.8) | 657.9 | -1.1 | 0.526 V |
+| 1.01 V | 1247 to 1277 (1265.3) | 1272.9 | -7.6 | 1.01 V |
+| 1.652 V | 2071 to 2083 (2077.3) | 2082.0 | -4.8 | 1.661 V |
+| 2.515 V | 3158 to 3179 (3166.4) | 3169.7 | -3.3 | 2.528 V |
+| 3.010 V | 3770 to 3784 (3775.8) | 3793.5 | -17.8 | 3.020 V |
+
+The chip's mean code is the ideal one for its reference within 0.5 % of
+the reading (18 codes at most), with a spread of up to 15 codes around the
+mean from a potentiometer's impedance and the bench's noise; the DAC gives
+the ADC's voltage back within 13 mV (0.4 % of full scale). The triangle on
+PA5 was as expected on the oscilloscope. The simulator computed
+V x 4096 / 3.3 without noise: for this board, whose reference is 3.25 V,
+its codes were 1.5 % lower than the chip's (3736 against 3776 at 3.010 V).
+That was the reference, not the converter's model, and it is closed: the
+ADCs and the DAC now take their reference from the VREF+ pin on the
+diagram (`Stm32F407::set_reference_source`; 3.3 V and a message when the
+pin is not wired). With example 68's supply at 3.25 V the DAC gives
+2867 / 4095 of 3.25 V (test `session: the STM32F407's ADC and DAC take
+their reference from VREF+ on the diagram`). Making it work found that a
+net named like a number ("3V3") was never read by a chip's pin: ngspice
+saves such a node only as `v(3v3)`.
+
+**`f4_station` (G12c.7).** The line `12:05:53 2026-11-12 lm75 23.5 pwm
+235 dac 940`; PA4 at 0.756 V (940 / 4095 of 3.25 V is 0.746 V: 10 mV, 0.3 %
+of full scale, inside the plan's 1 %; the simulator's 0.757 V is of its
+3.3 V); PA6's period 1 ms with 230 us high. The plan asks for one count
+(1 us) of the 235 printed: 230 us is the duty cycle of 23.0 C, one step of
+the LM75 away, and the line and the analyzer's capture were not taken at
+the same moment. Not confirmed either way.
+
+**The baud rate (G12b.9).** One byte of `f4_clock` on PA9 takes 87 us on
+the analyzer; the simulator's is 86.8 us (115226 baud).
+
+**`f4_rtc` (G12b.6, G12c.6).** With the 32.768 kHz crystal: the calendar,
+the alarm at second 05, the watchdog's reset with `reset by the watchdog`
+and the start count going on, all as in the simulator. Without the
+crystal the board printed its `start n` line and nothing more: the backup
+domain had kept "the RTC runs on the LSE" through the resets, and the
+firmware went on waiting for a clock that was gone. That is the chip's
+behaviour, and the firmware's fault: `rtc_open` now waits a second for the
+LSE it remembers and starts again on the LSI if it does not come
+(`f4_rtc` and `f4_station` rebuilt). The LSI run was not repeated on the
+board.
+
+**STM32CubeIDE's SFRs view (G12b.7).** RCC's CFGR reads 0x940A with SWS at
+the PLL, and GPIOC's ODR changes as the LED blinks. The import of an ELF
+alone was not tried again.
+
 ## Gate review (SN-299)
 
 "Host" means measured by the tests on the owner's laptop; "board" means on
 the owner's STM32F407VET6 board (25 MHz crystal) with the owner's
-instruments, on 2026-11-13 and 2026-11-15.
+instruments, on 2026-11-13, 2026-11-15 and 2026-11-16.
 
 | Criterion | Host | Board | Verdict |
 |---|---|---|---|
@@ -445,19 +502,19 @@ instruments, on 2026-11-13 and 2026-11-15.
 | G12b.3 GPIO and alternate functions | met | examples 67-71 drove their pins as simulated | **met**; 5 V tolerance not modelled |
 | G12b.4 the six serial ports | met for USART1 and USART2 | USART1 | **met for two ports**; the other four share the model |
 | G12b.5 `f4_float`'s checksum | the five lines | the same five lines | **met** |
-| G12b.6 resets | met | example 70 behaved as simulated (the watchdog's reset not reported separately) | **met on the host** |
-| G12b.7 debugging with STM32CubeIDE | the GDB target and the Register Viewer by test | breakpoints, stepping, the core's and the FPU's registers, reconnecting | **met**; the SFRs view not reported |
+| G12b.6 resets | met | the watchdog's reset in `f4_rtc`, with its message and the start count | **met** |
+| G12b.7 debugging with STM32CubeIDE | the GDB target and the Register Viewer by test | breakpoints, stepping, the core's and the FPU's registers, the SFRs view, reconnecting | **met** |
 | G12b.8 speed in the circuit | `f4_blink` 7.7x; examples 70, 71 5-6x; busy loop at 168 MHz 0.79-0.85x, stated in the guide | — | **met** |
-| G12b.9 board comparison and calibration | 27 loops within 0.24 % (ART on or no wait state) | `f4_clock`, `f4_float`, `f4_timing`, `f4_blink` | **met**; the baud rate seen on the terminal, not on the analyzer; the accelerator off within 14 % |
+| G12b.9 board comparison and calibration | 27 loops within 0.24 % (ART on or no wait state) | `f4_clock`, `f4_float`, `f4_timing`, `f4_blink` | **met**; a byte takes 87 us on the analyzer (86.8 us simulated); the accelerator off within 14 % |
 | G12b.10 repeatable runs | met | the board's seven `f4_timing` reports identical | **met** |
 | G12b.11 the other chips unchanged | ctest, `examples_pass.py`, `examples_gui_pass.py` | — | **met** |
 | G12c.1 timers | met (limits in SN-297) | example 71's PWM | **met on the host** |
-| G12c.2 ADC | met | example 68 as simulated | **met on the host**, labeled approximate |
-| G12c.3 DAC | met | example 71's PA4 similar | **met on the host** |
+| G12c.2 ADC | met | the ideal code for the board's 3.25 V reference within 0.5 %, a spread of 15 codes | **met**; the reference is VREF+ on the diagram |
+| G12c.3 DAC | met | within 13 mV of the code's voltage at five points | **met** |
 | G12c.4 SPI and I2C with the parts and the HAL | met | example 69 (after a wiring fix), a 24C08 for the 24C02 | **met** |
 | G12c.5 DMA streams | met | examples 69, 71 print through DMA | **met on the host** |
-| G12c.6 RTC | met | example 70 as simulated | **met on the host** |
-| G12c.7 `f4_station` on the board | the trace | similar time, PWM_AVG and PA4 (by eye, values not written down) | **met by the owner's comparison**, not to the plan's tolerances |
+| G12c.6 RTC | met | the calendar, the alarm and the backup count on the 32.768 kHz crystal | **met**; the LSI not run on the board |
+| G12c.7 `f4_station` on the board | the trace | the serial line; PA4 within 10 mV; PA6 230 us high against 235 printed, at different moments | **met for the serial line and the DAC**; the PWM's one count not confirmed |
 
 **Reading of DE12.** G12a and G12b pass, and G12b.9 with them; G12c
 passes on the host with the owner's comparison of its examples. By the
@@ -469,7 +526,7 @@ examples, the status text and the guides lost the experimental label.
 
 ## Next
 
-E-12 is closed. Left for a later bench session, none blocking: the ADC
-against a measured voltage, `f4_station`'s PWM and DAC to the plan's
-tolerances, the baud rate on the analyzer, the SFRs view and the import of
-an ELF alone in STM32CubeIDE.
+E-12 is closed. What the last session left:
+- `f4_station`'s PWM with the serial line and the capture taken together.
+- `f4_rtc` on the LSI on the board, with the firmware that falls back.
+- The import of an ELF alone in STM32CubeIDE.
