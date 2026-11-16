@@ -23,6 +23,7 @@
 #include <chrono>
 #include <cmath>
 #include <cstdlib>
+#include <optional>
 #include <filesystem>
 #include <map>
 #include <set>
@@ -1031,6 +1032,68 @@ TEST_CASE("session: example 45 runs ESP-IDF's blink on the ESP32-C3 board")
     CHECK(text.find("Turning the LED OFF!") != std::string::npos);
     const auto pins = session.mcu_pins(board);
     CHECK(pins.at("GPIO8").mode == mcu::PinMode::Output);
+    session.stop();
+}
+
+TEST_CASE("session: example 73 blinks the ESP32-C3 SuperMini's own LED")
+{
+    // SN-301: the same chip and image as example 45 on the SuperMini, whose
+    // 13 GPIOs are on its pins and whose LED (GPIO8, lit while low) is on the board.
+    REQUIRE(test::engine() != nullptr);
+    const auto loaded =
+        io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "73_ESP32-C3_SuperMini_blink.snx");
+    REQUIRE(loaded.schematic.has_value());
+    model::Id board = model::no_id;
+    for (const auto& c : loaded.schematic->components()) {
+        board = c.designator == "U1" ? c.id : board;
+    }
+    sim::RunRequest request;
+    request.schematic = *loaded.schematic;
+    auto settings = request.schematic.settings();
+    settings.speed = 0.0;
+    request.schematic.set_settings(settings);
+    request.library = &board_library();
+    request.vectors = {"led"};
+    std::string error;
+    REQUIRE(sim::build_mcu_requests(request.schematic, board_library(), environment(), request.mcus, error));
+    REQUIRE(request.mcus.size() == 1);
+    CHECK(request.mcus.front().options.chip == "esp32c3");
+    CHECK(request.mcus.front().options.pins.size() == 13); // GPIO0-10, 20 and 21
+    sim::SimulationSession session;
+    REQUIRE(session.start(request, error));
+    const auto begin = std::chrono::steady_clock::now();
+    while (session.status().sim_time < 1.6) {
+        REQUIRE(session.active());
+        REQUIRE(std::chrono::steady_clock::now() - begin < 300s);
+        std::this_thread::sleep_for(10ms);
+    }
+    // The pull-up holds GPIO8 high through reset; the LED then toggles every
+    // 500 ms: two or three edges between 0.2 s and 1.6 s.
+    int edges = 0;
+    double high = 0.0;
+    double low = 3.3;
+    std::optional<bool> last;
+    for (const auto& s : session.samples("led")) {
+        if (s.time < 0.2 || s.time > 1.6) {
+            continue;
+        }
+        const bool level = s.value > 1.65;
+        edges += last && level != *last ? 1 : 0;
+        last = level;
+        high = std::max(high, s.value);
+        low = std::min(low, s.value);
+    }
+    std::printf("  SuperMini GPIO8: %d edges from 0.2 s to 1.6 s, %.3f V to %.3f V\n", edges, low, high);
+    CHECK(edges >= 2);
+    CHECK(edges <= 3);
+    CHECK(high > 3.2);
+    CHECK(low < 0.1);
+    std::string text;
+    session.mcu_uart_received(board, "uart0", 0, text);
+    CHECK(text.find("Turning the LED ON!") != std::string::npos);
+    const auto pins = session.mcu_pins(board);
+    CHECK(pins.at("GPIO8").mode == mcu::PinMode::Output);
+    CHECK(pins.count("GPIO18") == 0);
     session.stop();
 }
 

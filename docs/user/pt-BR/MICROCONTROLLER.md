@@ -1,4 +1,4 @@
-<!-- source: MICROCONTROLLER.md sha256 e7597a2efcc669c71515fc8d09d96a0a0b34860327f86a8750f3adea4721291e -->
+<!-- source: MICROCONTROLLER.md sha256 866d3170d73b00f843be966a9cfb0cc6c382c3f4f5d93527fcac9c529314c7aa -->
 # Microcontrolador: o que é simulado
 
 O SimNodus executa o firmware da **Blue Pill (STM32F103C8)** em seu próprio emulador
@@ -296,6 +296,24 @@ ESP32-C3 no próprio emulador RISC-V do SimNodus (ADR 0106). Ele é
 **experimental**: o mesmo firmware já rodou sem modificações (exemplos do
 ESP-IDF, um sketch do Arduino, a imagem oficial do MicroPython), mas ainda não
 foi comparado com uma placa real, então pequenas diferenças podem existir.
+
+O componente **ESP32-C3 SuperMini** é o mesmo chip na placa pequena de 16
+pinos, também experimental. Ele difere da DevKitM-1 no que há na placa:
+
+- **Pinos**: GPIO5, GPIO6, GPIO7, GPIO8, GPIO9, GPIO10, GPIO20 e GPIO21 de um
+  lado; 5V, G, 3V3, GPIO4, GPIO3, GPIO2, GPIO1 e GPIO0 do outro, desenhados
+  com o conector USB em cima, como nos desenhos de pinagem da placa. Não há
+  pino EN; clique em RESET no símbolo.
+- **LED**: o LED da placa fica no GPIO8 e acende enquanto o pino está em
+  nível **baixo**. Ele é desenhado no símbolo (exemplo 73).
+- **USB**: o conector é o USB Serial/JTAG do próprio chip (**USB Serial/JTAG
+  para o computador** nas propriedades); não há conversor USB-serial. A UART0
+  fica só nos pinos GPIO21 (TX) e GPIO20 (RX), e o terminal também a mostra.
+- O GPIO9 (BOOT) e o GPIO8 têm pull-ups de 10 kΩ para 3,3 V, tirados do
+  esquema publicado da placa e ainda não medidos numa placa. O botão BOOT não
+  é desenhado: ligue um botão do GPIO9 ao G para ter um.
+
+O que segue vale para as duas placas.
 
 - **Firmware**: uma imagem da flash (`.bin`) gravada a partir do endereço 0,
   como o `esptool write-flash 0x0` grava: a saída do `idf.py merge-bin` do

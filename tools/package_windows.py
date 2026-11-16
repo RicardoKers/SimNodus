@@ -40,6 +40,7 @@ REQUIRED = [
     "translations/simnodus_pt_BR.qm",
     "vcruntime140.dll", "msvcp140.dll",
     "library/mcu/bluepill.json", "examples/07_Blue_Pill_blink.snx", "examples/firmware/blink/blink.elf",
+    "library/mcu/esp32c3_supermini.json", "examples/73_ESP32-C3_SuperMini_blink.snx",
     "library/mcu/esp32c3_devkitm1.json", "roms/esp32c3_rev3_rom.elf", "licenses/esp-rom-elfs-Apache-2.0.txt",
     "roms/optiboot_atmega328.hex", "licenses/optiboot/COPYING", "licenses/optiboot/optiboot.c",
     "examples/45_ESP32-C3_blink.snx", "examples/firmware/esp32c3_blink/blink.bin",

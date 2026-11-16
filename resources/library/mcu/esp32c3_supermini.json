@@ -1,0 +1,573 @@
+{
+  "type": "esp32c3_supermini",
+  "name": "ESP32-C3 SuperMini (experimental)",
+  "category": "Microcontrollers",
+  "prefix": "U",
+  "description": "ESP32-C3 SuperMini board running your firmware (flash image, .bin: ESP-IDF, Arduino or MicroPython) in the SimNodus emulator; its LED is on GPIO8 and lights while the pin is low; experimental until compared with a real board",
+  "symbol": {
+    "graphics": [
+      {
+        "rect": [
+          -7,
+          -10,
+          14,
+          20
+        ]
+      },
+      {
+        "rect": [
+          -2.5,
+          -10,
+          5,
+          2.5
+        ]
+      },
+      {
+        "text": "USB",
+        "at": [
+          0,
+          -8.7
+        ],
+        "size": 0.8
+      },
+      {
+        "text": "ESP32-C3",
+        "at": [
+          0,
+          -4.6
+        ],
+        "size": 1.0
+      },
+      {
+        "text": "SuperMini",
+        "at": [
+          0,
+          -3.0
+        ],
+        "size": 1.0
+      },
+      {
+        "rect": [
+          -2,
+          0,
+          4,
+          2
+        ]
+      },
+      {
+        "text": "RESET",
+        "at": [
+          0,
+          2.8
+        ],
+        "size": 0.7
+      },
+      {
+        "text": "LED IO8",
+        "at": [
+          0,
+          7.9
+        ],
+        "size": 0.7
+      },
+      {
+        "line": [
+          -9,
+          -6,
+          -7,
+          -6
+        ]
+      },
+      {
+        "text": "IO5",
+        "at": [
+          -5.3,
+          -6
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          -9,
+          -4,
+          -7,
+          -4
+        ]
+      },
+      {
+        "text": "IO6",
+        "at": [
+          -5.3,
+          -4
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          -9,
+          -2,
+          -7,
+          -2
+        ]
+      },
+      {
+        "text": "IO7",
+        "at": [
+          -5.3,
+          -2
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          -9,
+          0,
+          -7,
+          0
+        ]
+      },
+      {
+        "text": "IO8",
+        "at": [
+          -5.3,
+          0
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          -9,
+          2,
+          -7,
+          2
+        ]
+      },
+      {
+        "text": "IO9",
+        "at": [
+          -5.3,
+          2
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          -9,
+          4,
+          -7,
+          4
+        ]
+      },
+      {
+        "text": "IO10",
+        "at": [
+          -5.3,
+          4
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          -9,
+          6,
+          -7,
+          6
+        ]
+      },
+      {
+        "text": "IO20",
+        "at": [
+          -5.3,
+          6
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          -9,
+          8,
+          -7,
+          8
+        ]
+      },
+      {
+        "text": "IO21",
+        "at": [
+          -5.3,
+          8
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          7,
+          -6,
+          9,
+          -6
+        ]
+      },
+      {
+        "text": "5V",
+        "at": [
+          5.3,
+          -6
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          7,
+          -4,
+          9,
+          -4
+        ]
+      },
+      {
+        "text": "G",
+        "at": [
+          5.3,
+          -4
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          7,
+          -2,
+          9,
+          -2
+        ]
+      },
+      {
+        "text": "3V3",
+        "at": [
+          5.3,
+          -2
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          7,
+          0,
+          9,
+          0
+        ]
+      },
+      {
+        "text": "IO4",
+        "at": [
+          5.3,
+          0
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          7,
+          2,
+          9,
+          2
+        ]
+      },
+      {
+        "text": "IO3",
+        "at": [
+          5.3,
+          2
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          7,
+          4,
+          9,
+          4
+        ]
+      },
+      {
+        "text": "IO2",
+        "at": [
+          5.3,
+          4
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          7,
+          6,
+          9,
+          6
+        ]
+      },
+      {
+        "text": "IO1",
+        "at": [
+          5.3,
+          6
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          7,
+          8,
+          9,
+          8
+        ]
+      },
+      {
+        "text": "IO0",
+        "at": [
+          5.3,
+          8
+        ],
+        "size": 0.8
+      }
+    ],
+    "pins": [
+      {
+        "name": "GPIO5",
+        "at": [
+          -9,
+          -6
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "GPIO6",
+        "at": [
+          -9,
+          -4
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "GPIO7",
+        "at": [
+          -9,
+          -2
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "GPIO8",
+        "at": [
+          -9,
+          0
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "GPIO9",
+        "at": [
+          -9,
+          2
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "GPIO10",
+        "at": [
+          -9,
+          4
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "GPIO20",
+        "at": [
+          -9,
+          6
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "GPIO21",
+        "at": [
+          -9,
+          8
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "5V",
+        "at": [
+          9,
+          -6
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "G1",
+        "at": [
+          9,
+          -4
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "3V3",
+        "at": [
+          9,
+          -2
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "GPIO4",
+        "at": [
+          9,
+          0
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "GPIO3",
+        "at": [
+          9,
+          2
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "GPIO2",
+        "at": [
+          9,
+          4
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "GPIO1",
+        "at": [
+          9,
+          6
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "GPIO0",
+        "at": [
+          9,
+          8
+        ],
+        "dir": "right"
+      }
+    ]
+  },
+  "designator_offset": [
+    -7,
+    -13
+  ],
+  "value_offset": [
+    -2,
+    -13
+  ],
+  "value_parameter": "firmware",
+  "parameters": [
+    {
+      "name": "firmware",
+      "label": "Firmware",
+      "kind": "file",
+      "filter": "*.bin",
+      "default": "",
+      "description": "Flash image for the ESP32-C3, written from address 0 (a merged .bin of ESP-IDF or Arduino, or MicroPython's firmware .bin), or an application .bin with its build's flash_args beside it; stored relative to the project"
+    },
+    {
+      "name": "usb_link",
+      "label": "USB Serial/JTAG to the computer",
+      "kind": "text",
+      "host_link": true,
+      "default": "",
+      "description": "The board's USB connector (the chip's own USB Serial/JTAG) linked to the computer: a serial port (one end of a virtual port pair such as com0com), tcp:4001 for programs that speak RFC 2217 (esptool, mpremote), or empty for none. DTR and RTS reset the chip and select download mode as the USB Serial/JTAG does"
+    },
+    {
+      "name": "chip_temperature",
+      "label": "Chip temperature",
+      "unit": "°C",
+      "default": "25",
+      "min": "-40",
+      "max": "125",
+      "live": true,
+      "description": "Temperature of the chip that its temperature sensor measures; change it while running to test the firmware (-40 to 125 °C)"
+    }
+  ],
+  "mcu": {
+    "chip": "esp32c3",
+    "firmware_parameter": "firmware",
+    "led": {
+      "pin": "GPIO8",
+      "active_low": true,
+      "at": [
+        0,
+        6
+      ],
+      "radius": 0.6
+    },
+    "reset_button": [
+      -2,
+      0,
+      4,
+      2
+    ],
+    "pin_model": {
+      "supply": 3.3,
+      "output_resistance": 33,
+      "pull_resistance": 45000,
+      "input_high": 2.475,
+      "input_low": 0.825
+    },
+    "uarts": [
+      {
+        "name": "usb",
+        "label": "USB Serial/JTAG (the USB connector)",
+        "tx_pin": "",
+        "rx_pin": "",
+        "link_parameter": "usb_link",
+        "reset_circuit": "usb_jtag"
+      },
+      {
+        "name": "uart0",
+        "label": "UART0 (GPIO21 TX, GPIO20 RX)",
+        "tx_pin": "GPIO21",
+        "rx_pin": "GPIO20"
+      }
+    ]
+  },
+  "spice": [
+    "V_{ref}_reg reg_{ref} {node:G1} DC 3.3",
+    "R_{ref}_reg reg_{ref} {node:3V3} 0.1",
+    "R_{ref}_5v {node:5V} {node:G1} 10Meg",
+    "R_{ref}_boot {node:GPIO9} {node:3V3} 10k",
+    "R_{ref}_strap8 {node:GPIO8} {node:3V3} 10k",
+    "R_{ref}_gpio5 {node:GPIO5} {node:G1} 100Meg",
+    "R_{ref}_gpio6 {node:GPIO6} {node:G1} 100Meg",
+    "R_{ref}_gpio7 {node:GPIO7} {node:G1} 100Meg",
+    "R_{ref}_gpio8 {node:GPIO8} {node:G1} 100Meg",
+    "R_{ref}_gpio9 {node:GPIO9} {node:G1} 100Meg",
+    "R_{ref}_gpio10 {node:GPIO10} {node:G1} 100Meg",
+    "R_{ref}_gpio20 {node:GPIO20} {node:G1} 100Meg",
+    "R_{ref}_gpio21 {node:GPIO21} {node:G1} 100Meg",
+    "R_{ref}_gpio4 {node:GPIO4} {node:G1} 100Meg",
+    "R_{ref}_gpio3 {node:GPIO3} {node:G1} 100Meg",
+    "R_{ref}_gpio2 {node:GPIO2} {node:G1} 100Meg",
+    "R_{ref}_gpio1 {node:GPIO1} {node:G1} 100Meg",
+    "R_{ref}_gpio0 {node:GPIO0} {node:G1} 100Meg",
+    "B_{ref}_gpio5 {node:G1} {node:GPIO5} I=V({ext:gpio5_i})-V({ext:gpio5_g})*(V({node:GPIO5})-V({node:G1}))",
+    "B_{ref}_gpio6 {node:G1} {node:GPIO6} I=V({ext:gpio6_i})-V({ext:gpio6_g})*(V({node:GPIO6})-V({node:G1}))",
+    "B_{ref}_gpio7 {node:G1} {node:GPIO7} I=V({ext:gpio7_i})-V({ext:gpio7_g})*(V({node:GPIO7})-V({node:G1}))",
+    "B_{ref}_gpio8 {node:G1} {node:GPIO8} I=V({ext:gpio8_i})-V({ext:gpio8_g})*(V({node:GPIO8})-V({node:G1}))",
+    "B_{ref}_gpio9 {node:G1} {node:GPIO9} I=V({ext:gpio9_i})-V({ext:gpio9_g})*(V({node:GPIO9})-V({node:G1}))",
+    "B_{ref}_gpio10 {node:G1} {node:GPIO10} I=V({ext:gpio10_i})-V({ext:gpio10_g})*(V({node:GPIO10})-V({node:G1}))",
+    "B_{ref}_gpio20 {node:G1} {node:GPIO20} I=V({ext:gpio20_i})-V({ext:gpio20_g})*(V({node:GPIO20})-V({node:G1}))",
+    "B_{ref}_gpio21 {node:G1} {node:GPIO21} I=V({ext:gpio21_i})-V({ext:gpio21_g})*(V({node:GPIO21})-V({node:G1}))",
+    "B_{ref}_gpio4 {node:G1} {node:GPIO4} I=V({ext:gpio4_i})-V({ext:gpio4_g})*(V({node:GPIO4})-V({node:G1}))",
+    "B_{ref}_gpio3 {node:G1} {node:GPIO3} I=V({ext:gpio3_i})-V({ext:gpio3_g})*(V({node:GPIO3})-V({node:G1}))",
+    "B_{ref}_gpio2 {node:G1} {node:GPIO2} I=V({ext:gpio2_i})-V({ext:gpio2_g})*(V({node:GPIO2})-V({node:G1}))",
+    "B_{ref}_gpio1 {node:G1} {node:GPIO1} I=V({ext:gpio1_i})-V({ext:gpio1_g})*(V({node:GPIO1})-V({node:G1}))",
+    "B_{ref}_gpio0 {node:G1} {node:GPIO0} I=V({ext:gpio0_i})-V({ext:gpio0_g})*(V({node:GPIO0})-V({node:G1}))"
+  ]
+}

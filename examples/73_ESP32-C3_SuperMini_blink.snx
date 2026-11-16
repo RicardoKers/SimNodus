@@ -1,0 +1,111 @@
+{
+  "buses": [],
+  "components": [
+    {
+      "at": [
+        0,
+        0
+      ],
+      "designator": "U1",
+      "id": 1,
+      "mirrored": false,
+      "parameters": {
+        "chip_temperature": "25",
+        "firmware": "firmware/esp32c3_blink/blink.bin",
+        "usb_link": ""
+      },
+      "rotation": 0,
+      "type": "esp32c3_supermini"
+    },
+    {
+      "at": [
+        14,
+        -4
+      ],
+      "designator": "GND1",
+      "id": 2,
+      "mirrored": false,
+      "parameters": {},
+      "rotation": 0,
+      "type": "ground"
+    }
+  ],
+  "format": "simnodus-project",
+  "labels": [
+    {
+      "at": [
+        -15,
+        0
+      ],
+      "id": 5,
+      "name": "LED"
+    }
+  ],
+  "next_id": 8,
+  "notes": [
+    {
+      "at": [
+        -12,
+        -20
+      ],
+      "id": 7,
+      "text": "ESP32-C3 SuperMini (experimental) running ESP-IDF's blink example.\nRun (F5): the board's own LED, on GPIO8, blinks at 1 Hz. It lights while GPIO8 is low.\nThe boot log and \"Turning the LED ON!\" / \"OFF!\" are in Window > Signal Analyzer, UART tab (UART0)."
+    }
+  ],
+  "probes": [
+    {
+      "color": "",
+      "id": 6,
+      "kind": "voltage",
+      "target": {
+        "at": [
+          -9,
+          0
+        ],
+        "item": 1,
+        "pin": "GPIO8"
+      }
+    }
+  ],
+  "settings": {
+    "cortex_m3_timing": true,
+    "exact_edges": false,
+    "max_step": 0.0001,
+    "mcu_quantum": 0.001,
+    "mode": "interactive",
+    "segment": 1.0,
+    "speed": 1.0,
+    "transient_max_step": 1e-06,
+    "transient_stop": 0.01
+  },
+  "splitters": [],
+  "version": 1,
+  "wires": [
+    {
+      "id": 3,
+      "points": [
+        [
+          9,
+          -4
+        ],
+        [
+          14,
+          -4
+        ]
+      ]
+    },
+    {
+      "id": 4,
+      "points": [
+        [
+          -9,
+          0
+        ],
+        [
+          -15,
+          0
+        ]
+      ]
+    }
+  ]
+}
