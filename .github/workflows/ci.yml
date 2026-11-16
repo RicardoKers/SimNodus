@@ -39,12 +39,16 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends ninja-build qt6-base-dev qt6-qpa-plugins \
             libgl1-mesa-dev libxkbcommon-dev libngspice0-dev ngspice
+          sudo apt-get install -y --no-install-recommends gdb # TEMP-DEBUG
+          sudo sysctl kernel.yama.ptrace_scope=0 # TEMP-DEBUG
       - name: Check repository files
         run: python3 tools/check_repository.py
       - name: Configure
-        run: cmake -S . -B build/ci -G Ninja -DCMAKE_BUILD_TYPE=Release
+        run: cmake -S . -B build/ci -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo # TEMP-DEBUG (Release)
       - name: Build
         run: cmake --build build/ci
+      - name: Editor tests under the debugger # TEMP-DEBUG
+        run: QT_QPA_PLATFORM=offscreen gdb -batch -ex run -ex bt -ex 'thread apply all bt 12' --args build/ci/tests/gui/editor_tests keys_of_the_keyboard_work_switches_buttons_and_inputs 2>&1 | tail -150
       - name: Run tests (unit, engines, spikes, offscreen GUI)
         run: ctest --test-dir build/ci --output-on-failure
       - name: Emulator speed (E-07 gate G0a.3, E-08 gate G8a.3; informational)
