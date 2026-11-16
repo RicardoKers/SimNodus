@@ -441,10 +441,11 @@ private slots:
             return edit;
         };
         QVERIFY(window_->properties()->findChild<QLineEdit*>(QStringLiteral("parameter_key")));
-        QTest::keyClicks(field(), QStringLiteral("k"));
-        QTest::keyClick(QApplication::focusWidget(), Qt::Key_Return);
-        QCOMPARE(doc().schematic().component(sw)->parameters.at("key"), std::string("k"));
         auto* edit = field();
+        QTest::keyClicks(edit, QStringLiteral("k"));
+        QTest::keyClick(edit, Qt::Key_Return); // to the field itself: a window that is not active has no focus widget
+        QCOMPARE(doc().schematic().component(sw)->parameters.at("key"), std::string("k"));
+        edit = field();
         QTest::keyClick(edit, Qt::Key_Delete);
         QVERIFY(edit->text().isEmpty());
         QVERIFY(edit->toolTip().isEmpty()); // not marked as a mistake
