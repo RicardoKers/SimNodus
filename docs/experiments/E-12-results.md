@@ -487,8 +487,17 @@ exactly 32 kHz, so its minute takes 60 s: a difference of the chip's
 oscillator, stated in the guide.
 
 **STM32CubeIDE's SFRs view (G12b.7).** RCC's CFGR reads 0x940A with SWS at
-the PLL, and GPIOC's ODR changes as the LED blinks. The import of an ELF
-alone was not tried again.
+the PLL, and GPIOC's ODR changes as the LED blinks.
+
+**An ELF alone in STM32CubeIDE.** `f4_clock.elf` was debugged without a
+project of its own: the *GDB Hardware Debugging* configuration above,
+with the ELF as the *C/C++ Application* (and as the file to load and to
+read symbols from), a breakpoint at `main`, and a *Path Mapping* from `.`
+to the repository's folder on the Source tab. The session stops in `main`
+with `f4_clock.c` open. The firmware is built with paths relative to the
+repository (`-ffile-prefix-map`), so without the mapping the IDE cannot
+find the C file: the owner takes that to be what failed in the first
+attempt, which was not repeated. The guide has the steps.
 
 ## Gate review (SN-299)
 
@@ -533,5 +542,4 @@ examples, the status text and the guides lost the experimental label.
 
 ## Next
 
-E-12 is closed. What the last session left:
-- The import of an ELF alone in STM32CubeIDE.
+E-12 is closed, and nothing of its bench work is left open.

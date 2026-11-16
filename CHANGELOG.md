@@ -9,6 +9,7 @@ All entries describe actual repository changes, not promised simulator capabilit
 - The STM32F407's ADC and DAC were compared with measured voltages: the chip gives the ideal code for its reference within 0.5 % (with up to 15 codes of noise) and the DAC its voltage within 13 mV. The guide no longer calls the ADC approximate.
 - **The STM32F407's ADCs and DAC take their reference from the VREF+ pin on the diagram** (it was a fixed 3.3 V): with a 3.25 V supply, as on the board measured, codes and DAC voltages are of 3.25 V. With VREF+ not wired the reference stays 3.3 V and the Messages panel says what a real chip needs.
 - Fixed: a chip's pin on a net named like a number ("3V3", "5V") did not read that net's voltage.
+- The STM32F407 guide says how to debug an ELF without its project in STM32CubeIDE (the examples' firmware): the ELF in a *GDB Hardware Debugging* configuration and a path mapping for its sources. Tried by the owner with `f4_clock.elf`.
 - The STM32F407 on the bench: example 71's PWM is 230 us high with `pwm 230` printed in the same capture, as simulated; on the LSI the board's RTC counts a minute in 56 s (an LSI of 34.3 kHz, inside the chip's 17 to 47 kHz), where the simulator's LSI is 32 kHz exactly. The guide says so.
 - Firmware `f4_rtc` and `f4_station`: when the 32.768 kHz crystal the backup domain remembers is gone, the RTC starts again on the LSI after a second instead of waiting for ever (seen on the board).
 
