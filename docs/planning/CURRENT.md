@@ -337,9 +337,10 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
    3.25 V reference within 0.5 % and the DAC its voltage within 13 mV; a
    byte at 115200 baud takes 87 us; the RTC, its alarm and the watchdog's
    reset as simulated; the SFRs view works; `rtc_open` falls back to the
-   LSI when the crystal the backup domain remembers is gone. Candidate
-   next task: VREF+/VDDA read from the circuit (the simulator's ADC and
-   DAC are for 3.3 V). Not done: the supply voltage is not read, PH0/PH1 are
+   LSI when the crystal the backup domain remembers is gone. The ADCs
+   and the DAC take their reference from VREF+ on the diagram (it was a
+   fixed 3.3 V); nets named like a number ("3V3") reach a chip's pins
+   (they were saved under a name ngspice does not give back). Not done: the supply voltage (VDD) is not read, PH0/PH1 are
    not GPIO, the pinout and the alternate function table are from memory
    of the datasheet. STM32CubeF4 1.28.3 is in ~/STM32Cube/Repository.
    The owner's bench: ST-LINK V2 and V3, a USB-serial adapter, a logic

@@ -240,7 +240,7 @@ Example 68 runs at about 1.6 times real time (16 MHz, the firmware sleeping
 between conversions, the PWM at 20 kHz and the triangle's 10 000 steps a
 second).
 
-**Limits of SN-297.** The VREF pin is not read (VREF+ is 3.3 V); the
+**Limits of SN-297.** The VREF pin was not read (VREF+ was 3.3 V; read since 2026-11-16); the
 temperature sensor gives a fixed 0.76 V; a DAC output is not limited by its
 load current; the ADC's sampling capacitor is not modelled (a high source
 impedance reads as a low one).
@@ -445,11 +445,17 @@ The chip's mean code is the ideal one for its reference within 0.5 % of
 the reading (18 codes at most), with a spread of up to 15 codes around the
 mean from a potentiometer's impedance and the bench's noise; the DAC gives
 the ADC's voltage back within 13 mV (0.4 % of full scale). The triangle on
-PA5 was as expected on the oscilloscope. The simulator computes
+PA5 was as expected on the oscilloscope. The simulator computed
 V x 4096 / 3.3 without noise: for this board, whose reference is 3.25 V,
-its codes are 1.5 % lower than the chip's (3736 against 3776 at 3.010 V).
-The reference is not read from the circuit (a limit of SN-295): that is
-the difference, not the converter's model.
+its codes were 1.5 % lower than the chip's (3736 against 3776 at 3.010 V).
+That was the reference, not the converter's model, and it is closed: the
+ADCs and the DAC now take their reference from the VREF+ pin on the
+diagram (`Stm32F407::set_reference_source`; 3.3 V and a message when the
+pin is not wired). With example 68's supply at 3.25 V the DAC gives
+2867 / 4095 of 3.25 V (test `session: the STM32F407's ADC and DAC take
+their reference from VREF+ on the diagram`). Making it work found that a
+net named like a number ("3V3") was never read by a chip's pin: ngspice
+saves such a node only as `v(3v3)`.
 
 **`f4_station` (G12c.7).** The line `12:05:53 2026-11-12 lm75 23.5 pwm
 235 dac 940`; PA4 at 0.756 V (940 / 4095 of 3.25 V is 0.746 V: 10 mV, 0.3 %
@@ -503,7 +509,7 @@ instruments, on 2026-11-13, 2026-11-15 and 2026-11-16.
 | G12b.10 repeatable runs | met | the board's seven `f4_timing` reports identical | **met** |
 | G12b.11 the other chips unchanged | ctest, `examples_pass.py`, `examples_gui_pass.py` | — | **met** |
 | G12c.1 timers | met (limits in SN-297) | example 71's PWM | **met on the host** |
-| G12c.2 ADC | met | the ideal code for the board's 3.25 V reference within 0.5 %, a spread of 15 codes | **met for the converter**; the simulator's reference is 3.3 V, not the circuit's |
+| G12c.2 ADC | met | the ideal code for the board's 3.25 V reference within 0.5 %, a spread of 15 codes | **met**; the reference is VREF+ on the diagram |
 | G12c.3 DAC | met | within 13 mV of the code's voltage at five points | **met** |
 | G12c.4 SPI and I2C with the parts and the HAL | met | example 69 (after a wiring fix), a 24C08 for the 24C02 | **met** |
 | G12c.5 DMA streams | met | examples 69, 71 print through DMA | **met on the host** |
@@ -521,8 +527,6 @@ examples, the status text and the guides lost the experimental label.
 ## Next
 
 E-12 is closed. What the last session left:
-- VREF+ and VDDA read from the circuit, so that a board on 3.25 V gives
-  its own ADC codes and DAC voltages (the simulator's are for 3.3 V).
 - `f4_station`'s PWM with the serial line and the capture taken together.
 - `f4_rtc` on the LSI on the board, with the firmware that falls back.
 - The import of an ELF alone in STM32CubeIDE.

@@ -954,6 +954,31 @@ TEST_CASE("f4: the DAC drives its pins with its codes, from the data, a timer or
     CHECK(m.take_diagnostics().empty());
 }
 
+TEST_CASE("f4: the ADC's reference is the voltage of VREF+ when the circuit gives one")
+{
+    auto m = machine_with("f4_blink");
+    // No circuit: 3.3 V.
+    CHECK(m->reference_volts(5 * ms) == 3.3);
+    CHECK(Stm32F4Adc::code_of(3.010, 12) == 3736);
+    // The owner's board, 3.25 V: 3.010 V read about 3776 there.
+    double volts = 3.25;
+    m->set_reference_source([&](std::uint64_t) { return volts; });
+    CHECK(m->reference_volts(5 * ms) == 3.25);
+    CHECK(Stm32F4Adc::code_of(3.010, 12, m->reference_volts(5 * ms)) == 3793);
+    Trace t = run(*m, 10 * ms);
+    CHECK(t.diagnostics.empty());
+    // Not wired: 3.3 V, and the log says what a real chip needs.
+    volts = 0.0;
+    CHECK(m->reference_volts(1 * ms / 2) == 3.3); // (not in the first millisecond)
+    t.take(*m);
+    CHECK(t.diagnostics.empty());
+    CHECK(m->reference_volts(20 * ms) == 3.3);
+    CHECK(m->reference_volts(21 * ms) == 3.3);
+    t.take(*m);
+    CHECK(t.diagnostics.size() == 1);
+    CHECK(t.told("wire VREF+ to the analog supply"));
+}
+
 TEST_CASE("f4: the analog firmware: a timer starts the ADC, its code sets the PWM and the DAC (SN-297)")
 {
     auto m = machine_with("f4_analog");

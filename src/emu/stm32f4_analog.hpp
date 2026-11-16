@@ -43,6 +43,8 @@ public:
     virtual std::uint32_t hclk_per_pclk2() const = 0;
     // Voltage of external channel 0..15 of ADC `adc` (1 to 3) at CPU cycle `cycle`.
     virtual double adc_voltage(int adc, int channel, std::uint64_t cycle) = 0;
+    // VREF+ at CPU cycle `cycle`: what a full-scale code stands for.
+    virtual double adc_reference(std::uint64_t cycle) = 0;
     virtual void adc_irq(bool level) = 0;
     virtual void analog_schedule_changed() = 0;
     virtual void analog_diagnostic(const std::string& text) = 0;
@@ -65,7 +67,7 @@ public:
 
 class Stm32F4Adc : public RegDevice, public TimedDevice {
 public:
-    static constexpr double vref = 3.3;
+    static constexpr double vref = 3.3; // VREF+ when the circuit does not give one
 
     explicit Stm32F4Adc(F4AnalogHost& host) : host_(host) { reset(); }
 
@@ -80,7 +82,7 @@ public:
     void dma_enabled();
 
     // The code of a voltage at a resolution of `bits`.
-    static std::uint32_t code_of(double volts, int bits);
+    static std::uint32_t code_of(double volts, int bits, double reference = vref);
 
 protected:
     bool read32(std::uint32_t offset, std::uint32_t& value) override;

@@ -6,7 +6,9 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ### Changed (2026-11-16, the last bench session of E-12)
 
-- The STM32F407's ADC and DAC were compared with measured voltages: the chip gives the ideal code for its reference within 0.5 % (with up to 15 codes of noise) and the DAC its voltage within 13 mV. The guide no longer calls the ADC approximate; it says instead that the simulator's reference is 3.3 V whatever the circuit's supply is (the board measured runs on 3.25 V).
+- The STM32F407's ADC and DAC were compared with measured voltages: the chip gives the ideal code for its reference within 0.5 % (with up to 15 codes of noise) and the DAC its voltage within 13 mV. The guide no longer calls the ADC approximate.
+- **The STM32F407's ADCs and DAC take their reference from the VREF+ pin on the diagram** (it was a fixed 3.3 V): with a 3.25 V supply, as on the board measured, codes and DAC voltages are of 3.25 V. With VREF+ not wired the reference stays 3.3 V and the Messages panel says what a real chip needs.
+- Fixed: a chip's pin on a net named like a number ("3V3", "5V") did not read that net's voltage.
 - Firmware `f4_rtc` and `f4_station`: when the 32.768 kHz crystal the backup domain remembers is gone, the RTC starts again on the LSI after a second instead of waiting for ever (seen on the board).
 
 ### Changed (2026-11-15, E-12 / SN-296, the timing of the STM32F407)

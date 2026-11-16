@@ -729,10 +729,12 @@ and 192 KB of RAM, up to 168 MHz. It runs the ELF file that STM32CubeIDE
 builds, FPU included. Examples 67 to 71, the floating-point results and
 the time instructions take were compared with a real chip in 2026-11.
 Only part of the chip is simulated (see *Not yet simulated* below). The
-ADC and the DAC use a 3.3 V reference whatever the circuit's supply is: a
-real board on 3.25 V gives codes 1.5 % higher. With its own reference, the
-chip measured gave the simulator's codes within 0.5 %, with up to 15 codes
-of noise that the simulator does not have.
+ADC and the DAC take their reference from the **VREF+** pin on the diagram
+(wire it to the analog supply; 1.8 V to VDDA): with 3.25 V on it, as on
+the board measured, a full-scale code stands for 3.25 V. The chip measured
+gave the simulator's codes within 0.5 %, with up to 15 codes of noise that
+the simulator does not have. With VREF+ not wired the reference is 3.3 V,
+and the Messages panel says that a real chip would not convert.
 
 - **What works**: the clock tree (HSI, HSE, the PLL), GPIO with the
   alternate function numbers, external interrupts on any port, the six
@@ -784,10 +786,11 @@ of noise that the simulator does not have.
   package), started by software or by a timer, single, continuous or
   scanning, with injected channels, the resolutions of 12 to 6 bits and
   the conversion time of the sample time plus the resolution in ADC clock
-  cycles. VREF+ is taken as 3.3 V (the VREF pin is not read): the code of
-  12 bits is V × 4096 / 3.3. On ADC1 the temperature sensor gives 0.76 V
-  (25 °C, a fixed value), VREFINT 1.21 V and VBAT a half of 3.3 V.
-- **DAC**: channel 1 drives PA4 and channel 2 PA5 with 3.3 V × code / 4095,
+  cycles. The reference is the voltage of the VREF+ pin: the code of
+  12 bits is V × 4096 / VREF+ (3.3 V in the examples). On ADC1 the
+  temperature sensor gives 0.76 V (25 °C, a fixed value), VREFINT 1.21 V
+  and VBAT a half of VREF+.
+- **DAC**: channel 1 drives PA4 and channel 2 PA5 with VREF+ × code / 4095,
   set by the firmware, by a timer's trigger or by the triangle wave. With
   its output buffer (the default) the voltage stays between 0.2 V and
   3.1 V behind a small resistance (an approximation of the buffer); without
