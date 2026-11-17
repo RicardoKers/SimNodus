@@ -139,7 +139,7 @@
         32
       ],
       "id": 17,
-      "text": "Capacitor charge over ten minutes (tau = R1 x C1 = 100 s). CR1 records the run from its start: CH1 is the capacitor's voltage, CH2 the resistor's (IN minus OUT). The run goes at 10x real time (Simulate > Settings); drag CR1's corner to resize it.\nThe dashed CH1 reference is illustrative data, not a measurement (C 10 % high, a small leak): select CR1 and use Import... next to CH1 reference to load your own bench CSV (examples/data/66_rc_charge_bench_example.csv shows the format)."
+      "text": "Capacitor charge over ten minutes (tau = R1 x C1 = 100 s). CR1 records the run from its start: CH1 is the capacitor's voltage, CH2 the resistor's (IN minus OUT).\nThe run goes at 10x real time (Simulate > Settings); drag CR1's corner to resize it.\nThe dashed CH1 reference is illustrative data, not a measurement (C 10 % high, a small leak): select CR1 and use Import... next to CH1 reference to load your own bench CSV \n(examples/data/66_rc_charge_bench_example.csv shows the format)."
     }
   ],
   "probes": [

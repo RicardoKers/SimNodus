@@ -17,8 +17,8 @@
     },
     {
       "at": [
-        -44,
-        -44
+        -27,
+        -45
       ],
       "designator": "V1",
       "id": 2,
@@ -27,7 +27,11 @@
         "V": "3.3"
       },
       "rotation": 0,
-      "type": "vdc"
+      "type": "vdc",
+      "value_offset": [
+        2,
+        0
+      ]
     },
     {
       "at": [
@@ -75,8 +79,8 @@
     },
     {
       "at": [
-        -44,
-        -30
+        -25,
+        -35
       ],
       "designator": "SW1",
       "id": 35,
@@ -89,8 +93,8 @@
     },
     {
       "at": [
-        -60,
-        -12
+        -26,
+        -16
       ],
       "designator": "Y2",
       "id": 43,
@@ -103,8 +107,8 @@
     },
     {
       "at": [
-        -70,
-        -12
+        -30,
+        -6
       ],
       "designator": "C3",
       "id": 46,
@@ -114,12 +118,16 @@
         "V0": "0"
       },
       "rotation": 0,
-      "type": "capacitor"
+      "type": "capacitor",
+      "value_offset": [
+        2,
+        0
+      ]
     },
     {
       "at": [
-        -76,
-        -12
+        -36,
+        -6
       ],
       "designator": "C4",
       "id": 49,
@@ -129,12 +137,16 @@
         "V0": "0"
       },
       "rotation": 0,
-      "type": "capacitor"
+      "type": "capacitor",
+      "value_offset": [
+        2,
+        0
+      ]
     },
     {
       "at": [
-        -40,
-        22
+        -30,
+        6
       ],
       "designator": "R10",
       "id": 54,
@@ -143,12 +155,16 @@
         "R": "4k7"
       },
       "rotation": 0,
-      "type": "resistor"
+      "type": "resistor",
+      "value_offset": [
+        2,
+        0
+      ]
     },
     {
       "at": [
-        -46,
-        22
+        -36,
+        6
       ],
       "designator": "R11",
       "id": 57,
@@ -157,12 +173,16 @@
         "R": "4k7"
       },
       "rotation": 0,
-      "type": "resistor"
+      "type": "resistor",
+      "value_offset": [
+        2,
+        0
+      ]
     },
     {
       "at": [
-        -70,
-        30
+        -33,
+        23
       ],
       "designator": "U5",
       "id": 60,
@@ -175,8 +195,8 @@
     },
     {
       "at": [
-        -60,
-        52
+        -34,
+        37
       ],
       "designator": "R1",
       "id": 70,
@@ -189,8 +209,8 @@
     },
     {
       "at": [
-        -50,
-        58
+        -34,
+        43
       ],
       "designator": "C5",
       "id": 71,
@@ -207,16 +227,16 @@
   "labels": [
     {
       "at": [
-        -44,
-        -47
+        -27,
+        -48
       ],
       "id": 3,
       "name": "3V3"
     },
     {
       "at": [
-        -44,
-        -41
+        -27,
+        -42
       ],
       "id": 4,
       "name": "GND"
@@ -347,6 +367,7 @@
         -29
       ],
       "id": 27,
+      "mirrored": true,
       "name": "GND"
     },
     {
@@ -355,6 +376,7 @@
         -23
       ],
       "id": 28,
+      "mirrored": true,
       "name": "GND"
     },
     {
@@ -367,16 +389,17 @@
     },
     {
       "at": [
-        -47,
-        -30
+        -28,
+        -35
       ],
       "id": 38,
+      "mirrored": true,
       "name": "NRST"
     },
     {
       "at": [
-        -41,
-        -30
+        -22,
+        -35
       ],
       "id": 39,
       "name": "GND"
@@ -399,48 +422,49 @@
     },
     {
       "at": [
-        -63,
-        -12
+        -29,
+        -16
       ],
       "id": 44,
+      "mirrored": true,
       "name": "LSE_IN"
     },
     {
       "at": [
-        -57,
-        -12
+        -23,
+        -16
       ],
       "id": 45,
       "name": "LSE_OUT"
     },
     {
       "at": [
-        -70,
-        -15
+        -30,
+        -9
       ],
       "id": 47,
       "name": "LSE_IN"
     },
     {
       "at": [
-        -70,
-        -9
+        -30,
+        -3
       ],
       "id": 48,
       "name": "GND"
     },
     {
       "at": [
-        -76,
-        -15
+        -36,
+        -9
       ],
       "id": 50,
       "name": "LSE_OUT"
     },
     {
       "at": [
-        -76,
-        -9
+        -36,
+        -3
       ],
       "id": 51,
       "name": "GND"
@@ -463,88 +487,93 @@
     },
     {
       "at": [
-        -40,
-        19
+        -30,
+        3
       ],
       "id": 55,
       "name": "3V3"
     },
     {
       "at": [
-        -40,
-        25
+        -30,
+        9
       ],
       "id": 56,
       "name": "SCL"
     },
     {
       "at": [
-        -46,
-        19
+        -36,
+        3
       ],
       "id": 58,
       "name": "3V3"
     },
     {
       "at": [
-        -46,
-        25
+        -36,
+        9
       ],
       "id": 59,
       "name": "SDA"
     },
     {
       "at": [
-        -76,
-        26
+        -39,
+        19
       ],
       "id": 61,
+      "mirrored": true,
       "name": "SCL"
     },
     {
       "at": [
-        -76,
-        28
+        -39,
+        21
       ],
       "id": 62,
+      "mirrored": true,
       "name": "SDA"
     },
     {
       "at": [
-        -76,
-        30
+        -39,
+        23
       ],
       "id": 63,
+      "mirrored": true,
       "name": "GND"
     },
     {
       "at": [
-        -76,
-        32
+        -39,
+        25
       ],
       "id": 64,
+      "mirrored": true,
       "name": "GND"
     },
     {
       "at": [
-        -76,
-        34
+        -39,
+        27
       ],
       "id": 65,
+      "mirrored": true,
       "name": "GND"
     },
     {
       "at": [
-        -70,
-        22
+        -33,
+        15
       ],
       "id": 66,
       "name": "3V3"
     },
     {
       "at": [
-        -70,
-        38
+        -33,
+        31
       ],
       "id": 67,
       "name": "GND"
@@ -567,43 +596,45 @@
     },
     {
       "at": [
-        -63,
-        52
+        -37,
+        37
       ],
       "id": 72,
+      "mirrored": true,
       "name": "PWM"
     },
     {
       "at": [
-        -57,
-        52
+        -31,
+        37
       ],
       "id": 73,
       "name": "PWM_AVG"
     },
     {
       "at": [
-        -47,
-        58
+        -31,
+        43
       ],
       "id": 74,
       "name": "PWM_AVG"
     },
     {
       "at": [
-        -53,
-        58
+        -37,
+        43
       ],
       "id": 75,
+      "mirrored": true,
       "name": "GND"
     }
   ],
-  "next_id": 81,
+  "next_id": 83,
   "notes": [
     {
       "at": [
-        18,
-        -64
+        19,
+        -52
       ],
       "id": 80,
       "text": "STM32F407VET6: the station of the board comparison, at 168 MHz (PLL from Y1, 25 MHz).\nThe RTC (Y2, 32.768 kHz) wakes the core every second; it sleeps in between. Each second the LM75 on\nI2C1 gives the temperature: TIM3's 1 kHz PWM on PA6 gets 10 counts of 1000 per degree (R1 and C5\naverage it), the DAC on PA4 40 codes per degree, and USART1 (PA9, 115200 baud) prints a line\nthrough DMA2, such as \"12:00:01 2026-11-12 lm75 23.5 pwm 235 dac 940\".\nTry: change U5's temperature while running and watch PA4 and PWM_AVG."
@@ -691,40 +722,6 @@
   "version": 1,
   "wires": [
     {
-      "id": 21,
-      "points": [
-        [
-          -13,
-          -27
-        ],
-        [
-          -24,
-          -27
-        ],
-        [
-          -24,
-          -29
-        ]
-      ]
-    },
-    {
-      "id": 22,
-      "points": [
-        [
-          -13,
-          -25
-        ],
-        [
-          -24,
-          -25
-        ],
-        [
-          -24,
-          -23
-        ]
-      ]
-    },
-    {
       "id": 25,
       "points": [
         [
@@ -747,6 +744,48 @@
         [
           -29,
           -23
+        ]
+      ]
+    },
+    {
+      "id": 81,
+      "points": [
+        [
+          -24,
+          -29
+        ],
+        [
+          -20,
+          -29
+        ],
+        [
+          -20,
+          -27
+        ],
+        [
+          -13,
+          -27
+        ]
+      ]
+    },
+    {
+      "id": 82,
+      "points": [
+        [
+          -24,
+          -23
+        ],
+        [
+          -20,
+          -23
+        ],
+        [
+          -20,
+          -25
+        ],
+        [
+          -13,
+          -25
         ]
       ]
     }
