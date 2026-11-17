@@ -17,8 +17,8 @@
     },
     {
       "at": [
-        -44,
-        -44
+        -27,
+        -46
       ],
       "designator": "V1",
       "id": 2,
@@ -27,7 +27,11 @@
         "V": "3.3"
       },
       "rotation": 0,
-      "type": "vdc"
+      "type": "vdc",
+      "value_offset": [
+        2,
+        0
+      ]
     },
     {
       "at": [
@@ -75,8 +79,8 @@
     },
     {
       "at": [
-        -44,
-        -30
+        -29,
+        -35
       ],
       "designator": "SW1",
       "id": 35,
@@ -100,7 +104,11 @@
         "position": "70"
       },
       "rotation": 0,
-      "type": "potentiometer"
+      "type": "potentiometer",
+      "value_offset": [
+        2,
+        -2
+      ]
     },
     {
       "at": [
@@ -129,23 +137,27 @@
         "V0": "0"
       },
       "rotation": 0,
-      "type": "capacitor"
+      "type": "capacitor",
+      "value_offset": [
+        2,
+        0
+      ]
     }
   ],
   "format": "simnodus-project",
   "labels": [
     {
       "at": [
-        -44,
-        -47
+        -27,
+        -49
       ],
       "id": 3,
       "name": "3V3"
     },
     {
       "at": [
-        -44,
-        -41
+        -27,
+        -43
       ],
       "id": 4,
       "name": "GND"
@@ -156,6 +168,7 @@
         -29
       ],
       "id": 5,
+      "mirrored": true,
       "name": "3V3"
     },
     {
@@ -164,6 +177,7 @@
         -13
       ],
       "id": 6,
+      "mirrored": true,
       "name": "3V3"
     },
     {
@@ -172,6 +186,7 @@
         5
       ],
       "id": 7,
+      "mirrored": true,
       "name": "3V3"
     },
     {
@@ -180,6 +195,7 @@
         49
       ],
       "id": 8,
+      "mirrored": true,
       "name": "3V3"
     },
     {
@@ -204,6 +220,7 @@
         -7
       ],
       "id": 11,
+      "mirrored": true,
       "name": "3V3"
     },
     {
@@ -212,6 +229,7 @@
         -9
       ],
       "id": 12,
+      "mirrored": true,
       "name": "3V3"
     },
     {
@@ -220,6 +238,7 @@
         -39
       ],
       "id": 13,
+      "mirrored": true,
       "name": "3V3"
     },
     {
@@ -228,6 +247,7 @@
         -31
       ],
       "id": 14,
+      "mirrored": true,
       "name": "GND"
     },
     {
@@ -236,6 +256,7 @@
         3
       ],
       "id": 15,
+      "mirrored": true,
       "name": "GND"
     },
     {
@@ -260,6 +281,7 @@
         -11
       ],
       "id": 18,
+      "mirrored": true,
       "name": "GND"
     },
     {
@@ -276,6 +298,7 @@
         -29
       ],
       "id": 27,
+      "mirrored": true,
       "name": "GND"
     },
     {
@@ -284,6 +307,7 @@
         -23
       ],
       "id": 28,
+      "mirrored": true,
       "name": "GND"
     },
     {
@@ -292,20 +316,22 @@
         -23
       ],
       "id": 34,
+      "mirrored": true,
       "name": "NRST"
     },
     {
       "at": [
-        -47,
-        -30
+        -32,
+        -35
       ],
       "id": 38,
+      "mirrored": true,
       "name": "NRST"
     },
     {
       "at": [
-        -41,
-        -30
+        -26,
+        -35
       ],
       "id": 39,
       "name": "GND"
@@ -340,6 +366,7 @@
         -3
       ],
       "id": 50,
+      "mirrored": true,
       "name": "ADC_IN"
     },
     {
@@ -348,6 +375,7 @@
         7
       ],
       "id": 51,
+      "mirrored": true,
       "name": "DAC_OUT"
     },
     {
@@ -356,6 +384,7 @@
         9
       ],
       "id": 52,
+      "mirrored": true,
       "name": "TRIANGLE"
     },
     {
@@ -367,7 +396,7 @@
       "name": "PWM_AVG"
     }
   ],
-  "next_id": 61,
+  "next_id": 63,
   "notes": [
     {
       "at": [
@@ -486,40 +515,6 @@
   "version": 1,
   "wires": [
     {
-      "id": 21,
-      "points": [
-        [
-          -13,
-          -27
-        ],
-        [
-          -24,
-          -27
-        ],
-        [
-          -24,
-          -29
-        ]
-      ]
-    },
-    {
-      "id": 22,
-      "points": [
-        [
-          -13,
-          -25
-        ],
-        [
-          -24,
-          -25
-        ],
-        [
-          -24,
-          -23
-        ]
-      ]
-    },
-    {
       "id": 25,
       "points": [
         [
@@ -581,6 +576,48 @@
         [
           28,
           17
+        ]
+      ]
+    },
+    {
+      "id": 61,
+      "points": [
+        [
+          -24,
+          -29
+        ],
+        [
+          -20,
+          -29
+        ],
+        [
+          -20,
+          -27
+        ],
+        [
+          -13,
+          -27
+        ]
+      ]
+    },
+    {
+      "id": 62,
+      "points": [
+        [
+          -24,
+          -23
+        ],
+        [
+          -20,
+          -23
+        ],
+        [
+          -20,
+          -25
+        ],
+        [
+          -13,
+          -25
         ]
       ]
     }
