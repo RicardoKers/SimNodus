@@ -76,6 +76,14 @@ TEST_CASE("engineering values are formatted with a multiplier")
     CHECK(format_engineering(1e6) == "1M");
     CHECK(format_engineering(-0.0033) == "-3.3m");
     CHECK(format_engineering(999.99999999999) == "1k");
+    // Axis ticks resolve a tenth of their step: a 1 ms window two seconds into a
+    // run read "2s" at every label before.
+    CHECK(format_engineering_tick(2.0001234, 2e-4) == "2.00012");
+    CHECK(format_engineering_tick(2.0003234, 2e-4) == "2.00032");
+    CHECK(format_engineering_tick(125.0000123, 2e-6) == "125.0000123");
+    CHECK(format_engineering_tick(0.0042, 0.002) == "4.2m"); // never fewer digits than before
+    CHECK(format_engineering_tick(1e-19, 1e-3) == "0");
+    CHECK(format_engineering_tick(-0.0033, 0.0) == "-3.3m");
     CHECK(spice_number(4700) == "4700");
     CHECK(spice_number(1e-7) == "1e-07");
     CHECK(spice_number(0.5) == "0.5");

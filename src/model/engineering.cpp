@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: MIT
 #include "engineering.hpp"
 
+#include <algorithm>
 #include <array>
 #include <cctype>
 #include <charconv>
@@ -173,6 +174,20 @@ std::string format_engineering(double value, int digits)
         }
     }
     return to_text(value / scale, digits) + suffix;
+}
+
+std::string format_engineering_tick(double value, double step, int min_digits)
+{
+    if (!(step > 0.0) || !std::isfinite(step) || !std::isfinite(value)) {
+        return format_engineering(value, min_digits);
+    }
+    if (std::abs(value) < step * 1e-6) {
+        return "0";
+    }
+    // Digits from the value's leading digit down to a tenth of the step's.
+    const int needed = static_cast<int>(std::floor(std::log10(std::abs(value))))
+        - static_cast<int>(std::floor(std::log10(step))) + 2;
+    return format_engineering(value, std::clamp(needed, min_digits, 15));
 }
 
 std::string spice_number(double value)

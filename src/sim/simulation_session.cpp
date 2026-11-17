@@ -1835,6 +1835,9 @@ void SimulationSession::run_interactive()
             wall_origin_ = Clock::now();
             sim_origin_ = global;
             last_speed = speed;
+            // The history's wall times count from the old origin: kept, they froze
+            // the factor for as long as the run had lasted (1.00x shown at Maximum).
+            history_.clear();
         }
         if (speed > 0.0 && !stop_requested_) {
             const auto target = wall_origin_

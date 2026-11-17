@@ -4,6 +4,11 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Fixed (2026-11-16, SN-302: found while recording the videos)
+
+- The status bar's speed froze after the speed box changed during a run: switched from 1x to **Maximum**, it went on showing *1.00x real time* (for as long as the run had lasted before) while example 43 ran at about 51x. It now follows the new speed within a moment.
+- The Logic tab's time axis read the same label at every grid line ("2s 2s 2s") when a short window lay late in a run. Each label now has the digits that tell it from its neighbours (2.0002s, 2.0004s); when the labels are too long for the width, fewer grid lines are labelled instead of texts running over one another.
+
 ### Added (2026-11-16, SN-301: ESP32-C3 SuperMini)
 
 - **ESP32-C3 SuperMini** board in Microcontrollers, **experimental** like the DevKitM-1 (the same chip and emulator): its 16 pins (GPIO0 to GPIO10, GPIO20, GPIO21, 5V, G, 3V3) drawn with the USB connector at the top, its LED on GPIO8 drawn on the symbol (lit while the pin is low), RESET on the symbol, and the chip's USB Serial/JTAG as the board's only USB (UART0 on GPIO21 and GPIO20). The 10 kΩ pull-ups of GPIO9 and GPIO8 are from the board's published schematic, not yet measured. `tools/generate_esp32c3_supermini.py` writes the part.

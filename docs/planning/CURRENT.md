@@ -10,6 +10,11 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 
 - **On main after 0.19.0:** SN-301 (2026-11-16), the **ESP32-C3 SuperMini**
   part (experimental; `tools/generate_esp32c3_supermini.py`, example 73).
+  SN-302 (2026-11-16), two fixes from the owner's video recordings: the
+  status bar's speed froze at the old value after a speed change (1.00x
+  shown at Maximum, `simulation_session.cpp` kept the factor's history
+  across the re-anchored origin) and the Logic tab's axis repeated "2s"
+  (`format_engineering_tick`, `LogicWidget::axis_ticks`).
   The owner has a DevKitM-1 and a SuperMini in hand: next is the bench
   comparison of both (G8b.1 ROM and consoles; G9b.2, G9b.3 Wi-Fi against a
   real access point) and decision DE9.

@@ -47,6 +47,7 @@
 #include <QFileInfo>
 #include <QGraphicsItem>
 #include <QProcess>
+#include <QSet>
 #include <QLabel>
 #include <QLineEdit>
 #include <QListWidget>
@@ -724,6 +725,26 @@ private slots:
         QVERIFY(!moved.empty());
         QCOMPARE(moved.back().first, 0);
         QVERIFY(std::abs(moved.back().second - 0.5) < 0.01);
+    }
+
+    void logic_axis_labels_differ_late_in_a_run()
+    {
+        // A 1 ms window two seconds into a run read "2s 2s 2s 2s 2s 2s".
+        LogicWidget logic;
+        logic.resize(700, 120);
+        logic.set_lanes({{QStringLiteral("PA0"), Qt::blue, false, {{2.0004, true}}, false, {}}});
+        logic.set_window(2.0, 2.001);
+        const QStringList labels = logic.axis_labels();
+        QCOMPARE(labels.size(), 6);
+        QCOMPARE(QSet<QString>(labels.begin(), labels.end()).size(), labels.size());
+        QVERIFY(labels.front().startsWith(QStringLiteral("2s")) || labels.front().startsWith(QStringLiteral("2.000")));
+        QCOMPARE(labels.at(3), QStringLiteral("2.0006s"));
+        // A narrow widget labels fewer grid lines rather than overlapping them.
+        logic.resize(330, 120);
+        logic.set_window(125.0, 125.00001);
+        const QStringList narrow = logic.axis_labels();
+        QVERIFY(narrow.size() < 6);
+        QCOMPARE(QSet<QString>(narrow.begin(), narrow.end()).size(), narrow.size());
     }
 
     void model_folders_are_chosen_and_all_read()

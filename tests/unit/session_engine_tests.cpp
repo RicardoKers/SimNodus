@@ -431,6 +431,31 @@ TEST_CASE("session: paced run follows real time and pauses")
     CHECK(!session.active());
 }
 
+TEST_CASE("session: the real-time factor follows a change of speed")
+{
+    // Switched from 1x to Maximum, the factor stayed at 1.00x for as long as the
+    // run had lasted: its history kept wall times from before the speed's
+    // re-anchored origin (seen while recording example 43 at 51x).
+    REQUIRE(test::engine() != nullptr);
+    ButtonCircuit circuit(1.0, 1.0);
+    sim::SimulationSession session;
+    std::string error;
+    REQUIRE(session.start(circuit.request(), error));
+    std::this_thread::sleep_for(1000ms);
+    session.set_speed(0.0); // Maximum
+    std::this_thread::sleep_for(300ms);
+    const double t0 = session.status().sim_time;
+    const auto w0 = std::chrono::steady_clock::now();
+    std::this_thread::sleep_for(500ms);
+    const auto status = session.status();
+    const double wall = std::chrono::duration<double>(std::chrono::steady_clock::now() - w0).count();
+    const double rate = (status.sim_time - t0) / wall;
+    std::printf("  at Maximum: %.2fx measured, %.2fx reported\n", rate, status.achieved_factor);
+    CHECK(status.achieved_factor > 0.5 * rate);
+    CHECK(status.achieved_factor < 2.0 * rate);
+    session.stop();
+}
+
 TEST_CASE("session: transient mode keeps the complete result")
 {
     REQUIRE(test::engine() != nullptr);
