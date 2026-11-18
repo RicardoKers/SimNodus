@@ -4,6 +4,11 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Changed (2026-11-18, SN-304: 8x8 LED matrices placed edge to edge)
+
+- **The 8x8 LED matrix's row pins (R1-R8) moved from the left side to the top**; the column pins (C1-C8) stay at the bottom, where they were. Nothing is on the sides now, and the body is 16 grid units wide with a dot every 2 units: matrices placed side by side make one wider screen with an even dot spacing, and turned 90° they stack into a taller one (a student's game with two matrices, owner's request). The designator and the color moved to the right side.
+- **Projects made before this change**: the wires and labels of R1-R8 no longer reach the pins; the pre-run check lists each one ("DS1: pin R1 is not connected"). Connect them at the top of the matrix (with the matrix turned 90°, on its right side). Examples 26 and 69 are rewired; their connections are unchanged (`simnodus-cli inspect` before and after).
+
 ### Fixed (2026-11-16, SN-302: found while recording the videos)
 
 - The status bar's speed froze after the speed box changed during a run: switched from 1x to **Maximum**, it went on showing *1.00x real time* (for as long as the run had lasted before) while example 43 ran at about 51x. It now follows the new speed within a moment.
