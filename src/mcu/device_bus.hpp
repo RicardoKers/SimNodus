@@ -99,6 +99,7 @@ private:
         bool circuit_known = false;
         bool circuit_level = false;
         bool level = false;
+        bool driven = false; // not floating: see devices::Device::set_driven
         bool known = false;
         bool warned_short = false;
     };

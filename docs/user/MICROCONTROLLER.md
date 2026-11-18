@@ -156,6 +156,21 @@ laptop. The matrix has the rows' pins (R1-R8) on top and the columns' pins
 make one wider screen with the same spacing between dots (turned 90°, they
 stack into a taller one).
 
+The **8x8 LED matrix (digital)** has the same pins, with square dots, but no
+LEDs in the circuit: a dot is on while a board or a chip (directly or through
+a resistor) drives its column high and its row low, and it shows lit when it
+was on for at least 2 % of the last 20 ms, as the eye sees a scan. It has no
+brightness (the MAX7219's intensity changes nothing), no currents and no
+electrical mistakes to find, but it is much faster: example 69 uses it and
+runs at about 2 times real time, five times as fast as with the 8x8 LED
+matrix. A row set as an input, or held only by an internal pull-up, floats
+and its dots stay dark. With transistors, a ULN2003 or a decoder between the
+driver and the matrix, the dots may differ from real LEDs (the pre-run check
+says so): use the 8x8 LED matrix there. `sim.read` gives what it shows as
+eight rows of `#` and `.` (R1 first, C1 at the left, as the part is drawn
+unturned). The nets between it and the chips have no voltage in the circuit
+unless a probe is on them.
+
 ### Register Viewer
 
 **Window > Register Viewer** (Ctrl+Shift+R) shows the peripheral registers of
@@ -854,8 +869,9 @@ and the Messages panel says that a real chip would not convert.
   time (about 0.8 times); firmware that sleeps between interrupts (`WFI`,
   as `HAL_Delay` does not, but an RTOS's idle task does) runs several
   times faster than real time (example 71: about 6 times). A MAX7219 that
-  scans its matrix 800 times a second slows any run (example 69: about
-  0.4 times real time).
+  scans an 8x8 LED matrix 800 times a second slows any run to about 0.4
+  times real time; example 69 scans the digital matrix and runs at about
+  2 times.
 - **Timing**: instructions take the cycles measured on a real STM32F407
   (firmware `f4_timing`, 27 loops): within 0.3 % at any clock when the
   flash needs no wait state or its ART accelerator is on (prefetch, as

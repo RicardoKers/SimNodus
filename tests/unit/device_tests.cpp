@@ -19,6 +19,7 @@
 #include "sim/simulation_session.hpp"
 
 #include <algorithm>
+#include <array>
 #include <chrono>
 #include <cmath>
 #include <cstdio>
@@ -387,6 +388,158 @@ TEST_CASE("devices: the MAX7219 stores words at LOAD and scans its digits with C
     CHECK(scan_state(*d).second == 0xFF);
     CHECK(d->output(12).strength == 1.0);
     CHECK(d->output(3).driven); // DOUT
+}
+
+namespace {
+
+const std::vector<std::string> matrix_pins{
+    "R1", "R2", "R3", "R4", "R5", "R6", "R7", "R8", "C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8"};
+
+// A digital matrix's text for eight rows of bits, column C1 in the high bit.
+std::string matrix_text(const std::array<std::uint8_t, 8>& rows)
+{
+    std::string text;
+    for (std::size_t r = 0; r < 8; ++r) {
+        for (int c = 7; c >= 0; --c) {
+            text += ((rows[r] >> c) & 1u) != 0 ? '#' : '.';
+        }
+        text += r < 7 ? "\n" : "";
+    }
+    return text;
+}
+
+// Lets a device's own events happen up to `time_ns`.
+void run_device_to(devices::Device& d, std::uint64_t time_ns)
+{
+    while (d.next_event_ns() <= time_ns) {
+        d.advance(d.next_event_ns());
+    }
+}
+
+} // namespace
+
+TEST_CASE("devices: the digital LED matrix lights what its driven rows and columns select, as the eye sees a scan (SN-303)")
+{
+    std::string error;
+    auto d = devices::make_device("led_matrix", matrix_pins, {}, error);
+    REQUIRE(d);
+    REQUIRE(d->wants_drive());
+    const std::string dark = matrix_text({});
+    auto drive = [&](std::size_t pin, bool level, std::uint64_t t) {
+        d->set_driven(pin, true, t);
+        d->set_input(pin, level, t);
+    };
+    for (std::size_t p = 0; p < 16; ++p) {
+        d->initial_input(p, false); // everything floats: dark
+    }
+    CHECK(d->text() == dark);
+    // R1 driven low, the other rows high, C1 and C8 high: two dots, lit within 2 ms.
+    for (std::size_t r = 0; r < 8; ++r) {
+        drive(r, r != 0, 0);
+    }
+    drive(8, true, 0);
+    drive(15, true, 0);
+    run_device_to(*d, 2000000);
+    CHECK(d->text() == matrix_text({0x81}));
+    // R1 released (a pin set as an input): its dots go dark once they leave the last 20 ms.
+    d->set_driven(0, false, 3000000);
+    run_device_to(*d, 20000000);
+    CHECK(d->text() == matrix_text({0x81}));
+    run_device_to(*d, 30000000);
+    CHECK(d->text() == dark);
+    CHECK(d->next_event_ns() == devices::no_event); // nothing changes any more
+    // A scan like a MAX7219's, 156.25 us a row; at each change the next row goes low 5 us
+    // before the columns change, so it shows the previous row's pattern for a moment.
+    const std::array<std::uint8_t, 8> smiley{0x3C, 0x42, 0xA5, 0x81, 0xA5, 0x99, 0x42, 0x3C};
+    std::uint64_t t = 40000000;
+    for (int k = 0; k < 8 * 200; ++k) { // 250 ms
+        const auto r = static_cast<std::size_t>(k % 8);
+        drive((r + 7) % 8, true, t);
+        drive(r, false, t);
+        for (std::size_t c = 0; c < 8; ++c) {
+            drive(8 + c, ((smiley[r] >> (7 - c)) & 1u) != 0, t + 5000);
+        }
+        t += 156250;
+        run_device_to(*d, t);
+    }
+    // Each dot on 1/8 of the time (12.5 %) is lit; the 5 us overlaps (0.4 %) stay dark.
+    CHECK(d->text() == matrix_text(smiley));
+    // The scan stops with every row high: dark after 20 ms, then no more events.
+    for (std::size_t r = 0; r < 8; ++r) {
+        drive(r, true, t);
+    }
+    run_device_to(*d, t + 25000000);
+    CHECK(d->text() == dark);
+    CHECK(d->next_event_ns() == devices::no_event);
+}
+
+TEST_CASE("devices: the bus tells a digital LED matrix when a board pin floats or only pulls (SN-303)")
+{
+    auto m = idle_board();
+    REQUIRE(m);
+    mcu::DeviceRequest matrix;
+    matrix.designator = "DS1";
+    matrix.kind = "led_matrix";
+    matrix.pins = matrix_pins;
+    matrix.supply = 2.0;
+    for (const auto& pin : matrix_pins) {
+        if (pin != "R1" && pin != "C1") {
+            matrix.tied[pin] = false;
+            matrix.floating.insert(pin);
+        }
+    }
+    const std::vector<mcu::DigitalNet> nets{{"ROW1", {"PA0"}, {{0, "R1"}}, 0, false}, {"COL1", {"PA1"}, {{0, "C1"}}, 0, false}};
+    auto view = mcu::wrap_stm32(*m);
+    mcu::DeviceBus bus;
+    std::string error;
+    REQUIRE(bus.init(*view, {matrix}, nets, error));
+    m->set_pin_hook([&](int port, int pin, std::uint64_t t) { bus.board_pin_changed(port * 16 + pin, t); });
+    bus.start(0);
+    // PA0 and PA1 push-pull outputs, PA0 low and PA1 high: dot R1-C1 on.
+    poke(*m, gpioa_bsrr, (1u << 16) | (1u << 1));
+    poke(*m, gpioa_crl, 0x1u | (0x1u << 4));
+    bus.advance(5000000);
+    CHECK(bus.text(0) == matrix_text({0x80}));
+    // PA0 becomes a floating input: the row floats (its level stays low), the dot goes dark.
+    poke(*m, gpioa_crl, 0x4u | (0x1u << 4));
+    bus.advance(40000000);
+    CHECK(bus.text(0) == matrix_text({}));
+    // PA0 low again, PA1 an input with its internal pull-up: too weak to light the dot.
+    poke(*m, gpioa_crl, 0x1u | (0x8u << 4));
+    bus.advance(80000000);
+    CHECK(bus.text(0) == matrix_text({}));
+    poke(*m, gpioa_crl, 0x1u | (0x1u << 4));
+    bus.advance(120000000);
+    CHECK(bus.text(0) == matrix_text({0x80}));
+    CHECK(bus.take_messages().empty());
+}
+
+TEST_CASE("devices: a digital LED matrix joins its board without power pins (SN-303)")
+{
+    test::CircuitBuilder b(device_library());
+    b.add("bluepill", {{"G1", "0"}, {"PA0", "ROW1"}, {"PA1", "COL1"}}, {{"firmware", "firmware/blink/blink.elf"}});
+    const model::Id matrix = b.add("led_matrix_8x8_digital", {{"R1", "ROW1"}, {"C1", "COL1"}});
+    std::vector<sim::McuRequest> requests;
+    std::vector<std::string> warnings;
+    std::string error;
+    sim::McuEnvironment environment;
+    environment.project_dir = SIMNODUS_TEST_EXAMPLES_DIR;
+    REQUIRE(sim::build_mcu_requests(b.schematic, device_library(), environment, requests, error, &warnings));
+    REQUIRE(requests.size() == 1);
+    REQUIRE(requests[0].options.devices.size() == 1);
+    const auto& request = requests[0].options.devices[0];
+    CHECK(request.component == matrix);
+    CHECK(request.kind == "led_matrix");
+    CHECK(request.pins.size() == 16);
+    CHECK(request.supply == 2.0);
+    CHECK(std::abs(request.pin_model.input_high - 1.4) < 1e-9); // levels read from the circuit
+    CHECK(request.floating.count("R2"));
+    CHECK(!request.floating.count("R1"));
+    CHECK(requests[0].options.nets.size() == 2);
+    for (const auto& w : warnings) {
+        std::printf("  warning: %s\n", w.c_str());
+        CHECK(w.find("DS1") == std::string::npos); // no supply to miss; open pins are the check's
+    }
 }
 
 TEST_CASE("devices: an STM32CubeIDE HAL project draws a heart on a MAX7219 over SPI1")

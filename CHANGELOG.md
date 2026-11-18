@@ -4,6 +4,13 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-11-18, SN-303: digital 8x8 LED matrix)
+
+- **8x8 LED matrix (digital)** in Displays: the analog matrix's pins and size, with square dots, but no LEDs in the circuit. A dot is on while a board or a chip (directly or through a resistor) drives its column high and its row low, and it shows lit when it was on for at least 2 % of the last 20 ms, so a scanned matrix looks as the eye sees it and the microsecond overlaps while rows switch stay dark. No brightness and no currents: lit or dark. A row set as an input, or held only by an internal pull-up, floats and its dots stay dark. `sim.read` gives what it shows as eight rows of `#` and `.`.
+- It is much faster with a MAX7219 or a board that multiplexes: a student's game with two MAX7219 and two matrices went from 0.35x to 3.7x real time, **example 69** (now with the digital matrix) from 0.35x to about 2x. The analog matrix spent most of the run in ngspice's iterations on its 64 LEDs per matrix, which change every 156 µs. Nets that reach only boards, chips and a digital matrix get no drivers in the circuit (a probe keeps them), as pins connected to nothing (SN-283).
+- The pre-run check warns when a digital matrix shares a net with a part simulated in the circuit (a transistor, a ULN2003, a decoder): its dots may differ from real LEDs there; the analog matrix simulates them.
+- For library parts: `device.powerless` (a chip without supply and ground pins that only reads levels) and `lights.device` (lights set by the part's chip). The bus tells a device that asks whether each net is driven or floating (ADR 0102, update).
+
 ### Changed (2026-11-18, SN-304: 8x8 LED matrices placed edge to edge)
 
 - **The 8x8 LED matrix's row pins (R1-R8) moved from the left side to the top**; the column pins (C1-C8) stay at the bottom, where they were. Nothing is on the sides now, and the body is 16 grid units wide with a dot every 2 units: matrices placed side by side make one wider screen with an even dot spacing, and turned 90° they stack into a taller one (a student's game with two matrices, owner's request). The designator and the color moved to the right side.

@@ -63,6 +63,18 @@ public:
     virtual void set_input(std::size_t pin, bool level, std::uint64_t time_ns) = 0;
     // The level of every signal pin when the run starts: not an edge.
     virtual void initial_input(std::size_t pin, bool level) = 0;
+    // Whether the net of signal pin `pin` is driven (an output, a resistor to a
+    // supply or to ground, the circuit's level, a rail) or floating (released
+    // outputs, weak internal pulls, nothing connected). Only a device whose
+    // wants_drive() is true is told: at the start and whenever it changes
+    // (SN-303: a digital LED matrix's dot stays dark while its row floats).
+    virtual bool wants_drive() const { return false; }
+    virtual void set_driven(std::size_t pin, bool driven, std::uint64_t time_ns)
+    {
+        (void)pin;
+        (void)driven;
+        (void)time_ns;
+    }
     virtual Output output(std::size_t pin) const = 0;
     // Time-driven behavior (write cycles, multiplexing): the next time the device
     // changes by itself, and the call that lets it.

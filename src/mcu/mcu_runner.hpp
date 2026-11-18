@@ -42,6 +42,9 @@ struct DeviceRequest {
     // Signal pins on no digital net: their constant level (tied to ground or a
     // supply, or open and read as low).
     std::map<std::string, bool> tied;
+    // The tied pins that are open (connected to nothing): floating for a chip
+    // that asks whether its nets are driven (SN-303).
+    std::set<std::string> floating;
     // Memory chips (SN-208): the contents they start with; empty: their default (erased).
     std::vector<std::uint8_t> memory;
 };

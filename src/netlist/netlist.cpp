@@ -423,6 +423,57 @@ Netlist generate_circuit(const model::Schematic& schematic, const library::Compo
             open_pins.erase({p.reference->item, p.reference->pin});
         }
     }
+    // Nets that reach only boards' and chips' pins, one of them a powerless
+    // part's (SN-303: a digital LED matrix only reads levels): the boards and
+    // chips resolve them at once, so the circuit needs no drivers there,
+    // unless a probe watches the net or a chip reads its voltage.
+    {
+        const auto& c = out.connectivity;
+        std::set<int> watched;
+        auto watch = [&](const model::Anchor& a) {
+            if (const auto pin = c.pin_net.find({a.item, a.pin}); !a.pin.empty() && pin != c.pin_net.end()) {
+                watched.insert(pin->second);
+            } else if (const auto wire = c.wire_net.find(a.item); wire != c.wire_net.end()) {
+                watched.insert(wire->second);
+            } else if (const auto label = c.label_net.find(a.item); label != c.label_net.end()) {
+                watched.insert(label->second);
+            }
+        };
+        for (const auto& p : schematic.probes()) {
+            watch(p.target);
+            if (p.reference) {
+                watch(*p.reference);
+            }
+        }
+        for (const auto& pin : options.current_probes) {
+            if (const auto it = c.pin_net.find(pin); it != c.pin_net.end()) {
+                watched.insert(it->second);
+            }
+        }
+        for (std::size_t n = 0; n < c.nets.size(); ++n) {
+            const auto& net = c.nets[n];
+            if (net.ground || net.taps > 0 || watched.count(static_cast<int>(n))) {
+                continue;
+            }
+            bool powerless = false;
+            bool only_chips = true;
+            for (const auto& [id, pin] : net.pins) {
+                const auto* part = schematic.component(id);
+                const auto* d = part ? library.find(part->type) : nullptr;
+                const bool analog = d && d->device
+                    && std::find(d->device->analog_pins.begin(), d->device->analog_pins.end(), pin)
+                        != d->device->analog_pins.end();
+                if (!d || (!d->mcu && !d->device) || analog) {
+                    only_chips = false;
+                    break;
+                }
+                powerless = powerless || (d->device && d->device->powerless);
+            }
+            if (powerless && only_chips) {
+                open_pins.insert(net.pins.begin(), net.pins.end());
+            }
+        }
+    }
     for (const auto& c : schematic.components()) {
         const ComponentDefinition* d = library.find(c.type);
         if (!d) {
@@ -811,6 +862,54 @@ Netlist generate_circuit(const model::Schematic& schematic, const library::Compo
         report(Severity::Warning, "unconnected-pin",
             (c ? c->designator : std::string("?")) + ": pin " + pin.second + " is not connected.", {pin.first},
             c && d && p ? std::optional<Point>(library::pin_position(*d, *p, *c)) : std::nullopt);
+    }
+    // A powerless part (SN-303: the digital LED matrix) takes the levels of
+    // boards and chips, through a resistor at most. A transistor, a button or a
+    // decoder simulated in the circuit on its nets may give other dots than
+    // real LEDs (a cathode on an open collector floats, but reads as low).
+    for (const auto& c : schematic.components()) {
+        const auto* d = library.find(c.type);
+        if (!d || !d->device || !d->device->powerless) {
+            continue;
+        }
+        std::vector<std::string> pins;
+        std::vector<Id> items{c.id};
+        std::string others;
+        for (const auto& pin : d->pins) {
+            const auto it = out.connectivity.pin_net.find({c.id, pin.name});
+            if (it == out.connectivity.pin_net.end() || nets[static_cast<std::size_t>(it->second)].ground) {
+                continue;
+            }
+            for (const auto& [id, other_pin] : nets[static_cast<std::size_t>(it->second)].pins) {
+                const auto* other = schematic.component(id);
+                const auto* od = other ? library.find(other->type) : nullptr;
+                if (!od || od->mcu || od->device || !od->ties_net.empty() || !od->ties_net_parameter.empty()
+                    || other->type == "resistor" || other->type == "vdc" || other->type == "battery") {
+                    continue;
+                }
+                if (pins.empty() || pins.back() != pin.name) {
+                    pins.push_back(pin.name);
+                }
+                if (std::find(items.begin(), items.end(), id) == items.end()) {
+                    items.push_back(id);
+                    others += (others.empty() ? "" : ", ") + other->designator;
+                }
+            }
+        }
+        if (pins.empty()) {
+            continue;
+        }
+        std::string list;
+        for (std::size_t i = 0; i < pins.size(); ++i) {
+            list += (i == 0 ? "" : i + 1 == pins.size() ? " and " : ", ") + pins[i];
+        }
+        report(Severity::Warning, "digital-display-net",
+            c.designator + " is a digital display: it reads logic levels only and draws no current. " + list
+                + (pins.size() == 1 ? " is on a net with " : " are on nets with ") + others
+                + (items.size() > 2 ? ", which are not boards, chips or resistors" : ", which is not a board, a chip or a resistor")
+                + ", so it may light other dots than real LEDs would; the same display without \"(digital)\" "
+                  "simulates its LEDs in the circuit.",
+            items, c.position);
     }
     for (const auto& end : out.connectivity.dangling_ends) {
         Id wire = model::no_id;

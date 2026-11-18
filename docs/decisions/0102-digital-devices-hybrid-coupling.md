@@ -64,3 +64,18 @@ circuit", then the hybrid coupling once this was explained.
 - The protocol between editor and engine carries devices and nets (version 2).
 - Multiplexed displays (MAX7219) will need glow averaged over a few
   milliseconds on the canvas (SN-204).
+- Update (SN-303, 2026-11-18, owner's request): a part may be a device
+  without power pins that only reads levels (`device.powerless`, the
+  **8x8 LED matrix (digital)**). Measured on a student's game with two
+  MAX7219 and two analog matrices: 0.35x real time, about 60 % of it in
+  ngspice's Newton iterations on the 128 multiplexed LEDs (6.9 a step
+  instead of 2.0). The digital matrix has no LEDs in the circuit, only a
+  high resistance per pin; its dots light from the nets' levels, a dot shown
+  lit when on for 2 % of the last 20 ms. The bus now also tells a device
+  that asks (`wants_drive`) whether a net is driven or floating, so a row
+  released as an input goes dark. A net that reaches only boards' and
+  chips' pins with such a part gets no drivers in the circuit unless
+  probed (like SN-283's pins on nothing); the same game runs at 3.7x. The
+  analog matrix stays for currents, brightness and electrical mistakes;
+  the pre-run check warns when a digital matrix shares a net with a part
+  simulated in the circuit (a transistor, a decoder).

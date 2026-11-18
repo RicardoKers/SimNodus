@@ -2447,6 +2447,11 @@ TEST_CASE("session: example 69, the STM32F407's SPI to a 74HC595 and a MAX7219, 
     CHECK(changes >= 3);
     // SPI2 sent the MAX7219 its setup, the smiley and the count on PB15.
     CHECK(session.mcu_pin_log(chip, "PB15", 0).changes.size() > 50);
+    // The digital matrix (SN-303) shows the smiley the MAX7219 scans; its last row is the count.
+    const auto texts = session.device_texts();
+    const auto matrix = texts.find(ids.at("DS1"));
+    REQUIRE(matrix != texts.end());
+    CHECK(matrix->second.rfind("..####..\n.#....#.\n#.#..#.#\n#......#\n#.#..#.#\n#..##..#\n.#....#.\n", 0) == 0);
     session.stop();
 }
 

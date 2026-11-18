@@ -425,13 +425,47 @@ def matrix_8x8():
     }
 
 
+def matrix_8x8_digital():
+    # SN-303: the analog matrix's body and pins (one replaces the other in
+    # place) with square dots, lit by a chip that reads the pins' levels; no
+    # LEDs in the circuit, only a high input resistance on each pin.
+    analog = matrix_8x8()
+    graphics = [g for g in analog["symbol"]["graphics"] if "circle" not in g]
+    lights = []
+    for r in range(8):
+        for c in range(8):
+            lights.append({"graphic": len(graphics)})
+            graphics.append({"rect": [-7.7 + 2 * c, -7.7 + 2 * r, 1.4, 1.4]})
+    pins = analog["symbol"]["pins"]
+    return {
+        "type": "led_matrix_8x8_digital",
+        "name": "8x8 LED matrix (digital)",
+        "category": "Displays",
+        "prefix": "DS",
+        "description": "64 dots in 8 rows and 8 columns, wired as the 8x8 LED matrix (rows R1-R8 are the cathodes, "
+                       "columns C1-C8 the anodes), but with no LEDs in the circuit: a dot is on while its column is "
+                       "driven high and its row driven low, and it shows lit when it was on for at least 2 % of the "
+                       "last 20 ms; no brightness, no currents; much faster with a MAX7219 or a multiplexing board",
+        "symbol": {"graphics": graphics, "pins": pins},
+        "designator_offset": analog["designator_offset"],
+        "value_offset": analog["value_offset"],
+        "value_parameter": "color",
+        "parameters": [{"name": "color", "label": "Color", "unit": "", "default": "red",
+                        "description": "Color of the lit dots",
+                        "choices": ["red", "yellow", "green", "blue", "white"]}],
+        "device": {"kind": "led_matrix", "powerless": True},
+        "lights": {"device": True, "color_parameter": "color", "segments": lights},
+        "spice": [f"R_{{ref}}_h{p['name'].lower()} {{node:{p['name']}}} 0 100Meg" for p in pins],
+    }
+
+
 def main():
     os.makedirs(FOLDER, exist_ok=True)
     # Short descriptions for the parts tree (details belong in the user guide).
     with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "part_descriptions.json"), encoding="utf-8") as fh:
         short = json.load(fh)
     for p in [display(False), display(True), decoder_4511(), decoder_7447(), decoder_hex(False), decoder_hex(True),
-              four_digit(), matrix_8x8()]:
+              four_digit(), matrix_8x8(), matrix_8x8_digital()]:
         p["description"] = short.get(p["type"], p["description"])
         p["spice"] = share_levels(p["spice"])
         with open(os.path.join(FOLDER, p["type"] + ".json"), "w", encoding="utf-8", newline="\n") as fh:

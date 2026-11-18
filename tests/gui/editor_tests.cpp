@@ -1239,6 +1239,49 @@ private slots:
 #endif
     }
 
+    void digital_led_matrix_lights_the_dots_its_chip_reads()
+    {
+        // SN-303: example 69's MAX7219 scans a digital matrix; the dots light from the
+        // levels its chip reads, with no LEDs in the circuit and no logic lanes of its own.
+#if !defined(SIMNODUS_TEST_NGSPICE_LIBRARY)
+        QSKIP("No ngspice configured for this build.");
+#else
+        QStringList errors;
+        QStringList warnings;
+        QVERIFY(doc().open_copy(
+            QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/69_STM32F407_SPI_I2C_DMA.snx"), errors, warnings));
+        model::Id matrix = model::no_id;
+        for (const auto& c : doc().schematic().components()) {
+            matrix = c.type == "led_matrix_8x8_digital" ? c.id : matrix;
+        }
+        QVERIFY(matrix != model::no_id);
+        window_->run();
+        QTRY_VERIFY_WITH_TIMEOUT(window_->run_controller()->active(), 5000);
+        const std::uint8_t smiley[7] = {0x3C, 0x42, 0xA5, 0x81, 0xA5, 0x99, 0x42}; // the last row counts
+        auto smiley_shown = [&] {
+            const auto& lights = window_->scene()->live().lights;
+            const auto it = lights.find(matrix);
+            if (it == lights.end() || it->second.levels.size() != 64) {
+                return false;
+            }
+            for (int r = 0; r < 7; ++r) {
+                for (int c = 0; c < 8; ++c) {
+                    const bool lit = ((smiley[r] >> (7 - c)) & 1u) != 0;
+                    if (it->second.levels[static_cast<std::size_t>(r * 8 + c)] != (lit ? 1.0 : 0.0)) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        };
+        QTRY_VERIFY_WITH_TIMEOUT(smiley_shown(), 40000);
+        for (const auto& lane : window_->run_controller()->logic_lanes()) {
+            QVERIFY(!lane.title.startsWith(QStringLiteral("DS1.")));
+        }
+        window_->stop();
+#endif
+    }
+
     void lcd_example_shows_its_text_on_the_schematic()
     {
         // SN-206: an HD44780 behind a PCF8574 on I2C; the text reaches the canvas from the engine process.

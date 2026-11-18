@@ -1,4 +1,4 @@
-<!-- source: MICROCONTROLLER.md sha256 da79859b06bebde8d782d2c52eabe5d4eb99ee1934db45f03d57097e3b3ca732 -->
+<!-- source: MICROCONTROLLER.md sha256 5b060b8b9306b521e0bdc17545d3a30945e083eef07966d71feb1e59a6d022a7 -->
 # Microcontrolador: o que é simulado
 
 O SimNodus executa o firmware da **Blue Pill (STM32F103C8)** em seu próprio emulador
@@ -162,6 +162,22 @@ real num notebook de 2026. A matriz tem os pinos das linhas (R1-R8) em cima e os
 das colunas (C1-C8) embaixo, e nada nas laterais: matrizes lado a lado formam
 uma tela mais larga com o mesmo espaço entre os pontos (giradas 90°, empilham
 numa tela mais alta).
+
+A **Matriz de LEDs 8x8 (digital)** tem os mesmos pinos, com pontos quadrados,
+mas nenhum LED no circuito: um ponto fica ligado enquanto uma placa ou um chip
+(direto ou através de um resistor) leva sua coluna a nível alto e sua linha a
+nível baixo, e aparece aceso quando ficou ligado pelo menos 2 % dos últimos
+20 ms, como o olho vê uma varredura. Ela não tem brilho (a intensidade do
+MAX7219 não muda nada), nem correntes, nem erros elétricos a encontrar, mas é
+muito mais rápida: o exemplo 69 a usa e roda a cerca de 2 vezes o tempo real,
+cinco vezes mais rápido que com a Matriz de LEDs 8x8. Uma linha configurada
+como entrada, ou mantida só por um pull-up interno, fica solta e seus pontos
+ficam apagados. Com transistores, um ULN2003 ou um decodificador entre o
+driver e a matriz, os pontos podem diferir de LEDs reais (a verificação antes
+da simulação avisa): use a Matriz de LEDs 8x8 nesses casos. O `sim.read` dá o
+que ela mostra como oito linhas de `#` e `.` (R1 primeiro, C1 à esquerda, como
+a peça é desenhada sem girar). As redes entre ela e os chips não têm tensão no
+circuito, a não ser que haja uma ponta de prova nelas.
 
 ### Visualizador de registradores
 
@@ -879,8 +895,9 @@ um chip real não converteria.
   do tempo real (cerca de 0,8 vez); um firmware que dorme entre interrupções
   (`WFI`, como o `HAL_Delay` não faz, mas a tarefa ociosa de um RTOS faz)
   roda várias vezes mais rápido que o tempo real (exemplo 71: cerca de 6
-  vezes). Um MAX7219 que varre sua matriz 800 vezes por segundo deixa
-  qualquer simulação mais lenta (exemplo 69: cerca de 0,4 vez o tempo real).
+  vezes). Um MAX7219 que varre uma Matriz de LEDs 8x8 800 vezes por segundo
+  deixa qualquer simulação em cerca de 0,4 vez o tempo real; o exemplo 69
+  varre a matriz digital e roda a cerca de 2 vezes.
 - **Tempo das instruções**: as instruções levam os ciclos medidos em um
   STM32F407 real (firmware `f4_timing`, 27 laços): dentro de 0,3 % em
   qualquer clock quando a flash não precisa de estados de espera ou seu
