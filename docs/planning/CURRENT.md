@@ -1,6 +1,6 @@
 # Current state
 
-Updated: 2026-11-16 (the owner's last F4 bench session; the Register Viewer SN-290 and SN-291 on main after 0.18.0; the STM32F407VET6 track E-12: the Cortex-M4F core (G12a on the host), the machine SN-294, the part SN-295 (example 67), the timers, ADC and DAC SN-297 (example 68) and SPI, I2C, DMA, RTC SN-298 (examples 69 to 71) done, the board comparison SN-296 done on 2026-11-15 with the timing calibrated on the chip, every gate met, decision DE12 taken (ADR 0110): the STM32F407 is no longer experimental; release 0.18.0 published: the chart recorder SN-281, the review and speed passes SN-282 to SN-284, the owner's requests SN-285, the protocol decoders SN-286 and SN-288, the chart fix SN-287 and the Memory Viewer's editing SN-289, tested by the owner on the 2026-11-11 previews; DE9 waits for the owner). Keep this file short: present state, last results, next
+Updated: 2026-11-18 (SN-304, the LED matrix's pins for matrices edge to edge, and SN-303 registered, after a student's MAX7219 project measured at 0.35x real time); 2026-11-16 (the owner's last F4 bench session; the Register Viewer SN-290 and SN-291 on main after 0.18.0; the STM32F407VET6 track E-12: the Cortex-M4F core (G12a on the host), the machine SN-294, the part SN-295 (example 67), the timers, ADC and DAC SN-297 (example 68) and SPI, I2C, DMA, RTC SN-298 (examples 69 to 71) done, the board comparison SN-296 done on 2026-11-15 with the timing calibrated on the chip, every gate met, decision DE12 taken (ADR 0110): the STM32F407 is no longer experimental; release 0.18.0 published: the chart recorder SN-281, the review and speed passes SN-282 to SN-284, the owner's requests SN-285, the protocol decoders SN-286 and SN-288, the chart fix SN-287 and the Memory Viewer's editing SN-289, tested by the owner on the 2026-11-11 previews; DE9 waits for the owner). Keep this file short: present state, last results, next
 steps. Replace it, do not append. History of the first development line
 (2026-08-31 → 2026-10-06) is in
 [archive/2026-10-legacy/CURRENT.md](../archive/2026-10-legacy/CURRENT.md);
@@ -15,6 +15,13 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
   shown at Maximum, `simulation_session.cpp` kept the factor's history
   across the re-anchored origin) and the Logic tab's axis repeated "2s"
   (`format_engineering_tick`, `LogicWidget::axis_ticks`).
+  SN-304 (2026-11-18): the 8x8 LED matrix's rows moved to the top (pins on
+  two opposite sides, a 16-unit body), so matrices sit edge to edge;
+  examples 26 and 69 rewired; older projects must reconnect R1-R8 (the check
+  lists them). Registered, todo: SN-303, a digital LED matrix with nothing
+  in ngspice; a student's game with two MAX7219 matrices ran at 0.35x real
+  time, about 60 % of it in ngspice's Newton iterations on the multiplexed
+  LEDs.
   The owner has a DevKitM-1 and a SuperMini in hand: next is the bench
   comparison of both (G8b.1 ROM and consoles; G9b.2, G9b.3 Wi-Fi against a
   real access point) and decision DE9.

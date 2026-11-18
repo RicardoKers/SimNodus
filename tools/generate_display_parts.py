@@ -379,7 +379,10 @@ def four_digit():
 
 
 def matrix_8x8():
-    graphics = [{"rect": [-9, -9, 18, 18]}]
+    # Pins only on the top (rows) and the bottom (columns), a body 16 units wide
+    # with a dot every 2 units: matrices placed edge to edge on the free sides
+    # make one screen with an even dot pitch (owner's request of 2026-11-18).
+    graphics = [{"rect": [-8, -8, 16, 16]}]
     lights = []
     spice = []
     for r in range(8):
@@ -391,15 +394,15 @@ def matrix_8x8():
             graphics.append({"circle": [-7 + 2 * c, -7 + 2 * r, 0.75]})
     pins = []
     for r in range(8):
-        y = -7 + 2 * r
-        pins.append({"name": f"R{r + 1}", "at": [-11, y], "dir": "left"})
-        graphics.append({"line": [-11, y, -9, y]})
+        x = -7 + 2 * r
+        pins.append({"name": f"R{r + 1}", "at": [x, -11], "dir": "up"})
+        graphics.append({"line": [x, -11, x, -8]})
     for c in range(8):
         x = -7 + 2 * c
         pins.append({"name": f"C{c + 1}", "at": [x, 11], "dir": "down"})
-        graphics.append({"line": [x, 11, x, 9]})
-    graphics.append({"text": "R", "at": [-10, -9.2], "size": 0.5})
-    graphics.append({"text": "C", "at": [-9.2, 10], "size": 0.5})
+        graphics.append({"line": [x, 11, x, 8]})
+    graphics.append({"text": "R", "at": [-8.5, -10], "size": 0.5})
+    graphics.append({"text": "C", "at": [-8.5, 10], "size": 0.5})
     return {
         "type": "led_matrix_8x8",
         "name": "8x8 LED matrix",
@@ -410,8 +413,8 @@ def matrix_8x8():
                        "DP, A-G to C1-C8) or a microcontroller; each LED lights with its own current, averaged as the "
                        "eye does",
         "symbol": {"graphics": graphics, "pins": pins},
-        "designator_offset": [-9, -11],
-        "value_offset": [3, -11],
+        "designator_offset": [9, -1],
+        "value_offset": [9, 1],
         "value_parameter": "color",
         "parameters": [{"name": "color", "label": "Color", "unit": "", "default": "red",
                         "description": "LED color; sets the forward voltage (red about 1.9 V at 10 mA)",

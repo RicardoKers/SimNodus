@@ -151,7 +151,10 @@ through a PCF8574 backpack. Example 26 sends MAX7219 words over SPI1 with the HA
 LED matrix (a 4-digit 7-segment display works the same way). Multiplexed LEDs
 glow with their current averaged over 20 ms, as the eye sees them. With 64
 LEDs the circuit is heavy: example 26 runs at about 0.8x real time on a 2026
-laptop.
+laptop. The matrix has the rows' pins (R1-R8) on top and the columns' pins
+(C1-C8) at the bottom, and nothing on its sides: matrices placed side by side
+make one wider screen with the same spacing between dots (turned 90°, they
+stack into a taller one).
 
 ### Register Viewer
 

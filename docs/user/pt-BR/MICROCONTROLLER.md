@@ -1,4 +1,4 @@
-<!-- source: MICROCONTROLLER.md sha256 866d3170d73b00f843be966a9cfb0cc6c382c3f4f5d93527fcac9c529314c7aa -->
+<!-- source: MICROCONTROLLER.md sha256 da79859b06bebde8d782d2c52eabe5d4eb99ee1934db45f03d57097e3b3ca732 -->
 # Microcontrolador: o que é simulado
 
 O SimNodus executa o firmware da **Blue Pill (STM32F103C8)** em seu próprio emulador
@@ -158,7 +158,10 @@ através de um módulo adaptador PCF8574. O exemplo 26 envia palavras ao MAX7219
 matriz de LEDs 8x8 (um display de 7 segmentos de 4 dígitos funciona do mesmo
 jeito). LEDs multiplexados brilham com a corrente média em 20 ms, como o olho os
 vê. Com 64 LEDs o circuito é pesado: o exemplo 26 roda a cerca de 0,8x do tempo
-real num notebook de 2026.
+real num notebook de 2026. A matriz tem os pinos das linhas (R1-R8) em cima e os
+das colunas (C1-C8) embaixo, e nada nas laterais: matrizes lado a lado formam
+uma tela mais larga com o mesmo espaço entre os pontos (giradas 90°, empilham
+numa tela mais alta).
 
 ### Visualizador de registradores
 
