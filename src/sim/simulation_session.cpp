@@ -955,7 +955,10 @@ void attach_devices(const model::Schematic& schematic, const library::ComponentL
             request.kind = device.kind;
             request.parameters = candidate.component->parameters;
             request.pins = candidate.signals;
-            if (device.supply_parameter.empty()) {
+            if (device.powerless) {
+                // No power pins (SN-303): it only reads levels, against its logic level.
+                request.supply = device.logic_volts;
+            } else if (device.supply_parameter.empty()) {
                 request.supply = supply_of(net_of(request.component, device.supply_pin));
             } else {
                 // A fixed level chosen in the properties ("3.3 V"), not a pin (SN-237).
@@ -971,7 +974,7 @@ void attach_devices(const model::Schematic& schematic, const library::ComponentL
             if (request.supply <= 0) {
                 warn(request.designator + " has no supply on " + device.supply_pin
                     + " (a DC source or the board's 3.3 V); it does nothing.");
-            } else if (!is_ground(net_of(request.component, device.ground_pin))) {
+            } else if (!device.powerless && !is_ground(net_of(request.component, device.ground_pin))) {
                 warn(request.designator + "." + device.ground_pin + " is not connected to ground; it does nothing.");
                 request.supply = 0;
             }
@@ -1012,8 +1015,12 @@ void attach_devices(const model::Schematic& schematic, const library::ComponentL
                 const int n = net_of(request.component, pin);
                 if (n < 0 || constant(n)) {
                     request.tied[pin] = n >= 0 && !is_ground(n);
+                    if (n < 0) {
+                        request.floating.insert(pin);
+                    }
                     const auto* definition = candidate.definition->pin(pin);
-                    if (n < 0 && definition && !definition->optional) {
+                    // A powerless part's open pin floats (its dots stay dark); the pre-run check names it.
+                    if (n < 0 && definition && !definition->optional && !device.powerless) {
                         warn(request.designator + "." + pin + " is not connected; SimNodus reads it as low.");
                     }
                     continue;

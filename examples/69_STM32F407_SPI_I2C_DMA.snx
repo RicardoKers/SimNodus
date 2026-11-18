@@ -359,20 +359,6 @@
     },
     {
       "at": [
-        60,
-        33
-      ],
-      "designator": "DS1",
-      "id": 114,
-      "mirrored": false,
-      "parameters": {
-        "color": "red"
-      },
-      "rotation": 0,
-      "type": "led_matrix_8x8"
-    },
-    {
-      "at": [
         -27,
         -11
       ],
@@ -434,6 +420,20 @@
       },
       "rotation": 0,
       "type": "lm75"
+    },
+    {
+      "at": [
+        60,
+        33
+      ],
+      "designator": "DS1",
+      "id": 187,
+      "mirrored": false,
+      "parameters": {
+        "color": "red"
+      },
+      "rotation": 0,
+      "type": "led_matrix_8x8_digital"
     }
   ],
   "format": "simnodus-project",
@@ -1420,7 +1420,7 @@
       "name": "ROW8"
     }
   ],
-  "next_id": 187,
+  "next_id": 188,
   "notes": [
     {
       "at": [
@@ -1428,7 +1428,7 @@
         -51
       ],
       "id": 176,
-      "text": "STM32F407VET6: SPI, I2C and DMA, at 16 MHz (HSI).\nSPI1 (PA5, PA7) shifts a count into the 74HC595 (PA4 latches it): the LEDs count every 250 ms.\nSPI2 (PB13, PB15, 16-bit frames; PB12 is LOAD) draws a smiley on the MAX7219's matrix; its last row counts.\nI2C1 (PB6, PB7, 4k7 pull-ups) writes \"SimNodus\" into the 24C02 and reads it back, then reads the LM75.\nUSART1 (PA9, 115200 baud) prints through DMA2: Window > Signal Analyzer, UART tab.\nThe SPI clocks (1 and 2 MHz) are faster than the circuit's 0.1 ms step: the scope shows their average,\nthe Signal Analyzer's logic lanes (or SPI decoder) show the frames.\nTry: change U5's temperature while running, or delete R10 (the bus stops; see the Messages panel)."
+      "text": "STM32F407VET6: SPI, I2C and DMA, at 16 MHz (HSI).\nSPI1 (PA5, PA7) shifts a count into the 74HC595 (PA4 latches it): the LEDs count every 250 ms.\nSPI2 (PB13, PB15, 16-bit frames; PB12 is LOAD) draws a smiley on the MAX7219's digital matrix (DS1: dots lit from logic levels); its last row counts.\nI2C1 (PB6, PB7, 4k7 pull-ups) writes \"SimNodus\" into the 24C02 and reads it back, then reads the LM75.\nUSART1 (PA9, 115200 baud) prints through DMA2: Window > Signal Analyzer, UART tab.\nThe SPI clocks (1 and 2 MHz) are faster than the circuit's 0.1 ms step: the scope shows their average,\nthe Signal Analyzer's logic lanes (or SPI decoder) show the frames.\nTry: change U5's temperature while running, or delete R10 (the bus stops; see the Messages panel)."
     }
   ],
   "probes": [

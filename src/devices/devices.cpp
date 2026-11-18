@@ -5,6 +5,7 @@
 
 #include <algorithm>
 #include <array>
+#include <bit>
 #include <cctype>
 #include <cmath>
 #include <cstdint>
@@ -499,6 +500,159 @@ private:
     int digit_ = 0;
     std::uint64_t slot_start_ = 0;
     std::uint64_t next_ns_ = no_event;
+};
+
+// A digital 8x8 LED matrix (SN-303): no LEDs in the circuit, only the levels
+// of its pins. Dot (r, c) is on while column Cc (its anode) is driven high and
+// row Rr (its cathode) is driven low; a floating net (a pin set as an input,
+// nothing connected, a weak internal pull) leaves its dots dark. A multiplexed
+// dot is on for a part of the time: it shows lit when it was on for at least
+// 2 % of the last 20 ms, as the eye sees a scanned display, so the overlaps of
+// a few microseconds while rows switch stay dark. No brightness: lit or dark.
+// Its text is eight rows of '#' (lit) and '.' (dark), R1 first, C1 at the left.
+class LedMatrix : public Device {
+public:
+    static constexpr std::array<const char*, 16> names{
+        "R1", "R2", "R3", "R4", "R5", "R6", "R7", "R8", "C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8"};
+    static constexpr std::uint64_t bucket_ns = 2000000; // the on time is kept per 2 ms
+    static constexpr std::size_t buckets = 10;          // over the last 20 ms
+    static constexpr std::uint64_t window_ns = bucket_ns * buckets;
+    static constexpr std::uint64_t lit_ns = window_ns / 50; // 2 %
+
+    bool init(const std::vector<std::string>& pins, std::string& error)
+    {
+        std::array<std::size_t, names.size()> index{};
+        if (!find_pins(pins, names, index, "LED matrix", error)) {
+            return false;
+        }
+        role_.assign(pins.size(), -1);
+        for (std::size_t i = 0; i < names.size(); ++i) {
+            role_[index[i]] = static_cast<int>(i);
+        }
+        return true;
+    }
+
+    bool wants_drive() const override { return true; }
+
+    void initial_input(std::size_t pin, bool level) override { change(pin, &levels_, level, 0); }
+    void set_input(std::size_t pin, bool level, std::uint64_t time_ns) override { change(pin, &levels_, level, time_ns); }
+    void set_driven(std::size_t pin, bool driven, std::uint64_t time_ns) override
+    {
+        change(pin, &driven_, driven, time_ns);
+    }
+    Output output(std::size_t) const override { return {}; }
+
+    std::uint64_t next_event_ns() const override
+    {
+        // The lit dots follow the time while the last window holds a change.
+        const bool settling = lit_ != on_ || accounted_ < last_change_ + window_ns + 2 * bucket_ns;
+        return settling ? (bucket_ + 1) * bucket_ns : no_event;
+    }
+    void advance(std::uint64_t time_ns) override { account(time_ns); }
+
+    std::string text() const override
+    {
+        std::string text;
+        for (int r = 0; r < 8; ++r) {
+            for (int c = 0; c < 8; ++c) {
+                text += ((lit_ >> (8 * r + c)) & 1u) != 0 ? '#' : '.';
+            }
+            text += r < 7 ? "\n" : "";
+        }
+        return text;
+    }
+
+private:
+    // A level or a drive of a pin changed at `time_ns`.
+    void change(std::size_t pin, std::uint16_t* bits, bool value, std::uint64_t time_ns)
+    {
+        if (pin >= role_.size() || role_[pin] < 0) {
+            return;
+        }
+        account(time_ns);
+        const auto mask = static_cast<std::uint16_t>(1u << role_[pin]);
+        *bits = static_cast<std::uint16_t>(value ? *bits | mask : *bits & ~mask);
+        // Rows sink while driven low, columns source while driven high.
+        const unsigned rows = ~levels_ & driven_ & 0xFFu;
+        const unsigned columns = (levels_ & driven_) >> 8;
+        std::uint64_t on = 0;
+        for (int r = 0; r < 8; ++r) {
+            if ((rows >> r) & 1u) {
+                on |= static_cast<std::uint64_t>(columns) << (8 * r);
+            }
+        }
+        if (on != on_) {
+            on_ = on;
+            last_change_ = std::max(time_ns, accounted_);
+        }
+    }
+
+    // Adds the on time of the dots up to `time_ns`; at the end of each 2 ms the
+    // lit dots are those on long enough in the 20 ms that just ended.
+    void account(std::uint64_t time_ns)
+    {
+        if (time_ns <= accounted_) {
+            return;
+        }
+        const std::uint64_t target = time_ns / bucket_ns;
+        if (target > bucket_ + buckets) {
+            // A whole window or more without a change: every slot as the dots are now.
+            for (auto& slot : on_ns_) {
+                for (std::size_t dot = 0; dot < 64; ++dot) {
+                    slot[dot] = ((on_ >> dot) & 1u) != 0 ? static_cast<std::uint32_t>(bucket_ns) : 0u;
+                }
+            }
+            lit_ = on_;
+            bucket_ = target;
+            accounted_ = bucket_ * bucket_ns;
+            on_ns_[bucket_ % buckets].fill(0);
+        }
+        while (bucket_ < target) {
+            add((bucket_ + 1) * bucket_ns - accounted_);
+            ++bucket_;
+            accounted_ = bucket_ * bucket_ns;
+            update_lit(); // the slots hold the last ten whole buckets
+            on_ns_[bucket_ % buckets].fill(0);
+        }
+        add(time_ns - accounted_);
+        accounted_ = time_ns;
+    }
+
+    void add(std::uint64_t ns)
+    {
+        if (ns == 0) {
+            return;
+        }
+        auto& slot = on_ns_[bucket_ % buckets];
+        for (std::uint64_t dots = on_; dots != 0; dots &= dots - 1) {
+            slot[static_cast<std::size_t>(std::countr_zero(dots))] += static_cast<std::uint32_t>(ns);
+        }
+    }
+
+    void update_lit()
+    {
+        std::uint64_t lit = 0;
+        for (std::size_t dot = 0; dot < 64; ++dot) {
+            std::uint64_t total = 0;
+            for (const auto& slot : on_ns_) {
+                total += slot[dot];
+            }
+            if (total >= lit_ns) {
+                lit |= std::uint64_t{1} << dot;
+            }
+        }
+        lit_ = lit;
+    }
+
+    std::vector<int> role_; // pin -> 0..7 R1-R8, 8..15 C1-C8
+    std::uint16_t levels_ = 0;
+    std::uint16_t driven_ = 0;
+    std::uint64_t on_ = 0;  // dots on now, bit 8 * r + c
+    std::uint64_t lit_ = 0; // dots shown lit
+    std::array<std::array<std::uint32_t, 64>, buckets> on_ns_{}; // on time per dot, per 2 ms slot
+    std::uint64_t bucket_ = 0;    // the 2 ms bucket being filled, from the run's start
+    std::uint64_t accounted_ = 0; // on time added up to here
+    std::uint64_t last_change_ = 0;
 };
 
 // An I2C slave (NXP UM10204) at the bit level: START and STOP from SDA edges
@@ -4169,6 +4323,13 @@ std::unique_ptr<Device> make_device(const std::string& kind, const std::vector<s
     }
     if (kind == "max7219") {
         auto device = std::make_unique<Max7219>();
+        if (!device->init(pins, error)) {
+            return nullptr;
+        }
+        return device;
+    }
+    if (kind == "led_matrix") {
+        auto device = std::make_unique<LedMatrix>();
         if (!device->init(pins, error)) {
             return nullptr;
         }

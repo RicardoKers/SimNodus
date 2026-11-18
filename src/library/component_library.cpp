@@ -511,12 +511,13 @@ ComponentDefinition parse_definition(const json& j)
         }
         lights.color = text(l, "color");
         lights.color_parameter = text(l, "color_parameter");
+        lights.from_device = l.value("device", false);
         if (!l.contains("segments") || !l["segments"].is_array()) {
             invalid("lights needs a list of segments");
         }
         for (const auto& s : l["segments"]) {
             Lights::Light light;
-            light.element = text(s, "element", true);
+            light.element = text(s, "element", !lights.from_device);
             light.graphic = s.value("graphic", -1);
             if (light.graphic < 0 || light.graphic >= static_cast<int>(d.graphics.size())) {
                 invalid("lights segment graphic must be the index of a symbol graphic");
@@ -763,6 +764,18 @@ ComponentDefinition parse_definition(const json& j)
                 invalid("device.input_high_ratio must be between 0 and 1");
             }
         }
+        if (m.value("powerless", false)) {
+            device.powerless = true;
+            device.supply_pin.clear();
+            device.ground_pin.clear();
+            if (m.contains("logic_volts")) {
+                device.logic_volts = number(m["logic_volts"], "device.logic_volts");
+            }
+            if (device.logic_volts <= 0 || m.contains("supply_pin") || m.contains("ground_pin")
+                || m.contains("supply_parameter")) {
+                invalid("a powerless device has no supply or ground and positive logic_volts");
+            }
+        }
         device.driven_pins = strings(m, "driven_pins");
         device.analog_pins = strings(m, "analog_pins");
         device.internal_pins = strings(m, "internal_pins");
@@ -805,7 +818,8 @@ ComponentDefinition parse_definition(const json& j)
                 invalid("device.driven_pins names a pin the part does not have: " + pin);
             }
         }
-        if ((device.supply_parameter.empty() && !d.pin(device.supply_pin)) || !d.pin(device.ground_pin)) {
+        if (!device.powerless
+            && ((device.supply_parameter.empty() && !d.pin(device.supply_pin)) || !d.pin(device.ground_pin))) {
             invalid("device.supply_pin and device.ground_pin must be pins of the part");
         }
         if (device.output_resistance <= 0) {

@@ -540,6 +540,57 @@ TEST_CASE("only the wired or probed pins of a board get drivers (SN-283)")
     CHECK(drivers(n) == 2);
 }
 
+TEST_CASE("nets between boards, chips and a digital LED matrix get no drivers unless probed (SN-303)")
+{
+    const auto lib = load();
+    test::CircuitBuilder b(lib);
+    const auto board = b.add("bluepill", {{"G1", "0"}, {"PA0", "ROW1"}, {"PA1", "COL1"}, {"PA2", "COL2"}},
+        {{"firmware", "firmware/blink.elf"}});
+    const auto chip = b.add("max7219", {{"VCC", "VCC5"}, {"GND", "0"}, {"DIG1", "ROW2"}, {"SEGA", "COL3"}});
+    b.add("vdc", {{"+", "VCC5"}, {"-", "0"}}, {{"V", "5"}});
+    b.add("led_matrix_8x8_digital", {{"R1", "ROW1"}, {"R2", "ROW2"}, {"C1", "COL1"}, {"C2", "COL2"}, {"C3", "COL3"}});
+    b.add("resistor", {{"1", "COL2"}, {"2", "0"}}); // something else in the circuit: COL2 keeps its driver
+    auto n = netlist::generate_netlist(b.schematic, lib);
+    CHECK(n.ok());
+    CHECK(!has(n, "digital-display-net")); // boards, chips and resistors only
+    CHECK(n.open_drivers.count({board, "PA0"}));
+    CHECK(n.open_drivers.count({board, "PA1"}));
+    CHECK(!n.open_drivers.count({board, "PA2"}));
+    CHECK(n.open_drivers.count({chip, "DIG1"}));
+    CHECK(n.open_drivers.count({chip, "SEGA"}));
+    // The matrix's pins are only high resistances in the circuit.
+    CHECK(std::count_if(n.lines.begin(), n.lines.end(),
+              [](const std::string& l) { return l.rfind("R_DS", 0) == 0 && l.find(" 100Meg") != std::string::npos; })
+        == 16);
+    // A probe on the net keeps its drivers, for the analyzer.
+    model::Probe probe;
+    probe.id = b.schematic.allocate_id();
+    probe.target = {board, "PA1", {}};
+    b.schematic.put(probe);
+    n = netlist::generate_netlist(b.schematic, lib);
+    CHECK(!n.open_drivers.count({board, "PA1"}));
+    CHECK(n.open_drivers.count({board, "PA0"}));
+}
+
+TEST_CASE("a digital LED matrix on a transistor's net gets a warning (SN-303)")
+{
+    const auto lib = load();
+    test::CircuitBuilder b(lib);
+    b.add("bluepill", {{"G1", "0"}, {"PA0", "BASE"}, {"PA1", "COL1"}}, {{"firmware", "firmware/blink.elf"}});
+    b.add("resistor", {{"1", "BASE"}, {"2", "B1"}});
+    b.add("npn", {{"B", "B1"}, {"C", "ROW1"}, {"E", "0"}});
+    const auto matrix = b.add("led_matrix_8x8_digital", {{"R1", "ROW1"}, {"C1", "COL1"}});
+    const auto n = netlist::generate_netlist(b.schematic, lib);
+    CHECK(n.ok());
+    REQUIRE(has(n, "digital-display-net"));
+    for (const auto& d : n.diagnostics) {
+        if (d.code == "digital-display-net") {
+            CHECK(d.message.find("R1 is on a net with Q1") != std::string::npos);
+            CHECK(d.items.front() == matrix);
+        }
+    }
+}
+
 TEST_CASE("optional pins may stay unconnected without a warning")
 {
     library::ComponentLibrary library;

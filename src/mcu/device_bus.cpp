@@ -86,7 +86,11 @@ bool DeviceBus::init(McuMachine& machine, const std::vector<DeviceRequest>& devi
             const auto& names = pin_names_[d];
             const auto it = std::find(names.begin(), names.end(), pin);
             if (it != names.end()) {
-                devices_[d]->initial_input(static_cast<std::size_t>(it - names.begin()), level);
+                const auto index = static_cast<std::size_t>(it - names.begin());
+                devices_[d]->initial_input(index, level);
+                if (devices_[d]->wants_drive()) {
+                    devices_[d]->set_driven(index, devices[d].floating.count(pin) == 0, 0); // a rail drives
+                }
             }
         }
     }
@@ -106,7 +110,11 @@ void DeviceBus::start(std::uint64_t time_ns)
         }
         for (std::size_t p = 0; p < pin_net_[d].size(); ++p) {
             if (pin_net_[d][p] >= 0) {
-                devices_[d]->initial_input(p, nets_[static_cast<std::size_t>(pin_net_[d][p])].level);
+                const Net& net = nets_[static_cast<std::size_t>(pin_net_[d][p])];
+                devices_[d]->initial_input(p, net.level);
+                if (devices_[d]->wants_drive()) {
+                    devices_[d]->set_driven(p, net.driven, time_ns);
+                }
             }
         }
     }
@@ -247,21 +255,39 @@ void DeviceBus::resolve(std::size_t index, std::uint64_t time_ns)
     } else if (net.pull != 0) {
         level = net.pull > 0;
     } // else floating: it keeps its last level
+    // Driven: an output, a resistor to a rail or the circuit's level decides it;
+    // a weak internal pull alone (or nothing) leaves it floating (SN-303).
+    const bool driven = strong_low || strong_high || (net.circuit && net.circuit_known) || net.pull != 0;
     const bool first = !net.known;
-    if (!first && level == net.level) {
+    const bool level_changed = first || level != net.level;
+    const bool drive_changed = first || driven != net.driven;
+    if (!level_changed && !drive_changed) {
         return;
     }
     net.known = true;
     net.level = level;
-    for (const int pin : net.board) {
-        machine_->set_pin_input(pin, level);
+    net.driven = driven;
+    if (level_changed) {
+        for (const int pin : net.board) {
+            machine_->set_pin_input(pin, level);
+        }
     }
     if (first) {
         return; // start(): the devices get initial inputs instead of edges
     }
     for (const auto& p : net.pins) {
-        if (devices_[p.device]) {
-            devices_[p.device]->set_input(p.pin, level, time_ns);
+        auto& device = devices_[p.device];
+        if (!device) {
+            continue;
+        }
+        const bool told = drive_changed && device->wants_drive();
+        if (told) {
+            device->set_driven(p.pin, driven, time_ns);
+        }
+        if (level_changed) {
+            device->set_input(p.pin, level, time_ns);
+        }
+        if (told || level_changed) {
             collect_outputs(p.device, time_ns);
         }
     }
