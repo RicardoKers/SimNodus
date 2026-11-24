@@ -231,7 +231,7 @@
         -7
       ],
       "id": 16,
-      "text": "A RAM of 16 words of 4 bits, a word per line of U1. Run (F5).\nAddress: IN1-IN4 (keys 1-4) on A0-A3 pick a word (marked >); Q0-Q3 show it on OUT1-OUT4.\nWrite: set the data on IN5-IN8 (keys Q, W, E, R), then click IN9 or press Space: WE at 0\nwrites D0-D3 into the word (marked *); WE back to 1 keeps it. It starts with word n = n;\nchange the Contents property, or open Window > Memory Viewer while running."
+      "text": "A RAM of 16 words of 4 bits, a word per line of U1. Run (F5).\nAddress: IN1-IN4 (keys 1-4) on A0-A3 pick a word (marked in blue); Q0-Q3 show it on OUT1-OUT4.\nWrite: set the data on IN5-IN8 (keys Q, W, E, R), then click IN9 or press Space: WE at 0\nwrites D0-D3 into the word (marked in red); WE back to 1 keeps it. It starts with word n = n;\nchange the Contents property, or open Window > Memory Viewer while running."
     }
   ],
   "probes": [
