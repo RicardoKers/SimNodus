@@ -186,6 +186,13 @@ struct DigitalDevice {
     // the volts at the start of this parameter's value ("3.3 V"); supply_pin is empty.
     std::string supply_parameter;
     std::string ground_pin = "GND";
+    // A part without power pins that only reads levels (SN-303: the digital
+    // LED matrix): supply_pin and ground_pin are empty, levels read from the
+    // circuit count as high above 0.7 of `logic_volts` and as low below 0.3 of
+    // it, and a net with nothing else than boards' and chips' pins needs no
+    // drivers in the circuit (unless probed).
+    bool powerless = false;
+    double logic_volts = 2.0;
     double output_resistance = 50.0; // Ohm, of driven outputs
     // The lowest high input as a fraction of the supply when the datasheet
     // gives one (CMOS inputs: 0.7); a board whose outputs give less gets a
@@ -327,13 +334,16 @@ struct LiveValue {
 // with the color at the brightness of the current through `element`.
 struct Lights {
     struct Light {
-        std::string element; // measuring source, "V_{ref}_sa"
+        std::string element; // measuring source, "V_{ref}_sa"; empty with `from_device`
         int graphic = 0;
     };
     std::vector<Light> lights;
     double full = 0.01;          // amperes for full brightness
     std::string color;           // "#rrggbb" or an LED color name
     std::string color_parameter; // or the value of this parameter
+    // Lit by the part's chip instead of a current (SN-303): the chip's text has
+    // one character per light, in order ('#' lit, any other dark; line breaks skipped).
+    bool from_device = false;
 };
 
 struct ComponentDefinition {

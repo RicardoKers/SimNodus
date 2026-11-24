@@ -220,11 +220,14 @@ bool RunController::start(QString& error, const sim::RunRequest* base)
     for (const auto& c : snapshot_.components()) {
         const auto* d = library.find(c.type);
         if (d && d->lights) {
-            // Display segments (SN-202): the current of each one's measuring source.
+            // Display segments (SN-202): the current of each one's measuring source;
+            // none for lights the part's chip sets (SN-303).
             auto& vectors = light_vectors_[c.id];
             for (const auto& light : d->lights->lights) {
-                vectors.push_back(lower(element_name(light.element, c.designator)) + "#branch");
-                request.vectors.push_back(vectors.back());
+                if (!d->lights->from_device) {
+                    vectors.push_back(lower(element_name(light.element, c.designator)) + "#branch");
+                    request.vectors.push_back(vectors.back());
+                }
             }
         }
         if (d && !d->live_values.empty()) {
@@ -272,6 +275,12 @@ bool RunController::start(QString& error, const sim::RunRequest* base)
     device_lanes_.clear();
     for (const auto& m : request.mcus) {
         for (const auto& d : m.options.devices) {
+            // A powerless part only reads levels (SN-303): its nets show on their drivers' lanes.
+            const auto* part = snapshot_.component(d.component);
+            const auto* definition = part ? library.find(part->type) : nullptr;
+            if (definition && definition->device && definition->device->powerless) {
+                continue;
+            }
             for (const auto& pin : d.pins) {
                 device_lanes_.emplace_back(m.component, d.designator + "." + pin);
             }
@@ -835,6 +844,17 @@ void RunController::refresh()
             const auto p = c->parameters.find(d->lights->color_parameter);
             const auto* definition = d->parameter(d->lights->color_parameter);
             lit.color = p != c->parameters.end() ? p->second : definition ? definition->default_value : lit.color;
+        }
+        if (d->lights->from_device) {
+            // Lit or dark as the part's chip says (SN-303): '#' per lit light, in order.
+            const auto text = live.texts.find(id);
+            if (text != live.texts.end()) {
+                for (const QChar ch : text->second) {
+                    if (ch != QLatin1Char('\n')) {
+                        lit.levels.push_back(ch == QLatin1Char('#') ? 1.0 : 0.0);
+                    }
+                }
+            }
         }
         for (const auto& vector : vectors) {
             const auto it = latest.find(vector);

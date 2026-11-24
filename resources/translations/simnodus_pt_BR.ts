@@ -4244,6 +4244,18 @@ Permitir para este projeto neste computador? Sem isso, a rede das placas fica de
             <translation>verde</translation>
         </message>
         <message>
+            <source>8x8 LED matrix (digital)</source>
+            <translation>Matriz de LEDs 8x8 (digital)</translation>
+        </message>
+        <message>
+            <source>Faster 8x8 matrix: dots lit from logic levels, no LEDs in the circuit</source>
+            <translation>Matriz 8x8 mais rápida: pontos acesos pelos níveis lógicos, sem LEDs no circuito</translation>
+        </message>
+        <message>
+            <source>Color of the lit dots</source>
+            <translation>Cor dos pontos acesos</translation>
+        </message>
+        <message>
             <source>4-digit 7-segment display (common cathode)</source>
             <translation>Display de 7 segmentos com 4 dígitos (catodo comum)</translation>
         </message>
