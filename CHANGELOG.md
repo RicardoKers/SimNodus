@@ -4,6 +4,8 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+## 0.20.0 — 2026-11-24
+
 ### Added (2026-11-24, SN-305 to SN-310: owner's requests)
 
 - **Examples in folders by category** (SN-305): `examples/01_Analog_circuits`, `02_Digital_logic`, `03_Blue_Pill_STM32F103`, `04_Motors_and_energy`, `05_ESP32-C3`, `06_AVR_and_Arduino` and `07_STM32F407`, shown as submenus of **File > Examples** (Analog circuits, Digital logic, ...). The numbers stay; the files the projects use (`firmware/`, `memories/`, `blocks/`, `models/`, `data/`, `lessons/`) stay in `examples/` and are named `../firmware/...` in the projects. The examples list is grouped the same way.

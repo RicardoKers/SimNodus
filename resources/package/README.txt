@@ -1,7 +1,7 @@
 SimNodus - interactive circuit and STM32 simulator for teaching
 ================================================================
 
-Release 0.19 (analog and digital circuits, the Blue Pill / STM32F103
+Release 0.20 (analog and digital circuits, the Blue Pill / STM32F103
 microcontroller, AVR chips and the Arduino UNO, and an experimental
 ESP32-C3 board with Wi-Fi).
 Run simnodus.exe; no installation, account or network access is needed.
@@ -19,6 +19,19 @@ from STM32CubeIDE) in SimNodus's own STM32 emulator: GPIO, EXTI, USART
 watchdogs and CRC. Simulate >
 Debug Firmware with GDB lets STM32CubeIDE debug the firmware while it drives
 the circuit.
+
+New in 0.20: tools for the classroom. File > Examples groups the examples
+in submenus by subject. View > Highlight Net (H) marks every wire, pin and
+label of a net. File > Export Diagram... saves the schematic as a PNG image
+or an SVG drawing, on a light or dark background. New parts: a digital
+output (0 or 1, lit while 1), a smaller digital input that stacks on a
+chip's pins, the 4N25 optocoupler and a PC817 with a real phototransistor
+(example 74), a 16-word RAM of 4 bits for teaching (example 75), a digital
+8x8 LED matrix that runs much faster with a MAX7219 or a scanning board,
+and the ESP32-C3 SuperMini board (experimental, example 73).
+Projects with the 8x8 LED matrix made before 0.20: its row pins R1-R8 moved
+to the top of the symbol, so their wires must be connected again there
+(the check before a run lists them).
 
 New in 0.19: the STM32F407VET6 and quicker digital circuits. A bare
 STM32F407VET6 (Cortex-M4F with its FPU, up to 168 MHz) runs firmware from
