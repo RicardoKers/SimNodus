@@ -1,6 +1,6 @@
 # Lesson 2 — Button input, bounce and EXTI
 
-Project: `examples/11_Lesson2_button_and_EXTI.snx` · Firmware:
+Project: `examples/03_Blue_Pill_STM32F103/11_Lesson2_button_and_EXTI.snx` · Firmware:
 `examples/firmware/lesson2_button/lesson2_button.c` (ELF next to it).
 
 ## Goals

@@ -73,6 +73,9 @@ public:
     void select_all();
     void move_selection(model::Point delta);
     void center_on_item(model::Id id);
+    // Highlights the net under the mouse or of the selected wire (SN-309);
+    // again on the same net, or with none there, clears the highlight.
+    void toggle_net_highlight();
 
 public slots:
     void zoom_in();
@@ -143,6 +146,8 @@ private:
     // A stick's two controls from a scene point (SN-273): x and y, 0..1.
     void move_stick(const QPointF& scene_point);
     void show_live_tooltip(const QPoint& view_point);
+    // Right-click in the select tool: highlight the net there, or clear it.
+    void net_menu(const model::Point& at, const QPoint& global);
 
     SchematicScene* scene_ = nullptr;
     std::function<bool()> guard_;

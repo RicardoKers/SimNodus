@@ -95,7 +95,7 @@ TEST_CASE("automation: the decade counter of example 23 counts across interactiv
     // The counter's state is in capacitors that every 1 s segment carries over;
     // its thresholds are shared nodes (tools/spice_levels.py). 2 Hz clock.
     Fixture f;
-    REQUIRE(f.ok("project.open", {{"path", SIMNODUS_TEST_EXAMPLES_DIR "/23_Seven_segment_counter.snx"}}).is_object());
+    REQUIRE(f.ok("project.open", {{"path", SIMNODUS_TEST_EXAMPLES_DIR "/02_Digital_logic/23_Seven_segment_counter.snx"}}).is_object());
     const auto result = f.ok("sim.run", {{"mode", "interactive"}, {"duration", "4"},
         {"signals", {"V(U1.Q0)", "V(U1.Q1)", "V(U1.Q2)", "V(U1.Q3)"}}, {"points", 17}});
     REQUIRE(result.is_object());

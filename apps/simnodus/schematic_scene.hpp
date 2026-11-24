@@ -33,6 +33,7 @@ class NoteItem;
 class BusItem;
 class SplitterItem;
 class DecorationItem;
+class NetHighlightItem;
 
 // Grid unit in scene coordinates (same as SchematicView::grid).
 constexpr double scene_grid = 10.0;
@@ -102,6 +103,21 @@ public:
     // Net name at a grid point, if a pin, wire or label is there.
     std::optional<std::string> net_name_at(const model::Point& point) const;
 
+    // Net highlight (SN-309): every wire, pin and label of one net is marked.
+    // The net is found again from its anchor (a pin, a wire or a label, by
+    // ID) after each edit; it ends when the anchor goes away.
+    struct NetAnchor {
+        model::Id item = model::no_id;
+        std::string pin; // a component's pin; empty for a wire or a label
+    };
+    // The pin, wire or label at a grid point.
+    std::optional<NetAnchor> net_anchor_at(const model::Point& point) const;
+    void highlight_net(std::optional<NetAnchor> anchor);
+    // Index in connectivity().nets of the highlighted net.
+    std::optional<int> highlighted_net() const { return highlighted_net_; }
+    // "Net OUT: R1.2, C1.1 (2 pins)" for the status bar.
+    QString net_summary(int net) const;
+
     // Chart recorders (SN-281): the records they draw, owned by the run
     // controller; null for none.
     using ChartRecords = std::map<model::Id, std::vector<sim::ChartRecord>>;
@@ -140,6 +156,10 @@ private:
     std::map<model::Id, BusItem*> buses_;
     std::map<model::Id, SplitterItem*> splitters_;
     DecorationItem* decorations_ = nullptr;
+    NetHighlightItem* net_highlight_ = nullptr;
+    std::optional<NetAnchor> highlight_anchor_;
+    std::optional<int> highlighted_net_;
+    void update_net_highlight();
     ComponentItem* ghost_ = nullptr;
     WireItem* wire_preview_ = nullptr;
     LiveState live_;

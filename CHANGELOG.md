@@ -4,6 +4,24 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-11-24, SN-305 to SN-310: owner's requests)
+
+- **Examples in folders by category** (SN-305): `examples/01_Analog_circuits`, `02_Digital_logic`, `03_Blue_Pill_STM32F103`, `04_Motors_and_energy`, `05_ESP32-C3`, `06_AVR_and_Arduino` and `07_STM32F407`, shown as submenus of **File > Examples** (Analog circuits, Digital logic, ...). The numbers stay; the files the projects use (`firmware/`, `memories/`, `blocks/`, `models/`, `data/`, `lessons/`) stay in `examples/` and are named `../firmware/...` in the projects. The examples list is grouped the same way.
+- **Digital output** in Displays (SN-306), the digital input's counterpart: one pin, read through 1 GΩ, 1 above half of its level (1.65 V or 2.5 V); the box shows 0 or 1 and lights in its color (red, yellow, green, blue) while it is 1.
+- **Optocoupler 4N25** (DIP-6, with the base on pin 6) in Power & interface, and the **PC817** moved there from Sensors (SN-307): an infrared LED (about 1.2 V at 10 mA) and a real NPN phototransistor whose base gets CTR / (β + 1) of the LED current, so the collector current is CTR × the LED current (a property: 50 % and 100 %) until the transistor saturates, and the output switches in microseconds (a 4N25 with 1 kΩ to 3.3 V: about 5 µs down, 11 µs up at 10 µs steps). The PC817 keeps its type and pins, so projects with it open as before; it was a behavioral current source with no switching time. Approximate models: CTR does not change with the current or the temperature. **Example 74**.
+- **RAM 16x4** in Memories (SN-308), a memory for teaching: A0-A3 select one of 16 words of 4 bits, Q0-Q3 always show it, and while WE is 0 the word takes D0-D3 (written through to Q), kept when WE returns to 1. A write needs WE to have been 1 first: when a run starts the levels rise one after the other, and a WE still at 0 would write the words the address passes through. The symbol lists the 16 words with the selected one on a blue band (red while written), and before a run the starting words, set by the Contents property (16 hexadecimal digits). No supply pins: its level (3.3 or 5 V) is a property. The Memory Viewer shows and edits it while running. **Example 75**: four digital inputs on the address, four on the data, one on WE (keys 1-4, Q, W, E, R and Space) and four digital outputs.
+- **Highlight a net** (SN-309): View > Highlight Net (**H**) with the mouse on a wire, a pin or a net label, or a right-click > Highlight Net, marks every wire, pin and label of the net in amber and lists its pins in the status bar; H again, Esc or Clear Net Highlight ends it. The highlight follows edits and ends when its wire, pin or label goes away. `view.net` does it through external control.
+- **File > Export Diagram...** (SN-310): the schematic as a PNG image (100 % to 400 %) or an SVG drawing, with a light or dark background whatever the window's theme; the grid and the selection are left out, a running circuit is exported as shown. `view.export` does it through external control (the image is taken after the canvas shows the last step). The application now uses the Qt SVG module (LGPL, like the rest of Qt): `qt6-svg-dev` on Linux, `Qt6Svg.dll` in the Windows package.
+
+### Changed (2026-11-24)
+
+- **The digital input is smaller** (SN-306): its box is 1.6 grid units high instead of 3, with its name beside it instead of above, so inputs stack on a chip's pins 2 units apart without overlapping (the owner's request). Its pin is where it was: projects keep their wires.
+- A circuit of digital inputs and outputs, logic gates and the RAM 16x4 alone needs **no ground symbol**: these parts refer to the circuit's ground inside (library field `hidden_ground`).
+
+### Fixed (2026-11-24)
+
+- The Memory Viewer did not find the contents of a memory chip that runs without a board when it was the first chip of its group (example 32's ROM): the group was named after it and its memory was taken for a board's flash.
+
 ### Added (2026-11-18, SN-303: digital 8x8 LED matrix)
 
 - **8x8 LED matrix (digital)** in Displays: the analog matrix's pins and size, with square dots, but no LEDs in the circuit. A dot is on while a board or a chip (directly or through a resistor) drives its column high and its row low, and it shows lit when it was on for at least 2 % of the last 20 ms, so a scanned matrix looks as the eye sees it and the microsecond overlaps while rows switch stay dark. No brightness and no currents: lit or dark. A row set as an input, or held only by an internal pull-up, floats and its dots stay dark. `sim.read` gives what it shows as eight rows of `#` and `.`.

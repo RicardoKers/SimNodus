@@ -1,0 +1,666 @@
+{
+  "buses": [],
+  "components": [
+    {
+      "at": [
+        0,
+        0
+      ],
+      "designator": "U1",
+      "id": 1,
+      "mirrored": false,
+      "parameters": {
+        "firmware": "../firmware/hal_i2c_lcd/hal_i2c_lcd.elf"
+      },
+      "rotation": 0,
+      "type": "bluepill"
+    },
+    {
+      "at": [
+        -6,
+        23
+      ],
+      "designator": "GND1",
+      "id": 8,
+      "mirrored": false,
+      "parameters": {},
+      "rotation": 0,
+      "type": "ground"
+    },
+    {
+      "at": [
+        -24,
+        0
+      ],
+      "designator": "R1",
+      "id": 11,
+      "mirrored": false,
+      "parameters": {
+        "R": "4k7"
+      },
+      "rotation": 0,
+      "type": "resistor",
+      "value_offset": [
+        2,
+        0
+      ]
+    },
+    {
+      "at": [
+        -30,
+        0
+      ],
+      "designator": "R2",
+      "id": 14,
+      "mirrored": false,
+      "parameters": {
+        "R": "4k7"
+      },
+      "rotation": 0,
+      "type": "resistor",
+      "value_offset": [
+        2,
+        0
+      ]
+    },
+    {
+      "at": [
+        -75,
+        10
+      ],
+      "designator": "V1",
+      "id": 17,
+      "mirrored": false,
+      "parameters": {
+        "V": "5"
+      },
+      "rotation": 0,
+      "type": "vdc"
+    },
+    {
+      "at": [
+        -75,
+        16
+      ],
+      "designator": "GND2",
+      "id": 19,
+      "mirrored": false,
+      "parameters": {},
+      "rotation": 0,
+      "type": "ground"
+    },
+    {
+      "at": [
+        -45,
+        12
+      ],
+      "designator": "U2",
+      "id": 21,
+      "mirrored": false,
+      "parameters": {},
+      "rotation": 0,
+      "type": "pcf8574"
+    },
+    {
+      "at": [
+        -52,
+        -16
+      ],
+      "designator": "LCD1",
+      "id": 36,
+      "mirrored": false,
+      "parameters": {
+        "columns": "16",
+        "rows": "2"
+      },
+      "rotation": 0,
+      "type": "lcd_hd44780"
+    }
+  ],
+  "format": "simnodus-project",
+  "labels": [
+    {
+      "at": [
+        -14,
+        7
+      ],
+      "id": 3,
+      "mirrored": true,
+      "name": "SCL"
+    },
+    {
+      "at": [
+        -14,
+        9
+      ],
+      "id": 6,
+      "mirrored": true,
+      "name": "SDA"
+    },
+    {
+      "at": [
+        -9,
+        19
+      ],
+      "id": 10,
+      "name": "VDD"
+    },
+    {
+      "at": [
+        -24,
+        -3
+      ],
+      "id": 12,
+      "name": "VDD"
+    },
+    {
+      "at": [
+        -24,
+        3
+      ],
+      "id": 13,
+      "name": "SCL"
+    },
+    {
+      "at": [
+        -30,
+        -3
+      ],
+      "id": 15,
+      "name": "VDD"
+    },
+    {
+      "at": [
+        -30,
+        3
+      ],
+      "id": 16,
+      "name": "SDA"
+    },
+    {
+      "at": [
+        -75,
+        7
+      ],
+      "id": 18,
+      "name": "VCC5"
+    },
+    {
+      "at": [
+        -51,
+        7
+      ],
+      "id": 22,
+      "mirrored": true,
+      "name": "SCL"
+    },
+    {
+      "at": [
+        -51,
+        9
+      ],
+      "id": 23,
+      "mirrored": true,
+      "name": "SDA"
+    },
+    {
+      "at": [
+        -51,
+        11
+      ],
+      "id": 24,
+      "mirrored": true,
+      "name": "VCC5"
+    },
+    {
+      "at": [
+        -51,
+        13
+      ],
+      "id": 25,
+      "mirrored": true,
+      "name": "VCC5"
+    },
+    {
+      "at": [
+        -51,
+        15
+      ],
+      "id": 26,
+      "mirrored": true,
+      "name": "VCC5"
+    },
+    {
+      "at": [
+        -45,
+        1
+      ],
+      "id": 27,
+      "name": "VCC5"
+    },
+    {
+      "at": [
+        -45,
+        23
+      ],
+      "id": 28,
+      "name": "GND"
+    },
+    {
+      "at": [
+        -39,
+        5
+      ],
+      "id": 29,
+      "name": "RS"
+    },
+    {
+      "at": [
+        -39,
+        7
+      ],
+      "id": 30,
+      "name": "RW"
+    },
+    {
+      "at": [
+        -39,
+        9
+      ],
+      "id": 31,
+      "name": "E"
+    },
+    {
+      "at": [
+        -39,
+        13
+      ],
+      "id": 32,
+      "name": "D4"
+    },
+    {
+      "at": [
+        -39,
+        15
+      ],
+      "id": 33,
+      "name": "D5"
+    },
+    {
+      "at": [
+        -39,
+        17
+      ],
+      "id": 34,
+      "name": "D6"
+    },
+    {
+      "at": [
+        -39,
+        19
+      ],
+      "id": 35,
+      "name": "D7"
+    },
+    {
+      "at": [
+        -67,
+        -23
+      ],
+      "id": 38,
+      "name": "GND"
+    },
+    {
+      "at": [
+        -65,
+        -26
+      ],
+      "id": 40,
+      "name": "VCC5"
+    },
+    {
+      "at": [
+        -63,
+        -29
+      ],
+      "id": 42,
+      "name": "GND"
+    },
+    {
+      "at": [
+        -61,
+        -23
+      ],
+      "id": 44,
+      "name": "RS"
+    },
+    {
+      "at": [
+        -59,
+        -26
+      ],
+      "id": 46,
+      "name": "RW"
+    },
+    {
+      "at": [
+        -57,
+        -29
+      ],
+      "id": 48,
+      "name": "E"
+    },
+    {
+      "at": [
+        -47,
+        -23
+      ],
+      "id": 50,
+      "name": "D4"
+    },
+    {
+      "at": [
+        -45,
+        -26
+      ],
+      "id": 52,
+      "name": "D5"
+    },
+    {
+      "at": [
+        -43,
+        -29
+      ],
+      "id": 54,
+      "name": "D6"
+    },
+    {
+      "at": [
+        -41,
+        -23
+      ],
+      "id": 56,
+      "name": "D7"
+    },
+    {
+      "at": [
+        -39,
+        -26
+      ],
+      "id": 58,
+      "name": "VCC5"
+    },
+    {
+      "at": [
+        -37,
+        -29
+      ],
+      "id": 60,
+      "name": "GND"
+    }
+  ],
+  "next_id": 62,
+  "notes": [
+    {
+      "at": [
+        -78,
+        -39
+      ],
+      "id": 61,
+      "text": "A 16x2 character LCD (HD44780) behind a PCF8574 I2C expander at 0x27, wired like the common I2C LCD\nbackpacks: P0 RS, P1 RW, P2 E, P4-P7 D4-D7 (4-bit mode). The Blue Pill's I2C1 (PB6, PB7) with 4.7 kOhm\npull-ups talks to the PCF8574; the module runs on 5 V. Run (F5): the text appears on the LCD, and the\nsecond row counts seconds. Change rows and columns in the LCD's properties for other modules."
+    }
+  ],
+  "probes": [
+    {
+      "color": "#1f77b4",
+      "id": 4,
+      "kind": "voltage",
+      "target": {
+        "at": [
+          -11,
+          7
+        ],
+        "item": 2
+      }
+    },
+    {
+      "color": "#ff7f0e",
+      "id": 7,
+      "kind": "voltage",
+      "target": {
+        "at": [
+          -11,
+          9
+        ],
+        "item": 5
+      }
+    }
+  ],
+  "settings": {
+    "cortex_m3_timing": true,
+    "exact_edges": false,
+    "max_step": 0.0001,
+    "mcu_quantum": 0.001,
+    "mode": "interactive",
+    "segment": 1.0,
+    "speed": 1.0,
+    "transient_max_step": 1e-06,
+    "transient_stop": 0.01
+  },
+  "splitters": [],
+  "version": 1,
+  "wires": [
+    {
+      "id": 2,
+      "points": [
+        [
+          -9,
+          7
+        ],
+        [
+          -14,
+          7
+        ]
+      ]
+    },
+    {
+      "id": 5,
+      "points": [
+        [
+          -9,
+          9
+        ],
+        [
+          -14,
+          9
+        ]
+      ]
+    },
+    {
+      "id": 9,
+      "points": [
+        [
+          -9,
+          17
+        ],
+        [
+          -6,
+          17
+        ],
+        [
+          -6,
+          23
+        ]
+      ]
+    },
+    {
+      "id": 20,
+      "points": [
+        [
+          -75,
+          13
+        ],
+        [
+          -75,
+          16
+        ]
+      ]
+    },
+    {
+      "id": 37,
+      "points": [
+        [
+          -67,
+          -21
+        ],
+        [
+          -67,
+          -23
+        ]
+      ]
+    },
+    {
+      "id": 39,
+      "points": [
+        [
+          -65,
+          -21
+        ],
+        [
+          -65,
+          -26
+        ]
+      ]
+    },
+    {
+      "id": 41,
+      "points": [
+        [
+          -63,
+          -21
+        ],
+        [
+          -63,
+          -29
+        ]
+      ]
+    },
+    {
+      "id": 43,
+      "points": [
+        [
+          -61,
+          -21
+        ],
+        [
+          -61,
+          -23
+        ]
+      ]
+    },
+    {
+      "id": 45,
+      "points": [
+        [
+          -59,
+          -21
+        ],
+        [
+          -59,
+          -26
+        ]
+      ]
+    },
+    {
+      "id": 47,
+      "points": [
+        [
+          -57,
+          -21
+        ],
+        [
+          -57,
+          -29
+        ]
+      ]
+    },
+    {
+      "id": 49,
+      "points": [
+        [
+          -47,
+          -21
+        ],
+        [
+          -47,
+          -23
+        ]
+      ]
+    },
+    {
+      "id": 51,
+      "points": [
+        [
+          -45,
+          -21
+        ],
+        [
+          -45,
+          -26
+        ]
+      ]
+    },
+    {
+      "id": 53,
+      "points": [
+        [
+          -43,
+          -21
+        ],
+        [
+          -43,
+          -29
+        ]
+      ]
+    },
+    {
+      "id": 55,
+      "points": [
+        [
+          -41,
+          -21
+        ],
+        [
+          -41,
+          -23
+        ]
+      ]
+    },
+    {
+      "id": 57,
+      "points": [
+        [
+          -39,
+          -21
+        ],
+        [
+          -39,
+          -26
+        ]
+      ]
+    },
+    {
+      "id": 59,
+      "points": [
+        [
+          -37,
+          -21
+        ],
+        [
+          -37,
+          -29
+        ]
+      ]
+    }
+  ]
+}

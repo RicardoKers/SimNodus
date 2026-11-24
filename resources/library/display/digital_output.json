@@ -1,0 +1,122 @@
+{
+  "type": "digital_output",
+  "name": "Digital output",
+  "category": "Displays",
+  "prefix": "OUT",
+  "description": "Shows the logic level on its pin, 0 or 1, and lights while it is 1",
+  "designator_offset": [
+    3,
+    0
+  ],
+  "symbol": {
+    "graphics": [
+      {
+        "rect": [
+          0,
+          -0.8,
+          2.4,
+          1.6
+        ]
+      },
+      {
+        "line": [
+          -2,
+          0,
+          0,
+          0
+        ]
+      }
+    ],
+    "states": {
+      "0": [
+        {
+          "text": "0",
+          "at": [
+            1.2,
+            0
+          ],
+          "size": 1.1
+        }
+      ],
+      "1": [
+        {
+          "text": "1",
+          "at": [
+            1.2,
+            0
+          ],
+          "size": 1.1
+        }
+      ]
+    },
+    "pins": [
+      {
+        "name": "1",
+        "at": [
+          -2,
+          0
+        ],
+        "dir": "left"
+      }
+    ]
+  },
+  "parameters": [
+    {
+      "name": "Vhigh",
+      "label": "High level",
+      "unit": "V",
+      "default": "5",
+      "choices": [
+        "3.3",
+        "5"
+      ],
+      "description": "Logic level of the circuit: the pin reads 1 above half of it (1.65 V or 2.5 V)"
+    },
+    {
+      "name": "color",
+      "label": "Color",
+      "unit": "",
+      "default": "red",
+      "choices": [
+        "red",
+        "yellow",
+        "green",
+        "blue"
+      ],
+      "description": "Color of the lit box"
+    }
+  ],
+  "spice": [
+    "R_{ref} {node:1} 0 1G",
+    "B_{ref} s_{ref} 0 V=0.5*(1+tanh(40/{Vhigh}*(V({node:1})-{Vhigh}/2)))",
+    "V_{ref}_s s_{ref} t_{ref} DC 0",
+    "R_{ref}_s t_{ref} 0 1k"
+  ],
+  "readout": {
+    "kind": "current",
+    "element": "V_{ref}_s",
+    "switch": {
+      "on": "0.0006",
+      "off": "0.0004"
+    }
+  },
+  "lights": {
+    "full": "1m",
+    "color_parameter": "color",
+    "segments": [
+      {
+        "element": "V_{ref}_s",
+        "graphic": 0
+      }
+    ]
+  },
+  "live": [
+    {
+      "label": "Level",
+      "kind": "node",
+      "element": "s_{ref}",
+      "unit": ""
+    }
+  ],
+  "hidden_ground": true
+}

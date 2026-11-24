@@ -974,7 +974,8 @@ void attach_devices(const model::Schematic& schematic, const library::ComponentL
             if (request.supply <= 0) {
                 warn(request.designator + " has no supply on " + device.supply_pin
                     + " (a DC source or the board's 3.3 V); it does nothing.");
-            } else if (!device.powerless && !is_ground(net_of(request.component, device.ground_pin))) {
+            } else if (!device.powerless && !device.ground_pin.empty()
+                && !is_ground(net_of(request.component, device.ground_pin))) {
                 warn(request.designator + "." + device.ground_pin + " is not connected to ground; it does nothing.");
                 request.supply = 0;
             }
@@ -1512,17 +1513,25 @@ void SimulationSession::set_device_parameter(model::Id component, const std::str
     }
 }
 
+std::uint64_t SimulationSession::memory_key(model::Id group, model::Id component) const
+{
+    // A board's own flash once esptool or a bootloader wrote it (SN-253) is its
+    // memory 0; its chip's EEPROM, mcu::board_eeprom (SN-261). A group of chips
+    // without a board (SN-212) is named after its first chip, whose memory is
+    // its own (SN-308: the teaching RAM, example 32's ROM in the Memory Viewer).
+    const bool chips_only = std::any_of(request_.mcus.begin(), request_.mcus.end(),
+        [&](const McuRequest& m) { return m.component == group && m.options.chips_only; });
+    return group == component ? (chips_only ? component : 0)
+        : eeprom_memory(group) == component   ? mcu::board_eeprom
+        : registers_memory(group) == component ? mcu::board_registers
+                                               : component;
+}
+
 std::optional<std::vector<std::uint8_t>> SimulationSession::device_memory(model::Id component) const
 {
     std::vector<std::uint8_t> bytes;
     for (const auto& [id, runner] : mcus_) {
-        // A board's own flash once esptool or a bootloader wrote it (SN-253)
-        // is its memory 0; its chip's EEPROM, mcu::board_eeprom (SN-261).
-        const std::uint64_t key = id == component ? 0
-            : eeprom_memory(id) == component ? mcu::board_eeprom
-            : registers_memory(id) == component ? mcu::board_registers
-            : component;
-        if (runner->device_memory(key, bytes)) {
+        if (runner->device_memory(memory_key(id, component), bytes)) {
             return bytes;
         }
     }
@@ -1532,11 +1541,7 @@ std::optional<std::vector<std::uint8_t>> SimulationSession::device_memory(model:
 std::uint64_t SimulationSession::device_memory_serial(model::Id component) const
 {
     for (const auto& [id, runner] : mcus_) {
-        const std::uint64_t key = id == component ? 0
-            : eeprom_memory(id) == component ? mcu::board_eeprom
-            : registers_memory(id) == component ? mcu::board_registers
-            : component;
-        if (const std::uint64_t serial = runner->device_memory_serial(key)) {
+        if (const std::uint64_t serial = runner->device_memory_serial(memory_key(id, component))) {
             return serial;
         }
     }

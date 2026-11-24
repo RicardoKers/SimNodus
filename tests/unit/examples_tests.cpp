@@ -9,6 +9,7 @@
 #include "library/blocks.hpp"
 #include "netlist/netlist.hpp"
 
+#include <cctype>
 #include <filesystem>
 
 using namespace simnodus;
@@ -18,8 +19,10 @@ TEST_CASE("example projects open and pass the pre-run checks")
     library::ComponentLibrary library;
     library.load_directory(SIMNODUS_TEST_LIBRARY_DIR);
     int count = 0;
-    for (const auto& entry : std::filesystem::directory_iterator(SIMNODUS_TEST_EXAMPLES_DIR)) {
-        if (entry.path().extension() != ".snx") {
+    // Examples are in category folders ("01_Analog_circuits"); blocks/ holds block files.
+    for (const auto& entry : std::filesystem::recursive_directory_iterator(SIMNODUS_TEST_EXAMPLES_DIR)) {
+        const auto folder = entry.path().parent_path().filename().string();
+        if (entry.path().extension() != ".snx" || folder.empty() || !std::isdigit(static_cast<unsigned char>(folder[0]))) {
             continue;
         }
         ++count;

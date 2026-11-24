@@ -180,7 +180,7 @@ TEST_CASE("devices: a 74HC595 joins the board it is wired to, with its supply, p
 {
     test::CircuitBuilder b(device_library());
     const model::Id board = b.add("bluepill", {{"G1", "0"}, {"3V3_1", "VDD"}, {"PA7", "SER"}, {"PA5", "SCK"},
-        {"PA4", "LATCH"}}, {{"firmware", "firmware/shift595/shift595.elf"}});
+        {"PA4", "LATCH"}}, {{"firmware", "../firmware/shift595/shift595.elf"}});
     const model::Id chip = b.add("74hc595", {{"DS", "SER"}, {"SHCP", "SCK"}, {"STCP", "LATCH"}, {"MR", "VDD"},
         {"OE", "0"}, {"Q0", "LED0"}, {"VCC", "VDD"}, {"GND", "0"}});
     b.add("resistor", {{"1", "LATCH"}, {"2", "0"}}, {{"R", "10k"}});
@@ -191,7 +191,7 @@ TEST_CASE("devices: a 74HC595 joins the board it is wired to, with its supply, p
     std::vector<std::string> warnings;
     std::string error;
     sim::McuEnvironment environment;
-    environment.project_dir = SIMNODUS_TEST_EXAMPLES_DIR;
+    environment.project_dir = std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "01_Analog_circuits";
     REQUIRE(sim::build_mcu_requests(b.schematic, device_library(), environment, requests, error, &warnings));
     // The chip on X has no board pin: it runs in a group of its own (SN-212).
     REQUIRE(requests.size() == 2);
@@ -232,7 +232,7 @@ TEST_CASE("a new ESP32-C3 board starts with its flash erased, waiting for an upl
     std::vector<std::string> warnings;
     std::string error;
     sim::McuEnvironment environment;
-    environment.project_dir = SIMNODUS_TEST_EXAMPLES_DIR;
+    environment.project_dir = std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "01_Analog_circuits";
     REQUIRE(sim::build_mcu_requests(b.schematic, device_library(), environment, requests, error, &warnings));
     REQUIRE(requests.size() == 1);
     CHECK(requests[0].options.firmware.empty());
@@ -250,7 +250,7 @@ TEST_CASE("devices: a 74HC595 runs a light across eight LEDs in a whole run")
     REQUIRE(test::engine() != nullptr);
     test::CircuitBuilder b(device_library());
     const model::Id board = b.add("bluepill", {{"G1", "0"}, {"3V3_1", "VDD"}, {"PA7", "SER"}, {"PA5", "SCK"},
-        {"PA4", "LATCH"}}, {{"firmware", "firmware/shift595/shift595.elf"}});
+        {"PA4", "LATCH"}}, {{"firmware", "../firmware/shift595/shift595.elf"}});
     std::map<std::string, std::string> chip{{"DS", "SER"}, {"SHCP", "SCK"}, {"STCP", "LATCH"}, {"MR", "VDD"},
         {"OE", "0"}, {"VCC", "VDD"}, {"GND", "0"}};
     for (int i = 0; i < 8; ++i) {
@@ -269,7 +269,7 @@ TEST_CASE("devices: a 74HC595 runs a light across eight LEDs in a whole run")
     }
     std::string error;
     sim::McuEnvironment environment;
-    environment.project_dir = SIMNODUS_TEST_EXAMPLES_DIR;
+    environment.project_dir = std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "01_Analog_circuits";
     std::vector<std::string> warnings;
     REQUIRE(sim::build_mcu_requests(request.schematic, device_library(), environment, request.mcus, error, &warnings));
     CHECK(warnings.empty());
@@ -306,13 +306,13 @@ TEST_CASE("devices: a 74HC595 runs a light across eight LEDs in a whole run")
 
 TEST_CASE("devices: example 25 wires its 74HC595 to the board without warnings")
 {
-    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "25_Shift_register_74HC595.snx");
+    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "03_Blue_Pill_STM32F103/25_Shift_register_74HC595.snx");
     REQUIRE(loaded.schematic.has_value());
     std::vector<sim::McuRequest> requests;
     std::vector<std::string> warnings;
     std::string error;
     sim::McuEnvironment environment;
-    environment.project_dir = SIMNODUS_TEST_EXAMPLES_DIR;
+    environment.project_dir = std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "01_Analog_circuits";
     REQUIRE(sim::build_mcu_requests(*loaded.schematic, device_library(), environment, requests, error, &warnings));
     for (const auto& w : warnings) {
         std::printf("  warning: %s\n", w.c_str());
@@ -517,13 +517,13 @@ TEST_CASE("devices: the bus tells a digital LED matrix when a board pin floats o
 TEST_CASE("devices: a digital LED matrix joins its board without power pins (SN-303)")
 {
     test::CircuitBuilder b(device_library());
-    b.add("bluepill", {{"G1", "0"}, {"PA0", "ROW1"}, {"PA1", "COL1"}}, {{"firmware", "firmware/blink/blink.elf"}});
+    b.add("bluepill", {{"G1", "0"}, {"PA0", "ROW1"}, {"PA1", "COL1"}}, {{"firmware", "../firmware/blink/blink.elf"}});
     const model::Id matrix = b.add("led_matrix_8x8_digital", {{"R1", "ROW1"}, {"C1", "COL1"}});
     std::vector<sim::McuRequest> requests;
     std::vector<std::string> warnings;
     std::string error;
     sim::McuEnvironment environment;
-    environment.project_dir = SIMNODUS_TEST_EXAMPLES_DIR;
+    environment.project_dir = std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "01_Analog_circuits";
     REQUIRE(sim::build_mcu_requests(b.schematic, device_library(), environment, requests, error, &warnings));
     REQUIRE(requests.size() == 1);
     REQUIRE(requests[0].options.devices.size() == 1);
@@ -604,13 +604,13 @@ TEST_CASE("devices: an STM32CubeIDE HAL project draws a heart on a MAX7219 over 
 
 TEST_CASE("devices: example 26 wires its MAX7219 to SPI1 and a 5 V supply, with the input level warning")
 {
-    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "26_LED_matrix_MAX7219_SPI.snx");
+    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "03_Blue_Pill_STM32F103/26_LED_matrix_MAX7219_SPI.snx");
     REQUIRE(loaded.schematic.has_value());
     std::vector<sim::McuRequest> requests;
     std::vector<std::string> warnings;
     std::string error;
     sim::McuEnvironment environment;
-    environment.project_dir = SIMNODUS_TEST_EXAMPLES_DIR;
+    environment.project_dir = std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "01_Analog_circuits";
     REQUIRE(sim::build_mcu_requests(*loaded.schematic, device_library(), environment, requests, error, &warnings));
     for (const auto& w : warnings) {
         std::printf("  warning: %s\n", w.c_str());
@@ -981,7 +981,7 @@ TEST_CASE("devices: without pull-up resistors I2C stalls and the message names t
 TEST_CASE("devices: example 27 talks to three I2C chips and reads its buttons through the circuit")
 {
     REQUIRE(test::engine() != nullptr);
-    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "27_I2C_EEPROM_sensor_expander.snx");
+    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "03_Blue_Pill_STM32F103/27_I2C_EEPROM_sensor_expander.snx");
     REQUIRE(loaded.schematic.has_value());
     sim::RunRequest request;
     request.schematic = *loaded.schematic;
@@ -1012,7 +1012,7 @@ TEST_CASE("devices: example 27 talks to three I2C chips and reads its buttons th
     std::string error;
     std::vector<std::string> warnings;
     sim::McuEnvironment environment;
-    environment.project_dir = SIMNODUS_TEST_EXAMPLES_DIR;
+    environment.project_dir = std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "01_Analog_circuits";
     REQUIRE(sim::build_mcu_requests(request.schematic, device_library(), environment, request.mcus, error, &warnings));
     for (const auto& w : warnings) {
         std::printf("  warning: %s\n", w.c_str());
@@ -1184,14 +1184,14 @@ TEST_CASE("devices: an STM32CubeIDE HAL project writes a 16x2 LCD through a PCF8
 
 TEST_CASE("devices: examples 27 and 28 wire their chips without warnings")
 {
-    for (const char* file : {"27_I2C_EEPROM_sensor_expander.snx", "28_LCD_16x2_I2C_backpack.snx"}) {
+    for (const char* file : {"03_Blue_Pill_STM32F103/27_I2C_EEPROM_sensor_expander.snx", "03_Blue_Pill_STM32F103/28_LCD_16x2_I2C_backpack.snx"}) {
         const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / file);
         REQUIRE(loaded.schematic.has_value());
         std::vector<sim::McuRequest> requests;
         std::vector<std::string> warnings;
         std::string error;
         sim::McuEnvironment environment;
-        environment.project_dir = SIMNODUS_TEST_EXAMPLES_DIR;
+        environment.project_dir = std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "01_Analog_circuits";
         REQUIRE(sim::build_mcu_requests(*loaded.schematic, device_library(), environment, requests, error, &warnings));
         for (const auto& w : warnings) {
             std::printf("  %s: %s\n", file, w.c_str());
@@ -1210,7 +1210,7 @@ TEST_CASE("devices: example 30 scans a 4x4 keypad held through its control")
 {
     // SN-210: the keypad's control is the number of the key held; the firmware reads it through the circuit.
     REQUIRE(test::engine() != nullptr);
-    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "30_Keypad_4x4_scanned_by_Blue_Pill.snx");
+    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "03_Blue_Pill_STM32F103/30_Keypad_4x4_scanned_by_Blue_Pill.snx");
     REQUIRE(loaded.schematic.has_value());
     sim::RunRequest request;
     request.schematic = *loaded.schematic;
@@ -1226,7 +1226,7 @@ TEST_CASE("devices: example 30 scans a 4x4 keypad held through its control")
     }
     std::string error;
     sim::McuEnvironment environment;
-    environment.project_dir = SIMNODUS_TEST_EXAMPLES_DIR;
+    environment.project_dir = std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "01_Analog_circuits";
     REQUIRE(sim::build_mcu_requests(request.schematic, device_library(), environment, request.mcus, error));
     sim::SimulationSession session;
     REQUIRE(session.start(request, error));
@@ -1336,11 +1336,155 @@ TEST_CASE("devices: parallel RAM and ROM read, write, ignore the unused address 
     CHECK(!rom->output(d0).driven);
 }
 
+TEST_CASE("devices: the teaching RAM 16x4 shows the addressed word and writes while WE is low (SN-308)")
+{
+    const std::vector<std::string> pins{"A0", "A1", "A2", "A3", "D0", "D1", "D2", "D3", "WE", "Q0", "Q1", "Q2", "Q3"};
+    const std::size_t a0 = 0, d0 = 4, we = 8, q0 = 9;
+    std::string error;
+    CHECK(!devices::make_device("ram16x4", pins, {{"contents", "12G"}}, error));
+    CHECK(!devices::make_device("ram16x4", pins, {{"contents", "0123456789ABCDEF0"}}, error)); // 17 words
+    auto ram = devices::make_device("ram16x4", pins, {{"contents", "0123 4567 89ab cdeF"}}, error);
+    REQUIRE(ram);
+    CHECK((ram->memory() == std::vector<std::uint8_t>{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}));
+    auto q = [&] {
+        int value = 0;
+        for (std::size_t b = 0; b < 4; ++b) {
+            const auto out = ram->output(q0 + b);
+            REQUIRE(out.driven);
+            value |= out.high ? 1 << b : 0;
+        }
+        return value;
+    };
+    auto set = [&](std::size_t first, int value, std::uint64_t t) {
+        for (std::size_t b = 0; b < 4; ++b) {
+            ram->set_input(first + b, ((value >> b) & 1) != 0, t);
+        }
+    };
+    // A run starts with every level low, WE included: the address passing through 5 and
+    // then 7 as the levels rise must not write (the write is not armed yet).
+    for (std::size_t p = 0; p < 9; ++p) {
+        ram->initial_input(p, false);
+    }
+    CHECK(q() == 0);
+    set(a0, 0x5, 10);
+    set(a0, 0x7, 20);
+    CHECK(q() == 7);
+    CHECK(ram->memory_version() == 0);
+    CHECK(ram->text().substr(0, 17) == " 0 0000\n 1 0001\n ");
+    ram->set_input(we, true, 30); // WE high: armed
+    CHECK(ram->text().find(">7 0111") != std::string::npos);
+    // Write 0xA at 3: the outputs follow while WE is low (write through), and the word stays.
+    set(a0, 0x3, 40);
+    set(d0, 0xA, 40);
+    CHECK(q() == 3);
+    ram->set_input(we, false, 50);
+    CHECK(q() == 0xA);
+    CHECK(ram->text().find("*3 1010") != std::string::npos);
+    set(d0, 0xC, 60); // still writing: follows D
+    CHECK(q() == 0xC);
+    ram->set_input(we, true, 70);
+    set(d0, 0x1, 80); // not writing any more
+    CHECK(q() == 0xC);
+    CHECK(ram->memory()[3] == 0xC);
+    CHECK(ram->memory_version() >= 2); // the bits of D change one after the other
+    set(a0, 0xF, 90);
+    CHECK(q() == 0xF);
+    // Contents from the Memory Viewer keep 4 bits a word.
+    ram->load_memory({0xFF, 0x12});
+    CHECK(ram->memory()[0] == 0xF);
+    CHECK(ram->memory()[1] == 0x2);
+    CHECK(ram->memory()[15] == 0);
+}
+
+TEST_CASE("devices: example 75 reads and writes the teaching RAM with digital inputs and outputs")
+{
+    // SN-308: no board, no supply pins, no ground symbol: the RAM runs in a chip group of its own.
+    REQUIRE(test::engine() != nullptr);
+    const auto loaded = io::load_project(
+        std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "02_Digital_logic/75_RAM_16x4_with_digital_inputs_and_outputs.snx");
+    REQUIRE(loaded.schematic.has_value());
+    sim::RunRequest request;
+    request.schematic = *loaded.schematic;
+    auto settings = request.schematic.settings();
+    settings.speed = 0.0;
+    request.schematic.set_settings(settings);
+    request.library = &device_library();
+    std::map<std::string, model::Id> ids;
+    for (const auto& c : request.schematic.components()) {
+        ids[c.designator] = c.id;
+    }
+    request.vectors = {"v_out1_s#branch", "v_out2_s#branch", "v_out3_s#branch", "v_out4_s#branch"};
+    std::string error;
+    std::vector<std::string> warnings;
+    sim::McuEnvironment environment;
+    environment.project_dir = std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "02_Digital_logic";
+    REQUIRE(sim::build_mcu_requests(request.schematic, device_library(), environment, request.mcus, error, &warnings));
+    for (const auto& w : warnings) {
+        std::printf("  warning: %s\n", w.c_str());
+    }
+    CHECK(warnings.empty());
+    REQUIRE(request.mcus.size() == 1);
+    CHECK(request.mcus[0].options.chips_only);
+    sim::SimulationSession session;
+    REQUIRE(session.start(request, error));
+    const auto begin = std::chrono::steady_clock::now();
+    auto wait = [&](double seconds) {
+        const double until = session.status().sim_time + seconds;
+        while (session.status().sim_time < until) {
+            REQUIRE(session.active());
+            REQUIRE(std::chrono::steady_clock::now() - begin < 120s);
+            std::this_thread::sleep_for(2ms);
+        }
+    };
+    // The word OUT1-OUT4 show: 1 mA in an output's indicator for a 1.
+    auto q = [&] {
+        int value = 0;
+        for (int b = 0; b < 4; ++b) {
+            value |= session.latest("v_out" + std::to_string(b + 1) + "_s#branch").value_or(0) > 0.5e-3 ? 1 << b : 0;
+        }
+        return value;
+    };
+    auto line = [&](int address) {
+        const auto text = session.device_texts().at(ids.at("U1"));
+        return text.substr(static_cast<std::size_t>(address) * 8, 7);
+    };
+    wait(0.05);
+    CHECK(line(0) == ">0 0000");
+    CHECK(line(5) == " 5 0101"); // the levels rising at the start wrote nothing
+    // Address 6 (IN2, IN3), then D = 1001 (IN5, IN8) and WE low (IN9): the word takes it.
+    session.set_control(ids.at("IN2"), 1.0);
+    session.set_control(ids.at("IN3"), 1.0);
+    wait(0.02);
+    CHECK(line(6) == ">6 0110");
+    CHECK(q() == 6);
+    session.set_control(ids.at("IN5"), 1.0);
+    session.set_control(ids.at("IN8"), 1.0);
+    wait(0.02);
+    CHECK(line(6) == ">6 0110"); // WE high: reading
+    session.set_control(ids.at("IN9"), 0.0);
+    wait(0.02);
+    CHECK(line(6) == "*6 1001");
+    session.set_control(ids.at("IN9"), 1.0);
+    wait(0.02);
+    session.set_control(ids.at("IN5"), 0.0);
+    wait(0.02);
+    CHECK(line(6) == ">6 1001"); // kept
+    CHECK(q() == 9);
+    const auto memory = session.device_memory(ids.at("U1"));
+    REQUIRE(memory.has_value());
+    CHECK((*memory)[6] == 9);
+    for (const auto& [id, message] : session.take_mcu_diagnostics()) {
+        std::printf("  diagnostic: %s\n", message.c_str());
+        CHECK(false);
+    }
+    session.stop();
+}
+
 TEST_CASE("devices: example 32 counts on a display through a ROM without a board")
 {
     // SN-212: the ROM is on no board pin; it runs in a chip group, its address read from the circuit.
     REQUIRE(test::engine() != nullptr);
-    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "32_ROM_lookup_seven_segment.snx");
+    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "02_Digital_logic/32_ROM_lookup_seven_segment.snx");
     REQUIRE(loaded.schematic.has_value());
     sim::RunRequest request;
     request.schematic = *loaded.schematic;
@@ -1355,7 +1499,7 @@ TEST_CASE("devices: example 32 counts on a display through a ROM without a board
     std::string error;
     std::vector<std::string> warnings;
     sim::McuEnvironment environment;
-    environment.project_dir = SIMNODUS_TEST_EXAMPLES_DIR;
+    environment.project_dir = std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "01_Analog_circuits";
     REQUIRE(sim::build_mcu_requests(request.schematic, device_library(), environment, request.mcus, error, &warnings));
     for (const auto& w : warnings) {
         std::printf("  warning: %s\n", w.c_str());
@@ -1389,6 +1533,11 @@ TEST_CASE("devices: example 32 counts on a display through a ROM without a board
     for (std::size_t k = 1; k < seen.size(); ++k) {
         CHECK(seen[k] == digits[static_cast<std::size_t>(first - digits.begin() + static_cast<long>(k)) % 16]);
     }
+    // The ROM is the group's first chip: the Memory Viewer still finds its bytes (SN-308).
+    const auto rom = session.device_memory(request.mcus[0].options.devices[0].component);
+    REQUIRE(rom.has_value());
+    CHECK(rom->size() == 16);
+    CHECK((*rom)[0] == 0x3F);
     for (const auto& [id, message] : session.take_mcu_diagnostics()) {
         std::printf("  diagnostic: %s\n", message.c_str());
         CHECK(false);
@@ -1400,7 +1549,7 @@ TEST_CASE("devices: example 33 writes and reads a parallel RAM from a Blue Pill"
 {
     // SN-212: the RAM on the board's pins; its contents reach the Memory Viewer's source.
     REQUIRE(test::engine() != nullptr);
-    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "33_Parallel_RAM_on_Blue_Pill.snx");
+    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "03_Blue_Pill_STM32F103/33_Parallel_RAM_on_Blue_Pill.snx");
     REQUIRE(loaded.schematic.has_value());
     sim::RunRequest request;
     request.schematic = *loaded.schematic;
@@ -1417,7 +1566,7 @@ TEST_CASE("devices: example 33 writes and reads a parallel RAM from a Blue Pill"
     std::string error;
     std::vector<std::string> warnings;
     sim::McuEnvironment environment;
-    environment.project_dir = SIMNODUS_TEST_EXAMPLES_DIR;
+    environment.project_dir = std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "01_Analog_circuits";
     REQUIRE(sim::build_mcu_requests(request.schematic, device_library(), environment, request.mcus, error, &warnings));
     for (const auto& w : warnings) {
         std::printf("  warning: %s\n", w.c_str());
@@ -1828,7 +1977,7 @@ TEST_CASE("devices: I2C sensors, clock and OLED answer like their datasheets (SN
 TEST_CASE("devices: example 38 shows a DS3231 and a BMP280 on an SSD1306 OLED (SN-223)")
 {
     REQUIRE(test::engine() != nullptr);
-    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "38_I2C_OLED_BMP280_DS3231.snx");
+    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "03_Blue_Pill_STM32F103/38_I2C_OLED_BMP280_DS3231.snx");
     REQUIRE(loaded.schematic.has_value());
     sim::RunRequest request;
     request.schematic = *loaded.schematic;
@@ -1849,7 +1998,7 @@ TEST_CASE("devices: example 38 shows a DS3231 and a BMP280 on an SSD1306 OLED (S
     std::string error;
     std::vector<std::string> warnings;
     sim::McuEnvironment environment;
-    environment.project_dir = SIMNODUS_TEST_EXAMPLES_DIR;
+    environment.project_dir = std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "01_Analog_circuits";
     REQUIRE(sim::build_mcu_requests(request.schematic, device_library(), environment, request.mcus, error, &warnings));
     CHECK(warnings.empty());
     REQUIRE(request.mcus.size() == 1);
@@ -2132,7 +2281,7 @@ TEST_CASE("devices: example 39 reads voltages, sets a digital potentiometer, wri
 {
     REQUIRE(test::engine() != nullptr);
     const auto loaded =
-        io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "39_SPI_ADC_digital_pot_flash_HX711.snx");
+        io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "03_Blue_Pill_STM32F103/39_SPI_ADC_digital_pot_flash_HX711.snx");
     REQUIRE(loaded.schematic.has_value());
     sim::RunRequest request;
     request.schematic = *loaded.schematic;
@@ -2148,7 +2297,7 @@ TEST_CASE("devices: example 39 reads voltages, sets a digital potentiometer, wri
     std::string error;
     std::vector<std::string> warnings;
     sim::McuEnvironment environment;
-    environment.project_dir = SIMNODUS_TEST_EXAMPLES_DIR;
+    environment.project_dir = std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "01_Analog_circuits";
     REQUIRE(sim::build_mcu_requests(request.schematic, device_library(), environment, request.mcus, error, &warnings));
     for (const auto& w : warnings) {
         std::printf("  warning: %s\n", w.c_str());
@@ -2410,7 +2559,7 @@ TEST_CASE("devices: example 40 reads a DS18B20, a DHT22 and an HC-SR04 and light
 {
     REQUIRE(test::engine() != nullptr);
     const auto loaded =
-        io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "40_OneWire_DS18B20_DHT22_HCSR04_WS2812.snx");
+        io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "03_Blue_Pill_STM32F103/40_OneWire_DS18B20_DHT22_HCSR04_WS2812.snx");
     REQUIRE(loaded.schematic.has_value());
     sim::RunRequest request;
     request.schematic = *loaded.schematic;
@@ -2427,7 +2576,7 @@ TEST_CASE("devices: example 40 reads a DS18B20, a DHT22 and an HC-SR04 and light
     std::string error;
     std::vector<std::string> warnings;
     sim::McuEnvironment environment;
-    environment.project_dir = SIMNODUS_TEST_EXAMPLES_DIR;
+    environment.project_dir = std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "01_Analog_circuits";
     REQUIRE(sim::build_mcu_requests(request.schematic, device_library(), environment, request.mcus, error, &warnings));
     // The WS2812B on 5 V wants 3.5 V on DIN; the Blue Pill gives 3.3 V (a warning only).
     REQUIRE(warnings.size() == 1);
@@ -2498,7 +2647,7 @@ TEST_CASE("devices: example 41 turns a servo, a stepper and a DC motor with an e
 {
     REQUIRE(test::engine() != nullptr);
     const auto loaded =
-        io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "41_Motion_encoder_servo_stepper_L298.snx");
+        io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "04_Motors_and_energy/41_Motion_encoder_servo_stepper_L298.snx");
     REQUIRE(loaded.schematic.has_value());
     sim::RunRequest request;
     request.schematic = *loaded.schematic;
@@ -2516,7 +2665,7 @@ TEST_CASE("devices: example 41 turns a servo, a stepper and a DC motor with an e
     std::string error;
     std::vector<std::string> warnings;
     sim::McuEnvironment environment;
-    environment.project_dir = SIMNODUS_TEST_EXAMPLES_DIR;
+    environment.project_dir = std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "01_Analog_circuits";
     REQUIRE(sim::build_mcu_requests(request.schematic, device_library(), environment, request.mcus, error, &warnings));
     CHECK(warnings.empty());
     sim::SimulationSession session;
@@ -2569,7 +2718,7 @@ TEST_CASE("devices: example 64 runs a BLDC motor six-step from its Hall sensors 
     // Also the STM32's watched pins starting low: the Hall outputs are on from
     // the start, and PB5-PB7's pull-ups must not hide that (E-11).
     REQUIRE(test::engine() != nullptr);
-    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "64_BLDC_six_step_Hall_sensors.snx");
+    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "04_Motors_and_energy/64_BLDC_six_step_Hall_sensors.snx");
     REQUIRE(loaded.schematic.has_value());
     sim::RunRequest request;
     request.schematic = *loaded.schematic;
@@ -2586,7 +2735,7 @@ TEST_CASE("devices: example 64 runs a BLDC motor six-step from its Hall sensors 
     std::string error;
     std::vector<std::string> warnings;
     sim::McuEnvironment environment;
-    environment.project_dir = SIMNODUS_TEST_EXAMPLES_DIR;
+    environment.project_dir = std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "01_Analog_circuits";
     REQUIRE(sim::build_mcu_requests(request.schematic, device_library(), environment, request.mcus, error, &warnings));
     CHECK(warnings.empty());
     sim::SimulationSession session;
@@ -2622,7 +2771,7 @@ TEST_CASE("devices: example 64 runs a BLDC motor six-step from its Hall sensors 
 TEST_CASE("devices: example 65 holds id at 0 and iq at its setpoint with field-oriented control (SN-277)")
 {
     REQUIRE(test::engine() != nullptr);
-    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "65_PMSM_field_oriented_control.snx");
+    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "04_Motors_and_energy/65_PMSM_field_oriented_control.snx");
     REQUIRE(loaded.schematic.has_value());
     sim::RunRequest request;
     request.schematic = *loaded.schematic;
@@ -2638,7 +2787,7 @@ TEST_CASE("devices: example 65 holds id at 0 and iq at its setpoint with field-o
     std::string error;
     std::vector<std::string> warnings;
     sim::McuEnvironment environment;
-    environment.project_dir = SIMNODUS_TEST_EXAMPLES_DIR;
+    environment.project_dir = std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "01_Analog_circuits";
     REQUIRE(sim::build_mcu_requests(request.schematic, device_library(), environment, request.mcus, error, &warnings));
     CHECK(warnings.empty());
     sim::SimulationSession session;
@@ -2671,7 +2820,7 @@ TEST_CASE("devices: example 65 holds id at 0 and iq at its setpoint with field-o
 TEST_CASE("devices: example 42 plays a scale the passive buzzer reports and beeps the active one (SN-228)")
 {
     REQUIRE(test::engine() != nullptr);
-    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "42_Buzzers_melody_and_beep.snx");
+    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "03_Blue_Pill_STM32F103/42_Buzzers_melody_and_beep.snx");
     REQUIRE(loaded.schematic.has_value());
     sim::RunRequest request;
     request.schematic = *loaded.schematic;
@@ -2683,7 +2832,7 @@ TEST_CASE("devices: example 42 plays a scale the passive buzzer reports and beep
     std::string error;
     std::vector<std::string> warnings;
     sim::McuEnvironment environment;
-    environment.project_dir = SIMNODUS_TEST_EXAMPLES_DIR;
+    environment.project_dir = std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "01_Analog_circuits";
     REQUIRE(sim::build_mcu_requests(request.schematic, device_library(), environment, request.mcus, error, &warnings));
     CHECK(warnings.empty());
     sim::SimulationSession session;
@@ -2818,7 +2967,7 @@ TEST_CASE("devices: a Blue Pill's USART talks through the serial port part (SN-2
     REQUIRE(test::engine() != nullptr);
     // Example 09's firmware greets, echoes what it receives and switches its LED
     // with '1' and '0'; a loopback port sends every byte straight back to it.
-    auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "09_Blue_Pill_serial_terminal.snx");
+    auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "03_Blue_Pill_STM32F103/09_Blue_Pill_serial_terminal.snx");
     REQUIRE(loaded.schematic.has_value());
     auto schematic = *loaded.schematic;
     model::Id board = model::no_id;
@@ -2854,7 +3003,7 @@ TEST_CASE("devices: a Blue Pill's USART talks through the serial port part (SN-2
     std::string error;
     std::vector<std::string> warnings;
     sim::McuEnvironment environment;
-    environment.project_dir = SIMNODUS_TEST_EXAMPLES_DIR;
+    environment.project_dir = std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "01_Analog_circuits";
     REQUIRE(sim::build_mcu_requests(request.schematic, library, environment, request.mcus, error, &warnings));
     CHECK(warnings.empty());
     sim::SimulationSession session;

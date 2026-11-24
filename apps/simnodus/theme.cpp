@@ -89,6 +89,7 @@ void apply(QApplication& application, Scheme scheme)
     plot_axis = c.plot_axis;
     readout_background = c.readout;
     label_background = c.label;
+    net_highlight = canvas_colors(use_dark).net_highlight;
 
     application.setStyle(QStyleFactory::create(QStringLiteral("Fusion")));
     QPalette palette;
@@ -120,6 +121,39 @@ void apply(QApplication& application, Scheme scheme)
     for (auto* widget : QApplication::allWidgets()) {
         widget->update();
     }
+}
+
+CanvasColors canvas_colors()
+{
+    return {canvas_background, grid_minor, grid_major, ink, selection, muted_text, bus, pin_high, pin_low,
+        plot_background, plot_grid, plot_axis, readout_background, label_background, net_highlight};
+}
+
+CanvasColors canvas_colors(bool dark)
+{
+    const Colors& c = dark ? dark_colors : light_colors;
+    return {c.canvas, c.grid_minor, c.grid_major, c.ink, c.selection, c.muted, c.bus, QColor(0xe0, 0x3a, 0x2f),
+        QColor(0x2f, 0x5f, 0xd0), c.plot, c.plot_grid, c.plot_axis, c.readout, c.label,
+        dark ? QColor(0xff, 0xc9, 0x40) : QColor(0xff, 0xa8, 0x00)};
+}
+
+void set_canvas_colors(const CanvasColors& colors)
+{
+    canvas_background = colors.canvas;
+    grid_minor = colors.grid_minor;
+    grid_major = colors.grid_major;
+    ink = colors.ink;
+    selection = colors.selection;
+    muted_text = colors.muted;
+    bus = colors.bus;
+    pin_high = colors.pin_high;
+    pin_low = colors.pin_low;
+    plot_background = colors.plot;
+    plot_grid = colors.plot_grid;
+    plot_axis = colors.plot_axis;
+    readout_background = colors.readout;
+    label_background = colors.label;
+    net_highlight = colors.net_highlight;
 }
 
 QLabel* make_caption(const QString& text)

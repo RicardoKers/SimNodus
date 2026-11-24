@@ -423,53 +423,6 @@ def a3144():
     }
 
 
-def pc817():
-    return {
-        "type": "pc817",
-        "name": "Optocoupler PC817",
-        "category": CATEGORY,
-        "prefix": "U",
-        "description": "Phototransistor optocoupler: the LED current from A to K lets the transistor pass up to "
-                       "CTR × that current from C to E; input and output are isolated",
-        "symbol": {
-            "graphics": [
-                {"rect": [-4, -3, 8, 6]},
-                {"line": [-6, -2, -2, -2]}, {"line": [-2, -2, -2, -0.8]},
-                {"polygon": [-3, -0.8, -1, -0.8, -2, 0.8]},
-                {"line": [-3, 0.8, -1, 0.8]},
-                {"line": [-2, 0.8, -2, 2]}, {"line": [-6, 2, -2, 2]},
-                {"line": [-0.6, -0.6, 0.6, 0]},
-                {"polygon": [0.9, 0.15, 0.3, 0.2, 0.55, -0.3], "fill": True},
-                {"line": [-0.6, 0.4, 0.6, 1.0]},
-                {"polygon": [0.9, 1.15, 0.3, 1.2, 0.55, 0.7], "fill": True},
-                {"line": [1.4, -1, 1.4, 1]},
-                {"line": [1.4, -0.4, 2.4, -1.4]}, {"line": [2.4, -1.4, 2.4, -2]}, {"line": [2.4, -2, 6, -2]},
-                {"line": [1.4, 0.4, 2.4, 1.4]}, {"line": [2.4, 1.4, 2.4, 2]}, {"line": [2.4, 2, 6, 2]},
-                {"polygon": [2.4, 1.4, 1.8, 1.25, 2.25, 0.8], "fill": True},
-                {"text": "A", "at": [-3.4, -2.4], "size": 0.5}, {"text": "K", "at": [-3.4, 2.4], "size": 0.5},
-                {"text": "C", "at": [3.4, -2.4], "size": 0.5}, {"text": "E", "at": [3.4, 2.4], "size": 0.5},
-            ],
-            "pins": [pin("A", -6, -2, "left"), pin("K", -6, 2, "left"), pin("C", 6, -2, "right"),
-                     pin("E", 6, 2, "right")],
-        },
-        "designator_offset": [5, -5],
-        "value_offset": [5, 5],
-        "value_parameter": "CTR",
-        "parameters": [
-            number("CTR", "Current transfer ratio", "%", "100",
-                   "Collector current / LED current (PC817: 50 to 600 %, by rank A to D)", "10", "600"),
-        ],
-        "readout": {"kind": "current", "element": "V_{ref}_led"},
-        "spice": [
-            "V_{ref}_led {node:A} a_{ref} DC 0",
-            "D_{ref} a_{ref} {node:K} DIR_{ref}",
-            "B_{ref}_c {node:C} {node:E} I={= CTR / 100}*max(I(V_{ref}_led),0)*tanh(max(V({node:C},{node:E}),0)/0.15)",
-            "R_{ref}_ce {node:C} {node:E} 100Meg",
-            ".model DIR_{ref} D(IS=1e-14 N=1.5 RS=3 CJO=30p BV=6 IBV=10u)",
-        ],
-    }
-
-
 def solenoid():
     pull_in = "0.6 * V / Rcoil"
     release = "0.25 * V / Rcoil"
@@ -629,7 +582,7 @@ def pir():
     }
 
 
-PARTS = [lm35, ntc, pt100, thermocouple, ldr, bpw34, acs712, load_cell, a3144, pc817, solenoid,
+PARTS = [lm35, ntc, pt100, thermocouple, ldr, bpw34, acs712, load_cell, a3144, solenoid,
          lambda: inductive("NPN"), lambda: inductive("PNP"), transmitter, pir]
 
 

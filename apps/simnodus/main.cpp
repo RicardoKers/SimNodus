@@ -106,13 +106,13 @@ int check_engine_process(const std::filesystem::path& app_dir)
     folders.emplace_back(SIMNODUS_SOURCE_EXAMPLES_DIR); // a build tree
 #endif
     for (const auto& examples : folders) {
-        if (auto loaded = simnodus::io::load_project(examples / "01_LED_and_push_button.snx"); loaded.schematic) {
+        if (auto loaded = simnodus::io::load_project(examples / "01_Analog_circuits/01_LED_and_push_button.snx"); loaded.schematic) {
             circuit = std::move(loaded.schematic);
             break;
         }
     }
     if (!circuit || library.empty()) {
-        std::printf("FAIL: the library or examples/01_LED_and_push_button.snx was not found next to the application\n");
+        std::printf("FAIL: the library or examples/01_Analog_circuits/01_LED_and_push_button.snx was not found next to the application\n");
         return 1;
     }
     simnodus::ui::EngineProcess engine;

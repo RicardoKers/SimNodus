@@ -223,6 +223,8 @@ public:
     void write_register(model::Id board, std::uint32_t address, unsigned size, std::uint32_t value) override;
 
 private:
+    // The key of `component`'s memory in the runner of the group `group` (see device_memory).
+    std::uint64_t memory_key(model::Id group, model::Id component) const;
     bool start_mcus();
     void stop_mcus();
     std::optional<std::string> mcu_failure() const;

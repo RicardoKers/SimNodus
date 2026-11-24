@@ -179,6 +179,7 @@ private:
     void add_recent(const QString& path);
     void rebuild_recent_menu();
     void rebuild_examples_menu();
+    void open_example(const QString& path);
     void ask_label_name(int x, int y);
     void ask_note_text(model::Point at, model::Id note);
     void ask_bus_name(std::vector<model::Point> points);
@@ -193,6 +194,7 @@ private:
     void open_block(model::Id component);
     void update_block(model::Id component);
     void export_chart(model::Id component, bool png); // SN-281
+    void export_diagram(); // SN-310
     void offer_block_updates();
     // A block's file on disk: its source resolved against the project's folder.
     QString block_path(const model::Block& block) const;

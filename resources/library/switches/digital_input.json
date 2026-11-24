@@ -6,21 +6,21 @@
   "description": "A logic level, 0 or 1; click it (or press its key) to change it while running",
   "designator_offset": [
     -3,
-    -3
+    0
   ],
   "value_offset": [
-    -3,
-    2
+    -7,
+    0
   ],
   "value_parameter": "key",
   "symbol": {
     "graphics": [
       {
         "rect": [
-          -3,
-          -1.5,
-          3,
-          3
+          -2.4,
+          -0.8,
+          2.4,
+          1.6
         ]
       },
       {
@@ -37,20 +37,20 @@
         {
           "text": "0",
           "at": [
-            -1.5,
+            -1.2,
             0
           ],
-          "size": 1.4
+          "size": 1.1
         }
       ],
       "1": [
         {
           "text": "1",
           "at": [
-            -1.5,
+            -1.2,
             0
           ],
-          "size": 1.4
+          "size": 1.1
         }
       ]
     },
@@ -104,5 +104,6 @@
   "spice": [
     "B_{ref} o_{ref} 0 V={Vhigh}*V({control})",
     "R_{ref} o_{ref} {node:1} 50"
-  ]
+  ],
+  "hidden_ground": true
 }

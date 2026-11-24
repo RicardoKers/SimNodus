@@ -9,12 +9,12 @@ set_target_properties(simnodus-cli PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_
 
 if(BUILD_TESTING)
     # The command line itself: a project check, and a run when ngspice is known.
-    add_test(NAME cli-check COMMAND simnodus-cli check "${PROJECT_SOURCE_DIR}/examples/01_LED_and_push_button.snx")
+    add_test(NAME cli-check COMMAND simnodus-cli check "${PROJECT_SOURCE_DIR}/examples/01_Analog_circuits/01_LED_and_push_button.snx")
     set_tests_properties(cli-check PROPERTIES PASS_REGULAR_EXPRESSION "\"errors\":0")
     if(SIMNODUS_NGSPICE_LIBRARY)
         add_test(NAME cli-run COMMAND simnodus-cli --ngspice "${SIMNODUS_NGSPICE_LIBRARY}"
             --ngspice-scripts "${PROJECT_SOURCE_DIR}/resources/ngspice"
-            run "${PROJECT_SOURCE_DIR}/examples/01_LED_and_push_button.snx" --time 20m --event "10m SW1 1")
+            run "${PROJECT_SOURCE_DIR}/examples/01_Analog_circuits/01_LED_and_push_button.snx" --time 20m --event "10m SW1 1")
         set_tests_properties(cli-run PROPERTIES PASS_REGULAR_EXPRESSION "\"applied_at\"" TIMEOUT 120)
     endif()
 endif()

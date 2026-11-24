@@ -7,6 +7,7 @@
 #include "symbol_painter.hpp"
 #include "theme.hpp"
 
+#include "devices/device.hpp"
 #include "model/engineering.hpp"
 
 #include <QFileInfo>
@@ -610,6 +611,10 @@ private:
             paint_pixels(painter, live);
             return;
         }
+        if (screen.listing) {
+            paint_listing(painter, live);
+            return;
+        }
         const QRectF glass(screen.at.x, screen.at.y, screen.size.x, screen.size.y);
         auto parameter = [&](const std::string& name, int fallback) {
             const auto it = component_.parameters.find(name);
@@ -647,6 +652,96 @@ private:
             }
         }
     }
+
+    // A listing (SN-308: the teaching RAM's words): the chip's lines in the
+    // ink, the marked line ('>' read, '*' written) on a colored band; while
+    // nothing runs, the text of a chip made from the part's parameters.
+    void paint_listing(QPainter& painter, const LiveState& live) const
+    {
+        const auto& screen = *definition_->screen;
+        const QRectF area(screen.at.x, screen.at.y, screen.size.x, screen.size.y);
+        QString text;
+        if (const auto it = live.texts.find(component_.id); live.running && it != live.texts.end()) {
+            text = it->second;
+        } else {
+            text = idle_text();
+        }
+        const QStringList lines = text.split(QLatin1Char('\n'));
+        if (text.isEmpty() || lines.isEmpty()) {
+            return;
+        }
+        qsizetype longest = 1;
+        for (const auto& line : lines) {
+            longest = std::max(longest, line.size() - 1);
+        }
+        const double row = area.height() / static_cast<double>(lines.size());
+        // Text height in symbol units; a monospaced character is about 0.55 of it wide.
+        const double size = std::min(row * 0.8, area.width() / static_cast<double>(longest) / 0.62);
+        QFont font(QStringLiteral("Consolas"));
+        font.setStyleHint(QFont::Monospace);
+        font.setPixelSize(100); // scaled below: tiny font sizes do not rasterize well
+        for (qsizetype i = 0; i < lines.size(); ++i) {
+            const QRectF band(area.left(), area.top() + static_cast<double>(i) * row, area.width(), row);
+            const QChar mark = lines[i].isEmpty() ? QLatin1Char(' ') : lines[i].front();
+            if (mark == QLatin1Char('>') || mark == QLatin1Char('*')) {
+                QColor fill = mark == QLatin1Char('*') ? theme::pin_high : theme::selection;
+                fill.setAlphaF(0.3f);
+                painter.setPen(Qt::NoPen);
+                painter.setBrush(fill);
+                painter.drawRect(band);
+            }
+            // Upright whatever the part's orientation, as the symbol's texts.
+            painter.save();
+            const QTransform world = painter.worldTransform();
+            const QPointF at = world.map(band.center());
+            const double scale = std::sqrt(std::abs(world.determinant())) * size / 100.0;
+            painter.setWorldTransform(QTransform::fromTranslate(at.x(), at.y()));
+            painter.scale(scale, scale);
+            painter.setFont(font);
+            painter.setPen(theme::ink);
+            painter.drawText(QRectF(-500, -100, 1000, 200), Qt::AlignCenter | Qt::TextDontClip, lines[i].mid(1));
+            painter.restore();
+        }
+    }
+
+    // The text a chip of this part shows before a run, from its parameters
+    // (made again only when they change).
+    QString idle_text() const
+    {
+        if (!definition_->device) {
+            return {};
+        }
+        if (idle_parameters_ != component_.parameters || !idle_made_) {
+            idle_parameters_ = component_.parameters;
+            idle_made_ = true;
+            idle_text_.clear();
+            std::vector<std::string> pins;
+            for (const auto& pin : definition_->pins) {
+                if (pin.name != definition_->device->supply_pin && pin.name != definition_->device->ground_pin) {
+                    pins.push_back(pin.name);
+                }
+            }
+            auto parameters = definition_->default_parameters();
+            for (const auto& [name, value] : component_.parameters) {
+                parameters[name] = value;
+            }
+            std::string error;
+            if (const auto chip = devices::make_device(definition_->device->kind, pins, parameters, error)) {
+                // Nothing is addressed before a run: no line marked.
+                QStringList lines = QString::fromStdString(chip->text()).split(QLatin1Char('\n'));
+                for (auto& line : lines) {
+                    if (!line.isEmpty()) {
+                        line[0] = QLatin1Char(' ');
+                    }
+                }
+                idle_text_ = lines.join(QLatin1Char('\n'));
+            }
+        }
+        return idle_text_;
+    }
+    mutable std::map<std::string, std::string> idle_parameters_;
+    mutable bool idle_made_ = false;
+    mutable QString idle_text_;
 
     // A graphic display (SN-223): black glass, the chip's pixels while it is on.
     void paint_pixels(QPainter& painter, const LiveState& live) const
@@ -1243,6 +1338,49 @@ private:
     QRectF bounds_;
 };
 
+// A highlighted net (SN-309): a wide amber band under its wires, dots on its
+// pins and label points; drawn under the wires so that they stay readable.
+class NetHighlightItem : public QGraphicsItem {
+public:
+    NetHighlightItem() { setZValue(0.5); }
+
+    void set(QPainterPath wires, std::vector<QPointF> points)
+    {
+        prepareGeometryChange();
+        wires_ = std::move(wires);
+        points_ = std::move(points);
+        bounds_ = wires_.boundingRect();
+        for (const auto& p : points_) {
+            const QRectF r(p - QPointF(6, 6), QSizeF(12, 12));
+            bounds_ = bounds_.isNull() ? r : bounds_.united(r);
+        }
+        bounds_ = bounds_.adjusted(-6, -6, 6, 6);
+        update();
+    }
+
+    QRectF boundingRect() const override { return bounds_; }
+
+    void paint(QPainter* painter, const QStyleOptionGraphicsItem*, QWidget*) override
+    {
+        painter->setRenderHint(QPainter::Antialiasing);
+        QColor band = theme::net_highlight;
+        band.setAlphaF(0.55f);
+        painter->setPen(QPen(band, 7.0, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+        painter->setBrush(Qt::NoBrush);
+        painter->drawPath(wires_);
+        painter->setPen(Qt::NoPen);
+        painter->setBrush(band);
+        for (const auto& p : points_) {
+            painter->drawEllipse(p, 4.5, 4.5);
+        }
+    }
+
+private:
+    QPainterPath wires_;
+    std::vector<QPointF> points_;
+    QRectF bounds_;
+};
+
 // ---- Scene --------------------------------------------------------------
 
 SchematicScene::SchematicScene(Document& document, QObject* parent) : QGraphicsScene(parent), document_(document)
@@ -1251,6 +1389,9 @@ SchematicScene::SchematicScene(Document& document, QObject* parent) : QGraphicsS
     setItemIndexMethod(QGraphicsScene::NoIndex);
     decorations_ = new DecorationItem;
     addItem(decorations_);
+    net_highlight_ = new NetHighlightItem;
+    net_highlight_->setVisible(false);
+    addItem(net_highlight_);
     shown_ = &document.schematic();
     connect(&document, &Document::changed, this, &SchematicScene::sync);
     sync();
@@ -1371,7 +1512,105 @@ void SchematicScene::rebuild(const model::Schematic& s)
         }
     }
     decorations_->set(connectivity_.junctions, open_ends);
+    update_net_highlight();
     emit synced();
+}
+
+std::optional<SchematicScene::NetAnchor> SchematicScene::net_anchor_at(const model::Point& point) const
+{
+    if (const auto pin = pin_at(point); pin && connectivity_.pin_net.count(*pin)) {
+        return NetAnchor{pin->first, pin->second};
+    }
+    model::Id wire = model::no_id;
+    if (wire_at(point, &wire) && connectivity_.wire_net.count(wire)) {
+        return NetAnchor{wire, {}};
+    }
+    for (const auto& l : shown_->labels()) {
+        if (l.position == point && connectivity_.label_net.count(l.id)) {
+            return NetAnchor{l.id, {}};
+        }
+    }
+    return std::nullopt;
+}
+
+void SchematicScene::highlight_net(std::optional<NetAnchor> anchor)
+{
+    highlight_anchor_ = std::move(anchor);
+    update_net_highlight();
+}
+
+void SchematicScene::update_net_highlight()
+{
+    highlighted_net_.reset();
+    if (highlight_anchor_) {
+        const auto& a = *highlight_anchor_;
+        if (!a.pin.empty()) {
+            if (const auto it = connectivity_.pin_net.find({a.item, a.pin}); it != connectivity_.pin_net.end()) {
+                highlighted_net_ = it->second;
+            }
+        } else if (const auto wire = connectivity_.wire_net.find(a.item); wire != connectivity_.wire_net.end()) {
+            highlighted_net_ = wire->second;
+        } else if (const auto label = connectivity_.label_net.find(a.item); label != connectivity_.label_net.end()) {
+            highlighted_net_ = label->second;
+        }
+        if (!highlighted_net_) {
+            highlight_anchor_.reset(); // the anchor was deleted or disconnected
+        }
+    }
+    if (!highlighted_net_) {
+        net_highlight_->setVisible(false);
+        return;
+    }
+    const int net = *highlighted_net_;
+    QPainterPath wires;
+    for (const auto& w : shown_->wires()) {
+        const auto it = connectivity_.wire_net.find(w.id);
+        if (it == connectivity_.wire_net.end() || it->second != net || w.points.empty()) {
+            continue;
+        }
+        wires.moveTo(to_scene(w.points.front()));
+        for (std::size_t i = 1; i < w.points.size(); ++i) {
+            wires.lineTo(to_scene(w.points[i]));
+        }
+    }
+    std::vector<QPointF> points;
+    for (const auto& [id, pin] : connectivity_.nets[static_cast<std::size_t>(net)].pins) {
+        const auto* c = shown_->component(id);
+        const auto* d = c ? library().find(c->type) : nullptr;
+        const auto* p = d ? d->pin(pin) : nullptr;
+        if (p) {
+            points.push_back(to_scene(library::pin_position(*d, *p, *c)));
+        }
+    }
+    for (const auto& [id, n] : connectivity_.label_net) {
+        if (const auto* l = shown_->label(id); l && n == net) {
+            points.push_back(to_scene(l->position));
+        }
+    }
+    net_highlight_->set(std::move(wires), std::move(points));
+    net_highlight_->setVisible(true);
+}
+
+QString SchematicScene::net_summary(int net) const
+{
+    if (net < 0 || static_cast<std::size_t>(net) >= connectivity_.nets.size()) {
+        return {};
+    }
+    const auto& n = connectivity_.nets[static_cast<std::size_t>(net)];
+    QStringList pins;
+    for (const auto& [id, pin] : n.pins) {
+        if (const auto* c = shown_->component(id)) {
+            pins << QString::fromStdString(c->designator + "." + pin);
+        }
+    }
+    pins.sort();
+    const auto count = pins.size();
+    if (pins.size() > 12) {
+        pins = pins.mid(0, 12);
+        pins << QStringLiteral("...");
+    }
+    return tr("Net %1: %2 (%n pin(s))", nullptr, static_cast<int>(count))
+        .arg(QString::fromStdString(n.name), pins.join(QStringLiteral(", ")));
 }
 
 std::set<model::Id> SchematicScene::selected_ids() const

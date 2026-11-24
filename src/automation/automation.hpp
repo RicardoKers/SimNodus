@@ -151,6 +151,8 @@ public:
 
     // Drops the current run, when something else started or ended one.
     void forget_run();
+    // Where relative paths start (hello's "directory"); empty: the current folder.
+    const std::filesystem::path& directory() const { return directory_; }
 
     struct Run; // the current run: its signals and messages
 

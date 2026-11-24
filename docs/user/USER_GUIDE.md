@@ -73,7 +73,14 @@ voltmeter, **Shift+I** ammeter.
 
 A **red circle** marks a pin or wire end that is not connected; a **dot**
 marks a junction. Hovering a wire or pin shows its net name. Every circuit
-needs a **ground**.
+needs a **ground** (except one of digital inputs and outputs, logic gates
+and the RAM 16x4 alone).
+
+**Highlight a net:** point at a wire, a pin or a net label and press **H**
+(View > Highlight Net), or right-click it and choose Highlight Net: every
+wire, pin and label of that net is marked in amber, and the status bar lists
+its pins. H again, Esc or a right-click > Clear Net Highlight ends it; with
+the mouse away from the canvas, H uses the selected wire.
 
 ### Editing
 
@@ -99,7 +106,7 @@ invalid value is outlined in red and not applied.
 |---|---|
 | **Passive** | Resistor, capacitor, inductor (ideal); potentiometer; transformer (primary P1-P2, secondary S1-S2) |
 | **Sources** | DC voltage source, battery (with internal resistance), DC current source (out of +), adjustable voltage and current sources (turned while running between a lower and an upper limit), voltage- and current-controlled voltage and current sources (VCVS, VCCS, CCVS, CCCS), pulse generator, sine generator, solar panels of 1 W, 5 W, 10 W and 20 W, lithium-ion and LiFePO4 batteries (with or without protection), ground |
-| **Switches & Controls** | SPST switch, SPDT changeover switch, push buttons NO (closed while pressed) and NC (open while pressed) with optional contact bounce; digital input (one pin at 0 V or at 3.3 V or 5 V, changed with a click: a logic level without a supply, a switch and a resistor); a keyboard key for each of them; 4x4 matrix keypad; two-axis joystick module |
+| **Switches & Controls** | SPST switch, SPDT changeover switch, push buttons NO (closed while pressed) and NC (open while pressed) with optional contact bounce; digital input (one pin at 0 V or at 3.3 V or 5 V, changed with a click: a logic level without a supply, a switch and a resistor; small enough to stack on a chip's pins); a keyboard key for each of them; 4x4 matrix keypad; two-axis joystick module |
 | **Instruments** | Voltmeter (1 GΩ input), ammeter (ideal; current into +), chart recorder (two channels plotted on the schematic over the whole run, see [Chart recorder](#chart-recorder)) |
 | **Semiconductors** | Diode (silicon), Schottky, germanium, Zener, LED (glows with its current, color selectable), NPN and PNP transistors, N- and P-channel MOSFETs (body tied to source) |
 | **Simplified models** | Teaching models: diode with a fixed forward voltage; NPN and PNP with fixed Vbe, a beta shown on the symbol and a saturation voltage |
@@ -107,15 +114,15 @@ invalid value is outlined in red and not applied.
 | **Logic gates** | NOT, AND, OR, NAND, NOR, XOR (74HC-like, with a hidden supply) |
 | **Logic chips (DIP)** | Real 74HC and CD4000 chips with every pin in its package position and VCC/GND to wire: 74HC00, 74HC02, 74HC04, 74HC08, 74HC14 (Schmitt), 74HC32, 74HC86, 74HC74, 74HC138, 74HC157, 74HC245, 74HC161, 74HC193, 74HC165, CD4017 (the 74HC595 is under Chips for microcontrollers) |
 | **Flip-flops & counters** | D and SR latches; D, JK and T flip-flops (rising edge); 4-bit counter, decade counter, 4-bit shift register. Q̅ and CLR may stay unconnected |
-| **Displays** | 7-segment displays (common cathode, common anode) with the pins of a real display; a 4-digit 7-segment display and an 8x8 LED matrix for multiplexing, also as a much faster digital matrix (dots lit from logic levels, no LEDs in the circuit); a character LCD (HD44780, 1-4 rows of 8-40 characters) that shows its text on the schematic and works with a board; a 128x64 or 128x32 SSD1306 OLED (I2C) that shows its picture; a strip of WS2812B RGB LEDs; 4511 (CMOS, common cathode) and 7447 (TTL, common anode, open-collector) decoders with every pin of the chip; generic hex decoders 0-F |
-| **Power & interface** | IRLZ44N logic-level power MOSFET, LM2596 buck regulator (chip and adjustable module), TL494 PWM controller, MAX485 RS-485 and MAX232 RS-232 transceivers |
+| **Displays** | Digital output (shows the level on its pin, 0 or 1, and lights while it is 1; the counterpart of the digital input); 7-segment displays (common cathode, common anode) with the pins of a real display; a 4-digit 7-segment display and an 8x8 LED matrix for multiplexing, also as a much faster digital matrix (dots lit from logic levels, no LEDs in the circuit); a character LCD (HD44780, 1-4 rows of 8-40 characters) that shows its text on the schematic and works with a board; a 128x64 or 128x32 SSD1306 OLED (I2C) that shows its picture; a strip of WS2812B RGB LEDs; 4511 (CMOS, common cathode) and 7447 (TTL, common anode, open-collector) decoders with every pin of the chip; generic hex decoders 0-F |
+| **Power & interface** | PC817 (4 pins) and 4N25 (6 pins, with the base) optocouplers, IRLZ44N logic-level power MOSFET, LM2596 buck regulator (chip and adjustable module), TL494 PWM controller, MAX485 RS-485 and MAX232 RS-232 transceivers |
 | **Motors & motion** | L298 dual H-bridge, ULN2003 Darlington array, bipolar stepper motor, 28BYJ-48 unipolar stepper, rotary encoder, hobby servo (the steppers show their shaft angle, the servo its horn) |
 | **Electromechanical** | Active and passive buzzers (heard on Windows), lamp (glows with its current), relay (coil and changeover contact; add a flyback diode), DC motor (shows its speed; its load is dragged while running, from 0 to 100 % of the stall torque, so the current rises and the speed falls) |
-| **Memories** | Parallel ROM and static RAM of 16 bytes to 64 KB (A0-A15, D0-D7, CE, OE, WE), with or without a board; contents from `.bin` or Intel `.hex` files and in the Memory Viewer |
+| **Memories** | Parallel ROM and static RAM of 16 bytes to 64 KB (A0-A15, D0-D7, CE, OE, WE), with or without a board; contents from `.bin` or Intel `.hex` files and in the Memory Viewer; RAM 16x4 for teaching (16 words of 4 bits listed on its symbol) |
 | **Converters** | Ideal A/D and D/A converters with 4, 8, 10 or 12 bits; the reference is a pin (VREF), the logic levels follow a hidden supply like the gates |
 | **Microcontrollers** | Blue Pill (STM32F103C8) running your ELF firmware; ESP32-C3-DevKitM-1 and ESP32-C3 SuperMini running a flash image (`.bin`), experimental (see [MICROCONTROLLER.md](MICROCONTROLLER.md#esp32-c3-board-experimental)); ATmega8-PU and ATmega8A-PU chips running `.hex` or `.elf` firmware with their fuses (see [MICROCONTROLLER.md](MICROCONTROLLER.md#atmega8-and-atmega8a)); ATmega328P-PU and ATmega328-PU, experimental (see [MICROCONTROLLER.md](MICROCONTROLLER.md#atmega328-and-atmega328p-experimental)); ATmega32-PU and ATmega32A-PU (PDIP-40), experimental (see [MICROCONTROLLER.md](MICROCONTROLLER.md#atmega32-and-atmega32a-experimental)); Arduino UNO R3 with Optiboot, uploads from the Arduino IDE, experimental (see [MICROCONTROLLER.md](MICROCONTROLLER.md#arduino-uno-experimental)) |
 | **Chips for microcontrollers** | 74HC595 shift register, MAX7219 LED display driver, 24C02 EEPROM, LM75 temperature sensor, PCF8574 I/O expander, BMP280 pressure sensor, MPU6050 accelerometer and gyroscope, DS3231 real-time clock, TCS34725 color sensor (I2C); MCP3208 A/D converter, MCP41010 digital potentiometer, W25Q32 flash, microSD card (SPI); HX711 load cell amplifier; DS18B20 (1-Wire), DHT22/DHT11 and HC-SR04 sensors; they run with the board they are wired to, or on their own (see [MICROCONTROLLER.md](MICROCONTROLLER.md#chips-for-microcontrollers)) |
-| **Sensors** | Inductive proximity sensors NPN and PNP (24 V), 4-20 mA two-wire transmitter, HC-SR501 PIR motion sensor, LM35 temperature sensor, NTC thermistor, PT100/PT1000, type K thermocouple, LDR, BPW34 photodiode, ACS712 current sensor, load cell (strain-gauge bridge), A3144 Hall switch, PC817 optocoupler, solenoid |
+| **Sensors** | Inductive proximity sensors NPN and PNP (24 V), 4-20 mA two-wire transmitter, HC-SR501 PIR motion sensor, LM35 temperature sensor, NTC thermistor, PT100/PT1000, type K thermocouple, LDR, BPW34 photodiode, ACS712 current sensor, load cell (strain-gauge bridge), A3144 Hall switch, solenoid |
 | **Blocks** | Block port, to turn a circuit into a block |
 | **External I/O** | Bit and word inputs and outputs that exchange signals with another program, such as a virtual plant; Serial Port, a serial port of the computer in the circuit (see below) |
 
@@ -137,8 +144,7 @@ Notes on some parts:
   junction at the terminals, LDR like the GL5528 (no response time), BPW34
   about 50 µA per 1000 lux, ACS712 VCC/2 + sensitivity × current, load cell
   output = excitation × sensitivity × load / capacity, A3144 open collector
-  with operate and release points (needs a pull-up), PC817 with a current
-  transfer ratio. Self-heating, noise and response times are left out. The
+  with operate and release points (needs a pull-up). Self-heating, noise and response times are left out. The
   solenoid's plunger is drawn pulled in above 60 % of its rated current and
   out below 25 %; its current is shown. Example 36 shows four of them.
 - **A/D and D/A converters:** ideal and continuous: the ADC's code is
@@ -259,10 +265,28 @@ Notes on some parts:
   out. The TL494 oscillates at 1.1 / (RT × CT) on its CT pin and needs time
   steps well below its period: use transient mode or a low frequency. The
   MAX232's charge pump is not simulated (its ±8.5 V rails are inside), but a
-  real board needs its four capacitors.
+  real board needs its four capacitors. The **optocouplers** have an infrared
+  LED (about 1.2 V at 10 mA) and a real NPN phototransistor: the collector
+  current is CTR × the LED current (a property: PC817 100 %, 4N25 50 %)
+  until the transistor saturates, and it switches in microseconds. CTR does
+  not change with the current or the temperature, as it does in the chips.
+  The 4N25's base (pin 6) may stay open. Approximate models.
 - **Logic gates and flip-flops** run on a hidden supply, so you wire only
   their logic pins. Their outputs are real voltages: an LED on an output
   needs a series resistor.
+- **Digital inputs and outputs** fit a chip's pins 2 grid steps apart, so
+  several stack on its inputs and outputs (example 75). The output reads 1
+  above half of its level (1.65 V or 2.5 V) through 1 GΩ, shows 0 or 1 and
+  lights in its color while it is 1. A circuit of digital inputs and
+  outputs, logic gates and the RAM 16x4 alone needs no ground symbol: they
+  all refer to the circuit's ground inside.
+- **RAM 16x4:** a memory to learn how one works. A0-A3 select one of 16
+  words of 4 bits and Q0-Q3 always show it; while WE is 0 the word takes
+  D0-D3, and when WE goes back to 1 it keeps them. A write needs WE to have
+  been 1 first (when a run starts, the levels rise one after the other). The
+  symbol lists the 16 words, the selected one marked (blue while reading,
+  red while writing); the Contents property sets them at the start (16
+  hexadecimal digits, word 0 first). No supply pins: its level is a property.
 - **Diode kinds** each have their own symbol and list the models of their
   kind.
 - **External I/O:** bit and word inputs and outputs exchange their signals
@@ -592,8 +616,15 @@ from a real board are in [MICROCONTROLLER.md](MICROCONTROLLER.md).
   another computer (a student's project on the teacher's PC).
 - Unsaved changes are written to a **recovery file** every minute. If
   SimNodus closes unexpectedly, the next start offers to restore them.
+- **File > Export Diagram...** saves the schematic as a PNG image (at
+  100 % to 400 %) or an SVG drawing, with a light or dark background
+  whatever the window's theme, for documents and slides. The selection and
+  the grid are left out; a running circuit is exported as it is shown (lit
+  LEDs, values, displays).
 - **File > Examples** opens the bundled circuits as untitled copies, so the
-  originals stay unchanged. The [examples list](../../examples/README.md)
+  originals stay unchanged. They are grouped in submenus: Analog circuits,
+  Digital logic, Blue Pill (STM32F103), Motors and energy, ESP32-C3, AVR and
+  Arduino, STM32F407 (folders of `examples/`). The [examples list](../../examples/README.md)
   says what each one shows and what to try: basic analog circuits (01-06),
   Blue Pill firmware (07-09, 12-15), logic and buses (17, 18), diode kinds
   (19), blocks (20), a counter (21), regulators (22), a 7-segment counter
@@ -612,7 +643,8 @@ from a real board are in [MICROCONTROLLER.md](MICROCONTROLLER.md).
   sensor, 56 four PWM outputs and the ADC's auto trigger, 57 power-down woken
   by the watchdog and a pin change; experimental), the Arduino UNO (58,
   serial and uploads; experimental) and the ATmega32 (59, JTAG, INT2 and the
-  differential ADC; experimental).
+  differential ADC; experimental), digital inputs and keys (72),
+  optocouplers (74) and the RAM 16x4 with digital inputs and outputs (75).
 - **Lessons** 1-3 (examples 10, 11 and 16) come with notes in
   `examples/lessons/`: goals, steps and the expected observations.
   Their firmware sources are in `examples/firmware/`.

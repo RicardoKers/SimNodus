@@ -1,6 +1,6 @@
 # Lesson 1 — GPIO output
 
-Project: `examples/10_Lesson1_GPIO_output.snx` · Firmware:
+Project: `examples/03_Blue_Pill_STM32F103/10_Lesson1_GPIO_output.snx` · Firmware:
 `examples/firmware/lesson1_gpio/lesson1_gpio.c` (ELF next to it).
 
 ## Goals

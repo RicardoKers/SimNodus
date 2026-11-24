@@ -673,6 +673,7 @@ ComponentDefinition parse_definition(const json& j)
         d.mcu = board;
     }
     d.sound = j.value("sound", false);
+    d.hidden_ground = j.value("hidden_ground", false);
     if (d.sound && (!d.readout || d.readout->kind != Readout::Kind::Node)) {
         invalid("a part with sound needs a node readout of its frequency");
     }
@@ -689,11 +690,13 @@ ComponentDefinition parse_definition(const json& j)
             screen.columns_parameter = text(s, "columns_parameter", true);
         }
         screen.pixels = s.value("pixels", false);
+        screen.listing = s.value("listing", false);
         if (s.contains("color_parameter")) {
             screen.color_parameter = text(s, "color_parameter", true);
         }
         if (screen.size.x <= 0 || screen.size.y <= 0
-            || (!screen.pixels && (!d.parameter(screen.rows_parameter) || !d.parameter(screen.columns_parameter)))) {
+            || (!screen.pixels && !screen.listing
+                && (!d.parameter(screen.rows_parameter) || !d.parameter(screen.columns_parameter)))) {
             invalid("screen needs a positive rect and the rows and columns parameters");
         }
         d.screen = screen;
@@ -818,8 +821,14 @@ ComponentDefinition parse_definition(const json& j)
                 invalid("device.driven_pins names a pin the part does not have: " + pin);
             }
         }
+        // A level chosen in the properties and no ground pin (SN-308: the teaching
+        // RAM): the part's levels are against the circuit's ground.
+        if (!device.supply_parameter.empty() && !m.contains("ground_pin") && !d.pin(device.ground_pin)) {
+            device.ground_pin.clear();
+        }
         if (!device.powerless
-            && ((device.supply_parameter.empty() && !d.pin(device.supply_pin)) || !d.pin(device.ground_pin))) {
+            && ((device.supply_parameter.empty() && !d.pin(device.supply_pin))
+                || (!device.ground_pin.empty() && !d.pin(device.ground_pin)))) {
             invalid("device.supply_pin and device.ground_pin must be pins of the part");
         }
         if (device.output_resistance <= 0) {

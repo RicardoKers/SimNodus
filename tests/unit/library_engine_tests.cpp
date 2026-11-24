@@ -1444,3 +1444,50 @@ TEST_CASE("library: a chart recorder with one channel left open in a slow RC cha
     CHECK(close_to(time.back(), 300.0, 1e-6));
     CHECK(close_to(out.back(), 5.0 * (1.0 - std::exp(-3.0)), 0.02)); // tau = 100 s
 }
+
+TEST_CASE("library: the digital output reads 1 above half its level, through 1 GOhm (SN-306)")
+{
+    REQUIRE(test::engine() != nullptr);
+    const auto lit = [&](const std::string& volts, const std::string& level) {
+        test::CircuitBuilder b(components());
+        b.add("vdc", {{"+", "IN"}, {"-", "0"}}, {{"V", volts}});
+        b.add("digital_output", {{"1", "IN"}}, {{"Vhigh", level}});
+        return op(b, "v_out1_s#branch"); // 1 mA for 1, 0 for 0
+    };
+    CHECK(close_to(lit("5", "5"), 1e-3, 1e-6));
+    CHECK(close_to(lit("1", "5"), 0.0, 1e-6));
+    CHECK(close_to(lit("2", "3.3"), 1e-3, 1e-5));
+    CHECK(close_to(lit("1.2", "3.3"), 0.0, 1e-5));
+}
+
+TEST_CASE("library: optocouplers copy CTR x IF to the collector and saturate (SN-307)")
+{
+    REQUIRE(test::engine() != nullptr);
+    struct Result {
+        double led = 0, collector = 0, vce = 0;
+    };
+    const auto run = [&](const std::string& type, double load, const std::string& ctr) {
+        test::CircuitBuilder b(components());
+        b.add("vdc", {{"+", "VCC"}, {"-", "0"}}, {{"V", "5"}});
+        b.add("resistor", {{"1", "VCC"}, {"2", "LA"}}, {{"R", "390"}});
+        b.add("resistor", {{"1", "VCC"}, {"2", "COL"}}, {{"R", std::to_string(load)}});
+        b.add(type, {{"A", "LA"}, {"K", "0"}, {"C", "COL"}, {"E", "0"}}, {{"CTR", ctr}});
+        const auto r = simulate(b, ".op", {"la", "col", "v_u1_led#branch"});
+        Result out;
+        out.led = r.at("v_u1_led#branch").front();
+        out.vce = r.at("col").front();
+        out.collector = (5.0 - out.vce) / load;
+        CHECK(close_to(r.at("la").front(), 1.2, 0.1)); // the infrared LED's forward voltage
+        return out;
+    };
+    // Active region: the collector current is CTR x IF (a few % more from the Early effect).
+    const auto pc817 = run("pc817", 100, "100");
+    CHECK(close_to(pc817.led, 9.7e-3, 0.5e-3));
+    CHECK(close_to(pc817.collector / pc817.led, 1.0, 0.08));
+    const auto n25 = run("opto_4n25", 100, "50");
+    CHECK(close_to(n25.collector / n25.led, 0.5, 0.04));
+    // A large load: the transistor saturates.
+    const auto saturated = run("pc817", 4700, "100");
+    CHECK(saturated.vce < 0.3);
+    CHECK(saturated.vce > 0.02);
+}

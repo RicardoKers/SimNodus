@@ -413,6 +413,7 @@ Netlist generate_circuit(const model::Schematic& schematic, const library::Compo
     }
 
     bool has_elements = false;
+    bool needs_ground = false; // a part references a node the user must ground
     std::set<std::string> model_lines;
     std::vector<std::string> probe_lines;
     // Pins connected to nothing and not watched by a probe (SN-283).
@@ -486,6 +487,7 @@ Netlist generate_circuit(const model::Schematic& schematic, const library::Compo
             continue;
         }
         has_elements = true;
+        needs_ground = needs_ground || !d->hidden_ground;
         const std::string ref = sanitize_name(c.designator);
 
         // Parameter values: numbers for the template, or chosen words.
@@ -848,7 +850,7 @@ Netlist generate_circuit(const model::Schematic& schematic, const library::Compo
     // ---- Pre-run checks -------------------------------------------------
     const auto& nets = out.connectivity.nets;
     const bool any_ground = std::any_of(nets.begin(), nets.end(), [](const Net& n) { return n.ground; });
-    if (has_elements && !any_ground) {
+    if (has_elements && needs_ground && !any_ground) {
         report(Severity::Error, "no-ground",
             "The circuit has no ground. Place a ground symbol (G) on the reference point.", {});
     }
