@@ -22,8 +22,8 @@ Each release is tested hands-on by the owner; feedback adjusts the next phase.
 Weekly cadence inside each phase: a test build every Friday (Windows package
 from CI) with a short list of what to try.
 
-**Status 2026-11-16.** The phases ran far ahead of these dates: releases
-0.1.0 to 0.19.0 were published between 2026-10-14 and 2026-11-16, covering
+**Status 2026-11-24.** The phases ran far ahead of these dates: releases
+0.1.0 to 0.20.0 were published between 2026-10-14 and 2026-11-24, covering
 phases 1-4 and more (digital parts, SPI/I2C/1-Wire chips, AI agent control,
 external I/O, Cortex-M3 timing, pt-BR guides, a large sensor, logic chip,
 motion and automation part library with buzzer sound, a real serial port in the circuit, recorded tutorials driven by commands, an experimental ESP32-C3 board with Wi-Fi, AVR chips, solar panels, lithium batteries and BLDC motor control, the Arduino UNO with GDB debugging, a chart recorder and protocol decoders, the STM32F407VET6 compared with a real chip). The freeze, stabilization and

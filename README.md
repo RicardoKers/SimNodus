@@ -8,8 +8,8 @@ continuously running, interactive simulation. Its first target is the
 STM32F103C8/Blue Pill, using SimNodus's own STM32 emulator for the
 microcontroller, ngspice for the circuit and a Qt 6 interface.
 
-**Status (2026-11-16): release 0.19.0.** Draw analog and digital circuits
-(173 component types, buses, your own blocks), run them continuously
+**Status (2026-11-24): release 0.20.0.** Draw analog and digital circuits
+(178 component types, buses, your own blocks), run them continuously
 while clicking switches, holding push buttons and turning potentiometers, and
 watch the signals in the Signal Analyzer, which also decodes I2C, SPI and UART. A Blue Pill (STM32F103C8) runs your
 firmware in SimNodus's own emulator, drives SPI, I2C and 1-Wire chips (LED
@@ -28,7 +28,8 @@ takes uploads from the Arduino IDE through a virtual serial port, and the **ATme
 (PDIP-40) run too; experimental until compared. All the AVR chips and the UNO can be debugged
 with `avr-gdb`. A bare **STM32F407VET6** (Cortex-M4F with its FPU, 168 MHz) runs firmware from
 STM32CubeIDE with timers, ADC, DAC, SPI, I2C, DMA and the RTC, its instruction timing calibrated on a
-real chip, and is debugged from STM32CubeIDE too.
+real chip, and is debugged from STM32CubeIDE too. The examples are grouped in folders by subject, a
+net can be highlighted on the diagram, and the diagram is exported as a PNG image or an SVG drawing.
 English and Brazilian Portuguese interface and user guides; simulations run in a separate
 engine process. AI agents (Claude Code, Codex) can build and simulate
 circuits through `simnodus-cli` and its MCP server, also on screen in the

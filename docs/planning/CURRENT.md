@@ -1,6 +1,6 @@
 # Current state
 
-Updated: 2026-11-24 (the owner's requests SN-305 to SN-310: examples in category folders, a smaller digital input and a digital output, the 4N25 and PC817 optocouplers, a teaching RAM 16x4, net highlighting, diagram export to SVG and PNG); 2026-11-18 (SN-304, SN-303: the digital LED matrix); 2026-11-16 (release 0.19.0; E-12 closed, DE12: the STM32F407 is no longer experimental; DE9 waits for the owner). Keep this file short: present state, last results, next
+Updated: 2026-11-24 (release 0.20.0; the owner's requests SN-305 to SN-310: examples in category folders, a smaller digital input and a digital output, the 4N25 and PC817 optocouplers, a teaching RAM 16x4, net highlighting, diagram export to SVG and PNG); 2026-11-18 (SN-304, SN-303: the digital LED matrix); 2026-11-16 (release 0.19.0; E-12 closed, DE12: the STM32F407 is no longer experimental; DE9 waits for the owner). Keep this file short: present state, last results, next
 steps. Replace it, do not append. History of the first development line
 (2026-08-31 → 2026-10-06) is in
 [archive/2026-10-legacy/CURRENT.md](../archive/2026-10-legacy/CURRENT.md);
@@ -8,44 +8,29 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 
 ## Where we are
 
-- **On main after 0.19.0, owner's requests of 2026-11-24** (SN-305..SN-310,
-  one PR): the examples in seven category folders
-  (`examples/01_Analog_circuits` ... `07_STM32F407`, File > Examples
-  submenus; projects name `../firmware/...`); the digital input 1.6 units
-  high so inputs stack on a chip's pins, and a **digital output**; the
-  **4N25** and the **PC817** (moved from Sensors) with a real
-  phototransistor, example 74; a **RAM 16x4** for teaching with its words on
-  the symbol, example 75; circuits of only digital I/O, gates and that RAM
-  need no ground symbol (`hidden_ground`); **View > Highlight Net** (H) and
-  `view.net`; **File > Export Diagram** to PNG/SVG, light or dark, and
-  `view.export` (Qt SVG is now a dependency: `qt6-svg-dev` on the Linux CI).
-  Fixed on the way: the Memory Viewer could not read a chip without a board
-  that named its group (example 32's ROM). Not checked yet: the owner's look
-  at the new symbols on his screen and in the dark theme; the Windows
-  installer with `Qt6Svg.dll` (windeployqt adds it).
-  `tools/generate_device_parts.py` is out of step with the DHT22, DS18B20,
-  HC-SR04 and LM75 JSON (hand edits of SN-280): running it reverts them, so
-  those four were restored by hand.
-- **On main after 0.19.0:** SN-301 (2026-11-16), the **ESP32-C3 SuperMini**
-  part (experimental; `tools/generate_esp32c3_supermini.py`, example 73).
-  SN-302 (2026-11-16), two fixes from the owner's video recordings: the
-  status bar's speed froze at the old value after a speed change (1.00x
-  shown at Maximum, `simulation_session.cpp` kept the factor's history
-  across the re-anchored origin) and the Logic tab's axis repeated "2s"
-  (`format_engineering_tick`, `LogicWidget::axis_ticks`).
-  SN-304 (2026-11-18): the 8x8 LED matrix's rows moved to the top (pins on
-  two opposite sides, a 16-unit body), so matrices sit edge to edge;
-  examples 26 and 69 rewired; older projects must reconnect R1-R8 (the check
-  lists them). SN-303 (2026-11-18): the **8x8 LED matrix (digital)**, a
-  powerless device with no LEDs in ngspice (`device.powerless`,
-  `lights.device`, the bus's driven/floating report, no drivers on nets
-  that reach only chips and it; ADR 0102 update). A student's game with two
-  MAX7219 matrices went from 0.35x to 3.7x real time (60 % of the old run
-  was ngspice's Newton iterations on the multiplexed LEDs); example 69 now
-  uses it (0.35x to 2.1x). The owner asked for a preview package with it.
-  The owner has a DevKitM-1 and a SuperMini in hand: next is the bench
-  comparison of both (G8b.1 ROM and consoles; G9b.2, G9b.3 Wi-Fi against a
-  real access point) and decision DE9.
+- **Release 0.20.0 being published on 2026-11-24** (asked by the owner after
+  his test of the 2026-11-24 preview):
+  - SN-305..SN-310 (owner's requests): the examples in seven category
+    folders (File > Examples submenus; projects name `../firmware/...`); a
+    smaller digital input and a **digital output**; the **4N25** and the
+    **PC817** (moved from Sensors) with a real phototransistor, example 74;
+    a **RAM 16x4** for teaching, example 75; no ground symbol needed for
+    circuits of only digital I/O, gates and that RAM (`hidden_ground`);
+    **View > Highlight Net** (H, `view.net`); **File > Export Diagram** to
+    PNG/SVG, light or dark (`view.export`; Qt SVG is now a dependency).
+  - SN-303, SN-304: the **8x8 LED matrix (digital)** (a MAX7219 game from
+    0.35x to 3.7x real time) and the matrix's row pins at the top, so
+    matrices sit edge to edge; older projects must reconnect R1-R8.
+  - SN-301: the **ESP32-C3 SuperMini** (experimental, example 73). SN-302:
+    the status bar's speed after a speed change and the Logic tab's axis.
+  - Fixed: the Memory Viewer for a chip without a board that names its
+    group (example 32's ROM).
+  - `tools/generate_device_parts.py` is out of step with the DHT22,
+    DS18B20, HC-SR04 and LM75 JSON (hand edits of SN-280): running it
+    reverts them; restore those four after running it.
+  - Next: the owner has a DevKitM-1 and a SuperMini in hand: the bench
+    comparison of both (G8b.1 ROM and consoles; G9b.2, G9b.3 Wi-Fi against
+    a real access point) and decision DE9.
 - **Release 0.19.0 published on 2026-11-16** (tag `v0.19.0`, GitHub release with
   `SimNodus-0.19.0-windows-x64.zip` and `-setup.exe`), asked by the owner
   after the E-12 bench sessions and his test of SN-300:
