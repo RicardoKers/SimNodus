@@ -9,6 +9,7 @@
 #include "schematic_view.hpp"
 
 #include "analyzer_window.hpp"
+#include "diagram_export.hpp"
 #include "presenter.hpp"
 #include "io/project_file.hpp"
 #include "model/engineering.hpp"
@@ -672,6 +673,100 @@ std::unique_ptr<automation::Automation> ControlServer::make_automation()
             window_.schematic()->glide_camera([this, &ids] { workspace_->highlight(ids); }, ms);
             workspace_->wait(std::chrono::milliseconds(ms));
             return json{{"selected", ids.size()}};
+        }});
+    a->extend({"view.net",
+        "Highlights a net (SN-309): every wire, pin and label of it, as View > Highlight Net does; "
+        "{\"clear\": true} ends the highlight.",
+        json{{"target", "\"R1.2\" (a pin) or a net's name (\"OUT\")"}, {"clear", "true"}},
+        [this](const json& args) {
+            auto* scene = window_.scene();
+            if (args.value("clear", false)) {
+                scene->highlight_net(std::nullopt);
+                return json{{"highlighted", false}};
+            }
+            const std::string target = args.value("target", std::string());
+            if (target.empty()) {
+                throw Error{"invalid-argument", "Argument \"target\" is required: a pin (\"R1.2\") or a net's name."};
+            }
+            const auto& schematic = window_.document()->schematic();
+            const auto& c = scene->connectivity();
+            std::optional<SchematicScene::NetAnchor> anchor;
+            if (const auto dot = target.rfind('.'); dot != std::string::npos) {
+                if (const auto* part = schematic.component_by_designator(target.substr(0, dot));
+                    part && c.pin_net.count({part->id, target.substr(dot + 1)})) {
+                    anchor = SchematicScene::NetAnchor{part->id, target.substr(dot + 1)};
+                }
+            }
+            const auto same = [](const std::string& x, const std::string& y) {
+                return QString::fromStdString(x).compare(QString::fromStdString(y), Qt::CaseInsensitive) == 0;
+            };
+            for (std::size_t n = 0; n < c.nets.size() && !anchor; ++n) {
+                if (!same(c.nets[n].name, target)) {
+                    continue;
+                }
+                for (const auto& [wire, net] : c.wire_net) {
+                    if (net == static_cast<int>(n)) {
+                        anchor = SchematicScene::NetAnchor{wire, {}};
+                        break;
+                    }
+                }
+                if (!anchor && !c.nets[n].pins.empty()) {
+                    anchor = SchematicScene::NetAnchor{c.nets[n].pins.front().first, c.nets[n].pins.front().second};
+                }
+            }
+            if (!anchor) {
+                throw Error{"not-found", "No pin or net \"" + target + "\"."};
+            }
+            scene->highlight_net(anchor);
+            const auto net = scene->highlighted_net();
+            if (!net) {
+                throw Error{"not-found", "No net at \"" + target + "\"."};
+            }
+            const auto& found = c.nets[static_cast<std::size_t>(*net)];
+            json pins = json::array();
+            for (const auto& [id, pin] : found.pins) {
+                if (const auto* part = schematic.component(id)) {
+                    pins.push_back(part->designator + "." + pin);
+                }
+            }
+            return json{{"highlighted", true}, {"net", found.name}, {"pins", pins}};
+        }});
+    auto* automation = a.get();
+    a->extend({"view.export",
+        "Saves the diagram as an image (SN-310), as File > Export Diagram does: PNG or SVG by the file's extension, "
+        "light or dark background, PNG size as a scale (2 = 200 %).",
+        json{{"path", "\"diagram.png\" or \"diagram.svg\" (relative to hello's directory)"},
+            {"background", "\"light\" or \"dark\""}, {"scale", "2"}},
+        [this, automation](const json& args) {
+            const std::string text = args.value("path", std::string());
+            if (text.empty()) {
+                throw Error{"invalid-argument", "Argument \"path\" is required."};
+            }
+            std::filesystem::path path(std::u8string(text.begin(), text.end()));
+            if (path.is_relative() && !automation->directory().empty()) {
+                path = automation->directory() / path;
+            }
+            const QString file = QString::fromStdU16String(std::filesystem::absolute(path).u16string());
+            DiagramExportOptions options;
+            options.svg = file.endsWith(QStringLiteral(".svg"), Qt::CaseInsensitive);
+            if (!options.svg && !file.endsWith(QStringLiteral(".png"), Qt::CaseInsensitive)) {
+                throw Error{"invalid-argument", "The file must end in .png or .svg."};
+            }
+            const std::string background = args.value("background", std::string("light"));
+            if (background != "light" && background != "dark") {
+                throw Error{"invalid-argument", "Argument \"background\" must be \"light\" or \"dark\"."};
+            }
+            options.dark = background == "dark";
+            options.scale = std::clamp(number(args, "scale", 2.0), 0.25, 8.0);
+            window_.run_controller()->refresh_now();
+            QString error;
+            if (!export_diagram(*window_.scene(), file, options, error)) {
+                throw Error{"io-error", error.toStdString()};
+            }
+            const QRectF rect = diagram_rect(*window_.scene());
+            return json{{"path", QDir::toNativeSeparators(file).toStdString()},
+                {"width", options.svg ? rect.width() : std::ceil(rect.width() * options.scale)},
+                {"height", options.svg ? rect.height() : std::ceil(rect.height() * options.scale)}};
         }});
     a->extend({"view.pace", "Milliseconds the window waits after each edit, so that a recording can follow; 0 for none.",
         json{{"ms", "600"}}, [this](const json& args) {

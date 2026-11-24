@@ -44,7 +44,7 @@ class Serve:
 
 
 rows = []
-for path in sorted(glob.glob(os.path.join(ROOT, "examples", "*.snx"))):
+for path in sorted(glob.glob(os.path.join(ROOT, "examples", "[0-9]*", "*.snx"))):
     name = os.path.basename(path)[:-4]
     s = Serve()
     row = {"example": name}

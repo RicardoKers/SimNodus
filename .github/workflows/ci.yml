@@ -37,7 +37,7 @@ jobs:
             printf 'http://mirrors.edge.kernel.org/ubuntu/\tpriority:1\n' | sudo tee /etc/apt/apt-mirrors.txt
           fi
           sudo apt-get update
-          sudo apt-get install -y --no-install-recommends ninja-build qt6-base-dev qt6-qpa-plugins \
+          sudo apt-get install -y --no-install-recommends ninja-build qt6-base-dev qt6-svg-dev qt6-qpa-plugins \
             libgl1-mesa-dev libxkbcommon-dev libngspice0-dev ngspice
       - name: Check repository files
         run: python3 tools/check_repository.py

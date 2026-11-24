@@ -152,6 +152,11 @@ struct Screen {
     // the pixels are lit in the color of the parameter `color_parameter`.
     bool pixels = false;
     std::string color_parameter;
+    // A listing (SN-308: the teaching RAM's words): the chip's lines as text in
+    // the theme's ink, a line starting with '>' marked, one with '*' marked as
+    // written; the first character of every line is the mark. While nothing
+    // runs, the text of a chip made from the part's parameters.
+    bool listing = false;
 };
 
 // A chart recorder (SN-281, AN-11): a plot on the schematic of the voltage of
@@ -185,6 +190,7 @@ struct DigitalDevice {
     // A fixed supply instead of a supply pin (SN-237: a serial port's TTL level):
     // the volts at the start of this parameter's value ("3.3 V"); supply_pin is empty.
     std::string supply_parameter;
+    // Empty with a supply_parameter and no such pin: levels against the circuit's ground.
     std::string ground_pin = "GND";
     // A part without power pins that only reads levels (SN-303: the digital
     // LED matrix): supply_pin and ground_pin are empty, levels read from the
@@ -381,6 +387,10 @@ struct ComponentDefinition {
     std::optional<Chart> chart;
     // A buzzer (SN-228): its node readout is the frequency it sounds at (0: silent).
     bool sound = false;
+    // Every element of the template is referenced to the circuit's ground (node
+    // 0) inside the part (SN-306: the digital input and output, logic gates): a
+    // circuit of such parts alone needs no ground symbol.
+    bool hidden_ground = false;
     std::filesystem::path source; // file it was loaded from
     // A user block (PRJ-06): the circuit behind the symbol, whose port parts are
     // the pins. It has no template; the netlist puts the circuit in its place.

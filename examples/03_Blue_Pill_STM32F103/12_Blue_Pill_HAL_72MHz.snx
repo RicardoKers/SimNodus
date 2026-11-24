@@ -1,0 +1,191 @@
+{
+  "buses": [],
+  "components": [
+    {
+      "at": [
+        0,
+        0
+      ],
+      "designator": "U1",
+      "id": 1,
+      "mirrored": false,
+      "parameters": {
+        "firmware": "../firmware/hal_clock/hal_clock.elf"
+      },
+      "rotation": 0,
+      "type": "bluepill"
+    },
+    {
+      "at": [
+        -12,
+        21
+      ],
+      "designator": "GND1",
+      "id": 2,
+      "mirrored": false,
+      "parameters": {},
+      "rotation": 0,
+      "type": "ground"
+    },
+    {
+      "at": [
+        20,
+        9
+      ],
+      "designator": "R1",
+      "id": 5,
+      "mirrored": false,
+      "parameters": {
+        "R": "330"
+      },
+      "rotation": 90,
+      "type": "resistor"
+    },
+    {
+      "at": [
+        26,
+        12
+      ],
+      "designator": "LED1",
+      "id": 6,
+      "mirrored": false,
+      "parameters": {
+        "color": "yellow"
+      },
+      "rotation": 0,
+      "type": "led"
+    },
+    {
+      "at": [
+        26,
+        21
+      ],
+      "designator": "GND2",
+      "id": 7,
+      "mirrored": false,
+      "parameters": {},
+      "rotation": 0,
+      "type": "ground"
+    }
+  ],
+  "format": "simnodus-project",
+  "labels": [
+    {
+      "at": [
+        13,
+        9
+      ],
+      "id": 13,
+      "name": "PA1"
+    }
+  ],
+  "next_id": 15,
+  "notes": [
+    {
+      "at": [
+        -12,
+        25
+      ],
+      "id": 14,
+      "text": "An STM32CubeIDE-style HAL project at 72 MHz (HSE + PLL x9).\nAnalyzer > UART shows SYSCLK 72000000 Hz; PC13 blinks\nevery 500 ms and PA1 pulses for 1 ms (72000 instructions)\nevery 500 ms."
+    }
+  ],
+  "probes": [
+    {
+      "color": "#1f77b4",
+      "id": 11,
+      "kind": "voltage",
+      "target": {
+        "at": [
+          10,
+          9
+        ],
+        "item": 8
+      }
+    },
+    {
+      "color": "#d62728",
+      "id": 12,
+      "kind": "current",
+      "target": {
+        "at": [
+          26,
+          9
+        ],
+        "item": 6,
+        "pin": "A"
+      }
+    }
+  ],
+  "settings": {
+    "cortex_m3_timing": true,
+    "exact_edges": false,
+    "max_step": 0.0001,
+    "mcu_quantum": 0.001,
+    "mode": "interactive",
+    "segment": 1.0,
+    "speed": 1.0,
+    "transient_max_step": 1e-06,
+    "transient_stop": 0.01
+  },
+  "splitters": [],
+  "version": 1,
+  "wires": [
+    {
+      "id": 3,
+      "points": [
+        [
+          -9,
+          17
+        ],
+        [
+          -12,
+          17
+        ],
+        [
+          -12,
+          21
+        ]
+      ]
+    },
+    {
+      "id": 8,
+      "points": [
+        [
+          9,
+          9
+        ],
+        [
+          17,
+          9
+        ]
+      ]
+    },
+    {
+      "id": 9,
+      "points": [
+        [
+          23,
+          9
+        ],
+        [
+          26,
+          9
+        ]
+      ]
+    },
+    {
+      "id": 10,
+      "points": [
+        [
+          26,
+          15
+        ],
+        [
+          26,
+          21
+        ]
+      ]
+    }
+  ]
+}

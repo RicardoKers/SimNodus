@@ -383,7 +383,7 @@ TEST_CASE("remote: a Blue Pill's pins, serial output and status are mirrored")
 {
     REQUIRE(test::engine() != nullptr);
     const auto examples = std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR);
-    const auto loaded = io::load_project(examples / "09_Blue_Pill_serial_terminal.snx");
+    const auto loaded = io::load_project(examples / "03_Blue_Pill_STM32F103/09_Blue_Pill_serial_terminal.snx");
     REQUIRE(loaded.schematic.has_value());
     model::Id board = model::no_id;
     for (const auto& c : loaded.schematic->components()) {
@@ -397,7 +397,7 @@ TEST_CASE("remote: a Blue Pill's pins, serial output and status are mirrored")
     request.schematic.set_settings(settings);
     request.library = &parts();
     sim::McuEnvironment environment;
-    environment.project_dir = examples;
+    environment.project_dir = examples / "03_Blue_Pill_STM32F103";
     std::string error;
     REQUIRE(sim::build_mcu_requests(request.schematic, parts(), environment, request.mcus, error));
 

@@ -3972,6 +3972,158 @@ private:
     std::uint64_t version_ = 0;
 };
 
+// Teaching RAM of 16 words of 4 bits (SN-308), in the manner of a 7489 with
+// true outputs: A0-A3 select a word, Q0-Q3 always show it; while WE is low
+// the word takes D0-D3 (and follows them, and the address, until WE rises).
+// A write needs WE to have been high first: while a run starts, the levels
+// rise from 0 V one after the other, and a WE still low then must not
+// overwrite the words the address passes through.
+// The text lists the 16 words, the addressed one marked '>' (or '*' while it
+// is written): the symbol draws it. The contents start from the parameter
+// "contents", up to 16 hexadecimal digits, word 0 first.
+class TeachingRam : public Device {
+public:
+    static constexpr std::size_t words = 16;
+
+    bool init(const std::vector<std::string>& pins, const std::map<std::string, std::string>& parameters,
+        std::string& error)
+    {
+        role_.assign(pins.size(), -1);
+        for (std::size_t i = 0; i < pins.size(); ++i) {
+            const std::string& name = pins[i];
+            if (name == "WE") {
+                role_[i] = WE;
+            } else if (name.size() == 2 && name[1] >= '0' && name[1] <= '3') {
+                const int bit = name[1] - '0';
+                role_[i] = name[0] == 'A' ? A0 + bit : name[0] == 'D' ? D0 + bit : name[0] == 'Q' ? Q0 + bit : -1;
+            }
+        }
+        if (std::find(role_.begin(), role_.end(), static_cast<int>(WE)) == role_.end()) {
+            error = "RAM 16x4: pin WE is missing";
+            return false;
+        }
+        const auto contents = parameters.find("contents");
+        if (contents != parameters.end() && !parse_contents(contents->second, memory_)) {
+            error = "RAM 16x4: the contents must be up to 16 hexadecimal digits, word 0 first";
+            return false;
+        }
+        return true;
+    }
+
+    // "0123 4567 89AB CDEF" -> words 0..15; spaces and underscores ignored.
+    static bool parse_contents(const std::string& text, std::vector<std::uint8_t>& memory)
+    {
+        std::size_t n = 0;
+        for (const char ch : text) {
+            if (ch == ' ' || ch == '_') {
+                continue;
+            }
+            const int digit = std::isdigit(static_cast<unsigned char>(ch)) ? ch - '0'
+                : (ch >= 'a' && ch <= 'f')                                  ? ch - 'a' + 10
+                : (ch >= 'A' && ch <= 'F')                                  ? ch - 'A' + 10
+                                                                            : -1;
+            if (digit < 0 || n >= words) {
+                return false;
+            }
+            memory[n++] = static_cast<std::uint8_t>(digit);
+        }
+        return true;
+    }
+
+    void set_input(std::size_t pin, bool level, std::uint64_t) override
+    {
+        if (pin < role_.size() && role_[pin] >= 0 && role_[pin] < Q0) {
+            inputs_[static_cast<std::size_t>(role_[pin])] = level;
+            armed_ = armed_ || (role_[pin] == WE && level);
+            write();
+        }
+    }
+
+    void initial_input(std::size_t pin, bool level) override
+    {
+        // Levels only: a write needs WE to fall or A, D to change while it is low.
+        if (pin < role_.size() && role_[pin] >= 0 && role_[pin] < Q0) {
+            inputs_[static_cast<std::size_t>(role_[pin])] = level;
+            armed_ = armed_ || (role_[pin] == WE && level);
+        }
+    }
+
+    Output output(std::size_t pin) const override
+    {
+        if (pin >= role_.size() || role_[pin] < Q0) {
+            return {};
+        }
+        return push_pull(((memory_[address()] >> (role_[pin] - Q0)) & 1u) != 0);
+    }
+
+    std::vector<std::uint8_t> memory() const override { return memory_; }
+    std::uint64_t memory_version() const override { return version_; }
+    void load_memory(const std::vector<std::uint8_t>& bytes) override
+    {
+        std::fill(memory_.begin(), memory_.end(), std::uint8_t{0});
+        for (std::size_t i = 0; i < std::min(bytes.size(), memory_.size()); ++i) {
+            memory_[i] = static_cast<std::uint8_t>(bytes[i] & 0x0Fu);
+        }
+        ++version_;
+    }
+
+    std::string text() const override
+    {
+        std::string out;
+        const std::size_t at = address();
+        for (std::size_t a = 0; a < words; ++a) {
+            out += a != at ? ' ' : writing() ? '*' : '>';
+            out += "0123456789ABCDEF"[a];
+            out += ' ';
+            for (int b = 3; b >= 0; --b) {
+                out += ((memory_[a] >> b) & 1u) != 0 ? '1' : '0';
+            }
+            out += '\n';
+        }
+        out.pop_back();
+        return out;
+    }
+
+private:
+    enum : int { A0 = 0, D0 = 4, WE = 8, Q0 = 9 };
+
+    std::size_t address() const
+    {
+        std::size_t a = 0;
+        for (std::size_t b = 0; b < 4; ++b) {
+            a |= inputs_[A0 + b] ? std::size_t{1} << b : 0;
+        }
+        return a;
+    }
+
+    bool writing() const { return armed_ && !inputs_[WE]; }
+
+    void write()
+    {
+        if (!writing()) {
+            return;
+        }
+        std::uint8_t value = 0;
+        for (std::size_t b = 0; b < 4; ++b) {
+            value = static_cast<std::uint8_t>(value | (inputs_[D0 + b] ? 1u << b : 0u));
+        }
+        if (auto& word = memory_[address()]; word != value) {
+            word = value;
+            ++version_;
+        }
+    }
+
+    std::vector<int> role_;
+    std::array<bool, WE + 1> inputs_ = [] {
+        std::array<bool, WE + 1> a{};
+        a[WE] = true; // not writing until the run gives the levels
+        return a;
+    }();
+    std::vector<std::uint8_t> memory_ = std::vector<std::uint8_t>(words, 0);
+    std::uint64_t version_ = 0;
+    bool armed_ = false; // WE was high: a low WE now writes
+};
+
 // Serial Port (SN-237): a serial port of the computer on the circuit, like a
 // USB-serial adapter at TTL levels. Frames on RX (a low start bit, the data
 // bits LSB first, an optional parity bit, stop bits high) are read at the
@@ -4337,6 +4489,10 @@ std::unique_ptr<Device> make_device(const std::string& kind, const std::vector<s
     }
     if (kind == "serial_port") {
         auto device = std::make_unique<SerialPortDevice>();
+        return device->init(pins, parameters, error) ? std::move(device) : nullptr;
+    }
+    if (kind == "ram16x4") {
+        auto device = std::make_unique<TeachingRam>();
         return device->init(pins, parameters, error) ? std::move(device) : nullptr;
     }
     if (kind == "rom" || kind == "ram") {

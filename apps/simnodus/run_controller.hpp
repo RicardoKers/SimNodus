@@ -56,6 +56,9 @@ public:
     void pause_or_resume();
     void stop();
     bool active() const;
+    // The canvas's live state from the run now, not at the next refresh (SN-310:
+    // a diagram exported right after a step shows that step).
+    void refresh_now();
     sim::RunState state() const { return session_->status().state; }
     sim::RunStatus status() const { return session_->status(); }
     sim::Session& session() { return *session_; }

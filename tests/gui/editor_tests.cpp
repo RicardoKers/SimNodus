@@ -11,6 +11,7 @@
 #include "user_models.hpp"
 #include "component_panel.hpp"
 #include "control_server.hpp"
+#include "diagram_export.hpp"
 #include "io_link.hpp"
 #include "main_window.hpp"
 #include "memory_window.hpp"
@@ -38,6 +39,7 @@
 #include <QCheckBox>
 #include <QClipboard>
 #include <QComboBox>
+#include <QCursor>
 #include <QDialog>
 #include <QDir>
 #include <QDoubleSpinBox>
@@ -46,6 +48,8 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QGraphicsItem>
+#include <QImage>
+#include <QMenu>
 #include <QProcess>
 #include <QSet>
 #include <QLabel>
@@ -488,6 +492,126 @@ private slots:
         QTRY_VERIFY_WITH_TIMEOUT(window_->scene()->live().glow.at(led).level > 0.1, 5000);
         QTRY_COMPARE_WITH_TIMEOUT(window_->scene()->live().controls.at(input), 1.0, 5000);
         window_->stop();
+    }
+
+    void the_digital_output_shows_the_level_and_lights()
+    {
+        // SN-306: a digital input on IN, a digital output on IN; a click turns both to 1.
+        if (!engine_available()) {
+            QSKIP("No ngspice library configured for this build.");
+        }
+        const model::Id input = place("digital_input", {0, 0});
+        label(input, "1", "IN");
+        const model::Id output = place("digital_output", {20, 0});
+        label(output, "1", "IN");
+        QVERIFY(control("circuit.check")["errors"] == 0); // no ground symbol needed
+        window_->run();
+        QTRY_VERIFY2_WITH_TIMEOUT(window_->run_controller()->active(), qPrintable(window_->messages()->text(false)), 5000);
+        QTRY_VERIFY_WITH_TIMEOUT(window_->scene()->live().states.count(output) > 0, 5000);
+        QCOMPARE(window_->scene()->live().states.at(output), QStringLiteral("0"));
+        QTest::mouseClick(view()->viewport(), Qt::LeftButton, Qt::NoModifier, at({-1, 0}));
+        QTRY_COMPARE_WITH_TIMEOUT(window_->scene()->live().states.at(output), QStringLiteral("1"), 5000);
+        QTRY_VERIFY_WITH_TIMEOUT(window_->scene()->live().lights.count(output) > 0
+                && window_->scene()->live().lights.at(output).levels.at(0) > 0.5,
+            5000);
+        window_->stop();
+    }
+
+    void a_net_is_highlighted_by_pin_by_name_and_from_the_keyboard()
+    {
+        // SN-309: every wire, pin and label of the net; it follows edits and ends with its anchor.
+        control_rc();
+        auto* scene = window_->scene();
+        auto result = control("view.net", {{"target", "R1.2"}});
+        QVERIFY2(result.is_object(), last_reply_.dump().c_str());
+        QCOMPARE(result["net"].get<std::string>(), std::string("OUT"));
+        QCOMPARE(result["pins"].size(), std::size_t{2}); // R1.2 and C1.1
+        QVERIFY(scene->highlighted_net().has_value());
+        const QString summary = scene->net_summary(*scene->highlighted_net());
+        QVERIFY2(summary.contains(QStringLiteral("C1.1")) && summary.contains(QStringLiteral("R1.2")), qPrintable(summary));
+        QVERIFY(control("view.net", {{"target", "out"}}).is_object()); // by the net's name
+        QVERIFY(control("view.net", {{"target", "R9.1"}}).is_null());
+        // Esc clears it.
+        view()->setFocus();
+        QTest::keyClick(view(), Qt::Key_Escape);
+        QVERIFY(!scene->highlighted_net().has_value());
+        // H with a wire selected and the mouse away from the canvas; H again clears it.
+        model::Id wire = model::no_id;
+        for (const auto& [id, net] : scene->connectivity().wire_net) {
+            if (scene->connectivity().nets[static_cast<std::size_t>(net)].name == "OUT") {
+                wire = id;
+            }
+        }
+        QVERIFY(wire != model::no_id);
+        QCursor::setPos(view()->mapToGlobal(QPoint(-40, -40)));
+        scene->select_ids({wire});
+        view()->toggle_net_highlight();
+        QVERIFY(scene->highlighted_net().has_value());
+        QCOMPARE(scene->connectivity().nets[static_cast<std::size_t>(*scene->highlighted_net())].name, std::string("OUT"));
+        view()->toggle_net_highlight();
+        QVERIFY(!scene->highlighted_net().has_value());
+        // The highlight follows an edit and ends when its pin goes away.
+        QVERIFY(control("view.net", {{"target", "C1.1"}}).is_object());
+        QVERIFY(control("component.set", {{"component", "R1"}, {"parameters", {{"R", "2k"}}}}).is_object());
+        QVERIFY(scene->highlighted_net().has_value());
+        QVERIFY(control("items.delete", {{"items", {"C1"}}}).is_object());
+        QVERIFY(!scene->highlighted_net().has_value());
+    }
+
+    void the_diagram_is_exported_as_png_or_svg_in_light_or_dark()
+    {
+        // SN-310: drawn in the chosen colors, the window's own colors and selection kept.
+        control_rc();
+        auto* scene = window_->scene();
+        const model::Id r1 = doc().schematic().component_by_designator("R1")->id;
+        scene->select_ids({r1});
+        const QColor before = theme::canvas_background;
+        const QString png = dir_.filePath(QStringLiteral("rc.png"));
+        auto result = control("view.export", {{"path", png.toStdString()}, {"background", "dark"}, {"scale", 2}});
+        QVERIFY2(result.is_object(), last_reply_.dump().c_str());
+        const QImage image(png);
+        QVERIFY(!image.isNull());
+        const QRectF rect = diagram_rect(*scene);
+        QCOMPARE(image.width(), static_cast<int>(std::ceil(rect.width() * 2)));
+        QCOMPARE(image.height(), static_cast<int>(std::ceil(rect.height() * 2)));
+        QCOMPARE(image.pixelColor(1, 1).rgb(), theme::canvas_colors(true).canvas.rgb());
+        QCOMPARE(theme::canvas_background, before);
+        QCOMPARE(scene->selected_ids(), std::set<model::Id>{r1});
+        // Light SVG: a drawing with the parts' texts.
+        const QString svg = dir_.filePath(QStringLiteral("rc.svg"));
+        QVERIFY(control("view.export", {{"path", svg.toStdString()}}).is_object());
+        QFile file(svg);
+        QVERIFY(file.open(QIODevice::ReadOnly));
+        const QByteArray text = file.readAll();
+        QVERIFY(text.contains("<svg"));
+        QVERIFY(text.contains(">R1<") || text.contains("R1</text>"));
+        QVERIFY(text.contains(theme::canvas_colors(false).canvas.name().toLatin1()));
+        QVERIFY(control("view.export", {{"path", dir_.filePath(QStringLiteral("rc.jpg")).toStdString()}}).is_null());
+        // An empty diagram has nothing to export.
+        QVERIFY(control("project.new", {{"discard", true}}).is_object());
+        QVERIFY(control("view.export", {{"path", png.toStdString()}}).is_null());
+    }
+
+    void the_examples_menu_has_a_submenu_per_folder()
+    {
+        // SN-305: examples/01_Analog_circuits is File > Examples > Analog circuits.
+        QMenu* analog = nullptr;
+        for (auto* menu : window_->findChildren<QMenu*>()) {
+            analog = menu->title() == QStringLiteral("Analog circuits") ? menu : analog;
+        }
+        QVERIFY(analog != nullptr);
+        QStringList names;
+        for (const auto* action : analog->actions()) {
+            names << action->text();
+        }
+        QVERIFY2(names.contains(QStringLiteral("01 LED and push button")), qPrintable(names.join(QStringLiteral(", "))));
+        QVERIFY(names.contains(QStringLiteral("74 Optocoupler PC817 and 4N25")));
+        // An example opens from its folder: its files (firmware) are found relative to it.
+        QMenu* blue_pill = nullptr;
+        for (auto* menu : window_->findChildren<QMenu*>()) {
+            blue_pill = menu->title() == QStringLiteral("Blue Pill (STM32F103)") ? menu : blue_pill;
+        }
+        QVERIFY(blue_pill != nullptr);
     }
 
     void dragging_an_adjustable_source_up_raises_it()
@@ -1002,7 +1126,7 @@ private slots:
         QStringList errors;
         QStringList warnings;
         QVERIFY(doc().open_copy(
-            QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/66_Capacitor_charge_on_a_chart_recorder.snx"), errors, warnings));
+            QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/01_Analog_circuits/66_Capacitor_charge_on_a_chart_recorder.snx"), errors, warnings));
         model::Id chart = model::no_id;
         for (const auto& c : doc().schematic().components()) {
             chart = c.type == "chart_recorder" ? c.id : chart;
@@ -1161,7 +1285,7 @@ private slots:
         QStringList errors;
         QStringList warnings;
         QVERIFY(doc().open_copy(
-            QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/25_Shift_register_74HC595.snx"), errors, warnings));
+            QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/03_Blue_Pill_STM32F103/25_Shift_register_74HC595.snx"), errors, warnings));
         std::map<std::string, model::Id> leds;
         for (const auto& c : doc().schematic().components()) {
             if (c.type == "led") {
@@ -1199,7 +1323,7 @@ private slots:
         QStringList errors;
         QStringList warnings;
         QVERIFY(doc().open_copy(
-            QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/26_LED_matrix_MAX7219_SPI.snx"), errors, warnings));
+            QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/03_Blue_Pill_STM32F103/26_LED_matrix_MAX7219_SPI.snx"), errors, warnings));
         model::Id matrix = model::no_id;
         for (const auto& c : doc().schematic().components()) {
             matrix = c.type == "led_matrix_8x8" ? c.id : matrix;
@@ -1249,7 +1373,7 @@ private slots:
         QStringList errors;
         QStringList warnings;
         QVERIFY(doc().open_copy(
-            QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/69_STM32F407_SPI_I2C_DMA.snx"), errors, warnings));
+            QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/07_STM32F407/69_STM32F407_SPI_I2C_DMA.snx"), errors, warnings));
         model::Id matrix = model::no_id;
         for (const auto& c : doc().schematic().components()) {
             matrix = c.type == "led_matrix_8x8_digital" ? c.id : matrix;
@@ -1291,7 +1415,7 @@ private slots:
         QStringList errors;
         QStringList warnings;
         QVERIFY(doc().open_copy(
-            QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/28_LCD_16x2_I2C_backpack.snx"), errors, warnings));
+            QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/03_Blue_Pill_STM32F103/28_LCD_16x2_I2C_backpack.snx"), errors, warnings));
         model::Id lcd = model::no_id;
         for (const auto& c : doc().schematic().components()) {
             lcd = c.type == "lcd_hd44780" ? c.id : lcd;
@@ -1322,7 +1446,7 @@ private slots:
         QStringList errors;
         QStringList warnings;
         QVERIFY(doc().open_copy(
-            QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/27_I2C_EEPROM_sensor_expander.snx"), errors, warnings));
+            QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/03_Blue_Pill_STM32F103/27_I2C_EEPROM_sensor_expander.snx"), errors, warnings));
         model::Id sensor = model::no_id;
         for (const auto& c : doc().schematic().components()) {
             sensor = c.type == "lm75" ? c.id : sensor;
@@ -1356,7 +1480,7 @@ private slots:
         QStringList errors;
         QStringList warnings;
         QVERIFY(doc().open_copy(
-            QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/29_Adjustable_and_controlled_sources.snx"), errors, warnings));
+            QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/01_Analog_circuits/29_Adjustable_and_controlled_sources.snx"), errors, warnings));
         std::map<std::string, model::Id> ids;
         for (const auto& c : doc().schematic().components()) {
             ids[c.designator] = c.id;
@@ -1428,7 +1552,7 @@ private slots:
         QStringList errors;
         QStringList warnings;
         QVERIFY(doc().open_copy(
-            QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/30_Keypad_4x4_scanned_by_Blue_Pill.snx"), errors, warnings));
+            QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/03_Blue_Pill_STM32F103/30_Keypad_4x4_scanned_by_Blue_Pill.snx"), errors, warnings));
         model::Id keypad = model::no_id;
         for (const auto& c : doc().schematic().components()) {
             keypad = c.type == "keypad_4x4" ? c.id : keypad;
@@ -1470,7 +1594,7 @@ private slots:
 #else
         QStringList errors;
         QStringList warnings;
-        QVERIFY(doc().open_copy(QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/31_AD_and_DA_converters.snx"), errors, warnings));
+        QVERIFY(doc().open_copy(QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/02_Digital_logic/31_AD_and_DA_converters.snx"), errors, warnings));
         std::map<std::string, model::Id> ids;
         for (const auto& c : doc().schematic().components()) {
             ids[c.designator] = c.id;
@@ -1507,7 +1631,7 @@ private slots:
         QStringList errors;
         QStringList warnings;
         QVERIFY(doc().open_copy(
-            QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/32_ROM_lookup_seven_segment.snx"), errors, warnings));
+            QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/02_Digital_logic/32_ROM_lookup_seven_segment.snx"), errors, warnings));
         model::Id rom = model::no_id;
         model::Id display = model::no_id;
         for (const auto& c : doc().schematic().components()) {
@@ -1554,7 +1678,7 @@ private slots:
         QStringList errors;
         QStringList warnings;
         QVERIFY(doc().open_copy(
-            QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/34_Timer_555_astable_and_monostable.snx"), errors, warnings));
+            QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/01_Analog_circuits/34_Timer_555_astable_and_monostable.snx"), errors, warnings));
         std::map<std::string, model::Id> ids;
         for (const auto& c : doc().schematic().components()) {
             ids[c.designator] = c.id;
@@ -1616,7 +1740,7 @@ private slots:
         QStringList errors;
         QStringList warnings;
         QVERIFY(doc().open_copy(
-            QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/35_Vendor_subcircuit_Darlington_driver.snx"), errors, warnings));
+            QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/01_Analog_circuits/35_Vendor_subcircuit_Darlington_driver.snx"), errors, warnings));
         std::map<std::string, model::Id> ids;
         for (const auto& part : doc().schematic().components()) {
             ids[part.designator] = part.id;
@@ -1706,7 +1830,7 @@ private slots:
 
         // I2C: example 27 writes "SimNodus" to the 24C02 at 0x50 on PB6 (SCL) and PB7 (SDA).
         QVERIFY(doc().open_copy(
-            QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/27_I2C_EEPROM_sensor_expander.snx"), errors, warnings));
+            QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/03_Blue_Pill_STM32F103/27_I2C_EEPROM_sensor_expander.snx"), errors, warnings));
         window_->show_analyzer();
         analyzer->set_tab(1);
         analyzer->set_timebase(1.0); // ten seconds on screen: the first frames stay in view
@@ -1737,7 +1861,7 @@ private slots:
 
         // UART: example 09 prints on USART1's TX (PA9); the rate is found from the bits.
         QVERIFY(doc().open_copy(
-            QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/09_Blue_Pill_serial_terminal.snx"), errors, warnings));
+            QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/03_Blue_Pill_STM32F103/09_Blue_Pill_serial_terminal.snx"), errors, warnings));
         Decoder uart;
         uart.protocol = Decoder::Protocol::Uart;
         uart.signal_lanes = {QStringLiteral("U1.PA9")};
@@ -1769,7 +1893,7 @@ private slots:
         QStringList errors;
         QStringList warnings;
         QVERIFY(doc().open_copy(
-            QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/39_SPI_ADC_digital_pot_flash_HX711.snx"), errors, warnings));
+            QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/03_Blue_Pill_STM32F103/39_SPI_ADC_digital_pot_flash_HX711.snx"), errors, warnings));
         model::Id flash = model::no_id;
         for (const auto& c : doc().schematic().components()) {
             flash = c.type == "w25q32" ? c.id : flash;
@@ -1805,7 +1929,7 @@ private slots:
         QStringList errors;
         QStringList warnings;
         QVERIFY(doc().open_copy(
-            QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/67_STM32F407_clock_and_serial.snx"), errors, warnings));
+            QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/07_STM32F407/67_STM32F407_clock_and_serial.snx"), errors, warnings));
         QVERIFY2(errors.isEmpty(), qPrintable(errors.join(QLatin1Char('\n'))));
         model::Id chip = model::no_id;
         for (const auto& c : doc().schematic().components()) {
@@ -1860,7 +1984,7 @@ private slots:
 #else
         QStringList errors;
         QStringList warnings;
-        QVERIFY(doc().open_copy(QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/07_Blue_Pill_blink.snx"), errors, warnings));
+        QVERIFY(doc().open_copy(QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/03_Blue_Pill_STM32F103/07_Blue_Pill_blink.snx"), errors, warnings));
         auto* action = window_->findChild<QAction*>(QStringLiteral("registerViewerAction"));
         QVERIFY(action != nullptr);
         action->trigger();
@@ -1980,7 +2104,7 @@ private slots:
 
         // An AVR: its own map, in its data space (example 50's ATmega8 drives its LED on PB0... as an output).
         QVERIFY(doc().open_copy(
-            QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/50_ATmega8_serial_and_EEPROM.snx"), errors, warnings));
+            QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/06_AVR_and_Arduino/50_ATmega8_serial_and_EEPROM.snx"), errors, warnings));
         action->trigger();
         QVERIFY(model->map() != nullptr);
         QCOMPARE(QString::fromStdString(model->map()->chip), QStringLiteral("atmega8"));
@@ -2006,7 +2130,7 @@ private slots:
         QStringList errors;
         QStringList warnings;
         QVERIFY(doc().open_copy(
-            QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/27_I2C_EEPROM_sensor_expander.snx"), errors, warnings));
+            QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/03_Blue_Pill_STM32F103/27_I2C_EEPROM_sensor_expander.snx"), errors, warnings));
         model::Id eeprom = model::no_id;
         for (const auto& c : doc().schematic().components()) {
             eeprom = c.type == "24c02" ? c.id : eeprom;
@@ -2081,7 +2205,7 @@ private slots:
 #else
         QStringList errors;
         QStringList warnings;
-        QVERIFY(doc().open_copy(QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/07_Blue_Pill_blink.snx"), errors, warnings));
+        QVERIFY(doc().open_copy(QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/03_Blue_Pill_STM32F103/07_Blue_Pill_blink.snx"), errors, warnings));
         model::Id board = model::no_id;
         for (const auto& c : doc().schematic().components()) {
             if (c.type == "bluepill") {
@@ -2089,14 +2213,14 @@ private slots:
             }
         }
         QVERIFY(board != model::no_id);
-        QVERIFY(doc().base_dir().endsWith(QStringLiteral("examples")));
+        QVERIFY(doc().base_dir().endsWith(QStringLiteral("examples/03_Blue_Pill_STM32F103")));
 
         // The firmware field shows the path relative to the example's folder.
         window_->scene()->select_ids({board});
         auto* firmware = window_->properties()->findChild<QLineEdit*>(QStringLiteral("file_firmware"));
         QTRY_VERIFY(firmware != nullptr || (firmware = window_->properties()->findChild<QLineEdit*>(
                                                 QStringLiteral("file_firmware"))) != nullptr);
-        QCOMPARE(firmware->text(), QStringLiteral("firmware/blink/blink.elf"));
+        QCOMPARE(firmware->text(), QStringLiteral("../firmware/blink/blink.elf"));
         QVERIFY(window_->properties()->findChild<QPushButton*>(QStringLiteral("reload_firmware")));
 
         window_->run();
@@ -2142,7 +2266,7 @@ private slots:
         QStringList errors;
         QStringList warnings;
         QVERIFY(doc().open_copy(
-            QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/08_Blue_Pill_button_interrupt.snx"), errors, warnings));
+            QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/03_Blue_Pill_STM32F103/08_Blue_Pill_button_interrupt.snx"), errors, warnings));
         model::Id button = model::no_id;
         model::Id led = model::no_id;
         model::Id board = model::no_id;
@@ -2184,7 +2308,7 @@ private slots:
         QStringList errors;
         QStringList warnings;
         QVERIFY(doc().open_copy(
-            QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/09_Blue_Pill_serial_terminal.snx"), errors, warnings));
+            QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/03_Blue_Pill_STM32F103/09_Blue_Pill_serial_terminal.snx"), errors, warnings));
         model::Id led = model::no_id;
         for (const auto& c : doc().schematic().components()) {
             led = c.type == "led" ? c.id : led;
@@ -2240,7 +2364,7 @@ private slots:
 #else
         QStringList errors;
         QStringList warnings;
-        QVERIFY(doc().open_copy(QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/45_ESP32-C3_blink.snx"), errors, warnings));
+        QVERIFY(doc().open_copy(QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/05_ESP32-C3/45_ESP32-C3_blink.snx"), errors, warnings));
         window_->show_analyzer();
         UartTerminal* terminal = window_->analyzer()->terminal();
         window_->run();
@@ -2273,7 +2397,7 @@ private slots:
 #else
         QStringList errors;
         QStringList warnings;
-        QVERIFY(doc().open_copy(QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/45_ESP32-C3_blink.snx"), errors, warnings));
+        QVERIFY(doc().open_copy(QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/05_ESP32-C3/45_ESP32-C3_blink.snx"), errors, warnings));
         model::Id board = model::no_id;
         for (const auto& c : doc().schematic().components()) {
             board = c.designator == "U1" ? c.id : board;
@@ -2415,7 +2539,7 @@ private slots:
 #else
         QStringList errors;
         QStringList warnings;
-        QVERIFY(doc().open_copy(QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/51_ATmega8_crystal_16_MHz.snx"), errors, warnings));
+        QVERIFY(doc().open_copy(QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/06_AVR_and_Arduino/51_ATmega8_crystal_16_MHz.snx"), errors, warnings));
         model::Id chip = model::no_id;
         for (const auto& c : doc().schematic().components()) {
             chip = c.designator == "U1" ? c.id : chip;
@@ -2450,7 +2574,7 @@ private slots:
 #else
         QStringList errors;
         QStringList warnings;
-        QVERIFY(doc().open_copy(QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/50_ATmega8_serial_and_EEPROM.snx"), errors, warnings));
+        QVERIFY(doc().open_copy(QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/06_AVR_and_Arduino/50_ATmega8_serial_and_EEPROM.snx"), errors, warnings));
         model::Id chip = model::no_id;
         for (const auto& c : doc().schematic().components()) {
             chip = c.designator == "U1" ? c.id : chip;
@@ -2521,7 +2645,7 @@ private slots:
 #else
         QStringList errors;
         QStringList warnings;
-        QVERIFY(doc().open_copy(QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/50_ATmega8_serial_and_EEPROM.snx"), errors, warnings));
+        QVERIFY(doc().open_copy(QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/06_AVR_and_Arduino/50_ATmega8_serial_and_EEPROM.snx"), errors, warnings));
         model::Id chip = model::no_id;
         for (const auto& c : doc().schematic().components()) {
             chip = c.designator == "U1" ? c.id : chip;
@@ -2583,7 +2707,7 @@ private slots:
         // 1 s/div shows 10 s: up to 100 000 samples per channel at the 100 us step.
         QStringList errors;
         QStringList warnings;
-        QVERIFY(doc().open_copy(QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/02_RC_filter_with_pulse.snx"), errors, warnings));
+        QVERIFY(doc().open_copy(QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/01_Analog_circuits/02_RC_filter_with_pulse.snx"), errors, warnings));
         auto settings = doc().schematic().settings();
         settings.speed = 0; // as fast as possible
         doc().apply(editing::set_settings(doc().schematic(), settings));
@@ -2632,7 +2756,7 @@ private slots:
         // Owner's report of 2026-10-19: example 03 at 1 s/div, the potentiometer moving.
         QStringList errors;
         QStringList warnings;
-        QVERIFY(doc().open_copy(QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/03_Potentiometer_and_meters.snx"), errors, warnings));
+        QVERIFY(doc().open_copy(QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/01_Analog_circuits/03_Potentiometer_and_meters.snx"), errors, warnings));
         model::Id pot = model::no_id;
         for (const auto& c : doc().schematic().components()) {
             if (c.type == "potentiometer") {
@@ -2716,7 +2840,7 @@ private slots:
             analyzer->refresh();
         };
         // A 2 Hz pulse crosses 2.5 V twice a period: triggered frames with the T marker.
-        run_triggered("02_RC_filter_with_pulse.snx", 2.5);
+        run_triggered("01_Analog_circuits/02_RC_filter_with_pulse.snx", 2.5);
         auto* scope = window_->analyzer()->scope();
         QVERIFY(scope->trigger_point().has_value());
         QVERIFY(*scope->trigger_point() >= scope->window_start() && *scope->trigger_point() <= scope->window_end());
@@ -2729,7 +2853,7 @@ private slots:
         }
         window_->stop();
         // Steady voltages never cross 100 V: Auto runs free instead of standing still.
-        run_triggered("03_Potentiometer_and_meters.snx", 100.0);
+        run_triggered("01_Analog_circuits/03_Potentiometer_and_meters.snx", 100.0);
         QVERIFY(!scope->trigger_point().has_value());
         QVERIFY(scope->trigger_state().contains(QStringLiteral("running free")));
         // It moves on (a slow CI runner may need more than one display refresh).
@@ -2750,7 +2874,7 @@ private slots:
 #else
         QStringList errors;
         QStringList warnings;
-        QVERIFY(doc().open_copy(QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/03_Potentiometer_and_meters.snx"), errors, warnings));
+        QVERIFY(doc().open_copy(QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/01_Analog_circuits/03_Potentiometer_and_meters.snx"), errors, warnings));
         auto* pause = window_->findChild<QAction*>(QStringLiteral("pauseAction"));
         QVERIFY(pause && pause->isCheckable());
         window_->run();
@@ -2828,7 +2952,7 @@ private slots:
 #else
         QStringList errors;
         QStringList warnings;
-        QVERIFY(doc().open_copy(QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/07_Blue_Pill_blink.snx"), errors, warnings));
+        QVERIFY(doc().open_copy(QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/03_Blue_Pill_STM32F103/07_Blue_Pill_blink.snx"), errors, warnings));
         window_->show_analyzer();
         AnalyzerWindow* analyzer = window_->analyzer();
         analyzer->timebase()->setCurrentIndex(analyzer->timebase()->findData(0.5)); // 500 ms/div

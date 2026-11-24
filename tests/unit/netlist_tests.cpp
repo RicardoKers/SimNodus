@@ -463,6 +463,46 @@ TEST_CASE("current probes insert a 0 V source in series with the pin")
     CHECK(n.pin_current.at({r, "1"}) == "v_pm_r1_1#branch");
 }
 
+TEST_CASE("digital inputs, gates and outputs need no ground symbol; other parts still do (SN-306)")
+{
+    const auto lib = load();
+    {
+        test::CircuitBuilder b(lib);
+        b.add("digital_input", {{"1", "A"}});
+        b.add("digital_input", {{"1", "B"}});
+        b.add("and_gate", {{"A", "A"}, {"B", "B"}, {"Y", "Y"}});
+        b.add("digital_output", {{"1", "Y"}});
+        const auto n = netlist::generate_netlist(b.schematic, lib);
+        CHECK(!has(n, "no-ground"));
+        CHECK(n.ok());
+    }
+    {
+        test::CircuitBuilder b(lib);
+        b.add("digital_input", {{"1", "A"}});
+        b.add("resistor", {{"1", "A"}, {"2", "B"}});
+        b.add("digital_output", {{"1", "B"}});
+        CHECK(has(netlist::generate_netlist(b.schematic, lib), "no-ground"));
+    }
+}
+
+TEST_CASE("an optocoupler copies CTR / (BF + 1) of the LED current into the phototransistor's base (SN-307)")
+{
+    const auto lib = load();
+    test::CircuitBuilder b(lib);
+    b.add("pc817", {{"A", "A"}, {"K", "0"}, {"C", "C"}, {"E", "0"}}, {{"CTR", "150"}});
+    b.add("opto_4n25", {{"A", "A"}, {"K", "0"}, {"C", "C"}, {"E", "0"}});
+    const auto n = netlist::generate_netlist(b.schematic, lib);
+    if (!n.ok() || !n.diagnostics.empty()) {
+        dump(n);
+    }
+    CHECK(n.diagnostics.empty()); // the 4N25's base may stay open
+    CHECK(std::find(n.lines.begin(), n.lines.end(), "F_U1 C b_U1 V_U1_led 0.00498338870432") != n.lines.end());
+    CHECK(std::find(n.lines.begin(), n.lines.end(), "Q_U1 C b_U1 0 OPTO_PHOTO_NPN") != n.lines.end());
+    CHECK(std::count(n.models.begin(), n.models.end(),
+              ".model OPTO_PHOTO_NPN NPN(IS=1e-14 BF=300 VAF=100 CJE=10p CJC=20p RB=10 RC=10)")
+        == 1);
+}
+
 TEST_CASE("every library component generates a netlist line")
 {
     const auto lib = load();

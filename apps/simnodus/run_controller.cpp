@@ -798,6 +798,13 @@ double RunController::glow_current(const std::string& vector, double latest, dou
     return span > 0 ? sum / span : std::abs(latest);
 }
 
+void RunController::refresh_now()
+{
+    if (timer_.isActive()) {
+        refresh();
+    }
+}
+
 void RunController::refresh()
 {
     for (const auto& [board, text] : session_->take_mcu_diagnostics()) {

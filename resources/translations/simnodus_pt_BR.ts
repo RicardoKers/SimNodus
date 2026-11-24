@@ -2,6 +2,21 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="pt_BR">
     <context>
+        <name>DiagramExport</name>
+        <message>
+            <source>The diagram is empty.</source>
+            <translation>O diagrama está vazio.</translation>
+        </message>
+        <message>
+            <source>SimNodus diagram</source>
+            <translation>Diagrama do SimNodus</translation>
+        </message>
+        <message>
+            <source>Could not write %1.</source>
+            <translation>Não foi possível gravar %1.</translation>
+        </message>
+    </context>
+    <context>
         <name>MainWindow</name>
         <message>
             <source>Maximum</source>
@@ -1256,6 +1271,14 @@ Pinos: %2</translation>
             <translation>Salvar &amp;como...</translation>
         </message>
         <message>
+            <source>&amp;Export Diagram...</source>
+            <translation>&amp;Exportar diagrama...</translation>
+        </message>
+        <message>
+            <source>Save the diagram as an SVG or PNG image with a light or dark background</source>
+            <translation>Salva o diagrama como imagem SVG ou PNG com fundo claro ou escuro</translation>
+        </message>
+        <message>
             <source>E&amp;xit</source>
             <translation>Sai&amp;r</translation>
         </message>
@@ -1330,6 +1353,14 @@ Pinos: %2</translation>
         <message>
             <source>&amp;Fit Circuit</source>
             <translation>&amp;Enquadrar circuito</translation>
+        </message>
+        <message>
+            <source>&amp;Highlight Net</source>
+            <translation>&amp;Realçar rede</translation>
+        </message>
+        <message>
+            <source>Highlight every wire, pin and label of the net under the mouse; H again or Esc clears it</source>
+            <translation>Realça todos os fios, pinos e rótulos da rede sob o mouse; H de novo ou Esc limpa o realce</translation>
         </message>
         <message>
             <source>Show &amp;Voltages</source>
@@ -1702,6 +1733,82 @@ Pinos: %2</translation>
             <translation>&lt;h3&gt;SimNodus %1&lt;/h3&gt;&lt;p&gt;Simulador interativo de circuitos e microcontroladores para o ensino.&lt;/p&gt;&lt;p&gt;Autor: Ricardo Kerschbaumer&lt;/p&gt;&lt;p&gt;Licença MIT. Motor analógico: ngspice (BSD-3-Clause), carregado na execução. Qt %2 (LGPL-3.0).&lt;/p&gt;</translation>
         </message>
         <message>
+            <source>Cancel the wire or tool, then clear the selection and the net highlight</source>
+            <translation>Cancela o fio ou a ferramenta, depois limpa a seleção e o realce de rede</translation>
+        </message>
+        <message>
+            <source>Right-click</source>
+            <translation>Botão direito</translation>
+        </message>
+        <message>
+            <source>Highlight the net of a wire, pin or label, or clear it</source>
+            <translation>Realça a rede de um fio, pino ou rótulo, ou limpa o realce</translation>
+        </message>
+        <message>
+            <source>Export Diagram</source>
+            <translation>Exportar diagrama</translation>
+        </message>
+        <message>
+            <source>PNG image</source>
+            <translation>Imagem PNG</translation>
+        </message>
+        <message>
+            <source>SVG drawing</source>
+            <translation>Desenho SVG</translation>
+        </message>
+        <message>
+            <source>Format:</source>
+            <translation>Formato:</translation>
+        </message>
+        <message>
+            <source>Background:</source>
+            <translation>Fundo:</translation>
+        </message>
+        <message>
+            <source>PNG size:</source>
+            <translation>Tamanho do PNG:</translation>
+        </message>
+        <message>
+            <source>diagram</source>
+            <translation>diagrama</translation>
+        </message>
+        <message>
+            <source>SVG drawing (*.svg)</source>
+            <translation>Desenho SVG (*.svg)</translation>
+        </message>
+        <message>
+            <source>Exported %1</source>
+            <translation>Exportado %1</translation>
+        </message>
+        <message>
+            <source>Analog circuits</source>
+            <translation>Circuitos analógicos</translation>
+        </message>
+        <message>
+            <source>Digital logic</source>
+            <translation>Lógica digital</translation>
+        </message>
+        <message>
+            <source>Blue Pill (STM32F103)</source>
+            <translation>Blue Pill (STM32F103)</translation>
+        </message>
+        <message>
+            <source>Motors and energy</source>
+            <translation>Motores e energia</translation>
+        </message>
+        <message>
+            <source>ESP32-C3</source>
+            <translation>ESP32-C3</translation>
+        </message>
+        <message>
+            <source>AVR and Arduino</source>
+            <translation>AVR e Arduino</translation>
+        </message>
+        <message>
+            <source>STM32F407</source>
+            <translation>STM32F407</translation>
+        </message>
+        <message>
             <source>riscv32-esp-elf-gdb</source>
             <translation>o riscv32-esp-elf-gdb</translation>
         </message>
@@ -1956,10 +2063,6 @@ Permitir para este projeto neste computador? Sem isso, a rede das placas fica de
         <message>
             <source>Esc</source>
             <translation>Esc</translation>
-        </message>
-        <message>
-            <source>Cancel the wire or tool, then clear the selection</source>
-            <translation>Cancelar o fio ou a ferramenta, depois limpar a seleção</translation>
         </message>
         <message>
             <source>Space</source>
@@ -2923,6 +3026,16 @@ Permitir para este projeto neste computador? Sem isso, a rede das placas fica de
         </message>
     </context>
     <context>
+        <name>simnodus::ui::SchematicScene</name>
+        <message numerus="yes">
+            <source>Net %1: %2 (%n pin(s))</source>
+            <translation>
+                <numerusform>Rede %1: %2 (%n pino)</numerusform>
+                <numerusform>Rede %1: %2 (%n pinos)</numerusform>
+            </translation>
+        </message>
+    </context>
+    <context>
         <name>simnodus::ui::SchematicView</name>
         <message>
             <source>Wire: click to start, click to add bends, click a pin or wire to finish. Space changes the corner, Esc cancels.</source>
@@ -2991,6 +3104,22 @@ Permitir para este projeto neste computador? Sem isso, a rede das placas fica de
         <message>
             <source>The last voltage probe now measures relative to this net.</source>
             <translation>A última ponta de tensão agora mede em relação a esta rede.</translation>
+        </message>
+        <message>
+            <source>Net highlight cleared</source>
+            <translation>Realce de rede removido</translation>
+        </message>
+        <message>
+            <source>Point at a wire, a pin or a net label to highlight its net</source>
+            <translation>Aponte para um fio, um pino ou um rótulo de rede para realçar a sua rede</translation>
+        </message>
+        <message>
+            <source>Highlight Net</source>
+            <translation>Realçar rede</translation>
+        </message>
+        <message>
+            <source>Clear Net Highlight</source>
+            <translation>Limpar realce de rede</translation>
         </message>
         <message>
             <source>Ground (0)</source>
@@ -3828,6 +3957,38 @@ Permitir para este projeto neste computador? Sem isso, a rede das placas fica de
             <translation>Conteúdo com que a memória inicia cada simulação (.bin ou Intel .hex, guardado relativo ao projeto)</translation>
         </message>
         <message>
+            <source>RAM 16x4 (teaching)</source>
+            <translation>RAM 16x4 (didática)</translation>
+        </message>
+        <message>
+            <source>A small RAM to learn how a memory works: 16 words of 4 bits. A0-A3 select a word and Q0-Q3 always show it; while WE is 0 the word takes D0-D3 (write), when WE goes back to 1 it keeps them. The symbol lists the 16 words, the selected one marked (blue: read, red: write). No supply pins: the level (3.3 or 5 V) is a property; wire digital inputs and outputs, gates or a board's pins at the same level. A write needs WE to have been 1 first. Window &gt; Memory Viewer shows and edits it while running.</source>
+            <translation>Uma RAM pequena para aprender como uma memória funciona: 16 palavras de 4 bits. A0-A3 escolhem uma palavra e Q0-Q3 sempre a mostram; enquanto WE está em 0 a palavra recebe D0-D3 (escrita), quando WE volta a 1 ela os guarda. O símbolo lista as 16 palavras, a selecionada marcada (azul: leitura, vermelho: escrita). Sem pinos de alimentação: o nível (3,3 ou 5 V) é uma propriedade; ligue entradas e saídas digitais, portas ou pinos de uma placa no mesmo nível. Uma escrita exige que WE tenha estado em 1 antes. Janela &gt; Visualizador de memória a mostra e edita durante a simulação.</translation>
+        </message>
+        <message>
+            <source>High level</source>
+            <translation>Nível alto</translation>
+        </message>
+        <message>
+            <source>Logic level of the inputs and outputs: an input reads 1 above 0.7 of it and 0 below 0.3 of it</source>
+            <translation>Nível lógico das entradas e saídas: uma entrada lê 1 acima de 0,7 dele e 0 abaixo de 0,3 dele</translation>
+        </message>
+        <message>
+            <source>3.3</source>
+            <translation>3.3</translation>
+        </message>
+        <message>
+            <source>5</source>
+            <translation>5</translation>
+        </message>
+        <message>
+            <source>Contents</source>
+            <translation>Conteúdo</translation>
+        </message>
+        <message>
+            <source>The words at the start of a run, one hexadecimal digit each (0-F), word 0 first; fewer digits leave the rest at 0</source>
+            <translation>As palavras no início de uma simulação, um dígito hexadecimal cada (0-F), a palavra 0 primeiro; com menos dígitos o resto fica em 0</translation>
+        </message>
+        <message>
             <source>ROM (parallel)</source>
             <translation>ROM (paralela)</translation>
         </message>
@@ -3966,10 +4127,6 @@ Permitir para este projeto neste computador? Sem isso, a rede das placas fica de
         <message>
             <source>Data bits per frame</source>
             <translation>Bits de dados por quadro</translation>
-        </message>
-        <message>
-            <source>5</source>
-            <translation>5</translation>
         </message>
         <message>
             <source>6</source>
@@ -4220,16 +4377,20 @@ Permitir para este projeto neste computador? Sem isso, a rede das placas fica de
             <translation>Decodificador de 4 bits que mostra 0-9 e A-F num display de catodo comum</translation>
         </message>
         <message>
-            <source>8x8 LED matrix</source>
-            <translation>Matriz de LEDs 8x8</translation>
+            <source>Digital output</source>
+            <translation>Saída digital</translation>
         </message>
         <message>
-            <source>64 LEDs in rows (cathodes) and columns (anodes), for multiplexing</source>
-            <translation>64 LEDs em linhas (catodos) e colunas (anodos), para multiplexação</translation>
+            <source>Shows the logic level on its pin, 0 or 1, and lights while it is 1</source>
+            <translation>Mostra o nível lógico do seu pino, 0 ou 1, e acende enquanto ele é 1</translation>
         </message>
         <message>
-            <source>LED color; sets the forward voltage (red about 1.9 V at 10 mA)</source>
-            <translation>Cor do LED; define a tensão direta (vermelho cerca de 1,9 V a 10 mA)</translation>
+            <source>Logic level of the circuit: the pin reads 1 above half of it (1.65 V or 2.5 V)</source>
+            <translation>Nível lógico do circuito: o pino lê 1 acima da metade dele (1,65 V ou 2,5 V)</translation>
+        </message>
+        <message>
+            <source>Color of the lit box</source>
+            <translation>Cor da caixa acesa</translation>
         </message>
         <message>
             <source>red</source>
@@ -4242,6 +4403,18 @@ Permitir para este projeto neste computador? Sem isso, a rede das placas fica de
         <message>
             <source>green</source>
             <translation>verde</translation>
+        </message>
+        <message>
+            <source>8x8 LED matrix</source>
+            <translation>Matriz de LEDs 8x8</translation>
+        </message>
+        <message>
+            <source>64 LEDs in rows (cathodes) and columns (anodes), for multiplexing</source>
+            <translation>64 LEDs em linhas (catodos) e colunas (anodos), para multiplexação</translation>
+        </message>
+        <message>
+            <source>LED color; sets the forward voltage (red about 1.9 V at 10 mA)</source>
+            <translation>Cor do LED; define a tensão direta (vermelho cerca de 1,9 V a 10 mA)</translation>
         </message>
         <message>
             <source>8x8 LED matrix (digital)</source>
@@ -4798,10 +4971,6 @@ Permitir para este projeto neste computador? Sem isso, a rede das placas fica de
         <message>
             <source>inverted</source>
             <translation>invertida</translation>
-        </message>
-        <message>
-            <source>High level</source>
-            <translation>Nível alto</translation>
         </message>
         <message>
             <source>Voltage of a true bit</source>
@@ -5692,6 +5861,34 @@ Permitir para este projeto neste computador? Sem isso, a rede das placas fica de
             <translation>Transceptor RS-485 half-duplex (MAX485, DIP-8): com DE em alto o driver põe DI em A e o seu complemento em B; com RE em baixo RO fica em alto enquanto A está acima de B. Ligue DE e RE juntos para um pino de direção; termine linhas longas com 120 ohm entre A e B. Alimentação de 5 V. Comportamental</translation>
         </message>
         <message>
+            <source>Optocoupler 4N25</source>
+            <translation>Optoacoplador 4N25</translation>
+        </message>
+        <message>
+            <source>Optocoupler 4N25 (DIP-6): an infrared LED (A pin 1, K pin 2) lights an NPN phototransistor (C pin 5, E pin 4, base pin 6, which may stay open or take a resistor to E for faster switching). The collector current is CTR x the LED current until the transistor saturates; about 1.2 V across the LED at 10 mA, switching in microseconds. Approximate model</source>
+            <translation>Optoacoplador 4N25 (DIP-6): um LED infravermelho (A pino 1, K pino 2) ilumina um fototransistor NPN (C pino 5, E pino 4, base pino 6, que pode ficar aberta ou receber um resistor até E para chavear mais rápido). A corrente de coletor é CTR x a corrente do LED até o transistor saturar; cerca de 1,2 V no LED a 10 mA, chaveamento em microssegundos. Modelo aproximado</translation>
+        </message>
+        <message>
+            <source>CTR</source>
+            <translation>CTR</translation>
+        </message>
+        <message>
+            <source>Current transfer ratio, collector current over LED current (4N25: at least 20 % at 10 mA, typically 50 %)</source>
+            <translation>Razão de transferência de corrente, corrente de coletor sobre a corrente do LED (4N25: pelo menos 20 % a 10 mA, tipicamente 50 %)</translation>
+        </message>
+        <message>
+            <source>Optocoupler PC817</source>
+            <translation>Optoacoplador PC817</translation>
+        </message>
+        <message>
+            <source>Optocoupler PC817 (DIP-4): an infrared LED (A pin 1, K pin 2) lights an NPN phototransistor (C pin 4, E pin 3). The collector current is CTR x the LED current until the transistor saturates; about 1.2 V across the LED at 10 mA, switching in microseconds. Approximate model</source>
+            <translation>Optoacoplador PC817 (DIP-4): um LED infravermelho (A pino 1, K pino 2) ilumina um fototransistor NPN (C pino 4, E pino 3). A corrente de coletor é CTR x a corrente do LED até o transistor saturar; cerca de 1,2 V no LED a 10 mA, chaveamento em microssegundos. Modelo aproximado</translation>
+        </message>
+        <message>
+            <source>Current transfer ratio, collector current over LED current (PC817 at 5 mA: rank A 80-160 %, B 130-260 %, C 200-400 %, D 300-600 %)</source>
+            <translation>Razão de transferência de corrente, corrente de coletor sobre a corrente do LED (PC817 a 5 mA: classe A 80-160 %, B 130-260 %, C 200-400 %, D 300-600 %)</translation>
+        </message>
+        <message>
             <source>PWM controller TL494</source>
             <translation>Controlador PWM TL494</translation>
         </message>
@@ -6062,22 +6259,6 @@ Permitir para este projeto neste computador? Sem isso, a rede das placas fica de
         <message>
             <source>Temperature of the thermistor; drag the part or use the wheel while running (-40 to 125 °C)</source>
             <translation>Temperatura do termistor; arraste a peça ou use a roda durante a execução (-40 a 125 °C)</translation>
-        </message>
-        <message>
-            <source>Optocoupler PC817</source>
-            <translation>Optoacoplador PC817</translation>
-        </message>
-        <message>
-            <source>Phototransistor optocoupler: the LED current from A to K lets the transistor pass up to CTR × that current from C to E; input and output are isolated</source>
-            <translation>Optoacoplador com fototransistor: a corrente do LED de A para K deixa o transistor passar até CTR × essa corrente de C para E; entrada e saída são isoladas</translation>
-        </message>
-        <message>
-            <source>Current transfer ratio</source>
-            <translation>Razão de transferência de corrente</translation>
-        </message>
-        <message>
-            <source>Collector current / LED current (PC817: 50 to 600 %, by rank A to D)</source>
-            <translation>Corrente de coletor / corrente do LED (PC817: 50 a 600 %, pela classe A a D)</translation>
         </message>
         <message>
             <source>Motion sensor PIR HC-SR501</source>
@@ -6590,10 +6771,6 @@ Permitir para este projeto neste computador? Sem isso, a rede das placas fica de
         <message>
             <source>Voltage of the level 1; the level 0 is 0 V</source>
             <translation>Tensão do nível 1; o nível 0 é 0 V</translation>
-        </message>
-        <message>
-            <source>3.3</source>
-            <translation>3.3</translation>
         </message>
         <message>
             <source>Level at the start of a run</source>

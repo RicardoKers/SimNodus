@@ -51,7 +51,7 @@ library::ComponentLibrary& board_library()
 sim::McuEnvironment environment()
 {
     sim::McuEnvironment e;
-    e.project_dir = SIMNODUS_TEST_EXAMPLES_DIR;
+    e.project_dir = std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "01_Analog_circuits";
     return e;
 }
 
@@ -145,10 +145,10 @@ TEST_CASE("session: boards without firmware are explained")
 
     // The emulator needs nothing installed.
     test::CircuitBuilder blink(board_library());
-    blink.add("bluepill", {{"G1", "0"}}, {{"firmware", "firmware/blink/blink.elf"}});
+    blink.add("bluepill", {{"G1", "0"}}, {{"firmware", "../firmware/blink/blink.elf"}});
     error.clear();
     requests.clear();
-    CHECK(sim::build_mcu_requests(blink.schematic, board_library(), folder_only(SIMNODUS_TEST_EXAMPLES_DIR), requests, error));
+    CHECK(sim::build_mcu_requests(blink.schematic, board_library(), folder_only(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "01_Analog_circuits"), requests, error));
     CHECK(requests.size() == 1);
 }
 
@@ -156,7 +156,7 @@ TEST_CASE("session: a Blue Pill runs its firmware alongside the circuit")
 {
     REQUIRE(test::engine() != nullptr);
     test::CircuitBuilder b(board_library());
-    const model::Id board = b.add("bluepill", {{"G1", "0"}}, {{"firmware", "firmware/blink/blink.elf"}});
+    const model::Id board = b.add("bluepill", {{"G1", "0"}}, {{"firmware", "../firmware/blink/blink.elf"}});
     b.add("resistor", {{"1", "N1"}, {"2", "0"}}, {{"R", "1k"}});
     b.add("vdc", {{"+", "N1"}, {"-", "0"}}, {{"V", "1"}});
     auto settings = b.schematic.settings();
@@ -231,7 +231,7 @@ TEST_CASE("session: a Blue Pill runs its firmware alongside the circuit")
 TEST_CASE("session: transient mode refuses microcontrollers")
 {
     test::CircuitBuilder b(board_library());
-    b.add("bluepill", {{"G1", "0"}}, {{"firmware", "firmware/blink/blink.elf"}});
+    b.add("bluepill", {{"G1", "0"}}, {{"firmware", "../firmware/blink/blink.elf"}});
     auto settings = b.schematic.settings();
     settings.mode = model::SimulationMode::Transient;
     b.schematic.set_settings(settings);
@@ -249,7 +249,7 @@ TEST_CASE("session: a GPIO output drives the circuit through its pin model")
 {
     REQUIRE(test::engine() != nullptr);
     test::CircuitBuilder b(board_library());
-    b.add("bluepill", {{"G1", "0"}, {"PA0", "OUT"}}, {{"firmware", "firmware/blink/blink.elf"}});
+    b.add("bluepill", {{"G1", "0"}, {"PA0", "OUT"}}, {{"firmware", "../firmware/blink/blink.elf"}});
     b.add("resistor", {{"1", "OUT"}, {"2", "0"}}, {{"R", "1k"}});
     auto settings = b.schematic.settings();
     settings.speed = 0.0;
@@ -314,7 +314,7 @@ TEST_CASE("session: coupled runs with the same circuit inputs repeat exactly on 
     // window rule guarantees it by construction.)
     auto run_once = [] {
         test::CircuitBuilder b(board_library());
-        b.add("bluepill", {{"G1", "0"}, {"PA0", "OUT"}, {"PA1", "IN"}}, {{"firmware", "firmware/button_irq/button_irq.elf"}});
+        b.add("bluepill", {{"G1", "0"}, {"PA0", "OUT"}, {"PA1", "IN"}}, {{"firmware", "../firmware/button_irq/button_irq.elf"}});
         b.add("vpulse", {{"+", "SRC"}, {"-", "0"}}, {{"Vlow", "0"}, {"Vhigh", "3.3"}, {"f", "25"}, {"duty", "50"}, {"rise", "10u"}});
         b.add("resistor", {{"1", "SRC"}, {"2", "IN"}}, {{"R", "1k"}});
         b.add("resistor", {{"1", "OUT"}, {"2", "0"}}, {{"R", "1k"}});
@@ -374,7 +374,7 @@ TEST_CASE("session: measured cost of the coupling window on the own emulator")
     // a 1 ms window ran at 2.48x real time, 100 us at 2.40x, 20 us at 2.32x).
     for (const double window : {1e-4, 2e-5}) {
         test::CircuitBuilder b(board_library());
-        b.add("bluepill", {{"G1", "0"}, {"PA0", "OUT"}, {"PA1", "IN"}}, {{"firmware", "firmware/button_irq/button_irq.elf"}});
+        b.add("bluepill", {{"G1", "0"}, {"PA0", "OUT"}, {"PA1", "IN"}}, {{"firmware", "../firmware/button_irq/button_irq.elf"}});
         b.add("vpulse", {{"+", "SRC"}, {"-", "0"}}, {{"Vlow", "0"}, {"Vhigh", "3.3"}, {"f", "100"}, {"duty", "50"}, {"rise", "10u"}});
         b.add("resistor", {{"1", "SRC"}, {"2", "IN"}}, {{"R", "1k"}});
         b.add("resistor", {{"1", "OUT"}, {"2", "0"}}, {{"R", "1k"}});
@@ -414,7 +414,7 @@ TEST_CASE("session: a push button on the schematic triggers the firmware interru
 {
     REQUIRE(test::engine() != nullptr);
     test::CircuitBuilder b(board_library());
-    b.add("bluepill", {{"G1", "0"}, {"PA0", "OUT"}, {"PA1", "BTN"}}, {{"firmware", "firmware/button_irq/button_irq.elf"}});
+    b.add("bluepill", {{"G1", "0"}, {"PA0", "OUT"}, {"PA1", "BTN"}}, {{"firmware", "../firmware/button_irq/button_irq.elf"}});
     const model::Id button = b.add("button_no", {{"1", "BTN"}, {"2", "0"}});
     b.add("resistor", {{"1", "OUT"}, {"2", "0"}}, {{"R", "1k"}});
     auto settings = b.schematic.settings();
@@ -486,7 +486,7 @@ TEST_CASE("session: a push button on the schematic triggers the firmware interru
 TEST_CASE("session: lesson 2 counts bounces without the RC filter and one edge with it")
 {
     REQUIRE(test::engine() != nullptr);
-    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "11_Lesson2_button_and_EXTI.snx");
+    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "03_Blue_Pill_STM32F103/11_Lesson2_button_and_EXTI.snx");
     REQUIRE(loaded.schematic.has_value());
     model::Id board = model::no_id;
     model::Id button = model::no_id;
@@ -557,7 +557,7 @@ TEST_CASE("soak: one hour of example 07 on the own emulator keeps memory flat")
         return;
     }
     REQUIRE(test::engine() != nullptr);
-    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "07_Blue_Pill_blink.snx");
+    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "03_Blue_Pill_STM32F103/07_Blue_Pill_blink.snx");
     REQUIRE(loaded.schematic.has_value());
     sim::RunRequest request;
     request.schematic = *loaded.schematic;
@@ -649,7 +649,7 @@ TEST_CASE("soak: the analog circuit alone, for comparison")
 TEST_CASE("session: lesson 1 filters the 1 kHz square wave as the RC formula predicts")
 {
     REQUIRE(test::engine() != nullptr);
-    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "10_Lesson1_GPIO_output.snx");
+    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "03_Blue_Pill_STM32F103/10_Lesson1_GPIO_output.snx");
     REQUIRE(loaded.schematic.has_value());
     sim::RunRequest request;
     request.schematic = *loaded.schematic;
@@ -718,7 +718,7 @@ TEST_CASE("session: lesson 1 filters the 1 kHz square wave as the RC formula pre
 TEST_CASE("session: example 13 PWM averages to a quarter of 3.3 V and the capture sees 1 kHz")
 {
     REQUIRE(test::engine() != nullptr);
-    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "13_Blue_Pill_timer_PWM.snx");
+    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "03_Blue_Pill_STM32F103/13_Blue_Pill_timer_PWM.snx");
     REQUIRE(loaded.schematic.has_value());
     sim::RunRequest request;
     request.schematic = *loaded.schematic;
@@ -805,7 +805,7 @@ TEST_CASE("the own emulator's runner averages a pin's drive over a step with exa
 TEST_CASE("session: example 14 converts the potentiometer voltage and sets the PWM duty from it")
 {
     REQUIRE(test::engine() != nullptr);
-    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "14_Blue_Pill_ADC_to_PWM.snx");
+    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "03_Blue_Pill_STM32F103/14_Blue_Pill_ADC_to_PWM.snx");
     REQUIRE(loaded.schematic.has_value());
     model::Id board = model::no_id;
     model::Id pot = model::no_id;
@@ -872,7 +872,7 @@ TEST_CASE("session: example 14 converts the potentiometer voltage and sets the P
 TEST_CASE("session: exact edges keep lesson 1's square wave square at the 100 us step")
 {
     REQUIRE(test::engine() != nullptr);
-    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "10_Lesson1_GPIO_output.snx");
+    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "03_Blue_Pill_STM32F103/10_Lesson1_GPIO_output.snx");
     REQUIRE(loaded.schematic.has_value());
     for (const bool exact : {false, true}) {
         sim::RunRequest request;
@@ -926,7 +926,7 @@ TEST_CASE("session: exact edges keep lesson 1's square wave square at the 100 us
 TEST_CASE("session: lesson 3 reports the potentiometer code and the filtered PWM it sets")
 {
     REQUIRE(test::engine() != nullptr);
-    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "16_Lesson3_ADC_and_UART.snx");
+    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "03_Blue_Pill_STM32F103/16_Lesson3_ADC_and_UART.snx");
     REQUIRE(loaded.schematic.has_value());
     model::Id board = model::no_id;
     model::Id pot = model::no_id;
@@ -985,7 +985,7 @@ TEST_CASE("session: example 45 runs ESP-IDF's blink on the ESP32-C3 board")
     // SN-246 (ADR 0106): the experimental ESP32-C3 board runs a flash image in
     // a run like the Blue Pill; its GPIO8 drives the LED and UART0 shows the log.
     REQUIRE(test::engine() != nullptr);
-    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "45_ESP32-C3_blink.snx");
+    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "05_ESP32-C3/45_ESP32-C3_blink.snx");
     REQUIRE(loaded.schematic.has_value());
     model::Id board = model::no_id;
     for (const auto& c : loaded.schematic->components()) {
@@ -1041,7 +1041,7 @@ TEST_CASE("session: example 73 blinks the ESP32-C3 SuperMini's own LED")
     // 13 GPIOs are on its pins and whose LED (GPIO8, lit while low) is on the board.
     REQUIRE(test::engine() != nullptr);
     const auto loaded =
-        io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "73_ESP32-C3_SuperMini_blink.snx");
+        io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "05_ESP32-C3/73_ESP32-C3_SuperMini_blink.snx");
     REQUIRE(loaded.schematic.has_value());
     model::Id board = model::no_id;
     for (const auto& c : loaded.schematic->components()) {
@@ -1102,7 +1102,7 @@ TEST_CASE("session: two ESP32-C3 boards join the project's Wi-Fi network (E-09, 
     // Each board runs in its own runner thread; the run's air carries their
     // frames, SimNodus's access point gives each an address.
     REQUIRE(test::engine() != nullptr);
-    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "45_ESP32-C3_blink.snx");
+    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "05_ESP32-C3/45_ESP32-C3_blink.snx");
     REQUIRE(loaded.schematic.has_value());
     sim::RunRequest request;
     request.schematic = *loaded.schematic;
@@ -1186,7 +1186,7 @@ TEST_CASE("session: two ESP32-C3 boards join the project's Wi-Fi network (E-09, 
 TEST_CASE("session: example 60's web server answers through the Wi-Fi gateway's forwarded port (E-09, SN-269)")
 {
     REQUIRE(test::engine() != nullptr);
-    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "60_ESP32-C3_Wi-Fi_web_server.snx");
+    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "05_ESP32-C3/60_ESP32-C3_Wi-Fi_web_server.snx");
     REQUIRE(loaded.schematic.has_value());
     CHECK(loaded.schematic->settings().wifi.gateway);
     REQUIRE(loaded.schematic->settings().wifi.forwards.size() == 1);
@@ -1201,7 +1201,7 @@ TEST_CASE("session: example 60's web server answers through the Wi-Fi gateway's 
     request.vectors = {"gpio8"};
     std::string error;
     sim::McuEnvironment env = environment();
-    env.project_dir = SIMNODUS_TEST_EXAMPLES_DIR;
+    env.project_dir = std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "01_Analog_circuits";
     REQUIRE(sim::build_mcu_requests(request.schematic, board_library(), env, request.mcus, error));
     const model::Id board = request.mcus.front().component;
     sim::SimulationSession session;
@@ -1258,7 +1258,7 @@ TEST_CASE("session: example 46 reads an LM75 and a 24C02 from the ESP32-C3 over 
     // the pin level, through the 4.7 kOhm pull-ups of the schematic.
     REQUIRE(test::engine() != nullptr);
     const auto loaded = io::load_project(
-        std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "46_ESP32-C3_I2C_sensor_and_EEPROM.snx");
+        std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "05_ESP32-C3/46_ESP32-C3_I2C_sensor_and_EEPROM.snx");
     REQUIRE(loaded.schematic.has_value());
     model::Id board = model::no_id;
     for (const auto& c : loaded.schematic->components()) {
@@ -1299,7 +1299,7 @@ TEST_CASE("session: example 47 reads an MCP3208 and programs a W25Q32 from the E
     // SN-247: ESP-IDF's SPI master driver with DMA and two hardware CS lines.
     REQUIRE(test::engine() != nullptr);
     const auto loaded =
-        io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "47_ESP32-C3_SPI_ADC_and_flash.snx");
+        io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "05_ESP32-C3/47_ESP32-C3_SPI_ADC_and_flash.snx");
     REQUIRE(loaded.schematic.has_value());
     model::Id board = model::no_id;
     model::Id pot = model::no_id;
@@ -1356,7 +1356,7 @@ TEST_CASE("session: example 48 runs a light along a WS2812B strip from the ESP32
 {
     // SN-247: ESP-IDF's RMT driver with a bytes encoder, 192 bits per frame.
     REQUIRE(test::engine() != nullptr);
-    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "48_ESP32-C3_WS2812_strip.snx");
+    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "05_ESP32-C3/48_ESP32-C3_WS2812_strip.snx");
     REQUIRE(loaded.schematic.has_value());
     model::Id board = model::no_id;
     model::Id strip = model::no_id;
@@ -1408,7 +1408,7 @@ TEST_CASE("session: example 49 samples a sine with the ESP32-C3's ADC and DMA an
     // times (10 kHz on each pin); the board's chip temperature changes while
     // running, as the window sends it.
     REQUIRE(test::engine() != nullptr);
-    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "49_ESP32-C3_ADC_with_DMA_and_temperature.snx");
+    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "05_ESP32-C3/49_ESP32-C3_ADC_with_DMA_and_temperature.snx");
     REQUIRE(loaded.schematic.has_value());
     model::Id board = model::no_id;
     for (const auto& c : loaded.schematic->components()) {
@@ -1495,7 +1495,7 @@ TEST_CASE("session: the ATmega8A in the circuit: serial with the EEPROM, and a 1
     // received bytes goes into the EEPROM, which the session reports.
     sim::RunRequest request;
     model::Id chip = model::no_id;
-    start("50_ATmega8_serial_and_EEPROM.snx", request, chip);
+    start("06_AVR_and_Arduino/50_ATmega8_serial_and_EEPROM.snx", request, chip);
     CHECK(request.mcus.front().options.parameters.at("fuse_low") == "E1");
     CHECK(request.mcus.front().options.parameters.count("crystal_hz") == 0);
     sim::SimulationSession session;
@@ -1530,7 +1530,7 @@ TEST_CASE("session: the ATmega8A in the circuit: serial with the EEPROM, and a 1
     // Example 51: the crystal between XTAL1 and XTAL2 is the clock.
     sim::RunRequest crystal;
     model::Id u1 = model::no_id;
-    start("51_ATmega8_crystal_16_MHz.snx", crystal, u1);
+    start("06_AVR_and_Arduino/51_ATmega8_crystal_16_MHz.snx", crystal, u1);
     CHECK(crystal.mcus.front().options.parameters.at("crystal_hz") == "16000000");
     CHECK(crystal.mcus.front().options.parameters.at("fuse_low") == "EF");
 }
@@ -1539,7 +1539,7 @@ TEST_CASE("session: example 55, the ATmega328P from its factory fuses: CLKPR, US
 {
     REQUIRE(test::engine() != nullptr);
     const auto loaded =
-        io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "55_ATmega328P_serial_CLKPR_and_temperature.snx");
+        io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "06_AVR_and_Arduino/55_ATmega328P_serial_CLKPR_and_temperature.snx");
     REQUIRE(loaded.schematic.has_value());
     model::Id chip = model::no_id;
     for (const auto& c : loaded.schematic->components()) {
@@ -1588,7 +1588,7 @@ TEST_CASE("session: example 55, the ATmega328P from its factory fuses: CLKPR, US
 TEST_CASE("session: example 58, the Arduino UNO: its fuses, crystal and Optiboot come from the board (SN-261)")
 {
     REQUIRE(test::engine() != nullptr);
-    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "58_Arduino_UNO_serial_and_upload.snx");
+    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "06_AVR_and_Arduino/58_Arduino_UNO_serial_and_upload.snx");
     REQUIRE(loaded.schematic.has_value());
     model::Id board = model::no_id;
     for (const auto& c : loaded.schematic->components()) {
@@ -1626,7 +1626,7 @@ TEST_CASE("session: example 58, the Arduino UNO: its fuses, crystal and Optiboot
 TEST_CASE("session: example 52 reads the potentiometer with the ATmega8's ADC and sets the PWM from it (SN-259)")
 {
     REQUIRE(test::engine() != nullptr);
-    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "52_ATmega8_ADC_PWM_station.snx");
+    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "06_AVR_and_Arduino/52_ATmega8_ADC_PWM_station.snx");
     REQUIRE(loaded.schematic.has_value());
     model::Id chip = model::no_id;
     for (const auto& c : loaded.schematic->components()) {
@@ -1674,7 +1674,7 @@ TEST_CASE("session: example 52 reads the potentiometer with the ATmega8's ADC an
 TEST_CASE("session: a GDB client halts firmware and circuit together, and detaching runs both on")
 {
     REQUIRE(test::engine() != nullptr);
-    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "07_Blue_Pill_blink.snx");
+    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "03_Blue_Pill_STM32F103/07_Blue_Pill_blink.snx");
     REQUIRE(loaded.schematic.has_value());
     sim::RunRequest request;
     request.schematic = *loaded.schematic;
@@ -1747,7 +1747,7 @@ TEST_CASE("session: GDB debugs the ESP32-C3 with its circuit (SN-249)")
     // Example 45: the firmware waits at the ROM's reset vector for the
     // debugger; a breakpoint at the ROM's main halts firmware and circuit.
     REQUIRE(test::engine() != nullptr);
-    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "45_ESP32-C3_blink.snx");
+    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "05_ESP32-C3/45_ESP32-C3_blink.snx");
     REQUIRE(loaded.schematic.has_value());
     sim::RunRequest request;
     request.schematic = *loaded.schematic;
@@ -1801,7 +1801,7 @@ TEST_CASE("session: avr-gdb debugs the Arduino UNO with its circuit (SN-262)")
     // starts the sketch after the power-on reset, and a breakpoint at the
     // sketch's main halts firmware and circuit.
     REQUIRE(test::engine() != nullptr);
-    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "58_Arduino_UNO_serial_and_upload.snx");
+    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "06_AVR_and_Arduino/58_Arduino_UNO_serial_and_upload.snx");
     REQUIRE(loaded.schematic.has_value());
     std::string error;
     const auto image = emu::read_elf(
@@ -1867,8 +1867,8 @@ TEST_CASE("session: one board's TX wired to another's RX passes the bytes on")
     // Board U1 (HAL example) prints its clocks on PA9; PA9 goes to U2's PA10, and
     // U2 (uart_echo) echoes every byte it receives on its own TX.
     test::CircuitBuilder b(board_library());
-    b.add("bluepill", {{"G1", "0"}, {"PA9", "LINK"}}, {{"firmware", "firmware/hal_clock/hal_clock.elf"}});
-    const model::Id echo = b.add("bluepill", {{"G1", "0"}, {"PA10", "LINK"}}, {{"firmware", "firmware/uart_echo/uart_echo.elf"}});
+    b.add("bluepill", {{"G1", "0"}, {"PA9", "LINK"}}, {{"firmware", "../firmware/hal_clock/hal_clock.elf"}});
+    const model::Id echo = b.add("bluepill", {{"G1", "0"}, {"PA10", "LINK"}}, {{"firmware", "../firmware/uart_echo/uart_echo.elf"}});
     b.add("resistor", {{"1", "LINK"}, {"2", "0"}}, {{"R", "100k"}});
     auto settings = b.schematic.settings();
     settings.speed = 0.0;
@@ -1907,9 +1907,9 @@ TEST_CASE("session: a receiver decodes frames from its RX pin through the circui
     // no byte link; U2 decodes the frames on PA10 (115200 baud, exact edges).
     for (const bool exact : {false, true}) {
         test::CircuitBuilder b(board_library());
-        b.add("bluepill", {{"G1", "0"}, {"PA9", "TX"}}, {{"firmware", "firmware/hal_clock/hal_clock.elf"}});
+        b.add("bluepill", {{"G1", "0"}, {"PA9", "TX"}}, {{"firmware", "../firmware/hal_clock/hal_clock.elf"}});
         const model::Id echo =
-            b.add("bluepill", {{"G1", "0"}, {"PA10", "RX"}}, {{"firmware", "firmware/uart_echo/uart_echo.elf"}});
+            b.add("bluepill", {{"G1", "0"}, {"PA10", "RX"}}, {{"firmware", "../firmware/uart_echo/uart_echo.elf"}});
         b.add("resistor", {{"1", "TX"}, {"2", "RX"}}, {{"R", "1k"}});
         b.add("resistor", {{"1", "RX"}, {"2", "0"}}, {{"R", "100k"}});
         auto settings = b.schematic.settings();
@@ -2272,7 +2272,7 @@ TEST_CASE("session: the STM32F407's ADC and DAC take their reference from VREF+ 
     // at 3.25 V. The potentiometer divides the same rail, so the code is the
     // same as at 3.3 V (2867 at 70 %), and the DAC gives 2867 / 4095 of 3.25 V.
     REQUIRE(test::engine() != nullptr);
-    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "68_STM32F407_PWM_ADC_DAC.snx");
+    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "07_STM32F407/68_STM32F407_PWM_ADC_DAC.snx");
     REQUIRE(loaded.schematic.has_value());
     sim::RunRequest request;
     request.schematic = *loaded.schematic;
@@ -2313,7 +2313,7 @@ TEST_CASE("session: the STM32F407's ADC and DAC take their reference from VREF+ 
 TEST_CASE("session: example 68, the STM32F407's ADC reads the circuit and its DAC drives it (E-12, SN-297)")
 {
     REQUIRE(test::engine() != nullptr);
-    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "68_STM32F407_PWM_ADC_DAC.snx");
+    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "07_STM32F407/68_STM32F407_PWM_ADC_DAC.snx");
     REQUIRE(loaded.schematic.has_value());
     model::Id chip = model::no_id;
     for (const auto& c : loaded.schematic->components()) {
@@ -2424,7 +2424,7 @@ TEST_CASE("session: example 69, the STM32F407's SPI to a 74HC595 and a MAX7219, 
 {
     REQUIRE(test::engine() != nullptr);
     std::map<std::string, model::Id> ids;
-    sim::RunRequest request = f4_example("69_STM32F407_SPI_I2C_DMA.snx", {"q0", "q1", "q2", "scl"}, ids);
+    sim::RunRequest request = f4_example("07_STM32F407/69_STM32F407_SPI_I2C_DMA.snx", {"q0", "q1", "q2", "scl"}, ids);
     sim::SimulationSession session;
     std::string error;
     REQUIRE(session.start(request, error));
@@ -2460,7 +2460,7 @@ TEST_CASE("session: the STM32CubeF4 HAL drives example 69's SPI and I2C chips an
     REQUIRE(test::engine() != nullptr);
     std::map<std::string, model::Id> ids;
     sim::RunRequest request
-        = f4_example("69_STM32F407_SPI_I2C_DMA.snx", {"q0"}, ids, "firmware/f4_hal_buses/f4_hal_buses.elf");
+        = f4_example("07_STM32F407/69_STM32F407_SPI_I2C_DMA.snx", {"q0"}, ids, "../firmware/f4_hal_buses/f4_hal_buses.elf");
     sim::SimulationSession session;
     std::string error;
     REQUIRE(session.start(request, error));
@@ -2482,7 +2482,7 @@ TEST_CASE("session: example 70, the STM32F407's RTC on its crystal, the alarm an
 {
     REQUIRE(test::engine() != nullptr);
     std::map<std::string, model::Id> ids;
-    sim::RunRequest request = f4_example("70_STM32F407_RTC_and_watchdog.snx", {}, ids);
+    sim::RunRequest request = f4_example("07_STM32F407/70_STM32F407_RTC_and_watchdog.snx", {}, ids);
     REQUIRE(request.mcus.size() == 1);
     CHECK(request.mcus.front().options.parameters.at("lse_hz") == "32768"); // Y2 between PC14 and PC15
     sim::SimulationSession session;
@@ -2507,7 +2507,7 @@ TEST_CASE("session: example 71, the STM32F407 station at 168 MHz: RTC, I2C, PWM,
 {
     REQUIRE(test::engine() != nullptr);
     std::map<std::string, model::Id> ids;
-    sim::RunRequest request = f4_example("71_STM32F407_station.snx", {"pwm_avg", "dac_out"}, ids);
+    sim::RunRequest request = f4_example("07_STM32F407/71_STM32F407_station.snx", {"pwm_avg", "dac_out"}, ids);
     sim::SimulationSession session;
     std::string error;
     REQUIRE(session.start(request, error));
@@ -2529,7 +2529,7 @@ TEST_CASE("session: example 71, the STM32F407 station at 168 MHz: RTC, I2C, PWM,
 TEST_CASE("session: example 67, the STM32F407 as a bare chip with its crystal on the diagram (E-12, SN-295)")
 {
     REQUIRE(test::engine() != nullptr);
-    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "67_STM32F407_clock_and_serial.snx");
+    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "07_STM32F407/67_STM32F407_clock_and_serial.snx");
     REQUIRE(loaded.schematic.has_value());
     model::Id chip = model::no_id;
     model::Id crystal = model::no_id;

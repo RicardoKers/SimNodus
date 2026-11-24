@@ -10,6 +10,7 @@
 #include "chart_painter.hpp"
 #include "component_panel.hpp"
 #include "control_server.hpp"
+#include "diagram_export.hpp"
 #include "document.hpp"
 #include "io_link.hpp"
 #include "messages_panel.hpp"
@@ -70,6 +71,7 @@
 #include <QVBoxLayout>
 
 #include <algorithm>
+#include <map>
 #include <numeric>
 
 namespace simnodus::ui {
@@ -350,6 +352,9 @@ void MainWindow::build_actions_and_menus()
     save_files->setStatusTip(tr("Save the project and copy its firmware and memory contents files into a folder next to it, "
                                 "so it runs on another computer"));
     file->addSeparator();
+    file->addAction(tr("&Export Diagram..."), this, &MainWindow::export_diagram)
+        ->setStatusTip(tr("Save the diagram as an SVG or PNG image with a light or dark background"));
+    file->addSeparator();
     auto* quit = file->addAction(tr("E&xit"), this, &QWidget::close);
     // QKeySequence::Quit has no usable key on Windows.
     quit->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_Q));
@@ -397,6 +402,10 @@ void MainWindow::build_actions_and_menus()
     view->addAction(tr("Zoom &Out"), view_, &SchematicView::zoom_out)->setShortcut(QKeySequence::ZoomOut);
     view->addAction(tr("&Fit Circuit"), view_, &SchematicView::fit_content)
         ->setShortcuts({QKeySequence(Qt::Key_F), QKeySequence(Qt::Key_Home)});
+    // SN-309: the net under the mouse (or of the selected wire); Esc clears it.
+    auto* highlight = view->addAction(tr("&Highlight Net"), view_, &SchematicView::toggle_net_highlight);
+    highlight->setShortcut(QKeySequence(Qt::Key_H));
+    highlight->setStatusTip(tr("Highlight every wire, pin and label of the net under the mouse; H again or Esc clears it"));
     view->addSeparator();
     // Light or dark colors (SN-162), applied at once and kept for the next start.
     auto* theme_menu = view->addMenu(tr("&Theme"));
@@ -1359,7 +1368,8 @@ QList<ShortcutRow> MainWindow::shortcut_rows() const
     }
     const QString canvas = tr("Schematic");
     const QString running = tr("While running");
-    rows.push_back({canvas, tr("Esc"), tr("Cancel the wire or tool, then clear the selection")});
+    rows.push_back({canvas, tr("Esc"), tr("Cancel the wire or tool, then clear the selection and the net highlight")});
+    rows.push_back({canvas, tr("Right-click"), tr("Highlight the net of a wire, pin or label, or clear it")});
     rows.push_back({canvas, tr("Space"), tr("Wire tool: change the corner; otherwise hold and drag to pan")});
     rows.push_back({canvas, tr("Arrow keys"), tr("Move the selection one grid step (Shift: ten steps)")});
     rows.push_back({canvas, tr("Ctrl+click"), tr("Add to or remove from the selection")});
@@ -1690,6 +1700,65 @@ void MainWindow::open_block(model::Id component)
     statusBar()->showMessage(text, 10000);
 }
 
+void MainWindow::export_diagram()
+{
+    // SN-310: format, background and PNG size first, then the file.
+    QDialog dialog(this);
+    dialog.setWindowTitle(tr("Export Diagram"));
+    auto* form = new QFormLayout(&dialog);
+    auto* format = new QComboBox(&dialog);
+    format->setObjectName(QStringLiteral("export_format"));
+    format->addItem(tr("PNG image"), QStringLiteral("png"));
+    format->addItem(tr("SVG drawing"), QStringLiteral("svg"));
+    auto* background = new QComboBox(&dialog);
+    background->setObjectName(QStringLiteral("export_background"));
+    background->addItem(tr("Light"), false);
+    background->addItem(tr("Dark"), true);
+    auto* size = new QComboBox(&dialog);
+    size->setObjectName(QStringLiteral("export_size"));
+    for (const int percent : {100, 200, 300, 400}) {
+        size->addItem(QStringLiteral("%1 %").arg(percent), percent / 100.0);
+    }
+    format->setCurrentIndex(std::max(0, format->findData(settings_.value(QStringLiteral("export/format"), QStringLiteral("png")))));
+    background->setCurrentIndex(settings_.value(QStringLiteral("export/dark"), theme::dark()).toBool() ? 1 : 0);
+    size->setCurrentIndex(std::max(0, size->findData(settings_.value(QStringLiteral("export/scale"), 2.0).toDouble())));
+    const auto update_size = [format, size] { size->setEnabled(format->currentData().toString() == QStringLiteral("png")); };
+    connect(format, &QComboBox::currentIndexChanged, &dialog, update_size);
+    update_size();
+    form->addRow(tr("Format:"), format);
+    form->addRow(tr("Background:"), background);
+    form->addRow(tr("PNG size:"), size);
+    auto* buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, &dialog);
+    connect(buttons, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
+    connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
+    form->addRow(buttons);
+    if (dialog.exec() != QDialog::Accepted) {
+        return;
+    }
+    DiagramExportOptions options;
+    options.svg = format->currentData().toString() == QStringLiteral("svg");
+    options.dark = background->currentData().toBool();
+    options.scale = size->currentData().toDouble();
+    settings_.setValue(QStringLiteral("export/format"), format->currentData());
+    settings_.setValue(QStringLiteral("export/dark"), options.dark);
+    settings_.setValue(QStringLiteral("export/scale"), size->currentData());
+    const QString base = document_->base_dir().isEmpty() ? QDir::homePath() : document_->base_dir();
+    const QString name = document_->file_path().isEmpty() ? tr("diagram") : QFileInfo(document_->file_path()).completeBaseName();
+    const QString extension = options.svg ? QStringLiteral(".svg") : QStringLiteral(".png");
+    const QString path = QFileDialog::getSaveFileName(this, tr("Export Diagram"), QDir(base).filePath(name + extension),
+        options.svg ? tr("SVG drawing (*.svg)") : tr("PNG image (*.png)"));
+    if (path.isEmpty()) {
+        return;
+    }
+    QString error;
+    run_->refresh_now();
+    if (!ui::export_diagram(*scene_, path, options, error)) {
+        QMessageBox::warning(this, tr("Export Diagram"), error);
+        return;
+    }
+    statusBar()->showMessage(tr("Exported %1").arg(QDir::toNativeSeparators(path)), 6000);
+}
+
 void MainWindow::export_chart(model::Id component, bool png)
 {
     const auto* c = document_->schematic().component(component);
@@ -1939,36 +2008,67 @@ void MainWindow::rebuild_recent_menu()
 void MainWindow::rebuild_examples_menu()
 {
     examples_menu_->clear();
+    // Category folders (SN-305): "01_Analog_circuits" is the submenu "Analog circuits".
+    const std::map<QString, QString> categories{{QStringLiteral("01_Analog_circuits"), tr("Analog circuits")},
+        {QStringLiteral("02_Digital_logic"), tr("Digital logic")},
+        {QStringLiteral("03_Blue_Pill_STM32F103"), tr("Blue Pill (STM32F103)")},
+        {QStringLiteral("04_Motors_and_energy"), tr("Motors and energy")},
+        {QStringLiteral("05_ESP32-C3"), tr("ESP32-C3")},
+        {QStringLiteral("06_AVR_and_Arduino"), tr("AVR and Arduino")},
+        {QStringLiteral("07_STM32F407"), tr("STM32F407")}};
     for (const auto& folder : examples_folders()) {
         const QDir dir(folder);
-        const auto files = dir.entryInfoList({QStringLiteral("*.snx")}, QDir::Files, QDir::Name);
-        if (files.isEmpty()) {
+        std::vector<std::pair<QMenu*, QFileInfoList>> groups;
+        for (const auto& sub : dir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot, QDir::Name)) {
+            if (sub.fileName().isEmpty() || !sub.fileName().front().isDigit()) {
+                continue; // firmware/, blocks/, lessons/ ...
+            }
+            const auto files = QDir(sub.absoluteFilePath()).entryInfoList({QStringLiteral("*.snx")}, QDir::Files, QDir::Name);
+            if (files.isEmpty()) {
+                continue;
+            }
+            QString title = sub.fileName();
+            if (const auto known = categories.find(title); known != categories.end()) {
+                title = known->second;
+            } else {
+                title = title.mid(title.indexOf(QLatin1Char('_')) + 1).replace(QLatin1Char('_'), QLatin1Char(' '));
+            }
+            groups.emplace_back(examples_menu_->addMenu(title), files);
+        }
+        // Projects directly in the folder (an older layout) follow the categories.
+        groups.emplace_back(examples_menu_, dir.entryInfoList({QStringLiteral("*.snx")}, QDir::Files, QDir::Name));
+        if (groups.size() == 1 && groups.front().second.isEmpty()) {
             continue;
         }
-        for (const auto& info : files) {
-            auto* action = examples_menu_->addAction(info.completeBaseName().replace(QLatin1Char('_'), QLatin1Char(' ')));
-            const QString path = info.absoluteFilePath();
-            connect(action, &QAction::triggered, this, [this, path] {
-                if (!confirm_discard()) {
-                    return;
-                }
-                run_->stop();
-                QStringList errors, warnings;
-                // Examples open as untitled copies (UI-15).
-                if (!document_->open_copy(path, errors, warnings)) {
-                    for (const auto& e : errors) {
-                        messages_->add(Severity::Error, e, tr("File"));
-                    }
-                    return;
-                }
-                speed_->setCurrentIndex(std::max(0, speed_->findData(document_->schematic().settings().speed)));
-                view_->fit_content();
-                update_run_state();
-            });
+        for (const auto& [menu, files] : groups) {
+            for (const auto& info : files) {
+                auto* action = menu->addAction(info.completeBaseName().replace(QLatin1Char('_'), QLatin1Char(' ')));
+                const QString path = info.absoluteFilePath();
+                connect(action, &QAction::triggered, this, [this, path] { open_example(path); });
+            }
         }
         break;
     }
     examples_menu_->setEnabled(!examples_menu_->isEmpty());
+}
+
+void MainWindow::open_example(const QString& path)
+{
+    if (!confirm_discard()) {
+        return;
+    }
+    run_->stop();
+    QStringList errors, warnings;
+    // Examples open as untitled copies (UI-15).
+    if (!document_->open_copy(path, errors, warnings)) {
+        for (const auto& e : errors) {
+            messages_->add(Severity::Error, e, tr("File"));
+        }
+        return;
+    }
+    speed_->setCurrentIndex(std::max(0, speed_->findData(document_->schematic().settings().speed)));
+    view_->fit_content();
+    update_run_state();
 }
 
 void MainWindow::save_settings()

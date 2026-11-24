@@ -67,8 +67,9 @@ rows = []
 # (example 60's Wi-Fi writes NVS) or a chip's EEPROM; the pass removes what it
 # leaves there.
 EXAMPLES = os.path.join(ROOT, "examples")
-before = set(os.listdir(EXAMPLES))
-for path in sorted(glob.glob(os.path.join(EXAMPLES, "*.snx"))):
+FOLDERS = sorted(glob.glob(os.path.join(EXAMPLES, "[0-9]*")))  # category folders (SN-305)
+before = {folder: set(os.listdir(folder)) for folder in FOLDERS}
+for path in sorted(glob.glob(os.path.join(EXAMPLES, "[0-9]*", "*.snx"))):
     name = os.path.basename(path)[:-4]
     row = {"example": name, "errors": []}
 
@@ -119,12 +120,13 @@ for path in sorted(glob.glob(os.path.join(EXAMPLES, "*.snx"))):
 
 c.p.stdin.close()
 app.terminate()
-for leftover in sorted(set(os.listdir(EXAMPLES)) - before):
-    if leftover.endswith("-flash.bin") or leftover.endswith("-eeprom.bin"):
-        try:
-            os.remove(os.path.join(EXAMPLES, leftover))
-        except OSError as error:
-            print(f"could not remove examples/{leftover}: {error}")
+for folder in FOLDERS:
+    for leftover in sorted(set(os.listdir(folder)) - before[folder]):
+        if leftover.endswith("-flash.bin") or leftover.endswith("-eeprom.bin"):
+            try:
+                os.remove(os.path.join(folder, leftover))
+            except OSError as error:
+                print(f"could not remove examples/{os.path.basename(folder)}/{leftover}: {error}")
 try:
     log = app.communicate(timeout=20)[0]
 except subprocess.TimeoutExpired:

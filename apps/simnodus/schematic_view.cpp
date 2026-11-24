@@ -15,6 +15,7 @@
 #include <QGraphicsScene>
 #include <QKeyEvent>
 #include <QKeySequence>
+#include <QMenu>
 #include <QMimeData>
 #include <QMouseEvent>
 #include <QPainter>
@@ -896,6 +897,8 @@ void SchematicView::mousePressEvent(QMouseEvent* event)
             finish_wire();
         } else if (tool_ != Tool::Select) {
             set_tool(Tool::Select);
+        } else {
+            net_menu(at, event->globalPosition().toPoint());
         }
         event->accept();
         return;
@@ -1289,6 +1292,64 @@ void SchematicView::mouseDoubleClickEvent(QMouseEvent* event)
     QGraphicsView::mouseDoubleClickEvent(event);
 }
 
+void SchematicView::toggle_net_highlight()
+{
+    if (!scene_) {
+        return;
+    }
+    // The net under the mouse, else the one of a selected wire or label.
+    std::optional<SchematicScene::NetAnchor> anchor;
+    const QPoint local = viewport()->mapFromGlobal(QCursor::pos());
+    if (viewport()->rect().contains(local)) {
+        anchor = scene_->net_anchor_at(grid_at(local));
+    }
+    for (const model::Id id : scene_->selected_ids()) {
+        if (anchor) {
+            break;
+        }
+        if (scene_->connectivity().wire_net.count(id) || scene_->connectivity().label_net.count(id)) {
+            anchor = SchematicScene::NetAnchor{id, {}};
+        }
+    }
+    const auto before = scene_->highlighted_net();
+    scene_->highlight_net(anchor);
+    if (!scene_->highlighted_net() || scene_->highlighted_net() == before) {
+        // Nothing there, or the same net again: the highlight ends.
+        scene_->highlight_net(std::nullopt);
+        emit status_message(anchor || before ? tr("Net highlight cleared")
+                                             : tr("Point at a wire, a pin or a net label to highlight its net"));
+        return;
+    }
+    emit status_message(scene_->net_summary(*scene_->highlighted_net()));
+}
+
+void SchematicView::net_menu(const model::Point& at, const QPoint& global)
+{
+    if (!scene_) {
+        return;
+    }
+    const auto anchor = scene_->net_anchor_at(at);
+    if (!anchor && !scene_->highlighted_net()) {
+        return;
+    }
+    QMenu menu(this);
+    if (anchor) {
+        menu.addAction(tr("Highlight Net"), this, [this, anchor] {
+            scene_->highlight_net(anchor);
+            if (const auto net = scene_->highlighted_net()) {
+                emit status_message(scene_->net_summary(*net));
+            }
+        });
+    }
+    if (scene_->highlighted_net()) {
+        menu.addAction(tr("Clear Net Highlight"), this, [this] {
+            scene_->highlight_net(std::nullopt);
+            emit status_message(tr("Net highlight cleared"));
+        });
+    }
+    menu.exec(global);
+}
+
 void SchematicView::keyPressEvent(QKeyEvent* event)
 {
     if (press_control_key(event)) {
@@ -1313,6 +1374,10 @@ void SchematicView::keyPressEvent(QKeyEvent* event)
             set_tool(Tool::Select);
         } else if (scene_) {
             scene_->clearSelection();
+            if (scene_->highlighted_net()) {
+                scene_->highlight_net(std::nullopt);
+                emit status_message(tr("Net highlight cleared"));
+            }
         }
         event->accept();
         return;

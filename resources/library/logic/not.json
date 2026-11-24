@@ -86,5 +86,6 @@
     "B_{ref}_o z_{ref} 0 V=V(y_{ref})",
     "R_{ref}_o z_{ref} {node:Y} 50",
     "R_{ref}_a {node:A} 0 1G"
-  ]
+  ],
+  "hidden_ground": true
 }

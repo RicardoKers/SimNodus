@@ -23,6 +23,8 @@ nothing.
   D0-D7, CE, OE and the RAM's WE, active low); the size is a parameter and the
   address pins beyond it are ignored; contents from a .bin or Intel .hex file.
   Category *Memories*.
+- RAM 16x4 (SN-308): a teaching memory of 16 words of 4 bits (A0-A3, D0-D3,
+  WE, Q0-Q3) without supply pins, its 16 words listed on the symbol.
 - BMP280, MPU6050, DS3231, TCS34725 and the SSD1306 OLED (SN-223): I2C
   sensors, clock and display with their registers; measured values are live
   parameters; the OLED's pixels appear on the schematic.
@@ -629,13 +631,64 @@ def memory(ram):
     return p
 
 
+def ram16x4():
+    """A teaching RAM of 16 words of 4 bits (SN-308), like a 7489 with true outputs.
+
+    No supply pins: its level is a property (3.3 or 5 V, like the digital
+    input and output), its outputs drive against the circuit's ground. The
+    symbol lists the 16 words (device text), the addressed one marked.
+    """
+    left = [("A0", -9), ("A1", -7), ("A2", -5), ("A3", -3), ("D0", 1), ("D1", 3), ("D2", 5), ("D3", 7), ("WE", 9)]
+    right = [("Q0", 1), ("Q1", 3), ("Q2", 5), ("Q3", 7)]
+    graphics = [{"rect": [-5, -12, 10, 24]}, {"text": "RAM 16x4", "at": [0, -11.1], "size": 0.8}]
+    pins = []
+    for (names, x_tip, x_edge, direction) in ((left, -7, -5, "left"), (right, 7, 5, "right")):
+        for name, y in names:
+            graphics.append({"line": [x_tip, y, x_edge, y]})
+            graphics.append({"text": name, "at": [x_edge + (1.2 if x_edge < 0 else -1.2), y], "size": 0.6})
+            pins.append({"name": name, "at": [x_tip, y], "dir": direction})
+    graphics.append({"circle": [-5.3, 9, 0.3]})  # WE is active low
+    signals = [n for n, _ in left] + [n for n, _ in right]
+    spice = [f"R_{{ref}}_h{p.lower()} {{node:{p}}} 0 100Meg" for p in signals]
+    for p, _ in right:
+        n = p.lower()
+        spice.append(f"B_{{ref}}_{n} 0 {{node:{p}}} I=V({{ext:{n}_i}})-V({{ext:{n}_g}})*V({{node:{p}}})")
+    return {
+        "type": "ram16x4",
+        "name": "RAM 16x4 (teaching)",
+        "category": "Memories",
+        "prefix": "U",
+        "description": "A small RAM to learn how a memory works: 16 words of 4 bits. A0-A3 select a word and Q0-Q3 "
+                       "always show it; while WE is 0 the word takes D0-D3 (write), when WE goes back to 1 it keeps "
+                       "them. The symbol lists the 16 words, the selected one marked (blue: read, red: write). No supply "
+                       "pins: the level (3.3 or 5 V) is a property; wire digital inputs and outputs, gates or a "
+                       "board's pins at the same level. A write needs WE to have been 1 first. Window > Memory "
+                       "Viewer shows and edits it while running.",
+        "symbol": {"graphics": graphics, "pins": pins},
+        "designator_offset": [-5, -13],
+        "parameters": [
+            {"name": "Vhigh", "label": "High level", "unit": "V", "default": "5", "choices": ["3.3", "5"],
+             "description": "Logic level of the inputs and outputs: an input reads 1 above 0.7 of it and 0 below "
+                            "0.3 of it"},
+            {"name": "contents", "label": "Contents", "kind": "text", "default": "0000000000000000",
+             "description": "The words at the start of a run, one hexadecimal digit each (0-F), word 0 first; "
+                            "fewer digits leave the rest at 0"},
+        ],
+        "device": {"kind": "ram16x4", "supply_parameter": "Vhigh", "output_resistance": 50,
+                   "driven_pins": [n for n, _ in right], "memory_size": 16, "contents_parameter": ""},
+        "screen": {"rect": [-2.8, -10.2, 5.6, 21.0], "listing": True},
+        "hidden_ground": True,
+        "spice": spice,
+    }
+
+
 def main():
     os.makedirs(FOLDER, exist_ok=True)
     with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "part_descriptions.json"), encoding="utf-8") as fh:
         short = json.load(fh)
     for p in [hc595(), max7219(), eeprom_24c02(), lm75(), pcf8574(), lcd_hd44780(), memory(False), memory(True),
               bmp280(), mpu6050(), ds3231(), tcs34725(), ssd1306(), mcp3208(), mcp41010(), w25q32(), sdcard(),
-              hx711(), ds18b20(), dht22(), hcsr04(), ws2812(), servo(), serial_port()]:
+              hx711(), ds18b20(), dht22(), hcsr04(), ws2812(), servo(), serial_port(), ram16x4()]:
         p["description"] = short.get(p["type"], p["description"])
         with open(os.path.join(FOLDER, p["type"] + ".json"), "w", encoding="utf-8", newline="\n") as fh:
             fh.write(json.dumps(p, indent=2, ensure_ascii=False) + "\n")

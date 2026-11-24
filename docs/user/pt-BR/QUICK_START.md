@@ -1,4 +1,4 @@
-<!-- source: QUICK_START.md sha256 ea1cda6f515037c1227212b212ad2641c36d3bb92a453b1a09576bf0d6570286 -->
+<!-- source: QUICK_START.md sha256 fe90dd042fc5b39a8f634832db05429b2006b26e2e4ebe313f75347ea03bc228 -->
 # Início rápido do SimNodus
 
 Cinco minutos da instalação até um circuito funcionando. Todo o resto está no
@@ -13,7 +13,7 @@ portátil e execute `simnodus.exe`. As duas formas funcionam sem internet.
 
 ## 2. Abrir um exemplo
 
-Arquivo > Exemplos > **01 LED and push button** e pressione **F5**. Mantenha o
+Arquivo > Exemplos > Circuitos analógicos > **01 LED and push button** e pressione **F5**. Mantenha o
 botão do mouse pressionado sobre o botão do circuito: o LED acende. Para parar,
 use Shift+F5.
 
@@ -40,7 +40,7 @@ um gerador de pulsos no lugar da fonte CC (exemplo 02).
 
 ## 5. Executar um firmware
 
-Arquivo > Exemplos > **07 Blue Pill blink** e depois F5: o LED da placa em PC13
+Arquivo > Exemplos > Blue Pill (STM32F103) > **07 Blue Pill blink** e depois F5: o LED da placa em PC13
 e o LED em PA0 piscam. No seu próprio circuito, coloque uma
 **Blue Pill (STM32F103C8)**, ligue um pino G ao terra e escolha seu `.elf` com
 **Procurar...** em Propriedades. Veja a

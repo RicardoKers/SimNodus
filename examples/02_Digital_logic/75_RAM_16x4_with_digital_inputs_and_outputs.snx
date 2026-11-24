@@ -1,0 +1,266 @@
+{
+  "buses": [],
+  "components": [
+    {
+      "at": [
+        20,
+        14
+      ],
+      "designator": "U1",
+      "id": 1,
+      "mirrored": false,
+      "parameters": {
+        "Vhigh": "5",
+        "contents": "0123456789ABCDEF"
+      },
+      "rotation": 0,
+      "type": "ram16x4"
+    },
+    {
+      "at": [
+        11,
+        5
+      ],
+      "designator": "IN1",
+      "id": 2,
+      "mirrored": false,
+      "parameters": {
+        "Vhigh": "5",
+        "key": "1",
+        "state": "0"
+      },
+      "rotation": 0,
+      "type": "digital_input"
+    },
+    {
+      "at": [
+        11,
+        7
+      ],
+      "designator": "IN2",
+      "id": 3,
+      "mirrored": false,
+      "parameters": {
+        "Vhigh": "5",
+        "key": "2",
+        "state": "0"
+      },
+      "rotation": 0,
+      "type": "digital_input"
+    },
+    {
+      "at": [
+        11,
+        9
+      ],
+      "designator": "IN3",
+      "id": 4,
+      "mirrored": false,
+      "parameters": {
+        "Vhigh": "5",
+        "key": "3",
+        "state": "0"
+      },
+      "rotation": 0,
+      "type": "digital_input"
+    },
+    {
+      "at": [
+        11,
+        11
+      ],
+      "designator": "IN4",
+      "id": 5,
+      "mirrored": false,
+      "parameters": {
+        "Vhigh": "5",
+        "key": "4",
+        "state": "0"
+      },
+      "rotation": 0,
+      "type": "digital_input"
+    },
+    {
+      "at": [
+        11,
+        15
+      ],
+      "designator": "IN5",
+      "id": 6,
+      "mirrored": false,
+      "parameters": {
+        "Vhigh": "5",
+        "key": "Q",
+        "state": "0"
+      },
+      "rotation": 0,
+      "type": "digital_input"
+    },
+    {
+      "at": [
+        11,
+        17
+      ],
+      "designator": "IN6",
+      "id": 7,
+      "mirrored": false,
+      "parameters": {
+        "Vhigh": "5",
+        "key": "W",
+        "state": "0"
+      },
+      "rotation": 0,
+      "type": "digital_input"
+    },
+    {
+      "at": [
+        11,
+        19
+      ],
+      "designator": "IN7",
+      "id": 8,
+      "mirrored": false,
+      "parameters": {
+        "Vhigh": "5",
+        "key": "E",
+        "state": "0"
+      },
+      "rotation": 0,
+      "type": "digital_input"
+    },
+    {
+      "at": [
+        11,
+        21
+      ],
+      "designator": "IN8",
+      "id": 9,
+      "mirrored": false,
+      "parameters": {
+        "Vhigh": "5",
+        "key": "R",
+        "state": "0"
+      },
+      "rotation": 0,
+      "type": "digital_input"
+    },
+    {
+      "at": [
+        11,
+        23
+      ],
+      "designator": "IN9",
+      "id": 10,
+      "mirrored": false,
+      "parameters": {
+        "Vhigh": "5",
+        "key": "Space",
+        "state": "1"
+      },
+      "rotation": 0,
+      "type": "digital_input"
+    },
+    {
+      "at": [
+        29,
+        15
+      ],
+      "designator": "OUT1",
+      "id": 11,
+      "mirrored": false,
+      "parameters": {
+        "Vhigh": "5",
+        "color": "green"
+      },
+      "rotation": 0,
+      "type": "digital_output"
+    },
+    {
+      "at": [
+        29,
+        17
+      ],
+      "designator": "OUT2",
+      "id": 12,
+      "mirrored": false,
+      "parameters": {
+        "Vhigh": "5",
+        "color": "green"
+      },
+      "rotation": 0,
+      "type": "digital_output"
+    },
+    {
+      "at": [
+        29,
+        19
+      ],
+      "designator": "OUT3",
+      "id": 13,
+      "mirrored": false,
+      "parameters": {
+        "Vhigh": "5",
+        "color": "green"
+      },
+      "rotation": 0,
+      "type": "digital_output"
+    },
+    {
+      "at": [
+        29,
+        21
+      ],
+      "designator": "OUT4",
+      "id": 14,
+      "mirrored": false,
+      "parameters": {
+        "Vhigh": "5",
+        "color": "green"
+      },
+      "rotation": 0,
+      "type": "digital_output"
+    }
+  ],
+  "format": "simnodus-project",
+  "labels": [],
+  "next_id": 17,
+  "notes": [
+    {
+      "at": [
+        -6,
+        -7
+      ],
+      "id": 16,
+      "text": "A RAM of 16 words of 4 bits, a word per line of U1. Run (F5).\nAddress: IN1-IN4 (keys 1-4) on A0-A3 pick a word (marked >); Q0-Q3 show it on OUT1-OUT4.\nWrite: set the data on IN5-IN8 (keys Q, W, E, R), then click IN9 or press Space: WE at 0\nwrites D0-D3 into the word (marked *); WE back to 1 keeps it. It starts with word n = n;\nchange the Contents property, or open Window > Memory Viewer while running."
+    }
+  ],
+  "probes": [
+    {
+      "color": "",
+      "id": 15,
+      "kind": "voltage",
+      "target": {
+        "at": [
+          27,
+          15
+        ],
+        "item": 1,
+        "pin": "Q0"
+      }
+    }
+  ],
+  "settings": {
+    "cortex_m3_timing": true,
+    "exact_edges": false,
+    "max_step": 0.0001,
+    "mcu_quantum": 0.001,
+    "mode": "interactive",
+    "segment": 1.0,
+    "speed": 1.0,
+    "transient_max_step": 1e-06,
+    "transient_stop": 0.01
+  },
+  "splitters": [],
+  "version": 1,
+  "wires": []
+}

@@ -1,6 +1,6 @@
 # Lesson 3 — ADC and UART, PWM into an RC filter
 
-Project: `examples/16_Lesson3_ADC_and_UART.snx` · Firmware:
+Project: `examples/03_Blue_Pill_STM32F103/16_Lesson3_ADC_and_UART.snx` · Firmware:
 `examples/firmware/lesson3_adc/lesson3_adc.c` (ELF next to it).
 
 ## Goals

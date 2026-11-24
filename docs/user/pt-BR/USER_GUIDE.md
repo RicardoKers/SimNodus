@@ -1,4 +1,4 @@
-<!-- source: USER_GUIDE.md sha256 4ceebefb1dcfab67f75db9f6cb59d247779f1e4d0d7cd2d75f4a0012a51f5417 -->
+<!-- source: USER_GUIDE.md sha256 32551997187bcea9820741978a2387a2376aa57599d65cf73fafc8e34c2b74c1 -->
 # Guia do usuário do SimNodus
 
 O SimNodus é um simulador para sala de aula: você desenha um circuito, aperta
@@ -77,7 +77,15 @@ Atalhos de uma tecla: **R** resistor, **C** capacitor, **L** indutor,
 
 Um **círculo vermelho** marca um pino ou ponta de fio que não está ligado; um
 **ponto** marca uma junção. Passar o mouse sobre um fio ou pino mostra o nome
-da rede. Todo circuito precisa de um **terra**.
+da rede. Todo circuito precisa de um **terra** (menos um circuito só de
+entradas e saídas digitais, portas lógicas e a RAM 16x4).
+
+**Realçar uma rede:** aponte para um fio, um pino ou um rótulo de rede e
+pressione **H** (Exibir > Realçar rede), ou clique nele com o botão direito
+e escolha Realçar rede: todos os fios, pinos e rótulos dessa rede ficam
+marcados em âmbar, e a barra de status lista os seus pinos. H de novo, Esc
+ou botão direito > Limpar realce de rede termina o realce; com o mouse fora
+do desenho, H usa o fio selecionado.
 
 ### Edição
 
@@ -103,7 +111,7 @@ aplicar. Um valor inválido fica contornado em vermelho e não é aplicado.
 |---|---|
 | **Passivos** | Resistor, capacitor, indutor (ideais); potenciômetro; transformador (primário P1-P2, secundário S1-S2) |
 | **Fontes** | Fonte de tensão CC, bateria (com resistência interna), fonte de corrente CC (saindo pelo +), fontes de tensão e de corrente ajustáveis (giradas durante a execução entre um limite inferior e um superior), fontes de tensão e de corrente controladas por tensão e por corrente (VCVS, VCCS, CCVS, CCCS), gerador de pulsos, gerador senoidal, painéis solares de 1 W, 5 W, 10 W e 20 W, baterias de íon-lítio e LiFePO4 (com ou sem proteção), terra |
-| **Chaves e controles** | Chave SPST, chave reversível SPDT, botões NA (fechado enquanto pressionado) e NF (aberto enquanto pressionado) com repique dos contatos opcional; entrada digital (um pino em 0 V ou em 3,3 V ou 5 V, trocado com um clique: um nível lógico sem fonte, chave e resistor); uma tecla do teclado para cada um deles; teclado matricial 4x4; módulo joystick de dois eixos |
+| **Chaves e controles** | Chave SPST, chave reversível SPDT, botões NA (fechado enquanto pressionado) e NF (aberto enquanto pressionado) com repique dos contatos opcional; entrada digital (um pino em 0 V ou em 3,3 V ou 5 V, trocado com um clique: um nível lógico sem fonte, chave e resistor; pequena o bastante para empilhar nos pinos de um chip); uma tecla do teclado para cada um deles; teclado matricial 4x4; módulo joystick de dois eixos |
 | **Instrumentos** | Voltímetro (entrada de 1 GΩ), amperímetro (ideal; corrente entrando pelo +), registrador gráfico (dois canais traçados no esquemático durante toda a execução, veja [Registrador gráfico](#registrador-gráfico)) |
 | **Semicondutores** | Diodo (silício), Schottky, germânio, Zener, LED (acende conforme a corrente, cor selecionável), transistores NPN e PNP, MOSFETs canal N e canal P (corpo ligado à fonte) |
 | **Modelos simplificados** | Modelos didáticos: diodo com tensão direta fixa; NPN e PNP com Vbe fixo, um beta mostrado no símbolo e uma tensão de saturação |
@@ -111,15 +119,15 @@ aplicar. Um valor inválido fica contornado em vermelho e não é aplicado.
 | **Portas lógicas** | NOT, AND, OR, NAND, NOR, XOR (tipo 74HC, com alimentação oculta) |
 | **CIs lógicos (DIP)** | Chips 74HC e CD4000 reais, com cada pino na posição do encapsulamento e VCC/GND para ligar: 74HC00, 74HC02, 74HC04, 74HC08, 74HC14 (Schmitt), 74HC32, 74HC86, 74HC74, 74HC138, 74HC157, 74HC245, 74HC161, 74HC193, 74HC165, CD4017 (o 74HC595 está em Chips para microcontroladores) |
 | **Flip-flops e contadores** | Latches D e SR; flip-flops D, JK e T (borda de subida); contador de 4 bits, contador de décadas, registrador de deslocamento de 4 bits. Q̅ e CLR podem ficar desligados |
-| **Displays** | Displays de 7 segmentos (catodo comum, anodo comum) com a pinagem de um display real; um display de 7 segmentos com 4 dígitos e uma matriz de LEDs 8x8 para multiplexação, também como matriz digital, bem mais rápida (pontos acesos pelos níveis lógicos, sem LEDs no circuito); um LCD de caracteres (HD44780, 1-4 linhas de 8-40 caracteres) que mostra o texto no esquemático e funciona com uma placa; um OLED SSD1306 de 128x64 ou 128x32 (I2C) que mostra sua imagem; uma fita de LEDs RGB WS2812B; decodificadores 4511 (CMOS, catodo comum) e 7447 (TTL, anodo comum, coletor aberto) com todos os pinos do chip; decodificadores hexadecimais genéricos 0-F |
-| **Potência e interface** | MOSFET de potência IRLZ44N (nível lógico), regulador buck LM2596 (chip e módulo ajustável), controlador PWM TL494, transceptores RS-485 MAX485 e RS-232 MAX232 |
+| **Displays** | Saída digital (mostra o nível do seu pino, 0 ou 1, e acende enquanto ele é 1; a contraparte da entrada digital); displays de 7 segmentos (catodo comum, anodo comum) com a pinagem de um display real; um display de 7 segmentos com 4 dígitos e uma matriz de LEDs 8x8 para multiplexação, também como matriz digital, bem mais rápida (pontos acesos pelos níveis lógicos, sem LEDs no circuito); um LCD de caracteres (HD44780, 1-4 linhas de 8-40 caracteres) que mostra o texto no esquemático e funciona com uma placa; um OLED SSD1306 de 128x64 ou 128x32 (I2C) que mostra sua imagem; uma fita de LEDs RGB WS2812B; decodificadores 4511 (CMOS, catodo comum) e 7447 (TTL, anodo comum, coletor aberto) com todos os pinos do chip; decodificadores hexadecimais genéricos 0-F |
+| **Potência e interface** | Optoacopladores PC817 (4 pinos) e 4N25 (6 pinos, com a base), MOSFET de potência IRLZ44N (nível lógico), regulador buck LM2596 (chip e módulo ajustável), controlador PWM TL494, transceptores RS-485 MAX485 e RS-232 MAX232 |
 | **Motores e movimento** | Ponte H dupla L298, matriz Darlington ULN2003, motor de passo bipolar, motor de passo unipolar 28BYJ-48, encoder rotativo, servo de modelismo (os motores de passo mostram o ângulo do eixo, o servo o seu braço) |
 | **Eletromecânicos** | Buzzers ativo e passivo (com som no Windows), lâmpada (acende conforme a corrente), relé (bobina e contato reversível; acrescente um diodo de roda livre), motor CC (mostra a velocidade; a carga é arrastada durante a simulação, de 0 a 100 % do torque de rotor travado, e a corrente sobe enquanto a velocidade cai) |
-| **Memórias** | ROM paralela e RAM estática de 16 bytes a 64 KB (A0-A15, D0-D7, CE, OE, WE), com ou sem placa; conteúdo de arquivos `.bin` ou Intel `.hex` e no Visualizador de memória |
+| **Memórias** | ROM paralela e RAM estática de 16 bytes a 64 KB (A0-A15, D0-D7, CE, OE, WE), com ou sem placa; conteúdo de arquivos `.bin` ou Intel `.hex` e no Visualizador de memória; RAM 16x4 didática (16 palavras de 4 bits listadas no símbolo) |
 | **Conversores** | Conversores A/D e D/A ideais de 4, 8, 10 ou 12 bits; a referência é um pino (VREF), e os níveis lógicos seguem uma alimentação oculta, como nas portas |
 | **Microcontroladores** | Blue Pill (STM32F103C8) executando o seu firmware ELF; ESP32-C3-DevKitM-1 e ESP32-C3 SuperMini executando uma imagem da flash (`.bin`), experimental (veja [MICROCONTROLLER.md](MICROCONTROLLER.md#placa-esp32-c3-experimental)); chips ATmega8-PU e ATmega8A-PU executando firmware `.hex` ou `.elf` com os seus fusíveis (veja [MICROCONTROLLER.md](MICROCONTROLLER.md#atmega8-e-atmega8a)); ATmega328P-PU e ATmega328-PU, experimentais (veja [MICROCONTROLLER.md](MICROCONTROLLER.md#atmega328-e-atmega328p-experimental)); ATmega32-PU e ATmega32A-PU (PDIP-40), experimentais (veja [MICROCONTROLLER.md](MICROCONTROLLER.md#atmega32-e-atmega32a-experimental)); Arduino UNO R3 com Optiboot, gravado pela IDE do Arduino, experimental (veja [MICROCONTROLLER.md](MICROCONTROLLER.md#arduino-uno-experimental)) |
 | **Chips para microcontroladores** | Registrador de deslocamento 74HC595, driver de display de LED MAX7219, EEPROM 24C02, sensor de temperatura LM75, expansor de E/S PCF8574, sensor de pressão BMP280, acelerômetro e giroscópio MPU6050, relógio de tempo real DS3231, sensor de cor TCS34725 (I2C); conversor A/D MCP3208, potenciômetro digital MCP41010, flash W25Q32, cartão microSD (SPI); amplificador de célula de carga HX711; sensores DS18B20 (1-Wire), DHT22/DHT11 e HC-SR04; funcionam com a placa a que estão ligados, ou sozinhos (veja [MICROCONTROLLER.md](MICROCONTROLLER.md#chips-para-microcontroladores)) |
-| **Sensores** | Sensores indutivos de proximidade NPN e PNP (24 V), transmissor 4-20 mA a dois fios, sensor de movimento PIR HC-SR501, sensor de temperatura LM35, termistor NTC, PT100/PT1000, termopar tipo K, LDR, fotodiodo BPW34, sensor de corrente ACS712, célula de carga (ponte de extensômetros), chave Hall A3144, optoacoplador PC817, solenoide |
+| **Sensores** | Sensores indutivos de proximidade NPN e PNP (24 V), transmissor 4-20 mA a dois fios, sensor de movimento PIR HC-SR501, sensor de temperatura LM35, termistor NTC, PT100/PT1000, termopar tipo K, LDR, fotodiodo BPW34, sensor de corrente ACS712, célula de carga (ponte de extensômetros), chave Hall A3144, solenoide |
 | **Blocos** | Porta de bloco, para transformar um circuito em bloco |
 | **E/S externa** | Entradas e saídas de bit e de palavra que trocam sinais com outro programa, como uma planta virtual; Porta serial, uma porta serial do computador no circuito (veja abaixo) |
 
@@ -143,8 +151,8 @@ Observações sobre alguns componentes:
   LDR como o GL5528 (sem tempo de resposta), BPW34 com cerca de 50 µA por
   1000 lux, ACS712 com VCC/2 + sensibilidade × corrente, célula de carga com
   saída = excitação × sensibilidade × carga / capacidade, A3144 com coletor
-  aberto e pontos de operação e liberação (precisa de pull-up), PC817 com
-  razão de transferência de corrente. Autoaquecimento, ruído e tempos de
+  aberto e pontos de operação e liberação (precisa de pull-up).
+  Autoaquecimento, ruído e tempos de
   resposta ficam de fora. O êmbolo do solenoide aparece recolhido acima de
   60 % da corrente nominal e solto abaixo de 25 %; sua corrente é mostrada.
   O exemplo 36 mostra quatro deles.
@@ -273,10 +281,32 @@ Observações sobre alguns componentes:
   precisa de passos de tempo bem menores que o seu período: use o modo
   transitório ou uma frequência baixa. A bomba de carga do MAX232 não é
   simulada (seus trilhos de ±8,5 V são internos), mas uma placa real precisa
-  dos seus quatro capacitores.
+  dos seus quatro capacitores. Os **optoacopladores** têm um LED
+  infravermelho (cerca de 1,2 V a 10 mA) e um fototransistor NPN real: a
+  corrente de coletor é CTR × a corrente do LED (uma propriedade: PC817
+  100 %, 4N25 50 %) até o transistor saturar, e ele chaveia em
+  microssegundos. O CTR não muda com a corrente nem com a temperatura, como
+  muda nos chips. A base do 4N25 (pino 6) pode ficar aberta. Modelos
+  aproximados.
 - **Portas lógicas e flip-flops** funcionam com uma alimentação oculta, por
   isso você liga apenas os seus pinos lógicos. As saídas são tensões reais:
   um LED numa saída precisa de um resistor em série.
+- **Entradas e saídas digitais** cabem nos pinos de um chip, a 2 passos da
+  grade um do outro, então várias se empilham nas suas entradas e saídas
+  (exemplo 75). A saída lê 1 acima da metade do seu nível (1,65 V ou 2,5 V)
+  através de 1 GΩ, mostra 0 ou 1 e acende na sua cor enquanto está em 1.
+  Um circuito só de entradas e saídas digitais, portas lógicas e a RAM 16x4
+  não precisa de símbolo de terra: todos se referem ao terra do circuito
+  internamente.
+- **RAM 16x4:** uma memória para aprender como uma funciona. A0-A3
+  escolhem uma de 16 palavras de 4 bits e Q0-Q3 sempre a mostram; enquanto
+  WE está em 0 a palavra recebe D0-D3, e quando WE volta a 1 ela os guarda.
+  Uma escrita exige que WE tenha estado em 1 antes (no início de uma
+  simulação os níveis sobem um depois do outro). O símbolo lista as 16
+  palavras, a selecionada marcada (azul na leitura, vermelho na escrita); a
+  propriedade Conteúdo define as palavras no início (16 dígitos
+  hexadecimais, a palavra 0 primeiro). Sem pinos de alimentação: o nível é
+  uma propriedade.
 - **Tipos de diodo:** cada um tem o seu próprio símbolo e lista os modelos
   do seu tipo.
 - **E/S externa:** entradas e saídas de bit e de palavra trocam seus sinais
@@ -642,8 +672,15 @@ diferenças em relação a uma placa real estão em
 - Alterações não salvas são gravadas num **arquivo de recuperação** a cada
   minuto. Se o SimNodus fechar inesperadamente, a próxima abertura oferece
   recuperá-las.
+- **Arquivo > Exportar diagrama...** salva o esquemático como imagem PNG
+  (de 100 % a 400 %) ou desenho SVG, com fundo claro ou escuro qualquer que
+  seja o tema da janela, para documentos e slides. A seleção e a grade
+  ficam de fora; um circuito em execução é exportado como aparece (LEDs
+  acesos, valores, displays).
 - **Arquivo > Exemplos** abre os circuitos incluídos como cópias sem título,
-  então os originais ficam inalterados. A
+  então os originais ficam inalterados. Eles ficam agrupados em submenus:
+  Circuitos analógicos, Lógica digital, Blue Pill (STM32F103), Motores e
+  energia, ESP32-C3, AVR e Arduino, STM32F407 (pastas de `examples/`). A
   [lista de exemplos](../../../examples/README.md) diz o que cada um mostra e
   o que experimentar: circuitos analógicos básicos (01-06), firmware para a
   Blue Pill (07-09, 12-15), lógica e barramentos (17, 18), tipos de diodo
@@ -664,7 +701,9 @@ diferenças em relação a uma placa real estão em
   temperatura, 56 quatro saídas PWM e o disparo automático do ADC, 57
   power-down acordado pelo watchdog e por uma mudança de pino;
   experimental) o Arduino UNO (58, serial e gravação; experimental) e o ATmega32 (59,
-  JTAG, INT2 e o ADC diferencial; experimental).
+  JTAG, INT2 e o ADC diferencial; experimental), entradas digitais e teclas
+  (72), optoacopladores (74) e a RAM 16x4 com entradas e saídas digitais
+  (75).
 - As **aulas** 1-3 (exemplos 10, 11 e 16) vêm com notas em
   `examples/lessons/`: objetivos, passos e as observações esperadas. Os
   fontes dos seus firmwares estão em `examples/firmware/`.

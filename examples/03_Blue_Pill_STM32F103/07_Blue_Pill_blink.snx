@@ -1,0 +1,191 @@
+{
+  "buses": [],
+  "components": [
+    {
+      "at": [
+        0,
+        0
+      ],
+      "designator": "U1",
+      "id": 1,
+      "mirrored": false,
+      "parameters": {
+        "firmware": "../firmware/blink/blink.elf"
+      },
+      "rotation": 0,
+      "type": "bluepill"
+    },
+    {
+      "at": [
+        -12,
+        21
+      ],
+      "designator": "GND1",
+      "id": 2,
+      "mirrored": false,
+      "parameters": {},
+      "rotation": 0,
+      "type": "ground"
+    },
+    {
+      "at": [
+        20,
+        11
+      ],
+      "designator": "R1",
+      "id": 5,
+      "mirrored": false,
+      "parameters": {
+        "R": "330"
+      },
+      "rotation": 90,
+      "type": "resistor"
+    },
+    {
+      "at": [
+        26,
+        14
+      ],
+      "designator": "LED1",
+      "id": 6,
+      "mirrored": false,
+      "parameters": {
+        "color": "red"
+      },
+      "rotation": 0,
+      "type": "led"
+    },
+    {
+      "at": [
+        26,
+        21
+      ],
+      "designator": "GND2",
+      "id": 7,
+      "mirrored": false,
+      "parameters": {},
+      "rotation": 0,
+      "type": "ground"
+    }
+  ],
+  "format": "simnodus-project",
+  "labels": [
+    {
+      "at": [
+        13,
+        11
+      ],
+      "id": 13,
+      "name": "PA0"
+    }
+  ],
+  "next_id": 15,
+  "notes": [
+    {
+      "at": [
+        -12,
+        25
+      ],
+      "id": 14,
+      "text": "The Blue Pill runs firmware/blink: the PC13 LED blinks\nevery 500 ms, PA0..PA3 count, and the LED on PA0 blinks\nat 2 Hz (about 3.8 mA). Click the board's RESET button\nwhile running to start the firmware again."
+    }
+  ],
+  "probes": [
+    {
+      "color": "#1f77b4",
+      "id": 11,
+      "kind": "voltage",
+      "target": {
+        "at": [
+          10,
+          11
+        ],
+        "item": 8
+      }
+    },
+    {
+      "color": "#d62728",
+      "id": 12,
+      "kind": "current",
+      "target": {
+        "at": [
+          26,
+          11
+        ],
+        "item": 6,
+        "pin": "A"
+      }
+    }
+  ],
+  "settings": {
+    "cortex_m3_timing": true,
+    "exact_edges": false,
+    "max_step": 0.0001,
+    "mcu_quantum": 0.001,
+    "mode": "interactive",
+    "segment": 1.0,
+    "speed": 1.0,
+    "transient_max_step": 1e-06,
+    "transient_stop": 0.01
+  },
+  "splitters": [],
+  "version": 1,
+  "wires": [
+    {
+      "id": 3,
+      "points": [
+        [
+          -9,
+          17
+        ],
+        [
+          -12,
+          17
+        ],
+        [
+          -12,
+          21
+        ]
+      ]
+    },
+    {
+      "id": 8,
+      "points": [
+        [
+          9,
+          11
+        ],
+        [
+          17,
+          11
+        ]
+      ]
+    },
+    {
+      "id": 9,
+      "points": [
+        [
+          23,
+          11
+        ],
+        [
+          26,
+          11
+        ]
+      ]
+    },
+    {
+      "id": 10,
+      "points": [
+        [
+          26,
+          17
+        ],
+        [
+          26,
+          21
+        ]
+      ]
+    }
+  ]
+}

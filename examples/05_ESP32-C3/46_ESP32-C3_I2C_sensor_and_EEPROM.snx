@@ -1,0 +1,627 @@
+{
+  "buses": [],
+  "components": [
+    {
+      "at": [
+        0,
+        0
+      ],
+      "designator": "U1",
+      "id": 1,
+      "mirrored": false,
+      "parameters": {
+        "firmware": "../firmware/esp32c3_i2c/esp32c3_i2c.bin"
+      },
+      "rotation": 0,
+      "type": "esp32c3_devkitm1"
+    },
+    {
+      "at": [
+        25,
+        -8
+      ],
+      "designator": "U2",
+      "id": 2,
+      "mirrored": false,
+      "parameters": {
+        "temperature": "23.5"
+      },
+      "rotation": 0,
+      "type": "lm75"
+    },
+    {
+      "at": [
+        46,
+        -8
+      ],
+      "designator": "U3",
+      "id": 3,
+      "mirrored": false,
+      "parameters": {
+        "contents": ""
+      },
+      "rotation": 0,
+      "type": "24c02"
+    },
+    {
+      "at": [
+        32,
+        11
+      ],
+      "designator": "R1",
+      "id": 4,
+      "mirrored": false,
+      "parameters": {
+        "R": "4.7k"
+      },
+      "rotation": 0,
+      "type": "resistor"
+    },
+    {
+      "at": [
+        38,
+        11
+      ],
+      "designator": "R2",
+      "id": 5,
+      "mirrored": false,
+      "parameters": {
+        "R": "4.7k"
+      },
+      "rotation": 0,
+      "type": "resistor"
+    }
+  ],
+  "format": "simnodus-project",
+  "labels": [
+    {
+      "at": [
+        -12,
+        -14
+      ],
+      "id": 7,
+      "mirrored": true,
+      "name": "GND"
+    },
+    {
+      "at": [
+        -12,
+        -12
+      ],
+      "id": 9,
+      "mirrored": true,
+      "name": "3V3"
+    },
+    {
+      "at": [
+        12,
+        4
+      ],
+      "id": 11,
+      "name": "SCL"
+    },
+    {
+      "at": [
+        12,
+        6
+      ],
+      "id": 13,
+      "name": "SDA"
+    },
+    {
+      "at": [
+        32,
+        6
+      ],
+      "id": 15,
+      "name": "3V3"
+    },
+    {
+      "at": [
+        38,
+        6
+      ],
+      "id": 17,
+      "name": "3V3"
+    },
+    {
+      "at": [
+        32,
+        16
+      ],
+      "id": 19,
+      "name": "SCL"
+    },
+    {
+      "at": [
+        38,
+        16
+      ],
+      "id": 21,
+      "name": "SDA"
+    },
+    {
+      "at": [
+        17,
+        -12
+      ],
+      "id": 23,
+      "mirrored": true,
+      "name": "SCL"
+    },
+    {
+      "at": [
+        17,
+        -10
+      ],
+      "id": 25,
+      "mirrored": true,
+      "name": "SDA"
+    },
+    {
+      "at": [
+        17,
+        -8
+      ],
+      "id": 27,
+      "mirrored": true,
+      "name": "GND"
+    },
+    {
+      "at": [
+        17,
+        -6
+      ],
+      "id": 29,
+      "mirrored": true,
+      "name": "GND"
+    },
+    {
+      "at": [
+        17,
+        -4
+      ],
+      "id": 31,
+      "mirrored": true,
+      "name": "GND"
+    },
+    {
+      "at": [
+        25,
+        -18
+      ],
+      "id": 33,
+      "name": "3V3"
+    },
+    {
+      "at": [
+        25,
+        2
+      ],
+      "id": 35,
+      "name": "GND"
+    },
+    {
+      "at": [
+        38,
+        -12
+      ],
+      "id": 37,
+      "mirrored": true,
+      "name": "SCL"
+    },
+    {
+      "at": [
+        38,
+        -10
+      ],
+      "id": 39,
+      "mirrored": true,
+      "name": "SDA"
+    },
+    {
+      "at": [
+        38,
+        -8
+      ],
+      "id": 41,
+      "mirrored": true,
+      "name": "GND"
+    },
+    {
+      "at": [
+        38,
+        -6
+      ],
+      "id": 43,
+      "mirrored": true,
+      "name": "GND"
+    },
+    {
+      "at": [
+        38,
+        -4
+      ],
+      "id": 45,
+      "mirrored": true,
+      "name": "GND"
+    },
+    {
+      "at": [
+        46,
+        -18
+      ],
+      "id": 47,
+      "name": "3V3"
+    },
+    {
+      "at": [
+        46,
+        2
+      ],
+      "id": 49,
+      "name": "GND"
+    },
+    {
+      "at": [
+        54,
+        -8
+      ],
+      "id": 51,
+      "name": "GND"
+    }
+  ],
+  "next_id": 55,
+  "notes": [
+    {
+      "at": [
+        -12,
+        21
+      ],
+      "id": 54,
+      "text": "ESP-IDF's I2C master driver on I2C0 (SCL GPIO5,\nSDA GPIO4, 4.7 kOhm pull-ups): an LM75 temperature\nsensor (0x48) and a 24C02 EEPROM (0x50).\nAnalyzer > UART (UART0) shows both chips found,\n\"EEPROM: SimNodus\" and the temperature every second;\nwhile running, drag the LM75 or turn the wheel over it.\nThe scope shows SCL and SDA at 100 kHz."
+    }
+  ],
+  "probes": [
+    {
+      "color": "#1f77b4",
+      "id": 52,
+      "kind": "voltage",
+      "target": {
+        "at": [
+          9,
+          4
+        ],
+        "item": 1,
+        "pin": "GPIO5"
+      }
+    },
+    {
+      "color": "#d62728",
+      "id": 53,
+      "kind": "voltage",
+      "target": {
+        "at": [
+          9,
+          6
+        ],
+        "item": 1,
+        "pin": "GPIO4"
+      }
+    }
+  ],
+  "settings": {
+    "cortex_m3_timing": true,
+    "exact_edges": false,
+    "max_step": 0.0001,
+    "mcu_quantum": 0.001,
+    "mode": "interactive",
+    "segment": 1.0,
+    "speed": 1.0,
+    "transient_max_step": 1e-06,
+    "transient_stop": 0.01
+  },
+  "splitters": [],
+  "version": 1,
+  "wires": [
+    {
+      "id": 6,
+      "points": [
+        [
+          -9,
+          -14
+        ],
+        [
+          -12,
+          -14
+        ]
+      ]
+    },
+    {
+      "id": 8,
+      "points": [
+        [
+          -9,
+          -12
+        ],
+        [
+          -12,
+          -12
+        ]
+      ]
+    },
+    {
+      "id": 10,
+      "points": [
+        [
+          9,
+          4
+        ],
+        [
+          12,
+          4
+        ]
+      ]
+    },
+    {
+      "id": 12,
+      "points": [
+        [
+          9,
+          6
+        ],
+        [
+          12,
+          6
+        ]
+      ]
+    },
+    {
+      "id": 14,
+      "points": [
+        [
+          32,
+          8
+        ],
+        [
+          32,
+          6
+        ]
+      ]
+    },
+    {
+      "id": 16,
+      "points": [
+        [
+          38,
+          8
+        ],
+        [
+          38,
+          6
+        ]
+      ]
+    },
+    {
+      "id": 18,
+      "points": [
+        [
+          32,
+          14
+        ],
+        [
+          32,
+          16
+        ]
+      ]
+    },
+    {
+      "id": 20,
+      "points": [
+        [
+          38,
+          14
+        ],
+        [
+          38,
+          16
+        ]
+      ]
+    },
+    {
+      "id": 22,
+      "points": [
+        [
+          19,
+          -12
+        ],
+        [
+          17,
+          -12
+        ]
+      ]
+    },
+    {
+      "id": 24,
+      "points": [
+        [
+          19,
+          -10
+        ],
+        [
+          17,
+          -10
+        ]
+      ]
+    },
+    {
+      "id": 26,
+      "points": [
+        [
+          19,
+          -8
+        ],
+        [
+          17,
+          -8
+        ]
+      ]
+    },
+    {
+      "id": 28,
+      "points": [
+        [
+          19,
+          -6
+        ],
+        [
+          17,
+          -6
+        ]
+      ]
+    },
+    {
+      "id": 30,
+      "points": [
+        [
+          19,
+          -4
+        ],
+        [
+          17,
+          -4
+        ]
+      ]
+    },
+    {
+      "id": 32,
+      "points": [
+        [
+          25,
+          -16
+        ],
+        [
+          25,
+          -18
+        ]
+      ]
+    },
+    {
+      "id": 34,
+      "points": [
+        [
+          25,
+          0
+        ],
+        [
+          25,
+          2
+        ]
+      ]
+    },
+    {
+      "id": 36,
+      "points": [
+        [
+          40,
+          -12
+        ],
+        [
+          38,
+          -12
+        ]
+      ]
+    },
+    {
+      "id": 38,
+      "points": [
+        [
+          40,
+          -10
+        ],
+        [
+          38,
+          -10
+        ]
+      ]
+    },
+    {
+      "id": 40,
+      "points": [
+        [
+          40,
+          -8
+        ],
+        [
+          38,
+          -8
+        ]
+      ]
+    },
+    {
+      "id": 42,
+      "points": [
+        [
+          40,
+          -6
+        ],
+        [
+          38,
+          -6
+        ]
+      ]
+    },
+    {
+      "id": 44,
+      "points": [
+        [
+          40,
+          -4
+        ],
+        [
+          38,
+          -4
+        ]
+      ]
+    },
+    {
+      "id": 46,
+      "points": [
+        [
+          46,
+          -16
+        ],
+        [
+          46,
+          -18
+        ]
+      ]
+    },
+    {
+      "id": 48,
+      "points": [
+        [
+          46,
+          0
+        ],
+        [
+          46,
+          2
+        ]
+      ]
+    },
+    {
+      "id": 50,
+      "points": [
+        [
+          52,
+          -8
+        ],
+        [
+          54,
+          -8
+        ]
+      ]
+    }
+  ]
+}

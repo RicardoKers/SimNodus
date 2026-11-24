@@ -29,6 +29,17 @@ inline QColor plot_grid{0xe3, 0xe5, 0xe8};
 inline QColor plot_axis{0xb9, 0xbd, 0xc3};
 inline QColor readout_background{0xee, 0xf4, 0xff}; // live values on the schematic
 inline QColor label_background{0xff, 0xff, 0xff, 230}; // net label boxes
+inline QColor net_highlight{0xff, 0xa8, 0x00}; // a highlighted net (SN-309)
+
+// The colors the schematic is drawn with, for drawing it in the other scheme
+// for a moment (SN-310: a diagram exported with a light or dark background).
+struct CanvasColors {
+    QColor canvas, grid_minor, grid_major, ink, selection, muted, bus, pin_high, pin_low, plot, plot_grid, plot_axis,
+        readout, label, net_highlight;
+};
+CanvasColors canvas_colors();
+CanvasColors canvas_colors(bool dark); // the scheme's own
+void set_canvas_colors(const CanvasColors& colors);
 
 // "system" follows the operating system's light or dark setting (Qt 6.5 and
 // later; light before), "light" and "dark" fix it.

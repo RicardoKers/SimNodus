@@ -1,0 +1,414 @@
+{
+  "type": "ram16x4",
+  "name": "RAM 16x4 (teaching)",
+  "category": "Memories",
+  "prefix": "U",
+  "description": "A small RAM to learn how a memory works: 16 words of 4 bits. A0-A3 select a word and Q0-Q3 always show it; while WE is 0 the word takes D0-D3 (write), when WE goes back to 1 it keeps them. The symbol lists the 16 words, the selected one marked (blue: read, red: write). No supply pins: the level (3.3 or 5 V) is a property; wire digital inputs and outputs, gates or a board's pins at the same level. A write needs WE to have been 1 first. Window > Memory Viewer shows and edits it while running.",
+  "symbol": {
+    "graphics": [
+      {
+        "rect": [
+          -5,
+          -12,
+          10,
+          24
+        ]
+      },
+      {
+        "text": "RAM 16x4",
+        "at": [
+          0,
+          -11.1
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          -7,
+          -9,
+          -5,
+          -9
+        ]
+      },
+      {
+        "text": "A0",
+        "at": [
+          -3.8,
+          -9
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          -7,
+          -7,
+          -5,
+          -7
+        ]
+      },
+      {
+        "text": "A1",
+        "at": [
+          -3.8,
+          -7
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          -7,
+          -5,
+          -5,
+          -5
+        ]
+      },
+      {
+        "text": "A2",
+        "at": [
+          -3.8,
+          -5
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          -7,
+          -3,
+          -5,
+          -3
+        ]
+      },
+      {
+        "text": "A3",
+        "at": [
+          -3.8,
+          -3
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          -7,
+          1,
+          -5,
+          1
+        ]
+      },
+      {
+        "text": "D0",
+        "at": [
+          -3.8,
+          1
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          -7,
+          3,
+          -5,
+          3
+        ]
+      },
+      {
+        "text": "D1",
+        "at": [
+          -3.8,
+          3
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          -7,
+          5,
+          -5,
+          5
+        ]
+      },
+      {
+        "text": "D2",
+        "at": [
+          -3.8,
+          5
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          -7,
+          7,
+          -5,
+          7
+        ]
+      },
+      {
+        "text": "D3",
+        "at": [
+          -3.8,
+          7
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          -7,
+          9,
+          -5,
+          9
+        ]
+      },
+      {
+        "text": "WE",
+        "at": [
+          -3.8,
+          9
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          7,
+          1,
+          5,
+          1
+        ]
+      },
+      {
+        "text": "Q0",
+        "at": [
+          3.8,
+          1
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          7,
+          3,
+          5,
+          3
+        ]
+      },
+      {
+        "text": "Q1",
+        "at": [
+          3.8,
+          3
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          7,
+          5,
+          5,
+          5
+        ]
+      },
+      {
+        "text": "Q2",
+        "at": [
+          3.8,
+          5
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          7,
+          7,
+          5,
+          7
+        ]
+      },
+      {
+        "text": "Q3",
+        "at": [
+          3.8,
+          7
+        ],
+        "size": 0.6
+      },
+      {
+        "circle": [
+          -5.3,
+          9,
+          0.3
+        ]
+      }
+    ],
+    "pins": [
+      {
+        "name": "A0",
+        "at": [
+          -7,
+          -9
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "A1",
+        "at": [
+          -7,
+          -7
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "A2",
+        "at": [
+          -7,
+          -5
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "A3",
+        "at": [
+          -7,
+          -3
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "D0",
+        "at": [
+          -7,
+          1
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "D1",
+        "at": [
+          -7,
+          3
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "D2",
+        "at": [
+          -7,
+          5
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "D3",
+        "at": [
+          -7,
+          7
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "WE",
+        "at": [
+          -7,
+          9
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "Q0",
+        "at": [
+          7,
+          1
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "Q1",
+        "at": [
+          7,
+          3
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "Q2",
+        "at": [
+          7,
+          5
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "Q3",
+        "at": [
+          7,
+          7
+        ],
+        "dir": "right"
+      }
+    ]
+  },
+  "designator_offset": [
+    -5,
+    -13
+  ],
+  "parameters": [
+    {
+      "name": "Vhigh",
+      "label": "High level",
+      "unit": "V",
+      "default": "5",
+      "choices": [
+        "3.3",
+        "5"
+      ],
+      "description": "Logic level of the inputs and outputs: an input reads 1 above 0.7 of it and 0 below 0.3 of it"
+    },
+    {
+      "name": "contents",
+      "label": "Contents",
+      "kind": "text",
+      "default": "0000000000000000",
+      "description": "The words at the start of a run, one hexadecimal digit each (0-F), word 0 first; fewer digits leave the rest at 0"
+    }
+  ],
+  "device": {
+    "kind": "ram16x4",
+    "supply_parameter": "Vhigh",
+    "output_resistance": 50,
+    "driven_pins": [
+      "Q0",
+      "Q1",
+      "Q2",
+      "Q3"
+    ],
+    "memory_size": 16,
+    "contents_parameter": ""
+  },
+  "screen": {
+    "rect": [
+      -2.8,
+      -10.2,
+      5.6,
+      21.0
+    ],
+    "listing": true
+  },
+  "hidden_ground": true,
+  "spice": [
+    "R_{ref}_ha0 {node:A0} 0 100Meg",
+    "R_{ref}_ha1 {node:A1} 0 100Meg",
+    "R_{ref}_ha2 {node:A2} 0 100Meg",
+    "R_{ref}_ha3 {node:A3} 0 100Meg",
+    "R_{ref}_hd0 {node:D0} 0 100Meg",
+    "R_{ref}_hd1 {node:D1} 0 100Meg",
+    "R_{ref}_hd2 {node:D2} 0 100Meg",
+    "R_{ref}_hd3 {node:D3} 0 100Meg",
+    "R_{ref}_hwe {node:WE} 0 100Meg",
+    "R_{ref}_hq0 {node:Q0} 0 100Meg",
+    "R_{ref}_hq1 {node:Q1} 0 100Meg",
+    "R_{ref}_hq2 {node:Q2} 0 100Meg",
+    "R_{ref}_hq3 {node:Q3} 0 100Meg",
+    "B_{ref}_q0 0 {node:Q0} I=V({ext:q0_i})-V({ext:q0_g})*V({node:Q0})",
+    "B_{ref}_q1 0 {node:Q1} I=V({ext:q1_i})-V({ext:q1_g})*V({node:Q1})",
+    "B_{ref}_q2 0 {node:Q2} I=V({ext:q2_i})-V({ext:q2_g})*V({node:Q2})",
+    "B_{ref}_q3 0 {node:Q3} I=V({ext:q3_i})-V({ext:q3_g})*V({node:Q3})"
+  ]
+}

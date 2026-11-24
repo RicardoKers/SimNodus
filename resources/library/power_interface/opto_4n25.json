@@ -1,0 +1,296 @@
+{
+  "type": "opto_4n25",
+  "name": "Optocoupler 4N25",
+  "category": "Power & interface",
+  "prefix": "U",
+  "description": "Optocoupler 4N25 (DIP-6): an infrared LED (A pin 1, K pin 2) lights an NPN phototransistor (C pin 5, E pin 4, base pin 6, which may stay open or take a resistor to E for faster switching). The collector current is CTR x the LED current until the transistor saturates; about 1.2 V across the LED at 10 mA, switching in microseconds. Approximate model",
+  "symbol": {
+    "graphics": [
+      {
+        "rect": [
+          -4,
+          -4,
+          8,
+          8
+        ]
+      },
+      {
+        "line": [
+          -6,
+          -2,
+          -2,
+          -2
+        ]
+      },
+      {
+        "line": [
+          -2,
+          -2,
+          -2,
+          -0.8
+        ]
+      },
+      {
+        "polygon": [
+          -2.8,
+          -0.8,
+          -1.2,
+          -0.8,
+          -2,
+          0.6
+        ]
+      },
+      {
+        "line": [
+          -2.8,
+          0.6,
+          -1.2,
+          0.6
+        ]
+      },
+      {
+        "line": [
+          -2,
+          0.6,
+          -2,
+          2
+        ]
+      },
+      {
+        "line": [
+          -2,
+          2,
+          -6,
+          2
+        ]
+      },
+      {
+        "line": [
+          -0.9,
+          -1.0,
+          0.4,
+          -1.0
+        ]
+      },
+      {
+        "polygon": [
+          0.8,
+          -1.0,
+          0.2,
+          -1.3,
+          0.2,
+          -0.7
+        ],
+        "fill": true
+      },
+      {
+        "line": [
+          -0.9,
+          -0.2,
+          0.4,
+          -0.2
+        ]
+      },
+      {
+        "polygon": [
+          0.8,
+          -0.2,
+          0.2,
+          -0.5,
+          0.2,
+          0.1
+        ],
+        "fill": true
+      },
+      {
+        "line": [
+          1.4,
+          -1.4,
+          1.4,
+          1.4
+        ]
+      },
+      {
+        "line": [
+          1.4,
+          -0.6,
+          2.8,
+          -2
+        ]
+      },
+      {
+        "line": [
+          2.8,
+          -2,
+          6,
+          -2
+        ]
+      },
+      {
+        "line": [
+          1.4,
+          0.6,
+          2.8,
+          2
+        ]
+      },
+      {
+        "line": [
+          2.8,
+          2,
+          6,
+          2
+        ]
+      },
+      {
+        "polygon": [
+          2.5,
+          1.7,
+          1.87,
+          1.49,
+          2.29,
+          1.07
+        ],
+        "fill": true
+      },
+      {
+        "text": "1",
+        "at": [
+          -5,
+          -2.6
+        ],
+        "size": 0.6
+      },
+      {
+        "text": "2",
+        "at": [
+          -5,
+          1.4
+        ],
+        "size": 0.6
+      },
+      {
+        "text": "5",
+        "at": [
+          5,
+          -2.6
+        ],
+        "size": 0.6
+      },
+      {
+        "text": "4",
+        "at": [
+          5,
+          1.4
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          1.4,
+          0.4,
+          1,
+          0.4
+        ]
+      },
+      {
+        "line": [
+          1,
+          0.4,
+          1,
+          5
+        ]
+      },
+      {
+        "text": "6",
+        "at": [
+          1.6,
+          4.6
+        ],
+        "size": 0.6
+      }
+    ],
+    "pins": [
+      {
+        "name": "A",
+        "at": [
+          -6,
+          -2
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "K",
+        "at": [
+          -6,
+          2
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "C",
+        "at": [
+          6,
+          -2
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "E",
+        "at": [
+          6,
+          2
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "B",
+        "at": [
+          1,
+          5
+        ],
+        "dir": "down",
+        "optional": true
+      }
+    ]
+  },
+  "designator_offset": [
+    -1,
+    -5
+  ],
+  "value_offset": [
+    1,
+    -5
+  ],
+  "value_parameter": "CTR",
+  "parameters": [
+    {
+      "name": "CTR",
+      "label": "CTR",
+      "unit": "%",
+      "default": "50",
+      "description": "Current transfer ratio, collector current over LED current (4N25: at least 20 % at 10 mA, typically 50 %)",
+      "min": "1",
+      "max": "1000",
+      "symbol": "CTR"
+    }
+  ],
+  "spice": [
+    "D_{ref} {node:A} a_{ref} OPTO_IRLED",
+    "V_{ref}_led a_{ref} {node:K} DC 0",
+    "F_{ref} {node:C} {node:B} V_{ref}_led {= CTR / 100 / 301}",
+    "Q_{ref} {node:C} {node:B} {node:E} OPTO_PHOTO_NPN"
+  ],
+  "models": [
+    ".model OPTO_IRLED D(IS=1e-13 N=1.8 RS=0.8 BV=6 IBV=10u CJO=20p)",
+    ".model OPTO_PHOTO_NPN NPN(IS=1e-14 BF=300 VAF=100 CJE=10p CJC=20p RB=10 RC=10)"
+  ],
+  "live": [
+    {
+      "label": "I",
+      "kind": "current",
+      "element": "V_{ref}_led",
+      "unit": "A"
+    }
+  ]
+}

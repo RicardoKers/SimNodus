@@ -19,9 +19,9 @@ a simulation is started.
 ```text
 simnodus-cli parts capacitor                 list parts whose text mentions "capacitor"
 simnodus-cli describe resistor               pins, parameters and size of a part
-simnodus-cli inspect examples/05_RC_charging_transient.snx
-simnodus-cli check   examples/05_RC_charging_transient.snx
-simnodus-cli run     examples/01_LED_and_push_button.snx --time 20m --event "10m SW1 1"
+simnodus-cli inspect examples/01_Analog_circuits/05_RC_charging_transient.snx
+simnodus-cli check   examples/01_Analog_circuits/05_RC_charging_transient.snx
+simnodus-cli run     examples/01_Analog_circuits/01_LED_and_push_button.snx --time 20m --event "10m SW1 1"
 simnodus-cli exec    build_circuit.jsonl     run a file of JSON requests
 simnodus-cli serve                           JSON requests on standard input
 simnodus-cli commands                        every JSON command with its arguments
@@ -198,6 +198,8 @@ Commands of the window only:
 | `view.font` | `{"scale": 1.4}`: larger interface text for a recording; 1 is the normal size. `simnodus.exe --scale 1.5` enlarges everything, icons included |
 | `view.dialog` | `{"name": "shortcuts"}` (or `about`) opens a read-only dialog for a tour; `{"show": false}` closes it |
 | `view.wait` | `{"ms": 1500}`: wait while the window stays live (narration) |
+| `view.net` | `{"target": "R1.2"}` or a net's name (`"OUT"`): highlights every wire, pin and label of the net, as View > Highlight Net; returns the net and its pins; `{"clear": true}` ends it |
+| `view.export` | `{"path": "rc.png", "background": "dark", "scale": 2}`: saves the diagram as File > Export Diagram does, PNG or SVG by the extension, `light` (default) or `dark`, PNG size as a scale (2 = 200 %); relative paths start at hello's `directory` |
 | `view.analyzer` | `{"show": true}`: show or hide the Signal Analyzer |
 | `analyzer.set` | Change the Signal Analyzer's settings (all optional; see below) and answer with all of them |
 | `analyzer.autoscale` | Autoscale: every channel's scale fitted and made Auto again |

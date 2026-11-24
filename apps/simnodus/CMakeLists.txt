@@ -1,5 +1,5 @@
 # SimNodus desktop application (Qt 6 Widgets, ADR 0081).
-find_package(Qt6 6.4 REQUIRED COMPONENTS Widgets Network)
+find_package(Qt6 6.4 REQUIRED COMPONENTS Widgets Network Svg)
 
 set(CMAKE_AUTOMOC ON)
 
@@ -24,6 +24,8 @@ add_library(simnodus_ui STATIC
     component_panel.hpp
     control_server.cpp
     control_server.hpp
+    diagram_export.cpp
+    diagram_export.hpp
     document.cpp
     document.hpp
     fuses_dialog.cpp
@@ -71,7 +73,7 @@ add_library(simnodus_ui STATIC
 target_include_directories(simnodus_ui PUBLIC
     "${CMAKE_CURRENT_SOURCE_DIR}"
     "${CMAKE_CURRENT_BINARY_DIR}/generated")
-target_link_libraries(simnodus_ui PUBLIC Qt6::Widgets Qt6::Network simnodus::automation simnodus::session simnodus::devices simnodus::engine_link simnodus::editing simnodus::io
+target_link_libraries(simnodus_ui PUBLIC Qt6::Widgets Qt6::Network Qt6::Svg simnodus::automation simnodus::session simnodus::devices simnodus::engine_link simnodus::editing simnodus::io
     simnodus::netlist simnodus::mcu PRIVATE simnodus::warnings)
 if(WIN32)
     target_link_libraries(simnodus_ui PRIVATE winmm) # buzzer sound (SN-228)

@@ -494,6 +494,61 @@ TEST_CASE("switches, buttons and the digital input take a key of the keyboard")
     CHECK(input->pins.size() == 1);
 }
 
+TEST_CASE("the digital input and output fit a chip's pin pitch; optocouplers and the RAM 16x4 (SN-306..SN-308)")
+{
+    ComponentLibrary library;
+    library.load_directory(SIMNODUS_TEST_LIBRARY_DIR);
+    // Stacked on pins 2 grid units apart, the bodies do not overlap: at most 1.6 high,
+    // the pin where it was (projects saved before keep their wires).
+    for (const char* type : {"digital_input", "digital_output"}) {
+        const auto* d = library.find(type);
+        REQUIRE(d != nullptr);
+        CHECK(d->hidden_ground);
+        REQUIRE(d->pins.size() == 1);
+        for (const auto& g : d->graphics) {
+            if (g.kind == library::Graphic::Kind::Rect) {
+                CHECK(g.points[1].y <= 1.6);
+            }
+        }
+        CHECK(d->designator_offset.y == 0); // beside the body, not above it
+    }
+    CHECK((library.find("digital_input")->pins[0].at == model::Point{2, 0}));
+    const auto* output = library.find("digital_output");
+    CHECK((output->pins[0].at == model::Point{-2, 0}));
+    REQUIRE(output->readout.has_value());
+    CHECK(output->readout->switches());
+    REQUIRE(output->lights.has_value());
+    CHECK(output->lights->color_parameter == "color");
+    for (const char* type : {"and_gate", "not_gate"}) {
+        REQUIRE(library.find(type) != nullptr);
+        CHECK(library.find(type)->hidden_ground);
+    }
+    CHECK(!library.find("resistor")->hidden_ground);
+
+    const auto* pc817 = library.find("pc817");
+    const auto* n25 = library.find("opto_4n25");
+    REQUIRE(pc817 != nullptr);
+    REQUIRE(n25 != nullptr);
+    CHECK(pc817->pins.size() == 4);
+    CHECK(n25->pins.size() == 5);
+    CHECK(n25->pin("B")->optional);
+    CHECK(pc817->parameter("CTR")->default_value == "100");
+    CHECK(n25->parameter("CTR")->default_value == "50");
+
+    const auto* ram = library.find("ram16x4");
+    REQUIRE(ram != nullptr);
+    REQUIRE(ram->device.has_value());
+    CHECK(ram->device->kind == "ram16x4");
+    CHECK(ram->device->ground_pin.empty()); // levels against the circuit's ground
+    CHECK(ram->device->supply_parameter == "Vhigh");
+    CHECK(ram->device->memory_size == 16);
+    REQUIRE(ram->screen.has_value());
+    CHECK(ram->screen->listing);
+    CHECK(ram->hidden_ground);
+    CHECK(ram->pins.size() == 13);
+    CHECK(ram->category == "Memories");
+}
+
 TEST_CASE("the potentiometer's wiper moves along its track")
 {
     ComponentLibrary library;

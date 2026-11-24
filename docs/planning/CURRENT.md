@@ -1,6 +1,6 @@
 # Current state
 
-Updated: 2026-11-18 (SN-304, the LED matrix's pins for matrices edge to edge, and SN-303, the digital LED matrix, after a student's MAX7219 project measured at 0.35x real time; a preview package for the owner); 2026-11-16 (the owner's last F4 bench session; the Register Viewer SN-290 and SN-291 on main after 0.18.0; the STM32F407VET6 track E-12: the Cortex-M4F core (G12a on the host), the machine SN-294, the part SN-295 (example 67), the timers, ADC and DAC SN-297 (example 68) and SPI, I2C, DMA, RTC SN-298 (examples 69 to 71) done, the board comparison SN-296 done on 2026-11-15 with the timing calibrated on the chip, every gate met, decision DE12 taken (ADR 0110): the STM32F407 is no longer experimental; release 0.18.0 published: the chart recorder SN-281, the review and speed passes SN-282 to SN-284, the owner's requests SN-285, the protocol decoders SN-286 and SN-288, the chart fix SN-287 and the Memory Viewer's editing SN-289, tested by the owner on the 2026-11-11 previews; DE9 waits for the owner). Keep this file short: present state, last results, next
+Updated: 2026-11-24 (the owner's requests SN-305 to SN-310: examples in category folders, a smaller digital input and a digital output, the 4N25 and PC817 optocouplers, a teaching RAM 16x4, net highlighting, diagram export to SVG and PNG); 2026-11-18 (SN-304, SN-303: the digital LED matrix); 2026-11-16 (release 0.19.0; E-12 closed, DE12: the STM32F407 is no longer experimental; DE9 waits for the owner). Keep this file short: present state, last results, next
 steps. Replace it, do not append. History of the first development line
 (2026-08-31 → 2026-10-06) is in
 [archive/2026-10-legacy/CURRENT.md](../archive/2026-10-legacy/CURRENT.md);
@@ -8,6 +8,24 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 
 ## Where we are
 
+- **On main after 0.19.0, owner's requests of 2026-11-24** (SN-305..SN-310,
+  one PR): the examples in seven category folders
+  (`examples/01_Analog_circuits` ... `07_STM32F407`, File > Examples
+  submenus; projects name `../firmware/...`); the digital input 1.6 units
+  high so inputs stack on a chip's pins, and a **digital output**; the
+  **4N25** and the **PC817** (moved from Sensors) with a real
+  phototransistor, example 74; a **RAM 16x4** for teaching with its words on
+  the symbol, example 75; circuits of only digital I/O, gates and that RAM
+  need no ground symbol (`hidden_ground`); **View > Highlight Net** (H) and
+  `view.net`; **File > Export Diagram** to PNG/SVG, light or dark, and
+  `view.export` (Qt SVG is now a dependency: `qt6-svg-dev` on the Linux CI).
+  Fixed on the way: the Memory Viewer could not read a chip without a board
+  that named its group (example 32's ROM). Not checked yet: the owner's look
+  at the new symbols on his screen and in the dark theme; the Windows
+  installer with `Qt6Svg.dll` (windeployqt adds it).
+  `tools/generate_device_parts.py` is out of step with the DHT22, DS18B20,
+  HC-SR04 and LM75 JSON (hand edits of SN-280): running it reverts them, so
+  those four were restored by hand.
 - **On main after 0.19.0:** SN-301 (2026-11-16), the **ESP32-C3 SuperMini**
   part (experimental; `tools/generate_esp32c3_supermini.py`, example 73).
   SN-302 (2026-11-16), two fixes from the owner's video recordings: the
@@ -473,9 +491,13 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
   `build/tools/riscv32-esp-elf/bin/riscv32-esp-elf-g++ -fsyntax-only
   -std=c++20 -Wall -Wextra -Wpedantic -Werror -Isrc -Ithird_party`.
 - **Example projects** are built with `simnodus-cli exec` scripts
-  (`hello` with `"directory": "examples"`, `component.add`, `wire.connect`,
-  `label.add`, `probe.add`, `circuit.check`, `project.save`; delete the
-  `.snx.bak`); every example needs a probe.
+  (`hello` with `"directory": "examples/<NN_Category>"`, `component.add`,
+  `wire.connect`, `label.add`, `probe.add`, `circuit.check`,
+  `project.save`; delete the `.snx.bak`); every example needs a probe; a
+  firmware path is `../firmware/...`. `view.export` in a window started with
+  `--control` (offscreen: `QT_QPA_PLATFORM=offscreen`,
+  `QT_QPA_FONTDIR=C:\Windows\Fonts`, `SIMNODUS_CONTROL_NAME` set) gives a
+  PNG to check a layout.
 - **Release:** `build/release` is configured with `-DSIMNODUS_VERSION_SUFFIX=`
   (empty; `main` stays `dev`); bump the version in CMake first, build,
   `package_windows.py --build-dir build/release --installer` (Inno Setup 6,

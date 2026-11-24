@@ -18,6 +18,11 @@ SN-228 and SN-229 add the active and passive buzzers (category Electromechanical
 their node readout is the frequency, played by the window on Windows) and the
 IRLZ44N logic-level power MOSFET.
 
+SN-307 adds the optocouplers PC817 (DIP-4; it was a behavioral part among the
+sensors, SN-221, with the same pins) and 4N25 (DIP-6, with the base): an
+infrared LED and a real NPN phototransistor, so that the output saturates and
+switches in microseconds as the chips do.
+
 Run from the repository root: python tools/generate_interface_parts.py
 """
 import json
@@ -361,7 +366,85 @@ def irlz44n():
     }
 
 
-PARTS = [lm2596, lm2596_module, tl494, max485, max232, lambda: buzzer(True), lambda: buzzer(False), irlz44n]
+def optocoupler(type_, base):
+    """PC817 (4 pins) or 4N25 (6 pins, the phototransistor's base on pin 6), SN-306.
+
+    An infrared LED from A to K and an NPN phototransistor from C to E. The
+    LED's current, measured by a 0 V source, is copied into the transistor's
+    base by a current-controlled source with gain CTR / (BF + 1): in the
+    active region the collector current is CTR x IF, and the transistor
+    saturates as a real one does when the load limits it. The junction
+    capacitances give switching times of microseconds; CTR does not change
+    with IF or temperature. Approximate model.
+    """
+    a, k, c, e = (1, 2, 5, 4) if base else (1, 2, 4, 3)
+    graphics = [
+        {"rect": [-4, -4, 8, 8]},
+        # LED from A (pin 1, top left) to K (pin 2, bottom left).
+        {"line": [-6, -2, -2, -2]}, {"line": [-2, -2, -2, -0.8]},
+        {"polygon": [-2.8, -0.8, -1.2, -0.8, -2, 0.6]}, {"line": [-2.8, 0.6, -1.2, 0.6]},
+        {"line": [-2, 0.6, -2, 2]}, {"line": [-2, 2, -6, 2]},
+        # Its light falling on the phototransistor.
+        {"line": [-0.9, -1.0, 0.4, -1.0]}, {"polygon": [0.8, -1.0, 0.2, -1.3, 0.2, -0.7], "fill": True},
+        {"line": [-0.9, -0.2, 0.4, -0.2]}, {"polygon": [0.8, -0.2, 0.2, -0.5, 0.2, 0.1], "fill": True},
+        # NPN phototransistor: C (top right), E (bottom right) with its arrow.
+        {"line": [1.4, -1.4, 1.4, 1.4]}, {"line": [1.4, -0.6, 2.8, -2]}, {"line": [2.8, -2, 6, -2]},
+        {"line": [1.4, 0.6, 2.8, 2]}, {"line": [2.8, 2, 6, 2]},
+        {"polygon": [2.5, 1.7, 1.87, 1.49, 2.29, 1.07], "fill": True},
+        {"text": str(a), "at": [-5, -2.6], "size": 0.6}, {"text": str(k), "at": [-5, 1.4], "size": 0.6},
+        {"text": str(c), "at": [5, -2.6], "size": 0.6}, {"text": str(e), "at": [5, 1.4], "size": 0.6},
+    ]
+    pins = [{"name": "A", "at": [-6, -2], "dir": "left"}, {"name": "K", "at": [-6, 2], "dir": "left"},
+            {"name": "C", "at": [6, -2], "dir": "right"}, {"name": "E", "at": [6, 2], "dir": "right"}]
+    if base:
+        # The base, out of the bar and down to pin 6 under the body.
+        graphics += [{"line": [1.4, 0.4, 1, 0.4]}, {"line": [1, 0.4, 1, 5]}, {"text": "6", "at": [1.6, 4.6], "size": 0.6}]
+        pins.append({"name": "B", "at": [1, 5], "dir": "down", "optional": True})
+    if base:
+        name, ctr, ctr_text = "Optocoupler 4N25", "50", (
+            "Current transfer ratio, collector current over LED current (4N25: at least 20 % at 10 mA, typically 50 %)")
+        description = ("Optocoupler 4N25 (DIP-6): an infrared LED (A pin 1, K pin 2) lights an NPN phototransistor "
+                       "(C pin 5, E pin 4, base pin 6, which may stay open or take a resistor to E for faster "
+                       "switching). The collector current is CTR x the LED current until the transistor saturates; "
+                       "about 1.2 V across the LED at 10 mA, switching in microseconds. Approximate model")
+    else:
+        name, ctr, ctr_text = "Optocoupler PC817", "100", (
+            "Current transfer ratio, collector current over LED current (PC817 at 5 mA: rank A 80-160 %, "
+            "B 130-260 %, C 200-400 %, D 300-600 %)")
+        description = ("Optocoupler PC817 (DIP-4): an infrared LED (A pin 1, K pin 2) lights an NPN "
+                       "phototransistor (C pin 4, E pin 3). The collector current is CTR x the LED current until "
+                       "the transistor saturates; about 1.2 V across the LED at 10 mA, switching in microseconds. "
+                       "Approximate model")
+    b = "{node:B}" if base else "b_{ref}"
+    return {
+        "type": type_,
+        "name": name,
+        "category": CATEGORY,
+        "prefix": "U",
+        "description": description,
+        "symbol": {"graphics": graphics, "pins": pins},
+        # Above the body: wires leave at both sides and below (the 4N25's base).
+        "designator_offset": [-1, -5],
+        "value_offset": [1, -5],
+        "value_parameter": "CTR",
+        "parameters": [{"name": "CTR", "label": "CTR", "unit": "%", "default": ctr, "description": ctr_text,
+                        "min": "1", "max": "1000", "symbol": "CTR"}],
+        "spice": [
+            "D_{ref} {node:A} a_{ref} OPTO_IRLED",
+            "V_{ref}_led a_{ref} {node:K} DC 0",
+            f"F_{{ref}} {{node:C}} {b} V_{{ref}}_led {{= CTR / 100 / 301}}",
+            f"Q_{{ref}} {{node:C}} {b} {{node:E}} OPTO_PHOTO_NPN",
+        ],
+        "models": [
+            ".model OPTO_IRLED D(IS=1e-13 N=1.8 RS=0.8 BV=6 IBV=10u CJO=20p)",
+            ".model OPTO_PHOTO_NPN NPN(IS=1e-14 BF=300 VAF=100 CJE=10p CJC=20p RB=10 RC=10)",
+        ],
+        "live": [{"label": "I", "kind": "current", "element": "V_{ref}_led", "unit": "A"}],
+    }
+
+
+PARTS = [lm2596, lm2596_module, tl494, max485, max232, lambda: buzzer(True), lambda: buzzer(False), irlz44n,
+         lambda: optocoupler("pc817", False), lambda: optocoupler("opto_4n25", True)]
 
 
 def main():

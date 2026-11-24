@@ -174,5 +174,6 @@
     "R_{ref}_o z_{ref} {node:Y} 50",
     "R_{ref}_a {node:A} 0 1G",
     "R_{ref}_b {node:B} 0 1G"
-  ]
+  ],
+  "hidden_ground": true
 }

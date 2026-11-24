@@ -12,7 +12,7 @@ run `simnodus.exe`. Both work offline.
 
 ## 2. Open an example
 
-File > Examples > **01 LED and push button**, then press **F5**. Hold the
+File > Examples > Analog circuits > **01 LED and push button**, then press **F5**. Hold the
 mouse button on the push button: the LED lights. Shift+F5 stops.
 
 ## 3. Draw your own circuit
@@ -38,7 +38,7 @@ DC source (example 02).
 
 ## 5. Run firmware
 
-File > Examples > **07 Blue Pill blink**, then F5: the board's PC13 LED and
+File > Examples > Blue Pill (STM32F103) > **07 Blue Pill blink**, then F5: the board's PC13 LED and
 the LED on PA0 blink. In your own circuit, place **Blue Pill (STM32F103C8)**,
 ground a G pin and choose your `.elf` with **Browse...** in Properties. See
 the [microcontroller page](MICROCONTROLLER.md).
