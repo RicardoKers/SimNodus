@@ -8,7 +8,8 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 
 ## Where we are
 
-- **Release 0.20.0 being published on 2026-11-24** (asked by the owner after
+- **Release 0.20.0 published on 2026-11-24** (tag `v0.20.0`, GitHub release with
+  `SimNodus-0.20.0-windows-x64.zip` and `-setup.exe`), asked by the owner after
   his test of the 2026-11-24 preview):
   - SN-305..SN-310 (owner's requests): the examples in seven category
     folders (File > Examples submenus; projects name `../firmware/...`); a
